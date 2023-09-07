@@ -5,6 +5,9 @@ import api from "@/helpers/endpoint";
 import { Service } from '../../types/enums';
 import Question from '../../../../common/types/question';
 import QuestionTable from "../../components/QuestionTable";
+import router from "next/router";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
     title: 'Questions',
@@ -30,13 +33,28 @@ const columns = [
     },
 ];
 
+async function handleEdit(id:string) {
+    "use server";
+    console.log('edit:' + id)
+    revalidateTag('questions') 
+    redirect(`/questions/${id}/edit`)
+}
+
+async function handleDelete(id:string) {
+    "use server";
+    console.log('del:' + id)
+
+    await api({method:'DELETE', service:Service.QUESTION, path:id})
+    revalidateTag('questions')
+}
+
 export default async function QuestionsPage() {
     // api call to question service
-    const questions: Question[] = await api({method:'GET', service:Service.QUESTION, path:''})
+    const questions: Question[] = await api({method:'GET', service:Service.QUESTION, path:'', tags: ['questions']})
     
     return (
         <>
-            <QuestionTable questions={questions}></QuestionTable>
+            <QuestionTable questions={questions} editCallback={handleEdit} deleteCallback={handleDelete}></QuestionTable>
         </>
     );
 }

@@ -7,10 +7,12 @@ type apiConfig = {
     method: string,
     service: Service,
     path: string,
-    body?: {}
+    body?: {},
+    tags?: string[], // cache scope
 }
 
 /**
+ * Consider using Middleware
  * Production: service_api_url/<path>
  * Development: localhost:<service_ports>/<path>
  * @param service 
@@ -39,6 +41,9 @@ export const api = async (config: apiConfig) => {
             ...(config.body ? { 'Content-Type': 'application/json' } : {}),
           },
         body:JSON.stringify(config.body),
+        next: {
+            tags: config.tags
+        }
     })
 
     if (!res.ok) {

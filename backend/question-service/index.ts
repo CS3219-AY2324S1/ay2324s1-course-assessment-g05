@@ -15,17 +15,46 @@ app.use(cors(options));
 app.use(express.json());
 app.use(morgan('combined'));
 
-let port =  process.env.PORT;
+let port = process.env.PORT;
+
+var dummy: Question[] = [{
+  id: '1',
+  title: 'test',
+  complexity: 'test'
+},
+{
+  id: '2',
+  title: 'test',
+  complexity: 'test'
+}, {
+  id: '3',
+  title: 'test',
+  complexity: 'test'
+}]
 
 app.get('/', (req: Request, res: Response) => {
-    var q:Question[] = [
-      {
-        id: '121',
-        title: 'test',
-        complexity: 'test'
-      }
-    ]
-    res.send(q);
+  res.send(dummy);
+});
+
+app.delete("/:id", (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const toBeDeleted = dummy.findIndex((object) => {
+    return object.id === id;
+  });
+
+  if (toBeDeleted !== -1) {
+    dummy.splice(toBeDeleted, 1);
+    res.status(200).json({
+      message: 'deleted',
+    })
+  } else {
+    res.status(500).json({
+      message: 'error',
+    })
+  }
+
+  
 });
 
 app.listen(port, () => {
