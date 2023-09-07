@@ -8,6 +8,8 @@ import QuestionTable from "../../components/QuestionTable";
 import router from "next/router";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { type } from "os";
+import { RedirectType } from "next/dist/client/components/redirect";
 
 export const metadata: Metadata = {
     title: 'Questions',
