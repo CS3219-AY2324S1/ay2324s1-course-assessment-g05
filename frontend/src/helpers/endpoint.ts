@@ -35,22 +35,27 @@ export const api = async (config: apiConfig) => {
 
     logger.debug(`${config.method}: [${endpoint}] \n${config.body || ''}`);
 
-    const res = await fetch(endpoint, {
-        method: config.method,
-        headers: {
-            ...(config.body ? { 'Content-Type': 'application/json' } : {}),
-          },
-        body:JSON.stringify(config.body),
-        next: {
-            tags: config.tags
-        }
-    })
-
-    if (!res.ok) {
-        throw new Error('Failed to fetch data')
-    }
+    try {
+        const res = await fetch(endpoint, {
+            method: config.method,
+            headers: {
+                ...(config.body ? { 'Content-Type': 'application/json' } : {}),
+              },
+            body:JSON.stringify(config.body),
+            next: {
+                tags: config.tags
+            }
+        })
     
-    return  res.json();
+        if (!res.ok) {
+            return [];
+        }
+        
+        return  res.json();
+    } catch (error) {
+        return [];
+    }
+
 }
 
 export default api;

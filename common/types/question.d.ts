@@ -1,4 +1,4 @@
-interface Question {
+type Question = {
     id: string,
     title: string,
     complexity: string,
