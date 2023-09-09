@@ -1,7 +1,8 @@
 'use client'
 import React from "react";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tooltip } from "@nextui-org/react";
-import Question from "../../../common/types/question";
+import Question from "../../../../common/types/question";
+import ModifyQuestionModal from "./ModifyQuestionModal";
 
 const columns = [
     {
@@ -69,6 +70,7 @@ export default function QuestionTable({ questions, readonly = false, editCallbac
 
     return (
         <>
+            <ModifyQuestionModal></ModifyQuestionModal>
             <Table aria-label="table of questions">
                 <TableHeader columns={columns}>
                     {(column) =>

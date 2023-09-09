@@ -4,7 +4,7 @@ import { getLogger } from "@/helpers/logger";
 import api from "@/helpers/endpoint";
 import { Service } from '../../../types/enums';
 import Question from '../../../../../common/types/question';
-import QuestionTable from "../../../components/QuestionTable";
+import QuestionTable from "../../../components/question/QuestionTable";
 import router from "next/router";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
