@@ -26,6 +26,13 @@ export const deleteUserById = async (request: Request, response: Response) => {
       },
     });
 
-    response.status(HttpStatusCode.NO_CONTENT);
-  } catch (error) {}
+    response.status(HttpStatusCode.NO_CONTENT).send();
+  } catch (error) {
+    // log the error
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "INTERNAL SERVER ERROR",
+      message: "An unexpected error has occurred.",
+    });
+  }
 };

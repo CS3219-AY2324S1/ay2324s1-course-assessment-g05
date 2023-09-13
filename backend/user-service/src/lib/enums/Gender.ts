@@ -1,3 +1,5 @@
+import { ZodError, ZodIssue, ZodIssueCode } from "zod";
+
 enum Gender {
   MALE = "male",
   FEMALE = "female",
@@ -13,7 +15,7 @@ export const convertStringToGender = (gender: string) => {
     case "other":
       return Gender.OTHER;
     default:
-      throw new Error("Invalid gender");
+      throw new ZodError([{ message: "Invalid gender" } as ZodIssue]);
   }
 };
 

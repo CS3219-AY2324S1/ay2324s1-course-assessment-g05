@@ -1,3 +1,5 @@
+import { ZodError, ZodIssue } from "zod";
+
 enum Role {
   ADMIN = "ADMIN",
   USER = "USER",
@@ -10,7 +12,7 @@ export const convertStringToRole = (role: string): Role => {
     case "USER":
       return Role.USER;
     default:
-      throw new Error("Invalid role");
+      throw new ZodError([{ message: "Invalid role" } as ZodIssue]);
   }
 };
 

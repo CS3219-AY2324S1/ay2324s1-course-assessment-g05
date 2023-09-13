@@ -42,17 +42,7 @@ export const getUserById = async (request: Request, response: Response) => {
       return;
     }
 
-    const userProfile: UserProfile = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: convertStringToRole(user.role),
-      gender: user.gender ? convertStringToGender(user.gender) : undefined,
-      image: user.image || undefined,
-      bio: user.bio || undefined,
-      createdOn: user.createdOn,
-      updatedOn: user.updatedOn,
-    };
+    const userProfile = parseDbUserToUserProfile(user);
 
     response.status(HttpStatusCode.OK).json(userProfile);
   } catch (error) {
@@ -94,17 +84,7 @@ export const getUserByEmail = async (request: Request, response: Response) => {
       return;
     }
 
-    const userProfile: UserProfile = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: convertStringToRole(user.role),
-      gender: user.gender ? convertStringToGender(user.gender) : undefined,
-      image: user.image || undefined,
-      bio: user.bio || undefined,
-      createdOn: user.createdOn,
-      updatedOn: user.updatedOn,
-    };
+    const userProfile: UserProfile = parseDbUserToUserProfile(user);
 
     response.status(HttpStatusCode.OK).json(userProfile);
   } catch (error) {
@@ -113,6 +93,7 @@ export const getUserByEmail = async (request: Request, response: Response) => {
         error: "BAD REQUEST",
         message: "Invalid input email.",
       });
+      return;
     }
     // log the error
     console.log(error);
@@ -122,3 +103,27 @@ export const getUserByEmail = async (request: Request, response: Response) => {
     });
   }
 };
+
+function parseDbUserToUserProfile(user: {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  image: string | null;
+  bio: string | null;
+  gender: string | null;
+  createdOn: Date;
+  updatedOn: Date;
+}): UserProfile {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: convertStringToRole(user.role),
+    gender: user.gender ? convertStringToGender(user.gender) : undefined,
+    image: user.image || undefined,
+    bio: user.bio || undefined,
+    createdOn: user.createdOn,
+    updatedOn: user.updatedOn,
+  };
+}

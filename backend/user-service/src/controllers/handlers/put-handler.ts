@@ -5,6 +5,7 @@ import { db } from "../../lib/db";
 import { UserProfile } from "../../models/user";
 import { convertStringToRole } from "../../lib/enums/Role";
 import { convertStringToGender } from "../../lib/enums/Gender";
+import { ZodError } from "zod";
 
 export const updateUserById = async (request: Request, response: Response) => {
   try {
@@ -38,6 +39,7 @@ export const updateUserById = async (request: Request, response: Response) => {
 
     const existingUserWithSameEmail = await db.user.findFirst({
       where: {
+        id: { not: userId },
         email: updateUserBody.email,
       },
     });
@@ -56,9 +58,9 @@ export const updateUserById = async (request: Request, response: Response) => {
       role: convertStringToRole(updateUserBody.role || user.role),
       image: updateUserBody.image || user.image || undefined,
       bio: updateUserBody.bio || user.bio || undefined,
-      gender: updateUserBody.gender
-        ? convertStringToGender(updateUserBody.gender)
-        : user.gender || undefined,
+      gender:
+        updateUserBody.gender ||
+        (user.gender ? convertStringToGender(user.gender) : undefined),
     };
 
     await db.user.update({
@@ -75,8 +77,16 @@ export const updateUserById = async (request: Request, response: Response) => {
       },
     });
 
-    response.status(HttpStatusCode.NO_CONTENT);
+    response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
+    if (error instanceof ZodError) {
+      console.log(error.message);
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Invalid input request body.",
+      });
+      return;
+    }
     // log the error
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({

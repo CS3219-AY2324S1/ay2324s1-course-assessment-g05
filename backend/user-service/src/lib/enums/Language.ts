@@ -1,3 +1,5 @@
+import { ZodError, ZodIssue } from "zod";
+
 enum Language {
   CPP = "CPP",
   PYTHON = "Python",
@@ -29,7 +31,7 @@ export const convertStringToLanguage = (language: string): Language => {
     case "Go":
       return Language.GO;
     default:
-      throw new Error("Invalid language");
+      throw new ZodError([{ message: "Invalid language" } as ZodIssue]);
   }
 };
 
