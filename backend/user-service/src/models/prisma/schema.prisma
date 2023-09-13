@@ -20,6 +20,6 @@ model User {
   bio    String?
   gender String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdOn DateTime @default(now())
+  updatedOn DateTime @updatedAt
 }

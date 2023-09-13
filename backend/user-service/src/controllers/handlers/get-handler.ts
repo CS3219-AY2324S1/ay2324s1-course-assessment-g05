@@ -5,6 +5,8 @@ import { UserProfile } from "../../models/user";
 import { convertStringToRole } from "../../lib/enums/Role";
 import { db } from "../../lib/db";
 import { convertStringToGender } from "../../lib/enums/Gender";
+import { EmailValidator } from "../../lib/validators/EmailValidator";
+import { ZodError } from "zod";
 
 export const getHealth = async (_: Request, response: Response) => {
   try {
@@ -45,10 +47,11 @@ export const getUserById = async (request: Request, response: Response) => {
       name: user.name,
       email: user.email,
       role: convertStringToRole(user.role),
-
-      image: user.image ? user.image : undefined,
-      bio: user.bio ? user.bio : undefined,
       gender: user.gender ? convertStringToGender(user.gender) : undefined,
+      image: user.image || undefined,
+      bio: user.bio || undefined,
+      createdOn: user.createdOn,
+      updatedOn: user.updatedOn,
     };
 
     response.status(HttpStatusCode.OK).json(userProfile);
@@ -64,12 +67,22 @@ export const getUserById = async (request: Request, response: Response) => {
 
 export const getUserByEmail = async (request: Request, response: Response) => {
   try {
-    const email = request.params.email;
+    const email = request.query.email as string;
+
+    if (!email) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Email is missing in the query parameter.",
+      });
+      return;
+    }
+
+    const parsedEmail = EmailValidator.parse(email);
 
     // query database for user with email
     const user = await db.user.findFirst({
       where: {
-        email,
+        email: parsedEmail,
       },
     });
 
@@ -86,14 +99,21 @@ export const getUserByEmail = async (request: Request, response: Response) => {
       name: user.name,
       email: user.email,
       role: convertStringToRole(user.role),
-
-      image: user.image ? user.image : undefined,
-      bio: user.bio ? user.bio : undefined,
       gender: user.gender ? convertStringToGender(user.gender) : undefined,
+      image: user.image || undefined,
+      bio: user.bio || undefined,
+      createdOn: user.createdOn,
+      updatedOn: user.updatedOn,
     };
 
     response.status(HttpStatusCode.OK).json(userProfile);
   } catch (error) {
+    if (error instanceof ZodError) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Invalid input email.",
+      });
+    }
     // log the error
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({

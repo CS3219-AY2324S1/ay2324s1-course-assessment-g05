@@ -1,4 +1,5 @@
 import Role from "../lib/enums/Role";
+import Gender from "../lib/enums/Gender";
 // import Language from "../lib/enums/Language";
 
 type UserProfile = {
@@ -12,6 +13,6 @@ type UserProfile = {
   bio?: string;
   // languages?: Language[];
   image?: string;
-  createdOn?: number;
-  updatedOn?: number;
+  createdOn?: Date;
+  updatedOn?: Date;
 };
