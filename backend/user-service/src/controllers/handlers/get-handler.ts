@@ -4,21 +4,19 @@ import HttpStatusCode from "../../lib/HttpStatusCode";
 import { UserProfile } from "../../models/user";
 import { convertStringToRole } from "../../lib/enums/Role";
 import { db } from "../../lib/db";
+import { convertStringToGender } from "../../lib/enums/Gender";
 
 export const getHealth = async (_: Request, response: Response) => {
   try {
     if (typeof db.$disconnect !== "function") {
-      response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-        error: "INTERNAL SERVER ERROR",
-        message: "No database connection.",
-      });
+      throw new Error("No database connection from the server.");
     }
     response.status(HttpStatusCode.OK).json({ message: "Healthy" });
   } catch (error) {
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",
-      message: "An unexpected error has occurred.",
+      message: "No database connection from the server.",
     });
   }
 };
@@ -49,6 +47,8 @@ export const getUserById = async (request: Request, response: Response) => {
       role: convertStringToRole(user.role),
 
       image: user.image ? user.image : undefined,
+      bio: user.bio ? user.bio : undefined,
+      gender: user.gender ? convertStringToGender(user.gender) : undefined,
     };
 
     response.status(HttpStatusCode.OK).json(userProfile);
@@ -86,7 +86,10 @@ export const getUserByEmail = async (request: Request, response: Response) => {
       name: user.name,
       email: user.email,
       role: convertStringToRole(user.role),
+
       image: user.image ? user.image : undefined,
+      bio: user.bio ? user.bio : undefined,
+      gender: user.gender ? convertStringToGender(user.gender) : undefined,
     };
 
     response.status(HttpStatusCode.OK).json(userProfile);

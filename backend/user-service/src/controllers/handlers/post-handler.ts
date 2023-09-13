@@ -9,6 +9,16 @@ export const postUser = async (request: Request, response: Response) => {
   try {
     const createUserBody = CreateUserValidator.parse(request.body);
 
+    const inputBodyKeys = Object.keys(request.body).sort();
+    const parsedBodyKeys = Object.keys(createUserBody).sort();
+
+    if (JSON.stringify(inputBodyKeys) !== JSON.stringify(parsedBodyKeys)) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Invalid properties in request body.",
+      });
+    }
+
     // check no duplicate email
     const existingUser = await db.user.findFirst({
       where: {
@@ -29,6 +39,8 @@ export const postUser = async (request: Request, response: Response) => {
         email: createUserBody.email,
         role: convertStringToRole(createUserBody.role),
         image: createUserBody.image,
+        bio: createUserBody.bio,
+        gender: createUserBody.gender,
       },
     });
 

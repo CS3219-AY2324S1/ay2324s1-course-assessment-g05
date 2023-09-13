@@ -8,8 +8,10 @@ type UserProfile = {
   role: Role; //enum
 
   //optional attributes
+  gender?: Gender;
+  bio?: string;
   // languages?: Language[];
   image?: string;
-  createdAt?: number;
-  updatedAt?: number;
+  createdOn?: number;
+  updatedOn?: number;
 };

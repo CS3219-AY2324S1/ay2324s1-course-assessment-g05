@@ -4,11 +4,22 @@ import { UpdateUserValidator } from "../../lib/validators/UpdateUserValidator";
 import { db } from "../../lib/db";
 import { UserProfile } from "../../models/user";
 import { convertStringToRole } from "../../lib/enums/Role";
+import { convertStringToGender } from "../../lib/enums/Gender";
 
 export const updateUserById = async (request: Request, response: Response) => {
   try {
     const userId = request.params.userId;
     const updateUserBody = UpdateUserValidator.parse(request.body);
+
+    const inputBodyKeys = Object.keys(request.body).sort();
+    const parsedBodyKeys = Object.keys(updateUserBody).sort();
+
+    if (JSON.stringify(inputBodyKeys) !== JSON.stringify(parsedBodyKeys)) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Invalid properties in request body.",
+      });
+    }
 
     // query database for user with id
     const user = await db.user.findFirst({
@@ -44,6 +55,10 @@ export const updateUserById = async (request: Request, response: Response) => {
       email: updateUserBody.email || user.email,
       role: convertStringToRole(updateUserBody.role || user.role),
       image: updateUserBody.image || user.image || undefined,
+      bio: updateUserBody.bio || user.bio || undefined,
+      gender: updateUserBody.gender
+        ? convertStringToGender(updateUserBody.gender)
+        : user.gender || undefined,
     };
 
     await db.user.update({
@@ -55,6 +70,8 @@ export const updateUserById = async (request: Request, response: Response) => {
         email: updatedUser.email,
         role: updatedUser.role,
         image: updatedUser.image,
+        bio: updatedUser.bio,
+        gender: updatedUser.gender,
       },
     });
 
