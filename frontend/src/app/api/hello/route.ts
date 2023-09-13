@@ -6,6 +6,6 @@ export async function GET() {
       message:
         "This is a testing endpoint to make sure the backend server is running.",
     },
-    { status: 200 }
+    { status: 200 },
   );
 }

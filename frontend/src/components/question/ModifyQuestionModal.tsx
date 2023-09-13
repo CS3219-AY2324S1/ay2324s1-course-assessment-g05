@@ -1,58 +1,180 @@
-import React from "react";
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Input, Select, SelectItem, Divider } from "@nextui-org/react";
-import Question from "../../../../common/types/question";
+import React, { FormEvent, useEffect } from "react";
+import useSWR from "swr";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  Input,
+  Select,
+  SelectItem,
+  Chip,
+} from "@nextui-org/react";
 import QuestionDescription from "./QuestionDescription";
+import {
+  getQuestionById,
+  postQuestion,
+  updateQuestion,
+} from "@/app/(pages)/questions/api";
+import { TOPIC, COMPLEXITY } from "@/types/enums";
+import Question from "@/types/question";
 
-export default function QuestionTable({ question, submitCallback, closeCallback }: {
-  question?: Question,
-  submitCallback?: (question: string) => void,
-  closeCallback?: () => void,
+export default function ModifyQuestionModal({
+  isOpen,
+  onOpenChange,
+  question,
+}: {
+  isOpen: boolean;
+  onOpenChange: () => void;
+  question?: Question;
 }) {
-  const editMode = question != null ? true : false;
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  // component mode and const
+  const editMode = question != null;
+  const topicSelections = Object.values(TOPIC).flatMap((k) => ({
+    label: k.toLowerCase(),
+    value: k.toLowerCase(),
+  }));
+  const complexitySelections = Object.values(COMPLEXITY).flatMap((k) => ({
+    label: k.toLowerCase(),
+    value: k.toLowerCase(),
+  }));
+  const initialState = {
+    id: "",
+    title: "",
+    complexity: ["easy"],
+    topics: new Set<string>([]),
+    description: "",
+  };
 
-  const [desc, setDesc] = React.useState('')
+  // component states
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [form, setForm] = React.useState(initialState);
 
-  async function submitChanges(formData:FormData) {
-    // 'use server'
-    console.log("desc:" + desc)
-    console.log(formData)
+  // prefill form base on mode
+  useEffect(() => {
+    if (isOpen && editMode) {
+      console.log(
+        "[ModifyQuestionModal]: prefill form with qid:" + question?.id,
+      );
+
+      setForm({
+        id: question!.id,
+        title: question!.title,
+        complexity: [question!.complexity],
+        topics: question!.topics,
+        description: question!.description || "",
+      });
+    } else {
+      console.log("[ModifyQuestionModal]: close or open with empty form");
+      setForm(initialState);
+    }
+  }, [isOpen]);
+
+  // form action
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const formData = new FormData(event.currentTarget);
+      formData.append("topics", JSON.stringify(Array.from(form.topics)));
+      formData.forEach((element) => {
+        console.log(element);
+      });
+      // formData.append('topics', JSON.stringify(topics.values))
+      // const response = editMode ? await updateQuestion(question!.id, formData) : await postQuestion(formData)
+
+      // const data = await response.json()
+      // console.log(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
     <>
-      <Button onPress={onOpen}>{editMode ? 'Edit' : 'Add'} Question</Button>
       <Modal
-        size='5xl'
+        size="5xl"
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        hideCloseButton={false}>
+        hideCloseButton={false}
+      >
         <ModalContent>
-          {(onClose) => (
+          {() => (
             <>
-              <form action={submitChanges}>
-                <ModalHeader className="flex flex-col gap-1">{editMode ? 'Edit' : 'Add'} Question</ModalHeader>
+              <form onSubmit={onSubmit}>
+                <ModalHeader className="flex flex-col gap-1">
+                  {editMode ? "Edit" : "Add"} Question
+                </ModalHeader>
                 <ModalBody>
                   <div className="flex flex-col md:flex-row gap-4">
-                    <div className="basis-1/4">
+                    <div className="flex basis-1/4">
                       <div className="flex flex-col gap-4">
                         <div className="flex flex-row gap-2">
-                        <Input
-                          type="number"
-                          label="No."
-                          labelPlacement="outside"
-                          placeholder="000"
-                          isRequired
-                          className="basis-1/3"
-                        ></Input>
-                        <Input
-                          type="text"
-                          label="Title"
-                          labelPlacement="outside"
-                          placeholder="Enter question title"
-                          isRequired
-                        ></Input>
+                          {editMode ? (
+                            <Input
+                              name="id"
+                              type="number"
+                              label="No."
+                              labelPlacement="outside"
+                              placeholder="000"
+                              className="basis-1/3"
+                              value={form.id}
+                              isReadOnly
+                            ></Input>
+                          ) : (
+                            <Input
+                              name="id"
+                              type="number"
+                              label="No."
+                              labelPlacement="outside"
+                              placeholder="000"
+                              isRequired
+                              className="basis-1/3"
+                            ></Input>
+                          )}
+                          <Input
+                            name="title"
+                            type="text"
+                            label="Title"
+                            labelPlacement="outside"
+                            placeholder="Enter question title"
+                            value={form.title}
+                            isRequired
+                            onChange={(e) =>
+                              setForm({
+                                ...form,
+                                title: e.target.value,
+                              })
+                            }
+                          ></Input>
                         </div>
+                        <Select
+                          name="complexity"
+                          isRequired
+                          label="Complexity"
+                          labelPlacement="outside"
+                          placeholder="Choose a complexity level"
+                          selectedKeys={form.complexity}
+                          className="max-w-xs"
+                          items={complexitySelections}
+                          onChange={(e) =>
+                            setForm({
+                              ...form,
+                              complexity: [e.target.value],
+                            })
+                          }
+                        >
+                          {(level) => (
+                            <SelectItem key={level.value}>
+                              {level.label}
+                            </SelectItem>
+                          )}
+                        </Select>
                         <Select
                           isRequired
                           label="Topics"
@@ -61,31 +183,43 @@ export default function QuestionTable({ question, submitCallback, closeCallback 
                           className="max-w-xs"
                           selectionMode="multiple"
                           description="Allow multiple selections"
+                          isMultiline={true}
+                          items={topicSelections}
+                          selectedKeys={form.topics}
+                          onChange={(e) =>
+                            setForm({
+                              ...form,
+                              topics: new Set<string>(
+                                e.target.value.split(","),
+                              ),
+                            })
+                          }
                         >
-                          <SelectItem value="hashmap" key={"hashmap"}>Hashmap</SelectItem>
-                        </Select>
-                        <Select
-                          isRequired
-                          label="Complexity"
-                          labelPlacement="outside"
-                          placeholder="Choose a complexity level"
-                          defaultSelectedKeys={["easy"]}
-                          className="max-w-xs"
-                        >
-                          <SelectItem value="easy" key={"easy"}>Easy</SelectItem>
-                          <SelectItem value="medium" key={"medium"}>Medium</SelectItem>
-                          <SelectItem value="hard" key={"hard"}>Hard</SelectItem>
+                          {(topic) => (
+                            <SelectItem key={topic.value}>
+                              {topic.label}
+                            </SelectItem>
+                          )}
                         </Select>
                       </div>
                     </div>
-                    <div className="flex-auto">
-                      <QuestionDescription value={desc} onChange={e => setDesc(e.target.value)}></QuestionDescription>
+                    <div className="flex basis-3/4">
+                      <QuestionDescription
+                        name="description"
+                        value={form.description}
+                        onChange={(e) =>
+                          setForm({
+                            ...form,
+                            description: e.target.value,
+                          })
+                        }
+                      ></QuestionDescription>
                     </div>
                   </div>
                 </ModalBody>
                 <ModalFooter>
-                  <Button color="primary" type="submit">
-                    Submit
+                  <Button color="primary" type="submit" disabled={isLoading}>
+                    {isLoading ? "Loading..." : "Submit"}
                   </Button>
                 </ModalFooter>
               </form>

@@ -1,64 +1,100 @@
-'use client'
+"use client";
 import React from "react";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tooltip } from "@nextui-org/react";
-import Question from "../../../../common/types/question";
+import {
+    Table,
+    TableHeader,
+    TableColumn,
+    TableBody,
+    TableRow,
+    TableCell,
+    Tooltip,
+    useDisclosure,
+    Button,
+    Chip,
+} from "@nextui-org/react";
+import Question from "../../types/question";
 import ModifyQuestionModal from "./ModifyQuestionModal";
+import { deleteQuestion } from "@/app/(pages)/questions/api";
+import { redirect } from "next/navigation";
 
-const columns = [
-    {
-        key: "id",
-        label: "NO.",
-    },
-    {
-        key: "title",
-        label: "TITLE",
-    },
-    {
-        key: "complexity",
-        label: "COMPLEXITY",
-    },
-    {
-        key: "status",
-        label: "STATUS",
-    },
-    {
-        key: "actions",
-        label: "ACTIONS",
-    },
-];
-
-export default function QuestionTable({ questions, readonly = false, editCallback, deleteCallback }: {
-    questions: Question[],
-    readonly?: Boolean,
-    editCallback?: (id: string) => void,
-    deleteCallback?: (id: string) => void
+export default function QuestionTable({
+    questions,
+    readonly = false,
+}: {
+    questions: Question[];
+    readonly?: Boolean;
 }) {
-    const renderCell = React.useCallback((item: Question, columnKey: string, 
-        readonly: Boolean, 
-        editCallback?: (id: string) => void,
-        deleteCallback?: (id: string) => void) => {
+    const columns = [
+        {
+            key: "id",
+            label: "NO.",
+        },
+        {
+            key: "title",
+            label: "TITLE",
+        },
+        {
+            key: "complexity",
+            label: "COMPLEXITY",
+        },
+        {
+            key: "topics",
+            label: "TOPIC",
+        },
+        {
+            key: "actions",
+            label: "ACTIONS",
+        },
+    ];
+
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const [toEditQuestion, setToEditQuestion] = React.useState<Question>();
+
+    function renderCell(
+        item: Question,
+        columnKey: string,
+        readonly: Boolean,
+        deleteCallback?: (id: string) => void,
+    ) {
         const cellValue = item[columnKey as keyof Question];
 
         switch (columnKey) {
+            case "topics":
+                return (<>
+                    <div className="flex flex-row gap-1">
+                        {
+                            (cellValue as string[]).map(topic => (<Chip key={topic}>{topic}</Chip>))
+                        }
+                    </div>
+                </>)
+            
             case "actions":
                 if (readonly) {
-                    return (<></>);
+                    return <></>;
                 }
                 return (
                     <div className="relative flex items-center gap-2">
-                        <Tooltip content="Details">
+                        <Tooltip content={item.description}>
                             <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                                view
+                                Preview
                             </span>
                         </Tooltip>
                         <Tooltip content="Edit question">
-                            <span className="text-lg text-default-400 cursor-pointer active:opacity-50" onClick={e => editCallback? editCallback(item['id']) : ''}>
-                                edit
+                            <span
+                                className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                                onClick={(e) => openModal(item)}
+                            >
+                                Edit
                             </span>
                         </Tooltip>
                         <Tooltip color="danger" content="Delete question">
-                            <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={e => deleteCallback? deleteCallback(item['id']): ''}>
-                                delete
+                            <span
+                                className="text-lg text-danger cursor-pointer active:opacity-50"
+                                onClick={(e) =>
+                                    deleteCallback ? deleteCallback(item["id"]) : ""
+                                }
+                            >
+                                Delete
                             </span>
                         </Tooltip>
                     </div>
@@ -66,24 +102,51 @@ export default function QuestionTable({ questions, readonly = false, editCallbac
             default:
                 return cellValue;
         }
-    }, []);
+    }
+
+    async function handleDelete(id: string) {
+        deleteQuestion(id);
+        // use router to refresh table
+    }
+
+    function openModal(question?: Question) {
+        if (question != undefined) {
+            setToEditQuestion(question);
+        } else {
+            setToEditQuestion(undefined);
+        }
+        onOpen();
+    }
 
     return (
         <>
-            <ModifyQuestionModal></ModifyQuestionModal>
+            <Button onPress={(e) => openModal()}>Create Question</Button>
+            <ModifyQuestionModal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                question={toEditQuestion}
+            ></ModifyQuestionModal>
             <Table aria-label="table of questions">
                 <TableHeader columns={columns}>
-                    {(column) =>
-                        <TableColumn key={column.key} align={column.key === "actions" ? "center" : "start"}>
+                    {(column) => (
+                        <TableColumn
+                            key={column.key}
+                            align={column.key === "actions" ? "center" : "start"}
+                        >
                             {column.label}
-                        </TableColumn>}
+                        </TableColumn>
+                    )}
                 </TableHeader>
                 <TableBody items={questions} emptyContent={"No rows to display."}>
-                    {questions.map((row) =>
+                    {questions.map((row) => (
                         <TableRow key={row.id}>
-                            {(columnKey) => <TableCell>{renderCell(row, columnKey.toString(), false, editCallback, deleteCallback)}</TableCell>}
+                            {(columnKey) => (
+                                <TableCell>
+                                    {renderCell(row, columnKey.toString(), false, handleDelete)}
+                                </TableCell>
+                            )}
                         </TableRow>
-                    )}
+                    ))}
                 </TableBody>
             </Table>
         </>
