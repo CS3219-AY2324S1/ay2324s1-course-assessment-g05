@@ -17,12 +17,12 @@ type apiConfig = {
  * @param path
  */
 export const api = async (config: apiConfig) => {
-  let host = "localhost";
+  const host = process.env.NODE_ENV == 'production'? process.env.ENDPOINT_PROD : process.env.ENDPOINT_DEV;
 
   let servicePort = ":";
   switch (config.service) {
     case SERVICE.QUESTION:
-      servicePort += "8001" || "";
+      servicePort += process.env.ENDPOINT_QUESTION_PORT || "";
       break;
     default:
       servicePort = "";
