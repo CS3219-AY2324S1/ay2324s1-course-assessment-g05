@@ -11,6 +11,7 @@ import {
     useDisclosure,
     Button,
     Chip,
+    Link,
 } from "@nextui-org/react";
 import Question from "../../types/question";
 import ModifyQuestionModal from "./ModifyQuestionModal";
@@ -59,6 +60,12 @@ export default function QuestionTable({
         const cellValue = item[columnKey as keyof Question];
 
         switch (columnKey) {
+            case "title":
+                return (
+                    <>
+                        <Link href={"questions/" + item.id}>{cellValue}</Link>
+                    </>
+                )
             case "topics":
                 return (<>
                     <div className="flex flex-row gap-1">

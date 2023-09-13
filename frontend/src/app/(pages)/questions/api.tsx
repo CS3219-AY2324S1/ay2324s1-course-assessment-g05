@@ -47,6 +47,7 @@ export async function getQuestionList() {
  */
 export async function getQuestionById(id: string) {
   return {
+    id: "1",
     title: "test",
     topics: ["greedy", "array"],
     complexity: "hard",
