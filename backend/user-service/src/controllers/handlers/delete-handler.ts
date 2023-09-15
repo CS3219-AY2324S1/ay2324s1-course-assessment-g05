@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { db } from "../../lib/db";
+import db from "../../lib/db";
 import HttpStatusCode from "../../lib/HttpStatusCode";
 
 export const deleteUserById = async (request: Request, response: Response) => {
@@ -18,6 +18,7 @@ export const deleteUserById = async (request: Request, response: Response) => {
         error: "NOT FOUND",
         message: `User with id ${userId} cannot be found.`,
       });
+      return;
     }
 
     await db.user.delete({

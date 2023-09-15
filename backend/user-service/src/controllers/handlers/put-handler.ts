@@ -1,15 +1,21 @@
 import { Request, Response } from "express";
 import HttpStatusCode from "../../lib/HttpStatusCode";
 import { UpdateUserValidator } from "../../lib/validators/UpdateUserValidator";
-import { db } from "../../lib/db";
-import { UserProfile } from "../../models/user";
-import { convertStringToRole } from "../../lib/enums/Role";
-import { convertStringToGender } from "../../lib/enums/Gender";
+import db from "../../lib/db";
 import { ZodError } from "zod";
 
 export const updateUserById = async (request: Request, response: Response) => {
   try {
     const userId = request.params.userId;
+
+    if (!request.body || Object.keys(request.body).length === 0) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Request body is missing.",
+      });
+      return;
+    }
+
     const updateUserBody = UpdateUserValidator.parse(request.body);
 
     const inputBodyKeys = Object.keys(request.body).sort();
@@ -20,6 +26,7 @@ export const updateUserById = async (request: Request, response: Response) => {
         error: "BAD REQUEST",
         message: "Invalid properties in request body.",
       });
+      return;
     }
 
     // query database for user with id
@@ -49,32 +56,14 @@ export const updateUserById = async (request: Request, response: Response) => {
         error: "CONFLICT",
         message: `User with email ${updateUserBody.email} already exists.`,
       });
+      return;
     }
-
-    const updatedUser: UserProfile = {
-      id: user.id,
-      name: updateUserBody.name || user.name,
-      email: updateUserBody.email || user.email,
-      role: convertStringToRole(updateUserBody.role || user.role),
-      image: updateUserBody.image || user.image || undefined,
-      bio: updateUserBody.bio || user.bio || undefined,
-      gender:
-        updateUserBody.gender ||
-        (user.gender ? convertStringToGender(user.gender) : undefined),
-    };
 
     await db.user.update({
       where: {
         id: userId,
       },
-      data: {
-        name: updatedUser.name,
-        email: updatedUser.email,
-        role: updatedUser.role,
-        image: updatedUser.image,
-        bio: updatedUser.bio,
-        gender: updatedUser.gender,
-      },
+      data: updateUserBody,
     });
 
     response.status(HttpStatusCode.NO_CONTENT).send();

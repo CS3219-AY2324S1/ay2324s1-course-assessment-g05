@@ -3,7 +3,7 @@ import HttpStatusCode from "../../lib/HttpStatusCode";
 
 import { UserProfile } from "../../models/user";
 import { convertStringToRole } from "../../lib/enums/Role";
-import { db } from "../../lib/db";
+import db from "../../lib/db";
 import { convertStringToGender } from "../../lib/enums/Gender";
 import { EmailValidator } from "../../lib/validators/EmailValidator";
 import { ZodError } from "zod";

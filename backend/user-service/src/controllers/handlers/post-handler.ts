@@ -3,10 +3,18 @@ import { CreateUserValidator } from "../../lib/validators/CreateUserValidator";
 import { ZodError } from "zod";
 import HttpStatusCode from "../../lib/HttpStatusCode";
 import { convertStringToRole } from "../../lib/enums/Role";
-import { db } from "../../lib/db";
+import db from "../../lib/db";
 
 export const postUser = async (request: Request, response: Response) => {
   try {
+    if (!request.body || Object.keys(request.body).length === 0) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Request body is missing.",
+      });
+      return;
+    }
+
     const createUserBody = CreateUserValidator.parse(request.body);
 
     const inputBodyKeys = Object.keys(request.body).sort();
@@ -17,6 +25,7 @@ export const postUser = async (request: Request, response: Response) => {
         error: "BAD REQUEST",
         message: "Invalid properties in request body.",
       });
+      return;
     }
 
     // check no duplicate email
@@ -31,17 +40,11 @@ export const postUser = async (request: Request, response: Response) => {
         error: "BAD REQUEST",
         message: `User with email ${createUserBody.email} already exists.`,
       });
+      return;
     }
 
     await db.user.create({
-      data: {
-        name: createUserBody.name,
-        email: createUserBody.email,
-        role: convertStringToRole(createUserBody.role),
-        image: createUserBody.image,
-        bio: createUserBody.bio,
-        gender: createUserBody.gender,
-      },
+      data: createUserBody,
     });
 
     response.status(HttpStatusCode.CREATED).json({ message: "User created." });
@@ -51,6 +54,7 @@ export const postUser = async (request: Request, response: Response) => {
         error: "BAD REQUEST",
         message: error.message,
       });
+      return;
     }
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
