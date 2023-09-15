@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Poppins } from "next/font/google";
 import { Providers } from "./providers";
+import NavBar from "@/components/NavBar";
 
 const inter = Inter({ subsets: ["latin"] });
 const poppins = Poppins({ weight: ["400", "600"], subsets: ["latin"] });
@@ -20,11 +21,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="h-screen bg-background" suppressHydrationWarning={true}>
-        <Providers>
-          <h1>Nav</h1>
-          {children}
-          <h1>Footer</h1>
-        </Providers>
+        <NavBar />
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
