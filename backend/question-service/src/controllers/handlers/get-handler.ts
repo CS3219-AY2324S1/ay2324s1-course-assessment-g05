@@ -1,9 +1,12 @@
 import { Request, Response } from "express";
 import { questionsData } from "../../temp-data/questions";
 import HttpStatusCode from "../../lib/HttpStatusCode";
+import { convertStringToTopic } from "@/lib/enums/Topic";
+import { z } from "zod";
+import { QueryParamValidator } from "../../lib/validators/QueryParamValidator";
 
 export const getHealth = (_: Request, response: Response) => {
-  // check database connection is successful
+  // TODO: check database connection is successful
   const isHealthy = true;
   if (isHealthy) {
     response.status(HttpStatusCode.OK).json({ message: "Healthy" });
@@ -14,10 +17,21 @@ export const getHealth = (_: Request, response: Response) => {
   }
 };
 
-export const getQuestions = (_: Request, response: Response) => {
+export const getQuestions = (request: Request, response: Response) => {
   try {
-    // get all questions from database
-    const questions = questionsData;
+    // check if there are any query params provided and the provided values are valid
+    const { topics, complexity, author } = QueryParamValidator.parse(
+      request.query
+    );
+
+    // TODO: get all questions from database based on the filter
+    const questions = questionsData.filter((question) => {
+      return (
+        (!topics || question.topics.includes(topics as any)) &&
+        (!complexity || question.complexity === complexity) &&
+        (!author || question.author === author)
+      );
+    });
 
     response
       .status(HttpStatusCode.OK)
@@ -34,7 +48,6 @@ export const getQuestions = (_: Request, response: Response) => {
 
 export const getQuestionById = (request: Request, response: Response) => {
   try {
-    // get question by id from database
     const { questionId } = request.params;
 
     // check if the question id exists in the database
@@ -43,10 +56,10 @@ export const getQuestionById = (request: Request, response: Response) => {
     );
 
     if (!question) {
-      // handle 404 error
       response
         .status(HttpStatusCode.NOT_FOUND)
         .json({ error: "NOT FOUND", message: "Question not found." });
+      return;
     }
 
     response.status(HttpStatusCode.OK).json(question);

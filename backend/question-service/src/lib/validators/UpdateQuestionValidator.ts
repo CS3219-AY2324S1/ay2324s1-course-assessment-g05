@@ -5,8 +5,8 @@ export const UpdateQuestionValidator = z.object({
   description: z.string().min(3).max(1000).optional(),
   category: z.array(z.string()).optional(), // enum
   complexity: z.string().optional(), // enum
-  url: z.string().includes("https://leetcode.com/").optional(),
-  author: z.string().optional(),
+  url: z.string().url().optional(),
+  author: z.string().min(5).max(50).optional(),
   examples: z
     .array(
       z.object({

@@ -1,4 +1,4 @@
-import Category from "../lib/enums/Category";
+import Topic from "../lib/enums/Topic";
 import Complexity from "../lib/enums/Complexity";
 
 type Example = {
@@ -11,7 +11,7 @@ type Question = {
   id: string;
   title: string;
   description: string;
-  category: string[]; // enum
+  topics: Topic[]; // enum
   complexity: Complexity; // enum
   url: string;
   // optional attributes

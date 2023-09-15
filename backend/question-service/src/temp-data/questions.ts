@@ -1,7 +1,6 @@
-import { Question } from "@/models/question";
 import Complexity from "../lib/enums/Complexity";
 
-export const questionsData: Question[] = [
+export const questionsData = [
   {
     id: "1",
     title: "Reverse String",
@@ -21,11 +20,12 @@ export const questionsData: Question[] = [
       "1 <= s.length <= 10^5",
       "s[i] is a printable ascii character.",
     ],
-    complexity: Complexity.EASY,
-    category: ["Strings", "Algorithms"],
+    complexity: "easy",
+    topics: ["Strings", "Algorithms"],
     url: "https://leetcode.com/problems/reverse-string/",
     author: "LeetCode",
     createdOn: Date.now(),
+    updatedOn: Date.now(),
   },
   {
     id: "2",
@@ -47,8 +47,8 @@ export const questionsData: Question[] = [
       "-10^5 <= Node.val <= 10^5",
       "pos is -1 or a valid index in the linked-list.",
     ],
-    complexity: Complexity.EASY,
-    category: ["Data Structures", "Algorithms"],
+    complexity: "easy",
+    topics: ["Data Structures", "Algorithms"],
     url: "https://leetcode.com/problems/linked-list-cycle/",
     author: "LeetCode",
     createdOn: Date.now() - 1000 * 60 * 60 * 24 * 2,
@@ -73,8 +73,8 @@ export const questionsData: Question[] = [
       "1 <= s.length <= 10^5",
       "s[i] is either 'A', 'C', 'G', or 'T'.",
     ],
-    complexity: Complexity.MEDIUM,
-    category: ["Algorithms", "Bit Manipulation"],
+    complexity: "medium",
+    topics: ["Algorithms", "Bit Manipulation"],
     url: "https://leetcode.com/problems/repeated-dna-sequences/",
     author: "LeetCode",
   },
@@ -82,7 +82,7 @@ export const questionsData: Question[] = [
     id: "4",
     title: "N-Queen Problem",
     description:
-      "The N Queen is the problem of placing N chess queens on an N×N chessboard so that no two queens attack each other. For example, following is a solution for 4 Queen problem. The expected output is a binary matrix which has 1s for the blocks where queens are placed. For example, following is the output matrix for above 4 queen solution.",
+      "The N Queen is the problem of placing N chess queens on an NxN chessboard so that no two queens attack each other. For example, following is a solution for 4 Queen problem. The expected output is a binary matrix which has 1s for the blocks where queens are placed. For example, following is the output matrix for above 4 queen solution.",
     examples: [
       {
         input: "N = 4",
@@ -94,8 +94,8 @@ export const questionsData: Question[] = [
       },
     ],
     constraints: ["1 <= N <= 9"],
-    complexity: Complexity.HARD,
-    category: ["Algorithms"],
+    complexity: "hard",
+    topics: ["Algorithms"],
     url: "https://leetcode.com/problems/n-queens/",
     author: "LeetCode",
   },

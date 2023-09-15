@@ -6,18 +6,23 @@ export const deleteQuestion = (request: Request, response: Response) => {
   try {
     const { questionId } = request.params;
 
+    // Find the question to delete in the database
     const questionToDelete = questionsData.find(
       (question) => question.id === questionId
     );
 
     if (!questionToDelete) {
-      response.status(HttpStatusCode.NOT_FOUND).send("Question not found.");
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: `Question with id ${questionId} not found.`,
+      });
+      return;
     }
 
     // delete question from database
-    console.log("Delete this question: ", questionToDelete!.title);
+    console.log("Delete this question: ", questionToDelete.title);
 
-    response.status(HttpStatusCode.NO_CONTENT);
+    response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
     // log the error
     console.log(error);
