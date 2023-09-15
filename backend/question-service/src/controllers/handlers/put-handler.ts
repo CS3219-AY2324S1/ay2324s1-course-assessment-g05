@@ -11,18 +11,12 @@ import { ZodError } from "zod";
 
 export const updateQuestion = (request: Request, response: Response) => {
   try {
-    var isEmptyObject = true;
-    for (const key in request.body) {
-      if (request.body.hasOwnProperty(key)) {
-        isEmptyObject = false;
-        break;
-      }
-    }
-    if (!request.body || isEmptyObject) {
+    if (!request.body || Object.keys(request.body).length === 0) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
-        message: "Request body cannot be empty.",
+        message: "Request body is missing.",
       });
+      return;
     }
 
     const { questionId } = request.params;
@@ -31,7 +25,11 @@ export const updateQuestion = (request: Request, response: Response) => {
     var question = questionsData.find((question) => question.id === questionId);
 
     if (!question) {
-      response.status(HttpStatusCode.NOT_FOUND).send("Question not found.");
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: `Question with id ${questionId} not found.`,
+      });
+      return;
     }
 
     console.log("Original:", question);
@@ -39,6 +37,9 @@ export const updateQuestion = (request: Request, response: Response) => {
     const updatedQuestionBody: UpdateQuestionRequestBody =
       UpdateQuestionValidator.parse(request.body);
 
+    // check no existing question with the same question name in the database
+
+    // update question
     question = {
       ...question!,
       title: updatedQuestionBody.title || question!.title,
@@ -71,12 +72,13 @@ export const updateQuestion = (request: Request, response: Response) => {
     // update question in database
     console.log("Updated:", question);
 
-    response.status(HttpStatusCode.OK).json({ message: "Question updated." });
+    response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
     if (error instanceof ZodError) {
       response
         .status(HttpStatusCode.BAD_REQUEST)
         .json({ error: "BAD REQUEST", message: error.message });
+      return;
     }
 
     // log the error

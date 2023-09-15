@@ -11,9 +11,17 @@ import {
 
 export const postQuestion = (request: Request, response: Response) => {
   try {
-    console.log(request.body);
-    const createQuestionBody: CreateQuestionRequestBody =
-      CreateQuestionValidator.parse(request.body);
+    if (!request.body || Object.keys(request.body).length === 0) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Request body is missing.",
+      });
+      return;
+    }
+
+    const createQuestionBody = CreateQuestionValidator.parse(request.body);
+
+    // make sure no duplicate question exists by checking the question name in the database
 
     const question: Question = {
       id: nanoid(),
@@ -45,7 +53,9 @@ export const postQuestion = (request: Request, response: Response) => {
     // save question to database
     console.log(question);
 
-    response.status(HttpStatusCode.CREATED).send({ message: "Successful" });
+    response
+      .status(HttpStatusCode.CREATED)
+      .json({ message: "Question created." });
   } catch (error) {
     if (error instanceof ZodError) {
       response
