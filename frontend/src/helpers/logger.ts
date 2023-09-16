@@ -4,21 +4,21 @@ import pino, { Logger } from "pino";
  * Defines default log level for scope (pages etc)
  */
 const logLevelConfig = {
-    "*": "info",
-    "api": "debug",
-}
+  "*": "info",
+  api: "debug",
+};
 
 const logLevels = new Map<string, string>(Object.entries(logLevelConfig));
 
 export function getLogLevel(logger: string): string {
-    return logLevels.get(logger) || logLevels.get("*") || "info";
+  return logLevels.get(logger) || logLevels.get("*") || "info";
 }
 
 /**
  * Return a logger object
  * @param scope
- * @returns 
+ * @returns
  */
 export function getLogger(scope: string): Logger {
-    return pino({ scope, level: getLogLevel(scope) });
-  }
+  return pino({ scope, level: getLogLevel(scope) });
+}
