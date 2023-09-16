@@ -1,5 +1,5 @@
 import supertest from "supertest";
-import HttpStatusCode from "../../lib/HttpStatusCode";
+import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import createServer from "../utils/server";
 
 const app = createServer();

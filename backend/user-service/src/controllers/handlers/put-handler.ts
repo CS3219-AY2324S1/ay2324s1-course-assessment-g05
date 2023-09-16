@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import HttpStatusCode from "../../lib/HttpStatusCode";
+import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import { UpdateUserValidator } from "../../lib/validators/UpdateUserValidator";
 import db from "../../lib/db";
 import { ZodError } from "zod";

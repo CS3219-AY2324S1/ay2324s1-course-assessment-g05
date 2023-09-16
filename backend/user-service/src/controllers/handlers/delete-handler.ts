@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import db from "../../lib/db";
-import HttpStatusCode from "../../lib/HttpStatusCode";
+import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
 export const deleteUserById = async (request: Request, response: Response) => {
   try {

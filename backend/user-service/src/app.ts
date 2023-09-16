@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import router from "./routes";
 import bodyParser from "body-parser";
-import HttpStatusCode from "./lib/HttpStatusCode";
+import HttpStatusCode from "./lib/enums/HttpStatusCode";
 import cors from "./middleware/cors";
 
 dotenv.config();

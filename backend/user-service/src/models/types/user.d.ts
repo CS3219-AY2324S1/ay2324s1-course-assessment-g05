@@ -1,5 +1,5 @@
-import Role from "../lib/enums/Role";
-import Gender from "../lib/enums/Gender";
+import Role from "../../lib/enums/Role";
+import Gender from "../../lib/enums/Gender";
 // import Language from "../lib/enums/Language";
 
 type UserProfile = {

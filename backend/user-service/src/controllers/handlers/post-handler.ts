@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { CreateUserValidator } from "../../lib/validators/CreateUserValidator";
 import { ZodError } from "zod";
-import HttpStatusCode from "../../lib/HttpStatusCode";
+import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import { convertStringToRole } from "../../lib/enums/Role";
 import db from "../../lib/db";
 

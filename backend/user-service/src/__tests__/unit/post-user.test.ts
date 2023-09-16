@@ -2,7 +2,7 @@ import supertest from "supertest";
 import db from "../../lib/db";
 import * as testPayloads from "../utils/payloads";
 import createServer from "../utils/server";
-import HttpStatusCode from "../../lib/HttpStatusCode";
+import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
 const app = createServer();
 const dbMock = db;

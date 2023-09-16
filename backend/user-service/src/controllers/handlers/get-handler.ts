@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import HttpStatusCode from "../../lib/HttpStatusCode";
+import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
-import { UserProfile } from "../../models/user";
+import { UserProfile } from "../../models/types/user";
 import { convertStringToRole } from "../../lib/enums/Role";
 import db from "../../lib/db";
 import { convertStringToGender } from "../../lib/enums/Gender";

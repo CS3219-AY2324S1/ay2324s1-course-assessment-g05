@@ -1,4 +1,4 @@
-import HttpStatusCode from "../../lib/HttpStatusCode";
+import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import db from "../../lib/db";
 import supertest from "supertest";
 import createServer from "../utils/server";
