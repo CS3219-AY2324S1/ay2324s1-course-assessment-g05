@@ -101,4 +101,28 @@ describe("PUT /api/users/:userId", () => {
       expect(body.message).not.toBeNull();
     });
   });
+
+  describe("Given an existing user id with duplicated email", () => {
+    it("should return 409 with an error message in json", async () => {
+      // Arrange
+      const email = "duplicated@email.com";
+      let requestBody = testPayloads.getPostUserPayload();
+      requestBody.email = email;
+      const user = testPayloads.getUserPayload({});
+      dbMock.user.findFirst = jest
+        .fn()
+        .mockResolvedValueOnce(user)
+        .mockResolvedValueOnce(null);
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post("/api/users")
+        .send(requestBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.CONFLICT);
+      expect(body.error).toBe("CONFLICT");
+      expect(body.message).toBe(`User with email ${email} already exists.`);
+    });
+  });
 });

@@ -83,4 +83,26 @@ describe("POST /api/users", () => {
       expect(body.message).toBe("Request body is missing.");
     });
   });
+
+  describe("Given the email is duplicated", () => {
+    it("should return 409 with an error message in json", async () => {
+      // Arrange
+      const email = "duplicated@email.com";
+      let requestBody = testPayloads.getPostUserPayload();
+      requestBody.email = email;
+      dbMock.user.findFirst = jest.fn().mockReturnValue({
+        email: email,
+      });
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post("/api/users")
+        .send(requestBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.CONFLICT);
+      expect(body.error).toBe("CONFLICT");
+      expect(body.message).toBe(`User with email ${email} already exists.`);
+    });
+  });
 });
