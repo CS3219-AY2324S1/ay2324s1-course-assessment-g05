@@ -8,14 +8,16 @@ import { CLIENT_ROUTES } from "@/common/constants";
 const ProfileCard = () => {
   const router = useRouter();
   const username = UserService.getUsername();
+
+  const handleEditProfileButtonPress = () => {
+    router.push(CLIENT_ROUTES.PROFILE);
+  };
+
   return (
-    <div className="flex flex-col h-full justify-center gap-4 items-center bg-black rounded-lg p-6">
+    <div className="flex flex-col h-full justify-center gap-4 items-center bg-black rounded-lg p-6 overflow-scroll">
       <ProfilePictureAvatar size="300" />
       <p className="text-white text-3l font-semibold">{username}</p>
-      <Button
-        variant="bordered"
-        onPress={() => router.push(CLIENT_ROUTES.PROFILE)}
-      >
+      <Button variant="bordered" onPress={handleEditProfileButtonPress}>
         Edit Profile
       </Button>
     </div>

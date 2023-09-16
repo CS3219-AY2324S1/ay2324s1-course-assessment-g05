@@ -6,6 +6,13 @@ import { CLIENT_ROUTES } from "@/common/constants";
 
 const Landing = () => {
   const router = useRouter();
+  const handleLogInButtonPress = () => {
+    router.push(CLIENT_ROUTES.LOGIN);
+  };
+  const handleSignUpButtonPress = () => {
+    router.push(CLIENT_ROUTES.SIGN_UP);
+  };
+
   return (
     <div className="grid grid-cols-2 gap-5 h-screen">
       <div className="grid-col-1 relative self-center -left-1/4">
@@ -16,13 +23,13 @@ const Landing = () => {
         <div className="flex flex-row justify-start gap-4">
           <Button
             className="bg-yellow text-black w-[150px]"
-            onPress={() => router.push(CLIENT_ROUTES.LOGIN)}
+            onPress={handleLogInButtonPress}
           >
             Log In
           </Button>
           <Button
             className="bg-light-blue text-black w-[150px]"
-            onPress={() => router.push(CLIENT_ROUTES.SIGN_UP)}
+            onPress={handleSignUpButtonPress}
           >
             Sign Up
           </Button>

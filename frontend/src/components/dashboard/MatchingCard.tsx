@@ -24,8 +24,13 @@ const MatchingCard = () => {
     });
   };
 
+  //for now, get matched button will print to console keys selected
+  const handleGetMatchedButtonPress = () => {
+    MatchingService.submitMatchPreferences(preferences);
+  };
+
   return (
-    <div className="flex flex-col h-full justify-start gap-4 bg-black rounded-lg p-6 text-sm">
+    <div className="flex flex-col h-full justify-start gap-4 bg-black rounded-lg p-6 text-sm overflow-scroll">
       <p> Find a pair programmer </p>
       <Select
         name="languages"
@@ -74,7 +79,7 @@ const MatchingCard = () => {
 
       <Button
         className="bg-yellow text-black"
-        onPress={() => MatchingService.submitMatchPreferences(preferences)}
+        onPress={handleGetMatchedButtonPress}
       >
         Get Matched
       </Button>

@@ -18,6 +18,14 @@ import ProfilePictureAvatar from "./ProfilePictureAvatar";
 
 const NavBar = () => {
   const router = useRouter();
+
+  const handleEditProfileButtonPress = () => {
+    router.push(CLIENT_ROUTES.PROFILE);
+  };
+  const handleLogoutButtonPress = () => {
+    router.push(CLIENT_ROUTES.LOGOUT);
+  };
+
   return (
     <Navbar className="bg-black justify-stretch" maxWidth="full" height="50px">
       <NavbarBrand className="flex-grow-0">
@@ -43,16 +51,13 @@ const NavBar = () => {
             <DropdownSection showDivider>
               <DropdownItem
                 key="profile"
-                onClick={() => router.push(CLIENT_ROUTES.PROFILE)}
+                onClick={handleEditProfileButtonPress}
               >
                 Edit Profile
               </DropdownItem>
             </DropdownSection>
             <DropdownSection>
-              <DropdownItem
-                key="logout"
-                onClick={() => router.push(CLIENT_ROUTES.LOGOUT)}
-              >
+              <DropdownItem key="logout" onClick={handleLogoutButtonPress}>
                 Logout
               </DropdownItem>
             </DropdownSection>
