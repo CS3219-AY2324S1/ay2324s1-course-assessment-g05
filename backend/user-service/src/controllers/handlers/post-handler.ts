@@ -36,8 +36,8 @@ export const postUser = async (request: Request, response: Response) => {
     });
 
     if (existingUser) {
-      response.status(HttpStatusCode.BAD_REQUEST).json({
-        error: "BAD REQUEST",
+      response.status(HttpStatusCode.CONFLICT).json({
+        error: "CONFLICT",
         message: `User with email ${createUserBody.email} already exists.`,
       });
       return;
