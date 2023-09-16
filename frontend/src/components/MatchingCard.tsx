@@ -1,14 +1,15 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { Button, Select, SelectItem, Selection } from "@nextui-org/react";
 import { UserService } from "@/helpers/user/api_wrappers";
 import { MatchingService } from "@/helpers/matching/api_wrappers";
+import { COMPLEXITY, LANGUAGE, TOPIC } from "@/types/enums";
+import { StringUtils } from "@/utils/stringUtils";
 
 const MatchingCard = () => {
-  /* ------------------------ TODO: get from types file ----------------------- */
-  const optionsLanguages = ["C++", "Python", "Java", "Javascript"];
-  const optionsDifficulties = ["Easy", "Medium", "Hard"];
-  const optionsTopics = ["Array", "String", "Tree", "Linked List", "Graph"];
+  const optionsLanguages = StringUtils.convertEnumsToCamelCase(LANGUAGE);
+  const optionsDifficulties = StringUtils.convertEnumsToCamelCase(COMPLEXITY);
+  const optionsTopics = StringUtils.convertEnumsToCamelCase(TOPIC);
 
   const [preferences, setPreferences] = React.useState(
     UserService.getUserPreferences()
@@ -43,9 +44,9 @@ const MatchingCard = () => {
 
       <Select
         name="difficulties"
-        label="Difficulty levels"
+        label="Complexity"
         selectionMode="multiple"
-        placeholder="Select a difficulty level"
+        placeholder="Select a complexity level"
         selectedKeys={preferences.difficulties}
         onChange={handleOnSelectionChange}
       >
