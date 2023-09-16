@@ -10,7 +10,16 @@ const getUsername = () => {
   return "test user";
 };
 
+const getUserPreferences = () => {
+  return {
+    languages: ["Python", "C++"],
+    difficulties: ["Easy", "Medium"],
+    topics: ["Array", "String", "Tree"],
+  };
+};
+
 export const UserService = {
   getProfileUrl,
   getUsername,
+  getUserPreferences,
 };
