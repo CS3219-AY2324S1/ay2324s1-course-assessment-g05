@@ -32,7 +32,6 @@ const MatchingCard = () => {
         selectionMode="multiple"
         placeholder="Select a language"
         selectedKeys={preferences.languages}
-        className="max-w-xs"
         onChange={handleOnSelectionChange}
       >
         {optionsLanguages.map((value) => (
@@ -48,7 +47,6 @@ const MatchingCard = () => {
         selectionMode="multiple"
         placeholder="Select a difficulty level"
         selectedKeys={preferences.difficulties}
-        className="max-w-xs"
         onChange={handleOnSelectionChange}
       >
         {optionsDifficulties.map((value) => (
@@ -64,7 +62,6 @@ const MatchingCard = () => {
         selectionMode="multiple"
         placeholder="Select a topic"
         selectedKeys={preferences.topics}
-        className="max-w-xs"
         onChange={handleOnSelectionChange}
       >
         {optionsTopics.map((value) => (
