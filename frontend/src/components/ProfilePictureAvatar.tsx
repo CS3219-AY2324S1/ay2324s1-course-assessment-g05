@@ -1,14 +1,18 @@
+import { UserService } from "@/helpers/user/api_wrappers";
 import { Avatar } from "@nextui-org/react";
 
 interface ProfilePictureProps {
-  width?: string;
+  size?: string;
 }
 
-const ProfilePictureAvatar = ({ width = "9" }: ProfilePictureProps) => (
-  <Avatar
-    className={`transition-transform w-${width} h-${width}`}
-    src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
-  />
-);
+const ProfilePictureAvatar = ({ size = "9" }: ProfilePictureProps) => {
+  const profileUrl = UserService.getProfileUrl("test");
+  return (
+    <Avatar
+      className={`transition-transform w-${size} h-${size}`}
+      src={profileUrl}
+    />
+  );
+};
 
 export default ProfilePictureAvatar;

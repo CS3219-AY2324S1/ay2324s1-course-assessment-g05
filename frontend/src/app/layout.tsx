@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { Poppins } from "next/font/google";
 import { Providers } from "./providers";
 import NavBar from "@/components/NavBar";
+import { AuthService } from "@/helpers/auth/api_wrappers";
 
 const inter = Inter({ subsets: ["latin"] });
 const poppins = Poppins({ weight: ["400", "600"], subsets: ["latin"] });
@@ -18,10 +19,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const isAuthenticated = AuthService.validateAuth();
   return (
     <html lang="en" className="dark">
       <body className="h-screen bg-background" suppressHydrationWarning={true}>
-        <NavBar />
+        {isAuthenticated && <NavBar />}
         <Providers>{children}</Providers>
       </body>
     </html>

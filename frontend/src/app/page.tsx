@@ -1,11 +1,8 @@
-import Image from "next/image";
-import { Button } from "@nextui-org/button";
-import Link from "next/link";
+import Dashboard from "@/components/Dashboard";
+import Landing from "@/components/Landing";
+import { AuthService } from "@/helpers/auth/api_wrappers";
 
 export default function Home() {
-  return (
-    <>
-      <Link href="/questions">questions</Link>
-    </>
-  );
+  const isAuthenticated = AuthService.validateAuth();
+  return isAuthenticated ? <Dashboard /> : <Landing />;
 }
