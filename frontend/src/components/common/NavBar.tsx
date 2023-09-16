@@ -13,7 +13,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CLIENT_ROUTES } from "@/common/constants";
-import PeerPrepLogo from "@/components/PeerPrepLogo";
+import PeerPrepLogo from "@/components/common/PeerPrepLogo";
 import ProfilePictureAvatar from "./ProfilePictureAvatar";
 
 const NavBar = () => {

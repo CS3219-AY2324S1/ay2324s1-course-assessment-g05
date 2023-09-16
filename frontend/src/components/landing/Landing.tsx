@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import PeerPrepLogo from "./PeerPrepLogo";
+import PeerPrepLogo from "@/components/common/PeerPrepLogo";
 import { Button } from "@nextui-org/react";
 import { CLIENT_ROUTES } from "@/common/constants";
 

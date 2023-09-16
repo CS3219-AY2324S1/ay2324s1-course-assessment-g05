@@ -25,7 +25,7 @@ const MatchingCard = () => {
   };
 
   return (
-    <div className="flex flex-col h-full justify-start gap-4 bg-black rounded-lg p-8">
+    <div className="flex flex-col h-full justify-start gap-4 bg-black rounded-lg p-6 text-sm">
       <p> Find a pair programmer </p>
       <Select
         name="languages"
