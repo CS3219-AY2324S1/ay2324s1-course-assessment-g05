@@ -9,7 +9,7 @@ const ProfileCard = () => {
   const router = useRouter();
   const username = UserService.getUsername();
   return (
-    <div className="flex flex-col justify-center gap-4 items-center bg-black rounded-lg p-8">
+    <div className="flex flex-col h-full justify-center gap-4 items-center bg-black rounded-lg p-8">
       <ProfilePictureAvatar size="300" />
       <p className="text-white text-3l font-semibold">{username}</p>
       <Button

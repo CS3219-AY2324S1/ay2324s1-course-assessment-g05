@@ -7,20 +7,20 @@ import QuestionStatisticsCard from "./QuestionStatisticsCard";
 
 const Dashboard = () => {
   return (
-    <div className="grid grid-row-2 grid-cols-4 gap-4 p-[20px]">
-      <div className="grid-row-1 grid-col-1">
+    <div className="grid grid-rows-2 grid-cols-4 gap-4 p-[30px] h-[92vh]">
+      <div className="row-start-1 col-start-1">
         <ProfileCard />
       </div>
-      <div className="grid-row-1 grid-col-2 col-span-2">
+      <div className="row-start-1 col-start-2 col-span-2">
         <HeatmapCard />
       </div>
-      <div className="grid-row-1 grid-col-4">
+      <div className="row-start-1 col-start-4">
         <MatchingCard />
       </div>
-      <div className="grid-row-2 grid-col-1">
+      <div className="row-start-2 col-start-1">
         <StatisticsCard />
       </div>
-      <div className="grid-row-2 grid-col-2 col-span-3">
+      <div className="row-start-2 col-start-2 col-span-3">
         <QuestionStatisticsCard />
       </div>
     </div>
