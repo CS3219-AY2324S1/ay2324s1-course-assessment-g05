@@ -17,7 +17,7 @@ import {
   getQuestionById,
   postQuestion,
   updateQuestion,
-} from "@/app/(pages)/questions/api";
+} from "@/helpers/questions/services";
 import { TOPIC, COMPLEXITY } from "@/types/enums";
 import Question from "@/types/question";
 

@@ -17,7 +17,10 @@ type apiConfig = {
  * @param path
  */
 export const api = async (config: apiConfig) => {
-  const host = process.env.NODE_ENV == 'production'? process.env.ENDPOINT_PROD : process.env.ENDPOINT_DEV;
+  const host =
+    process.env.NODE_ENV == "production"
+      ? process.env.ENDPOINT_PROD
+      : process.env.ENDPOINT_DEV;
 
   let servicePort = ":";
   switch (config.service) {
