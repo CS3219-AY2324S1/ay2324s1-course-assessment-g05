@@ -30,7 +30,7 @@ const MatchingCard = () => {
   };
 
   return (
-    <div className="flex flex-col h-full justify-start gap-4 bg-black rounded-lg p-6 text-sm overflow-scroll">
+    <div className="flex flex-col h-full justify-start gap-4 bg-black rounded-lg p-6 text-sm overflow-hidden">
       <p> Find a pair programmer </p>
       <Select
         name="languages"
