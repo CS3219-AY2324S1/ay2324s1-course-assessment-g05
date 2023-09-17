@@ -203,3 +203,123 @@ No response body.
 |204|Successfully deleted the user record in the database|
 |404|The given user id cannot be found in the database|
 |500|Server error, please see log message for details|
+
+## GET /api/users/:userId/preferences
+
+This endpoints returns the languages, question difficulties, and the question topics preferences that are previously set by the user with `userId`.
+
+**Request**:
+```
+GET http://localhost:5000/api/users/clmlp93wz00007kbwvws8oynd/preferences
+```
+
+**Response**:
+```
+Status: 200 OK
+
+Response Body
+{
+  "userId": "clmlp93wz00007kbwvws8oynd",
+  "languages": [
+    "PYTHON",
+    "C++",
+    "JAVA"
+  ],
+  "difficulties": [
+    "EASY"
+  ],
+  "topics": [
+    "DYNAMIC PROGRAMMING"
+  ]
+}
+```
+
+**Possible Response Status Code**:
+|Status Code|Explanation|
+|---|---|
+|204|Successfully retrieved the preferences data|
+|404|The given user id does not exist, or the preferences are not set yet|
+|500|Server error, please see log message for details|
+
+## POST /api/users/:userId/preferences
+
+This endpoint creates the preferences record in the database. This is required when the user does not have any preferences record in the database yet. For subsequent update of preferences, please use the `PUT /preferences` endpoint.
+
+**Request Body Format**:
+```
+{
+  "languages": Array<Language>,
+  "difficulties": Array<Complexity>,
+  "topics": Array<Topic>
+}
+```
+
+**Request**:
+```
+PUT http://localhost:5000/api/users/clmlp93wz00007kbwvws8oynd/preferences
+
+Request Body:
+{
+  "languages": ["Python", "C++"],
+  "difficulties": ["Easy", "Medium"],
+  "topics": ["Dynamic Programming", "Hash Table", "String", "Memoization", "Recursion"]
+}
+```
+
+**Response**:
+```
+Status: 201 Created
+
+Response Body
+{
+  message: "User preferences created"
+}
+```
+
+**Possible Response Status Code**:
+|Status Code|Explanation|
+|---|---|
+|201|Successfully created the preferences in the database|
+|400|Invalid request body given|
+|404|The given user id does not exist|
+|409|The user preferences record is already there|
+|500|Server error, please see log message for details|
+
+## PUT /api/users/:userId/preferences
+
+This endpoint updates the user preferences, provided that there already have a preferences record in the database.
+
+**Request Body Format**:
+```
+{
+  "languages": Array<Language> | undefined,
+  "difficulties": Array<Complexity> | undefined,
+  "topics": Array<Topic> | undefined
+}
+```
+Take note that although each field can be omitted, at least one field need to be provided for a successful call.
+
+**Request**:
+```
+PUT http://localhost:5000/api/users/clmlp93wz00007kbwvws8oynd/preferences
+
+Request Body:
+{
+  "languages": ["Python", "C++", "Java"],
+  "difficulties": ["hard"],
+  "topics": ["Brain Teaser"]
+}
+```
+**Response**:
+```
+Status: 204 No Content
+
+No response body.
+```
+
+**Possible Response Status Code**:
+|Status Code|Explanation|
+|---|---|
+|204|Successfully updated the user record in the database|
+|404|The given user id does not exist, or there is no existing preferences with the user id.|
+|500|Server error, please see log message for details|
