@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import HttpStatusCode from "../../lib/HttpStatusCode";
-import { questionsData } from "../../temp-data/questions";
 import { UpdateQuestionValidator } from "../../lib/validators/UpdateQuestionValidator";
-import { Question } from "../../models/question";
 import { ZodError } from "zod";
+import coll from "../../models/database/db";
+import { ObjectId } from "mongodb";
 
-export const updateQuestion = (request: Request, response: Response) => {
+
+export const updateQuestion = async (request: Request, response: Response) => {
   try {
     if (!request.body || Object.keys(request.body).length === 0) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
@@ -17,10 +18,7 @@ export const updateQuestion = (request: Request, response: Response) => {
 
     const { questionId } = request.params;
 
-    // TODO: get the question from the database
-    var question = questionsData.find(
-      (question) => question.id === questionId
-    ) as Question;
+    const question = await coll.findOne({ _id: new ObjectId(questionId) });
 
     if (!question) {
       response.status(HttpStatusCode.NOT_FOUND).json({
@@ -29,14 +27,40 @@ export const updateQuestion = (request: Request, response: Response) => {
       });
       return;
     }
-
+    // console.log(request.body)
     const updatedQuestionBody = UpdateQuestionValidator.parse(request.body);
 
-    // TODO: check no existing question with the same question name in the database
+    // Check no existing question with the same question name in the database
+    const duplicateCheck = await coll.findOne({ "question.title": updatedQuestionBody.title });
 
-    // TODO: update question in database using the updatedQuestionBody
+    if (duplicateCheck) {
+      response
+        .status(HttpStatusCode.CONFLICT)
+        .json({ error: "CONFLICT", message: "Question title already exists" });
+      return;
+    }
 
-    response.status(HttpStatusCode.NO_CONTENT).send();
+
+    // Update question in database using the updatedQuestionBody
+    const filter = { _id: new ObjectId(questionId) }; 
+    const dbQuestionBody: { [key: string]: any }  =  {};
+    if (updatedQuestionBody.title) dbQuestionBody["question.title"] = updatedQuestionBody.title;
+    if (updatedQuestionBody.description) dbQuestionBody["question.description"] = updatedQuestionBody.description;
+    if (updatedQuestionBody.category) dbQuestionBody["question.category"] = updatedQuestionBody.category;
+    if (updatedQuestionBody.complexity) dbQuestionBody["question.complexity"] = updatedQuestionBody.complexity;
+    if (updatedQuestionBody.url) dbQuestionBody["question.url"] = updatedQuestionBody.url;
+    if (updatedQuestionBody.author) dbQuestionBody["question.author"] = updatedQuestionBody.author;
+    if (updatedQuestionBody.examples) dbQuestionBody["question.examples"] = updatedQuestionBody.examples;
+    if (updatedQuestionBody.constraints) dbQuestionBody["question.constraints"] = updatedQuestionBody.constraints;
+
+    const update = { $set: dbQuestionBody }; 
+
+    await coll.updateOne(filter, update).then(() => {
+      console.log("Succesfully updated")
+
+      response.status(HttpStatusCode.NO_CONTENT).send();
+    })
+
   } catch (error) {
     if (error instanceof ZodError) {
       response

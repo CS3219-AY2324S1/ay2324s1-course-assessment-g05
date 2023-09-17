@@ -1,14 +1,17 @@
 import { Request, Response } from "express";
-import { questionsData } from "../../temp-data/questions";
 import HttpStatusCode from "../../lib/HttpStatusCode";
 import { convertStringToTopic } from "@/lib/enums/Topic";
 import { z } from "zod";
 import { QueryParamValidator } from "../../lib/validators/QueryParamValidator";
+import coll from "../../models/database/db";
+import { ObjectId } from "mongodb";
 
-export const getHealth = (_: Request, response: Response) => {
-  // TODO: check database connection is successful
-  const isHealthy = true;
-  if (isHealthy) {
+// Check if database connection is successful
+export const getHealth = async (_: Request, response: Response) => {
+  // Try to perform a simple query on the collection. Assumption: there is at least 1 set of data in collection
+  const result = await coll.findOne({});
+  
+  if (result) {
     response.status(HttpStatusCode.OK).json({ message: "Healthy" });
   } else {
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
@@ -17,21 +20,21 @@ export const getHealth = (_: Request, response: Response) => {
   }
 };
 
-export const getQuestions = (request: Request, response: Response) => {
+// Query mulitple questions from database by filter
+export const getQuestions = async (request: Request, response: Response) => {
   try {
     // check if there are any query params provided and the provided values are valid
     const { topics, complexity, author } = QueryParamValidator.parse(
       request.query
     );
+    
+    const filters: { [key: string]: any }  =  {};
 
-    // TODO: get all questions from database based on the filter
-    const questions = questionsData.filter((question) => {
-      return (
-        (!topics || question.topics.includes(topics as any)) &&
-        (!complexity || question.complexity === complexity) &&
-        (!author || question.author === author)
-      );
-    });
+    if (topics) filters["question.topics"] = topics;
+    if (complexity) filters["question.complexity"] = complexity;
+    if (author) filters["question.author"] = author;
+
+    const questions = await coll.find(filters).toArray()
 
     response
       .status(HttpStatusCode.OK)
@@ -46,14 +49,12 @@ export const getQuestions = (request: Request, response: Response) => {
   }
 };
 
-export const getQuestionById = (request: Request, response: Response) => {
+// Query unique question from database by questionId
+export const getQuestionById = async (request: Request, response: Response) => {
   try {
     const { questionId } = request.params;
 
-    // check if the question id exists in the database
-    const question = questionsData.find(
-      (question) => question.id === questionId
-    );
+    const question = await coll.findOne({ _id: new ObjectId(questionId) });
 
     if (!question) {
       response

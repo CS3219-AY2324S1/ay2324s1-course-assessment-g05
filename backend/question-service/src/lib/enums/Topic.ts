@@ -25,11 +25,12 @@ enum Topic {
 }
 
 export const convertStringToTopic = (topic: string): Topic => {
-  Object.values(Topic).forEach((value) => {
+  
+  for (const value of Object.values(Topic)) {
     if (value === topic) {
       return value;
     }
-  });
+  };
   throw new Error(`Topic ${topic} not found.`);
 };
 

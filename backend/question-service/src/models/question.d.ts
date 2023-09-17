@@ -8,7 +8,7 @@ type Example = {
 };
 
 type Question = {
-  id: string;
+  // id: string;
   title: string;
   description: string;
   topics: Topic[]; // enum
