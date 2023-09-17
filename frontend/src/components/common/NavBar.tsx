@@ -9,16 +9,23 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownSection,
+  Button,
 } from "@nextui-org/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CLIENT_ROUTES } from "@/common/constants";
 import PeerPrepLogo from "@/components/common/PeerPrepLogo";
 import ProfilePictureAvatar from "./ProfilePictureAvatar";
+import { UserService } from "@/helpers/user/api_wrappers";
+import { MatchingService } from "@/helpers/matching/api_wrappers";
 
 const NavBar = () => {
   const router = useRouter();
 
+  const handleQuickMatchButtonPress = () => {
+    const preferences = UserService.getUserPreferences();
+    MatchingService.submitMatchPreferences(preferences);
+  };
   const handleEditProfileButtonPress = () => {
     router.push(CLIENT_ROUTES.PROFILE);
   };
@@ -41,6 +48,12 @@ const NavBar = () => {
         </NavbarItem>
       </NavbarContent>
       <NavbarContent as="div" justify="end">
+        <Button
+          className="bg-yellow text-black h-[30px]"
+          onPress={handleQuickMatchButtonPress}
+        >
+          Quick Match
+        </Button>
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
             <button className="outline-none">
