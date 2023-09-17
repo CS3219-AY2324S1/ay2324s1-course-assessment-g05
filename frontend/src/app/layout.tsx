@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import { Poppins } from "next/font/google";
 import { Providers } from "./providers";
 import NavBar from "@/components/common/NavBar";
-import { AuthService } from "@/helpers/auth/api_wrappers";
+import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 
 const inter = Inter({ subsets: ["latin"] });
 const poppins = Poppins({ weight: ["400", "600"], subsets: ["latin"] });

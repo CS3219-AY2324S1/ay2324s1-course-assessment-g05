@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
 import { Button, Select, SelectItem, Selection } from "@nextui-org/react";
-import { UserService } from "@/helpers/user/api_wrappers";
-import { MatchingService } from "@/helpers/matching/api_wrappers";
+import { UserService } from "@/helpers/user/user_api_wrappers";
+import { MatchingService } from "@/helpers/matching/matching_api_wrappers";
 import { COMPLEXITY, LANGUAGE, TOPIC } from "@/types/enums";
 import { StringUtils } from "@/utils/stringUtils";
 

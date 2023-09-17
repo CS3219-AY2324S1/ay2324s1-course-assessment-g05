@@ -1,4 +1,4 @@
-import { HistoryService } from "@/helpers/history/api_wrappers";
+import { HistoryService } from "@/helpers/history/history_api_wrappers";
 import DonutChart from "@/components/dashboard/DonutChart";
 
 const StatisticsCard = () => {

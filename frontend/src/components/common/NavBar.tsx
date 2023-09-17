@@ -16,8 +16,8 @@ import { useRouter } from "next/navigation";
 import { CLIENT_ROUTES } from "@/common/constants";
 import PeerPrepLogo from "@/components/common/PeerPrepLogo";
 import ProfilePictureAvatar from "./ProfilePictureAvatar";
-import { UserService } from "@/helpers/user/api_wrappers";
-import { MatchingService } from "@/helpers/matching/api_wrappers";
+import { UserService } from "@/helpers/user/user_api_wrappers";
+import { MatchingService } from "@/helpers/matching/matching_api_wrappers";
 
 const NavBar = () => {
   const router = useRouter();

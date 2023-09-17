@@ -1,4 +1,4 @@
-import { UserService } from "@/helpers/user/api_wrappers";
+import { UserService } from "@/helpers/user/user_api_wrappers";
 import { Avatar } from "@nextui-org/react";
 
 interface ProfilePictureProps {
