@@ -39,8 +39,9 @@ const NavBar = () => {
         <Link href={CLIENT_ROUTES.HOME}>
           <PeerPrepLogo width="30px" height="30px" />
         </Link>
+        <p className="text-white text-2xl font-semibold"> PeerPrep </p>
       </NavbarBrand>
-      <NavbarContent className="hidden sm:flex gap-4" justify="start">
+      <NavbarContent className="hidden sm:flex gap-4 p-3" justify="start">
         <NavbarItem>
           <Link className="text-light-blue" href={CLIENT_ROUTES.QUESTIONS}>
             Questions
