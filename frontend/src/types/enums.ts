@@ -2,6 +2,20 @@ export enum SERVICE {
   QUESTION = "question",
 }
 
+export enum ServiceLocalPorts {
+    QUESTION = '8001'
+}
+
+export enum Status {
+    ACTIVE = 'active',
+    INACTIVE = 'inactive'
+}
+
+export enum Role {
+    ADMIN = 'admin',
+    USER = 'user'
+}
+
 export enum COMPLEXITY {
   EASY = "EASY",
   MEDIUM = "MEDIUM",
