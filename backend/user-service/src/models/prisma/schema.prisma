@@ -20,6 +20,18 @@ model User {
   bio    String?
   gender String?
 
-  createdOn DateTime @default(now())
-  updatedOn DateTime @updatedAt
+  createdOn   DateTime     @default(now())
+  updatedOn   DateTime     @updatedAt
+  Preferences Preferences?
+}
+
+model Preferences {
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  languages    String[]
+  difficulties String[]
+  topics       String[]
+
+  @@id([userId])
 }

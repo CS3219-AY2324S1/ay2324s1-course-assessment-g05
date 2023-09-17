@@ -3,6 +3,7 @@ import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import { UpdateUserValidator } from "../../lib/validators/UpdateUserValidator";
 import db from "../../lib/db";
 import { ZodError } from "zod";
+import { UpdateUserPreferencesValidator } from "../../lib/validators/UpdateUserPreferencesValidator";
 
 export const updateUserById = async (request: Request, response: Response) => {
   try {
@@ -77,6 +78,90 @@ export const updateUserById = async (request: Request, response: Response) => {
       return;
     }
     // log the error
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "INTERNAL SERVER ERROR",
+      message: "An unexpected error has occurred.",
+    });
+  }
+};
+
+export const updateUserPreferences = async (
+  request: Request,
+  response: Response
+) => {
+  try {
+    const userId = request.params.userId;
+
+    if (!request.body || Object.keys(request.body).length === 0) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Request body is missing.",
+      });
+      return;
+    }
+
+    const updatedUserPreferencesBody = UpdateUserPreferencesValidator.parse(
+      request.body
+    );
+
+    const inputBodyKeys = Object.keys(request.body).sort();
+    const parsedBodyKeys = Object.keys(updatedUserPreferencesBody).sort();
+
+    if (JSON.stringify(inputBodyKeys) !== JSON.stringify(parsedBodyKeys)) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Invalid properties in request body.",
+      });
+      return;
+    }
+
+    // check user exists
+    const existingUser = await db.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!existingUser) {
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: `User with id ${userId} cannot be found.`,
+      });
+      return;
+    }
+
+    // check no duplicate preference exists
+    const existingUserPreferences = await db.preferences.findFirst({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!existingUserPreferences) {
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: `User preferences with id ${userId} cannot be found.`,
+      });
+      return;
+    }
+
+    await db.preferences.update({
+      where: {
+        userId: userId,
+      },
+      data: updatedUserPreferencesBody,
+    });
+
+    response.status(HttpStatusCode.NO_CONTENT).send();
+  } catch (error) {
+    if (error instanceof ZodError) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: error.message,
+      });
+      return;
+    }
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",

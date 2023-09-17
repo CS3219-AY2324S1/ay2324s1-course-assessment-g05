@@ -6,7 +6,7 @@ enum Role {
 }
 
 export const convertStringToRole = (role: string): Role => {
-  switch (role.toLocaleUpperCase()) {
+  switch (role.toUpperCase()) {
     case "ADMIN":
       return Role.ADMIN;
     case "USER":

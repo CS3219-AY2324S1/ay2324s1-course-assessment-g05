@@ -1,13 +1,13 @@
 import { ZodError, ZodIssue, ZodIssueCode } from "zod";
 
 enum Gender {
-  MALE = "male",
-  FEMALE = "female",
-  OTHER = "other",
+  MALE = "MALE",
+  FEMALE = "FEMALE",
+  OTHER = "OTHER",
 }
 
 export const convertStringToGender = (gender: string) => {
-  switch (gender.toLowerCase()) {
+  switch (gender.toUpperCase()) {
     case "male":
       return Gender.MALE;
     case "female":

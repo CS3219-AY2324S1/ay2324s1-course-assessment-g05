@@ -1,10 +1,6 @@
 import { Request, Response } from "express";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
-
-import { UserProfile } from "../../models/types/user";
-import { convertStringToRole } from "../../lib/enums/Role";
 import db from "../../lib/db";
-import { convertStringToGender } from "../../lib/enums/Gender";
 import { EmailValidator } from "../../lib/validators/EmailValidator";
 import { ZodError } from "zod";
 
@@ -42,9 +38,7 @@ export const getUserById = async (request: Request, response: Response) => {
       return;
     }
 
-    const userProfile = parseDbUserToUserProfile(user);
-
-    response.status(HttpStatusCode.OK).json(userProfile);
+    response.status(HttpStatusCode.OK).json(user);
   } catch (error) {
     // log the error
     console.log(error);
@@ -84,9 +78,7 @@ export const getUserByEmail = async (request: Request, response: Response) => {
       return;
     }
 
-    const userProfile: UserProfile = parseDbUserToUserProfile(user);
-
-    response.status(HttpStatusCode.OK).json(userProfile);
+    response.status(HttpStatusCode.OK).json(user);
   } catch (error) {
     if (error instanceof ZodError) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
@@ -104,26 +96,34 @@ export const getUserByEmail = async (request: Request, response: Response) => {
   }
 };
 
-function parseDbUserToUserProfile(user: {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  image: string | null;
-  bio: string | null;
-  gender: string | null;
-  createdOn: Date;
-  updatedOn: Date;
-}): UserProfile {
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: convertStringToRole(user.role),
-    gender: user.gender ? convertStringToGender(user.gender) : undefined,
-    image: user.image || undefined,
-    bio: user.bio || undefined,
-    createdOn: user.createdOn,
-    updatedOn: user.updatedOn,
-  };
-}
+export const getPreferencesByUserId = async (
+  request: Request,
+  response: Response
+) => {
+  try {
+    const userId = request.params.userId;
+
+    // query database for user preferences with the given user id
+    const preferences = await db.preferences.findFirst({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!preferences) {
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: `Preferences for user with id ${userId} cannot be found. It is either the user does not exist or the user has not set preferences yet.`,
+      });
+      return;
+    }
+
+    response.status(HttpStatusCode.OK).json(preferences);
+  } catch (error) {
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "INTERNAL SERVER ERROR",
+      message: "An unexpected error has occurred.",
+    });
+  }
+};
