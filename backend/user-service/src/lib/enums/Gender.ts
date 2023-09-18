@@ -8,11 +8,11 @@ enum Gender {
 
 export const convertStringToGender = (gender: string) => {
   switch (gender.toUpperCase()) {
-    case "male":
+    case "MALE":
       return Gender.MALE;
-    case "female":
+    case "FEMALE":
       return Gender.FEMALE;
-    case "other":
+    case "OTHER":
       return Gender.OTHER;
     default:
       throw new ZodError([{ message: "Invalid gender" } as ZodIssue]);
