@@ -1,3 +1,5 @@
+import { ZodError, ZodIssue } from "zod";
+
 enum Complexity {
   EASY = "easy",
   MEDIUM = "medium",
@@ -5,15 +7,15 @@ enum Complexity {
 }
 
 export const convertStringToComplexity = (complexity: string): Complexity => {
-  switch (complexity) {
-    case "easy":
+  switch (complexity.toUpperCase()) {
+    case "EASY":
       return Complexity.EASY;
-    case "medium":
+    case "MEDIUM":
       return Complexity.MEDIUM;
-    case "hard":
+    case "HARD":
       return Complexity.HARD;
     default:
-      throw new Error(`Complexity ${complexity} not found.`);
+      throw new ZodError([{ message: "Invalid complexity" } as ZodIssue]);
   }
 };
 

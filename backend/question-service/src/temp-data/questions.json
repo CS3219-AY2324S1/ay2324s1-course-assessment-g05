@@ -4,7 +4,7 @@
     "title": "Reverse a String",
     "topics": ["String", "Two Pointers"],
     "complexity": "Easy",
-    "link": "https://leetcode.com/problems/reverse-string/",
+    "url": "https://leetcode.com/problems/reverse-string/",
     "description": "Write a function that reverses a string. The input string is given as an array of characters char[]. Do not allocate extra space for another array, you must do this by modifying the input array in-place with O(1) extra memory.",
     "examples": [
       {
@@ -26,7 +26,7 @@
     "title": "Linked List Cycle Detection",
     "topics": ["Hash Table", "Two Pointers", "Linked List"],
     "complexity": "Easy",
-    "link": "https://leetcode.com/problems/linked-list-cycle/",
+    "url": "https://leetcode.com/problems/linked-list-cycle/",
     "description": "Given head, the head of a linked list, determine if the linked list has a cycle in it.\nThere is a cycle in a linked list if there is some node in the list that can be reached again by continuously following the next pointer. Internally, pos is used to denote the index of the node that tail's next pointer is connected to. Note that pos is not passed as a parameter.\nReturn true if there is a cycle in the linked list. Otherwise, return false.",
     "examples": [
       {
@@ -56,7 +56,7 @@
     "title": "Roman to Integer",
     "topics": ["Math", "String"],
     "complexity": "Easy",
-    "link": "https://leetcode.com/problems/roman-to-integer/",
+    "url": "https://leetcode.com/problems/roman-to-integer/",
     "description": "Roman numerals are represented by seven different symbols: I, V, X, L, C, D and M.\nSymbol       Value\nI             1\nV             5\nX             10\nL             50\nC             100\nD             500\nM             1000\nFor example, 2 is written as II in Roman numeral, just two one's added together. 12 is written as XII, which is simply X + II. The number 27 is written as XXVII, which is XX + V + II.\nRoman numerals are usually written largest to smallest from left to right. However, the numeral for four is not IIII. Instead, the number four is written as IV. Because the one is before the five we subtract it making four. The same principle applies to the number nine, which is written as IX. There are six instances where subtraction is used:\nI can be placed before V (5) and X (10) to make 4 and 9.\nX can be placed before L (50) and C (100) to make 40 and 90.\nC can be placed before D (500) and M (1000) to make 400 and 900.\nGiven a roman numeral, convert it to an integer.",
     "examples": [
       {
@@ -86,7 +86,7 @@
     "title": "Add Binary",
     "topics": ["Math", "String", "Bit Manipulation"],
     "complexity": "Easy",
-    "link": "https://leetcode.com/problems/add-binary/",
+    "url": "https://leetcode.com/problems/add-binary/",
     "description": "Given two binary strings a and b, return their sum as a binary string.",
     "examples": [
       {
@@ -109,7 +109,7 @@
     "title": "Fibonacci Number",
     "topics": ["Math", "Dynamic Programming", "Recursion", "Memoization"],
     "complexity": "Easy",
-    "link": "https://leetcode.com/problems/fibonacci-number/",
+    "url": "https://leetcode.com/problems/fibonacci-number/",
     "description": "The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1. That is,\nF(0) = 0, F(1) = 1\nF(n) = F(n - 1) + F(n - 2), for n > 1.\nGiven n, calculate F(n).",
     "examples": [
       {
@@ -135,7 +135,7 @@
     "title": "Implement Stack using Queues",
     "topics": ["Stack", "Queue"],
     "complexity": "Easy",
-    "link": "https://leetcode.com/problems/implement-stack-using-queues/",
+    "url": "https://leetcode.com/problems/implement-stack-using-queues/",
     "description": "Implement a last-in-first-out (LIFO) stack using only two queues. The implemented stack should support all the functions of a normal stack (push, top, pop, and empty).\nImplement the MyStack class:\nvoid push(int x) Pushes element x to the top of the stack.\nint pop() Removes the element on the top of the stack and returns it.\nint top() Returns the element on the top of the stack.\nboolean empty() Returns true if the stack is empty, false otherwise.\nNotes:\nYou must use only standard operations of a queue, which means that only push to back, peek/pop from front, size and is empty operations are valid. Depending on your language, the queue may not be supported natively. You may simulate a queue using a list or deque (double-ended queue) as long as you use only a queue's standard operations.",
     "examples": [
       {
@@ -158,7 +158,7 @@
     "title": "Combine Two Tables",
     "topics": ["Databases"],
     "complexity": "Easy",
-    "link": "https://leetcode.com/problems/combine-two-tables/",
+    "url": "https://leetcode.com/problems/combine-two-tables/",
     "description": "SQL Schema\nTable: Person\n+-------------+---------+\n| Column Name | Type |\n+-------------+---------+\n| personId | int |\n| lastName | varchar |\n| firstName | varchar |\n+-------------+---------+personId is the primary key (column with unique values) for this table.This table contains information about the ID of some persons and their firstand last names.\nTable: Address\n+-------------+---------+\n| Column Name | Type |\n+-------------+---------+\n| addressId | int |\n| personId | int |\n| city | varchar |\n| state | varchar |\n+-------------+---------+\naddressId is the primary key (column with unique values) for this table.Each row of this table contains information about the city and state of oneperson with ID = PersonId.\nWrite an SQL query to report the first name, last name, city, and state of each person in the Person table. If the address of a PersonId is not present in the Address table, report null instead.\nReturn the result table in any order.\nThe result format is in the following example.",
     "examples": [
       {
@@ -181,7 +181,7 @@
     "title": "Repeated DNA Sequences",
     "topics": ["Bit Manipulation", "Hash Table", "String", "Sliding Window"],
     "complexity": "Medium",
-    "link": "https://leetcode.com/problems/repeated-dna-sequences/",
+    "url": "https://leetcode.com/problems/repeated-dna-sequences/",
     "description": "The DNA sequence is composed of a series of nucleotides abbreviated as 'A', 'C', 'G', and 'T'.\nFor example, \"ACGAATTCCG\" is a DNA sequence.\nWhen studying DNA, it is useful to identify repeated sequences within the DNA.\nGiven a string s that represents a DNA sequence, return all the 10-letter-long sequences (substrings) that occur more than once in a DNA molecule. You may return the answer in any order.",
     "examples": [
       {
@@ -208,7 +208,7 @@
       "Topological Sort"
     ],
     "complexity": "Medium",
-    "link": "https://leetcode.com/problems/course-schedule/",
+    "url": "https://leetcode.com/problems/course-schedule/",
     "description": "There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.\nFor example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.\nReturn true if you can finish all courses. Otherwise, return false.",
     "examples": [
       {
@@ -235,7 +235,7 @@
     "title": "LRU Cache Design",
     "topics": ["Hash Table", "Linked List"],
     "complexity": "Medium",
-    "link": "https://leetcode.com/problems/lru-cache/",
+    "url": "https://leetcode.com/problems/lru-cache/",
     "description": "Design a data structure that follows the constraints of a Least Recently Used (LRU) cache.\nImplement the LRUCache class:\nLRUCache(int capacity) Initialize the LRU cache with positive size capacity.\nint get(int key) Return the value of the key if the key exists, otherwise return -1.\nvoid put(int key, int value) Update the value of the key if the key exists. Otherwise, add the key-value pair to the cache. If the number of keys exceeds the capacity from this operation, evict the least recently used key.\nThe functions get and put must each run in O(1) average time complexity.",
     "examples": [
       {
@@ -256,7 +256,7 @@
     "title": "Longest Common Subsequence",
     "topics": ["Strings", "Dynamic Programming"],
     "complexity": "Medium",
-    "link": "https://leetcode.com/problems/longest-common-subsequence/",
+    "url": "https://leetcode.com/problems/longest-common-subsequence/",
     "description": "Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.\nA subsequence of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters.\nFor example, \"ace\" is a subsequence of \"abcde\".\nA common subsequence of two strings is a subsequence that is common to both strings.",
     "examples": [
       {
@@ -285,7 +285,7 @@
     "title": "Rotate Image",
     "topics": ["Array", "Math", "Matrix"],
     "complexity": "Medium",
-    "link": "https://leetcode.com/problems/rotate-image/",
+    "url": "https://leetcode.com/problems/rotate-image/",
     "description": "You are given an nxn 2D matrix representing an image, rotate the image by 90 degrees (clockwise).\nYou have to rotate the image in-place, which means you have to modify the input 2D matrix directly. DO NOT allocate another 2D matrix and do the rotation.",
     "examples": [
       {
@@ -317,7 +317,7 @@
     "title": "Airplane Seat Assignment Probability",
     "topics": ["Brain Teaser", "Dynamic Programming", "Math"],
     "complexity": "Medium",
-    "link": "https://leetcode.com/problems/airplane-seat-assignment-probability/",
+    "url": "https://leetcode.com/problems/airplane-seat-assignment-probability/",
     "description": "n passengers board an airplane with exactly n seats. The first passenger has lost the ticket and picks a seat randomly. But after tha, the rest of the passengers will:\nTake their own seat if it is still available, Pick other seats randomly when they find their seat occupied\nWhat is the probability that the n-th person can get his own seat?",
     "examples": [
       {
@@ -338,7 +338,7 @@
     "title": "Validate Binary Search Tree",
     "topics": ["Tree", "Binary Tree", "Depth-First Search"],
     "complexity": "Medium",
-    "link": "https://leetcode.com/problems/validate-binary-search-tree/",
+    "url": "https://leetcode.com/problems/validate-binary-search-tree/",
     "description": "Given the root of a binary tree, determine if it is a valid binary search tree (BST).\nA valid BST is defined as follows:\nThe left subtree of a node contains only nodes with keys less than the node's key.\nThe right subtree of a node contains only nodes with keys greater than the node's key.\nBoth the left and right subtrees must also be binary search trees.",
     "examples": [
       {
@@ -360,7 +360,7 @@
     "title": "Sliding Window Maximum",
     "topics": ["Sliding Window", "Queue", "Array", "Heap (Priority Queue)"],
     "complexity": "Hard",
-    "link": "https://leetcode.com/problems/sliding-window-maximum/",
+    "url": "https://leetcode.com/problems/sliding-window-maximum/",
     "description": "You are given an array of integers nums, there is a sliding window of size k which is moving from the very left of the array to the very right. You can only see the k numbers in the window. Each time the sliding window moves right by one position.\nReturn the max sliding window.",
     "examples": [
       {
@@ -396,7 +396,7 @@
     "title": "N-Queen Problem",
     "topics": ["Backtracking", "Recursion"],
     "complexity": "Hard",
-    "link": "https://leetcode.com/problems/n-queens/",
+    "url": "https://leetcode.com/problems/n-queens/",
     "description": "The n-queens puzzle is the problem of placing n queens on an n x n chessboard such that no two queens attack each other.\nGiven an integer n, return all distinct solutions to the n-queens puzzle. You may return the answer in any order.\nEach solution contains a distinct board configuration of the n-queens' placement, where 'Q' and '.' both indicate a queen and an empty space, respectively.",
     "examples": [
       {
@@ -416,7 +416,7 @@
     "title": "Serialize and Deserialize a Binary Tree",
     "topics": ["Tree", "Binary Tree", "Breadth-First Search"],
     "complexity": "Hard",
-    "link": "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/",
+    "url": "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/",
     "description": "Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored in a file or memory buffer, or transmitted across a network connection link to be reconstructed later in the same or another computer environment.\nDesign an algorithm to serialize and deserialize a binary tree. There is no restriction on how your serialization/deserialization algorithm should work. You just need to ensure that a binary tree can be serialized to a string and this string can be deserialized to the original tree structure.",
     "examples": [
       {
@@ -446,7 +446,7 @@
     "title": "Wildcard Matching",
     "topics": ["String", "Dynamic Programming", "Backtracking", "Greedy"],
     "complexity": "Hard",
-    "link": "https://leetcode.com/problems/wildcard-matching/",
+    "url": "https://leetcode.com/problems/wildcard-matching/",
     "description": "Given an input string (s) and a pattern (p), implement wildcard pattern matching with support for '?' and '*' where:\n'?' Matches any single character.\n'*' Matches any sequence of characters (including the empty sequence).\nThe matching should cover the entire input string (not partial).",
     "examples": [
       {
@@ -481,7 +481,7 @@
     "title": "Chalkboard XOR Game",
     "topics": ["Brain Teaser", "Math", "Bit Manipulation", "Array"],
     "complexity": "Hard",
-    "link": "https://leetcode.com/problems/chalkboard-xor-game/",
+    "url": "https://leetcode.com/problems/chalkboard-xor-game/",
     "description": "You are given an array of integers nums represents the numbers written on a chalkboard.\nAlice and Bob take turns erasing exactly one number from the chalkboard, with Alice starting first. If erasing a number causes the bitwise XOR of all the elements of the chalkboard to become 0, then that player loses. The bitwise XOR of one element is that element itself, and the bitwise XOR of no elements is 0.\nAlso, if any player starts their turn with the bitwise XOR of all the elements of the chalkboard equal to 0, then that player wins.\nReturn true if and only if Alice wins the game, assuming both players play optimally.",
     "examples": [
       {
@@ -513,7 +513,7 @@
     "title": "Trips and Users",
     "topics": ["Databases"],
     "complexity": "Hard",
-    "link": "https://leetcode.com/problems/trips-and-users/",
+    "url": "https://leetcode.com/problems/trips-and-users/",
     "description": "SQL Schema\nPandas Schema\nTable:Trips\n+-------------+---------+\n| Column Name | Type |\n+-------------+---------+\n| Id | int |\n| Client_Id | int |\n| Driver_Id | int |\n| City_Id | int |\n| Status | enum |\n| Request_at | date |\n+-------------+---------+\nId is the primary key for this table.\nThe table holds all taxi trips. Each trip has a unique Id, while Client_Id and Driver_Id are foreign keys to the Users_Id at the Users table.\nStatus is an ENUM type of (‘completed’, ‘cancelled_by_driver’, ‘cancelled_by_client’).\nTable: Users\n+-------------+---------+\n| Column Name | Type |\n+-------------+---------+\n| Users_Id | int |\n| Banned | enum |\n| Role | enum |\n+-------------+---------+\nUsers_Id is the primary key for this table.\nThe table holds all users. Each user has a unique Users_Id, and Role is an ENUM type of (‘client’, ‘driver’, ‘partner’).\nStatus is an ENUM type of (‘Yes’, ‘No’). If the value is ‘Yes’, that means the user is banned.\nWrite a SQL query to find the cancellation rate of requests made by unbanned users (both client and driver must be unbanned) between Oct 1, 2013 and Oct 3, 2013. The cancellation rate is computed by dividing the number of canceled (by client or driver) requests made by unbanned users by the total number of requests made by unbanned users.\nWrite a solution to find the cancellation rate of requests with unbanned users (both client and driver must not be banned) for each day between \"2013-10-01\" and \"2013-10-03\". Round Cancellation Rate to two decimal points.\nReturn the result table in any order.\nThe result format is in the following example.",
     "examples": [
       {

@@ -60,7 +60,7 @@ export const postQuestion = async (request: Request, response: Response) => {
     }
 
     // Save question to database
-    await coll.insertOne({question}).then(() => {
+    await coll.insertOne(question).then(() => {
       console.log("Succesfully inserted")
 
       response

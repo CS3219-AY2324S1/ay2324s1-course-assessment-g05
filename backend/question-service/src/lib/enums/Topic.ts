@@ -1,3 +1,5 @@
+import { ZodError, ZodIssue } from "zod";
+
 enum Topic {
   ARRAY = "ARRAY",
   STRING = "STRING",
@@ -34,13 +36,19 @@ enum Topic {
 }
 
 export const convertStringToTopic = (topic: string): Topic => {
-  
-  for (const value of Object.values(Topic)) {
-    if (value === topic) {
-      return value;
+  let enumTopic = null;
+  Object.values(Topic).forEach((value) => {
+    if (value == topic.toUpperCase()) {
+      enumTopic = value;
+      return;
     }
-  };
-  throw new Error(`Topic ${topic} not found.`);
+  });
+
+  if (!enumTopic) {
+    throw new ZodError([{ message: "Invalid topic" } as ZodIssue]);
+  }
+
+  return enumTopic;
 };
 
 export default Topic;
