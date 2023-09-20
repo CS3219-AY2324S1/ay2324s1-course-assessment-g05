@@ -2,9 +2,7 @@ import { Request, Response } from "express";
 import HttpStatusCode from "../../lib/HttpStatusCode";
 import { UpdateQuestionValidator } from "../../lib/validators/UpdateQuestionValidator";
 import { ZodError } from "zod";
-import coll from "../../models/database/db";
-import { ObjectId } from "mongodb";
-
+import questionDb from "../../models/database/schema/question";
 
 export const updateQuestion = async (request: Request, response: Response) => {
   try {
@@ -18,7 +16,7 @@ export const updateQuestion = async (request: Request, response: Response) => {
 
     const { questionId } = request.params;
 
-    const question = await coll.findOne({ _id: new ObjectId(questionId) });
+    const question = await questionDb.findById(questionId).exec();
 
     if (!question) {
       response.status(HttpStatusCode.NOT_FOUND).json({
@@ -31,36 +29,57 @@ export const updateQuestion = async (request: Request, response: Response) => {
     const updatedQuestionBody = UpdateQuestionValidator.parse(request.body);
 
     // Check no existing question with the same question name in the database
-    const duplicateCheck = await coll.findOne({ "question.title": updatedQuestionBody.title });
+    if (updatedQuestionBody.title) {
+      const duplicateCheck = await questionDb.findOne({
+        _id: { $ne: questionId },
+        title: updatedQuestionBody.title,
+      });
 
-    if (duplicateCheck) {
-      response
-        .status(HttpStatusCode.CONFLICT)
-        .json({ error: "CONFLICT", message: "Question title already exists" });
-      return;
+      if (duplicateCheck) {
+        response.status(HttpStatusCode.CONFLICT).json({
+          error: "CONFLICT",
+          message: "Question title already exists",
+        });
+        return;
+      }
+
+      question.title = updatedQuestionBody.title;
     }
 
-
     // Update question in database using the updatedQuestionBody
-    const filter = { _id: new ObjectId(questionId) }; 
-    const dbQuestionBody: { [key: string]: any }  =  {};
-    if (updatedQuestionBody.title) dbQuestionBody["question.title"] = updatedQuestionBody.title;
-    if (updatedQuestionBody.description) dbQuestionBody["question.description"] = updatedQuestionBody.description;
-    if (updatedQuestionBody.category) dbQuestionBody["question.category"] = updatedQuestionBody.category;
-    if (updatedQuestionBody.complexity) dbQuestionBody["question.complexity"] = updatedQuestionBody.complexity;
-    if (updatedQuestionBody.url) dbQuestionBody["question.url"] = updatedQuestionBody.url;
-    if (updatedQuestionBody.author) dbQuestionBody["question.author"] = updatedQuestionBody.author;
-    if (updatedQuestionBody.examples) dbQuestionBody["question.examples"] = updatedQuestionBody.examples;
-    if (updatedQuestionBody.constraints) dbQuestionBody["question.constraints"] = updatedQuestionBody.constraints;
+    if (updatedQuestionBody.description) {
+      question.description = updatedQuestionBody.description;
+    }
 
-    const update = { $set: dbQuestionBody }; 
+    if (updatedQuestionBody.topics) {
+      question.topics = updatedQuestionBody.topics;
+    }
 
-    await coll.updateOne(filter, update).then(() => {
-      console.log("Succesfully updated")
+    if (updatedQuestionBody.complexity) {
+      question.complexity = updatedQuestionBody.complexity;
+    }
 
-      response.status(HttpStatusCode.NO_CONTENT).send();
-    })
+    if (updatedQuestionBody.url) {
+      question.url = updatedQuestionBody.url;
+    }
 
+    if (updatedQuestionBody.author) {
+      question.author = updatedQuestionBody.author;
+    }
+
+    if (updatedQuestionBody.examples) {
+      question.examples = updatedQuestionBody.examples;
+    }
+
+    if (updatedQuestionBody.constraints) {
+      question.constraints = updatedQuestionBody.constraints;
+    }
+
+    question.updatedOn = new Date(Date.now());
+
+    await question.save();
+
+    response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
     if (error instanceof ZodError) {
       response

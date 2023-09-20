@@ -5,7 +5,12 @@ import { convertStringToComplexity } from "../enums/Complexity";
 export const CreateQuestionValidator = z.object({
   title: z.string().min(3).max(100),
   description: z.string().min(3).max(1000),
-  topics: z.array(z.string().transform(convertStringToTopic)), // enum
+  topics: z
+    .array(z.string().transform(convertStringToTopic))
+    .refine(
+      (topics) => new Set(topics).size === topics.length,
+      "Each topic must be unique."
+    ), // enum
   complexity: z.string().transform(convertStringToComplexity), // enum
   url: z.string().url(),
   author: z.string().min(5).max(50).optional(),
@@ -13,8 +18,8 @@ export const CreateQuestionValidator = z.object({
   examples: z
     .array(
       z.object({
-        input: z.string().min(3).max(1000),
-        output: z.string().min(3).max(1000),
+        input: z.string().min(1).max(1000),
+        output: z.string().min(1).max(1000),
         explanation: z.string().min(3).max(1000).optional(),
       })
     )

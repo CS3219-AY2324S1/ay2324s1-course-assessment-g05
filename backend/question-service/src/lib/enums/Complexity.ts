@@ -1,9 +1,9 @@
 import { ZodError, ZodIssue } from "zod";
 
 enum Complexity {
-  EASY = "easy",
-  MEDIUM = "medium",
-  HARD = "hard",
+  EASY = "EASY",
+  MEDIUM = "MEDIUM",
+  HARD = "HARD",
 }
 
 export const convertStringToComplexity = (complexity: string): Complexity => {

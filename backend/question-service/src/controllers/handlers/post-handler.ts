@@ -3,11 +3,8 @@ import { Example, Question } from "@/models/question";
 import HttpStatusCode from "../../lib/HttpStatusCode";
 import { convertStringToComplexity } from "../../lib/enums/Complexity";
 import { ZodError } from "zod";
-import {
-  CreateQuestionRequestBody,
-  CreateQuestionValidator,
-} from "../../lib/validators/CreateQuestionValidator";
-import coll from "../../models/database/db";
+import { CreateQuestionValidator } from "../../lib/validators/CreateQuestionValidator";
+import questionDb from "../../models/database/schema/question";
 
 export const postQuestion = async (request: Request, response: Response) => {
   try {
@@ -22,7 +19,9 @@ export const postQuestion = async (request: Request, response: Response) => {
     const createQuestionBody = CreateQuestionValidator.parse(request.body);
 
     // Make sure no duplicate question exists by checking the question name in the database
-    const duplicateCheck = await coll.findOne({ "question.title": createQuestionBody.title });
+    const duplicateCheck = await questionDb.findOne({
+      title: createQuestionBody.title,
+    });
 
     if (duplicateCheck) {
       response
@@ -59,15 +58,12 @@ export const postQuestion = async (request: Request, response: Response) => {
       question.constraints = createQuestionBody.constraints;
     }
 
-    // Save question to database
-    await coll.insertOne(question).then(() => {
-      console.log("Succesfully inserted")
+    // insert new question to database
+    await questionDb.create(question);
 
-      response
+    response
       .status(HttpStatusCode.CREATED)
       .json({ message: "Question created." });
-    })
-
   } catch (error) {
     if (error instanceof ZodError) {
       response
