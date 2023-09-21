@@ -2,8 +2,11 @@ export enum SERVICE {
   QUESTION = "questions",
 }
 
-export enum ServiceLocalPorts {
-  QUESTION = "8001",
+export enum HTTP_METHODS {
+  GET = "GET",
+  POST = "POST",
+  PUT = "PUT",
+  DELETE = "DELETE",
 }
 
 export enum Status {

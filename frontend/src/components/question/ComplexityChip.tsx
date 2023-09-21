@@ -2,24 +2,25 @@ import { COMPLEXITY } from "@/types/enums";
 import { Chip } from "@nextui-org/react";
 
 const variant = "solid";
+const size = "sm";
 
 function renderChip(complexity: string) {
   switch (complexity.toUpperCase()) {
     case COMPLEXITY.EASY:
       return (
-        <Chip color="success" variant={variant}>
+        <Chip color="success" variant={variant} size={size}>
           Easy
         </Chip>
       );
     case COMPLEXITY.MEDIUM:
       return (
-        <Chip color="warning" variant={variant}>
+        <Chip color="warning" variant={variant} size={size}>
           Medium
         </Chip>
       );
     case COMPLEXITY.HARD:
       return (
-        <Chip color="danger" variant={variant}>
+        <Chip color="danger" variant={variant} size={size}>
           Hard
         </Chip>
       );

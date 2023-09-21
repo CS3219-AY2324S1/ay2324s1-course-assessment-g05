@@ -16,10 +16,12 @@ export default function QuestionConstrainsTable({
   value,
   edit = true,
   onValueChange,
+  disabled = false,
 }: {
   value: string[];
   edit?: boolean;
   onValueChange?: (value: string[]) => void;
+  disabled?: boolean;
 }) {
   const emptyConstrain = { id: value.length, value: "" };
   const [constrains, setConstrains] = React.useState([emptyConstrain]);
@@ -42,10 +44,11 @@ export default function QuestionConstrainsTable({
         value.slice(0, -1).map((v, idx) => ({ id: idx, value: v })),
       );
     }
-  }, [value]);
+  }, [value, disabled]);
 
   return (
     <Table
+      aria-label="table of constrains"
       removeWrapper
       topContent={<p className="text-small">Constrains</p>}
       topContentPlacement="outside"
@@ -66,6 +69,7 @@ export default function QuestionConstrainsTable({
                 size="sm"
                 defaultValue={row.value}
                 onValueChange={(e) => handleValue(row.id, e)}
+                disabled={disabled}
               ></Input>
             </TableCell>
           </TableRow>

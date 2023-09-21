@@ -12,24 +12,31 @@ import {
   SelectItem,
   Chip,
   colors,
+  Progress,
 } from "@nextui-org/react";
 import QuestionDescription from "./QuestionDescription";
-import { TOPIC, COMPLEXITY } from "@/types/enums";
+import { TOPIC, COMPLEXITY, SERVICE } from "@/types/enums";
 import Question, { Example } from "@/types/question";
 import QuestionExamplesTable from "./QuestionExamplesTable";
 import QuestionConstrainsTable from "./QuestionConstrainsTable";
-import QuestionService from "@/helpers/question/question_api_wrappers";
 import { CLIENT_ROUTES } from "@/common/constants";
 import { Url } from "next/dist/shared/lib/router/router";
 import { redirect } from "next/navigation";
+import { revalidateTag } from "next/cache";
+import {
+  postQuestion,
+  updateQuestion,
+} from "@/helpers/question/question_api_wrappers";
 
 export default function ModifyQuestionModal({
   isOpen,
   onOpenChange,
+  closeCallback,
   question,
 }: {
   isOpen: boolean;
   onOpenChange: () => void;
+  closeCallback: () => void;
   question?: Question;
 }) {
   // component mode and const
@@ -51,6 +58,7 @@ export default function ModifyQuestionModal({
   const [description, setDescription] = React.useState("");
   const [constrains, setConstrains] = React.useState<string[]>([]);
   const [examples, setExamples] = React.useState<Example[]>([]);
+  const [url, setUrl] = React.useState("");
 
   // prefill form base on mode
   React.useEffect(() => {
@@ -58,7 +66,6 @@ export default function ModifyQuestionModal({
       console.log(
         "[ModifyQuestionModal]: prefill form with qid:" + question?._id,
       );
-      console.log(question);
 
       setId(question!._id!);
       setTitle(question!.title);
@@ -67,6 +74,7 @@ export default function ModifyQuestionModal({
       setDescription(question!.description!);
       setConstrains(question!.constraints!);
       setExamples(question!.examples!);
+      setUrl(question!.url!);
     } else {
       console.log("[ModifyQuestionModal]: close or open with empty form");
       setId("");
@@ -77,6 +85,7 @@ export default function ModifyQuestionModal({
       setConstrains([]);
       setExamples([]);
       setError("");
+      setUrl("");
     }
   }, [isOpen]);
 
@@ -84,42 +93,38 @@ export default function ModifyQuestionModal({
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsLoading(true);
+    setError("");
 
     try {
       question = {
         // id: id,
-        title: title,
+        title: title.trim(),
         complexity: complexity,
         topics: Array.from(topics.values()),
-        description: description,
-        url: "http://test.com",
+        description: description.trim(),
+        url: url.trim(),
       };
 
-      constrains.length > 0 ? (question.constraints = constrains) : {};
-      examples.length > 0 ? (question.examples = examples) : {};
-
-      const successHandler = (data: any) => {
-        console.log(data);
-        redirect(CLIENT_ROUTES.QUESTIONS);
-      };
-
-      const errorHandler = (err: any) => {
-        console.log(err);
-        setError(err);
-      };
+      constrains.length > 0
+        ? (question.constraints = constrains.filter((x) => x !== ""))
+        : {};
+      examples.length > 0
+        ? (question.examples = examples.filter(
+            (x) => x.input !== "" && x.output !== "",
+          ))
+        : {};
 
       const response = editMode
-        ? await QuestionService.updateQuestion(
-            question!._id!,
-            question,
-            successHandler,
-            errorHandler,
-          )
-        : await QuestionService.postQuestion(
-            question,
-            successHandler,
-            errorHandler,
-          );
+        ? await updateQuestion(id, question)
+        : await postQuestion(question);
+
+      let data = response.message;
+
+      if (response.ok) {
+        closeCallback();
+      } else {
+        setError(data as string);
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -137,12 +142,12 @@ export default function ModifyQuestionModal({
         scrollBehavior="outside"
         classNames={{
           header: "border-b-[1px] border-[#454545]",
-          footer: "border-t-[1px] border-[#454545]",
         }}
+        isDismissable={!isLoading}
       >
         <form onSubmit={onSubmit}>
           <ModalContent>
-            {(onclose) => (
+            {(onClose) => (
               <>
                 <ModalHeader className="flex flex-col gap-1">
                   {editMode ? "Edit" : "Add"} Question
@@ -158,12 +163,13 @@ export default function ModifyQuestionModal({
                         labelPlacement="outside"
                         placeholder="000"
                         className="flex-none w-20"
-                        isRequired
+                        // isRequired
                         value={id}
                         isReadOnly={editMode}
-                        onValueChange={(v) =>
-                          Number(v) > 0 ? setId(v) : setId("0")
-                        }
+                        // onValueChange={(v) =>
+                        //   Number(v) > 0 ? setId(v) : setId("0")
+                        // }
+                        disabled={isLoading}
                       ></Input>
                       <Input
                         name="title"
@@ -175,6 +181,7 @@ export default function ModifyQuestionModal({
                         value={title}
                         isRequired
                         onValueChange={setTitle}
+                        disabled={isLoading}
                       ></Input>
 
                       <Select
@@ -187,6 +194,7 @@ export default function ModifyQuestionModal({
                         selectedKeys={[complexity]}
                         items={complexitySelections}
                         onChange={(e) => setComplexity(e.target.value)}
+                        disabled={isLoading}
                       >
                         {(level) => (
                           <SelectItem key={level.value}>
@@ -206,6 +214,7 @@ export default function ModifyQuestionModal({
                         items={topicSelections}
                         selectedKeys={topics}
                         onChange={(e) => setTopics(e.target.value.split(","))}
+                        disabled={isLoading}
                       >
                         {(topic) => (
                           <SelectItem key={topic.value}>
@@ -214,11 +223,31 @@ export default function ModifyQuestionModal({
                         )}
                       </Select>
                     </div>
+
+                    <div className="flex">
+                      <Input
+                        name="Url"
+                        type="url"
+                        label="Question Source Url"
+                        labelPlacement="outside"
+                        placeholder="https://leetcode.com"
+                        className="flex"
+                        isRequired
+                        disabled={isLoading}
+                        value={url}
+                        onValueChange={(v) =>
+                          setUrl("https://" + v.replace("https://", ""))
+                        }
+                      ></Input>
+                    </div>
+
+                    {/* Description, constrain and example fields */}
                     <div className="flex">
                       <QuestionDescription
                         name="description"
                         value={description}
                         onValueChange={setDescription}
+                        disabled={isLoading}
                       ></QuestionDescription>
                     </div>
                     <div className="flex flex-row gap-2">
@@ -226,12 +255,14 @@ export default function ModifyQuestionModal({
                         <QuestionConstrainsTable
                           value={constrains}
                           onValueChange={(v) => setConstrains(v)}
+                          disabled={isLoading}
                         ></QuestionConstrainsTable>
                       </div>
                       <div className="flex flex-col basis-1/2">
                         <QuestionExamplesTable
                           value={examples}
                           onValueChange={(v) => setExamples(v)}
+                          disabled={isLoading}
                         ></QuestionExamplesTable>
                       </div>
                     </div>

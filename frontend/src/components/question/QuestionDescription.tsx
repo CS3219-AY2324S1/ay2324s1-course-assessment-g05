@@ -6,11 +6,13 @@ export default function QuestionTable({
   value,
   onChange,
   onValueChange,
+  disabled = false,
 }: {
   name?: string;
   value?: string;
   onChange?: ChangeEventHandler<HTMLInputElement>;
   onValueChange?: (value: string) => void;
+  disabled?: boolean;
 }) {
   return (
     <>
@@ -25,6 +27,7 @@ export default function QuestionTable({
         value={value}
         onChange={onChange}
         onValueChange={onValueChange}
+        disabled={disabled}
       />
     </>
   );

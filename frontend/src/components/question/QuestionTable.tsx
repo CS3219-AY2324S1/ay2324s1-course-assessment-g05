@@ -18,7 +18,8 @@ import ModifyQuestionModal from "./ModifyQuestionModal";
 import { redirect } from "next/navigation";
 import ComplexityChip from "./ComplexityChip";
 import { COMPLEXITY } from "@/types/enums";
-import QuestionService from "@/helpers/question/question_api_wrappers";
+import { deleteQuestion } from "@/helpers/question/question_api_wrappers";
+import { FiEdit, FiEye, FiTrash } from "react-icons/fi";
 
 export default function QuestionTable({
   questions,
@@ -50,7 +51,7 @@ export default function QuestionTable({
     },
   ];
 
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [toEditQuestion, setToEditQuestion] = React.useState<Question>();
 
   function renderCell(
@@ -77,7 +78,11 @@ export default function QuestionTable({
           <>
             <div className="flex flex-row gap-1">
               {(cellValue as string[]).map((topic) => (
-                <Chip key={topic}>{topic}</Chip>
+                <Tooltip key={topic} content={topic}>
+                  <Chip size="sm" className="w-20 truncate">
+                    {topic}
+                  </Chip>
+                </Tooltip>
               ))}
             </div>
           </>
@@ -91,7 +96,7 @@ export default function QuestionTable({
           <div className="relative flex items-center gap-2">
             <Tooltip content={item.description}>
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                Preview
+                <FiEye />
               </span>
             </Tooltip>
             <Tooltip content="Edit question">
@@ -99,7 +104,7 @@ export default function QuestionTable({
                 className="text-lg text-default-400 cursor-pointer active:opacity-50"
                 onClick={(e) => openModal(item)}
               >
-                Edit
+                <FiEdit />
               </span>
             </Tooltip>
             <Tooltip color="danger" content="Delete question">
@@ -109,7 +114,7 @@ export default function QuestionTable({
                   deleteCallback ? deleteCallback(item["_id"]!) : ""
                 }
               >
-                Delete
+                <FiTrash />
               </span>
             </Tooltip>
           </div>
@@ -120,15 +125,7 @@ export default function QuestionTable({
   }
 
   async function handleDelete(id: string) {
-    QuestionService.deleteQuestion(
-      id,
-      (res) => {
-        // redirect on success
-      },
-      (err) => {
-        // prompt on error
-      },
-    );
+    deleteQuestion(id);
   }
 
   function openModal(question?: Question) {
@@ -142,13 +139,18 @@ export default function QuestionTable({
 
   return (
     <>
-      <Button onPress={(e) => openModal()}>Create Question</Button>
       <ModifyQuestionModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         question={toEditQuestion}
+        closeCallback={onClose}
       ></ModifyQuestionModal>
-      <Table aria-label="table of questions">
+      <Table
+        aria-label="table of questions"
+        topContent={
+          <Button onPress={(e) => openModal()}>Create Question</Button>
+        }
+      >
         <TableHeader columns={columns}>
           {(column) => (
             <TableColumn

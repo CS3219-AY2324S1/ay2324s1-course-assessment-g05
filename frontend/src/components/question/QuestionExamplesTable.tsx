@@ -16,10 +16,12 @@ export default function QuestionExamplesTable({
   value,
   edit = true,
   onValueChange,
+  disabled = false,
 }: {
   value: Example[];
   edit?: boolean;
   onValueChange?: (value: Example[]) => void;
+  disabled?: boolean;
 }) {
   const emptyExample = { id: value.length, input: "", output: "" };
   const [examples, setExamples] = React.useState([emptyExample]);
@@ -57,10 +59,11 @@ export default function QuestionExamplesTable({
           .map((v, idx) => ({ id: idx, input: v.input, output: v.output })),
       );
     }
-  }, [value]);
+  }, [value, disabled]);
 
   return (
     <Table
+      aria-label="table of examples"
       removeWrapper
       topContent={<p className="text-small">Examples</p>}
       topContentPlacement="outside"
@@ -82,6 +85,7 @@ export default function QuestionExamplesTable({
                 size="sm"
                 defaultValue={row.input}
                 onValueChange={(e) => handleValue(row.id, "input", e)}
+                disabled={disabled}
               ></Input>
             </TableCell>
             <TableCell>
@@ -89,6 +93,7 @@ export default function QuestionExamplesTable({
                 size="sm"
                 defaultValue={row.output}
                 onValueChange={(e) => handleValue(row.id, "output", e)}
+                disabled={disabled}
               ></Input>
             </TableCell>
           </TableRow>
