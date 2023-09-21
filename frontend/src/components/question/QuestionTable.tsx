@@ -21,6 +21,7 @@ import { COMPLEXITY } from "@/types/enums";
 import { deleteQuestion } from "@/helpers/question/question_api_wrappers";
 import { FiEdit, FiEye, FiTrash } from "react-icons/fi";
 import DeleteQuestion from "./DeleteQuestion";
+import { StringUtils } from "@/utils/stringUtils";
 
 export default function QuestionTable({
   questions,
@@ -33,22 +34,27 @@ export default function QuestionTable({
     {
       key: "_id",
       label: "NO.",
+      class: ""
     },
     {
       key: "title",
       label: "TITLE",
+      class: "w-3/6"
     },
     {
       key: "complexity",
       label: "COMPLEXITY",
+      class: "w-1/7"
     },
     {
       key: "topics",
       label: "TOPIC",
+      class: "w-2/6"
     },
     {
       key: "actions",
       label: "ACTIONS",
+      class: ""
     },
   ];
 
@@ -74,11 +80,11 @@ export default function QuestionTable({
       case "topics":
         return (
           <>
-            <div className="flex flex-row gap-1">
+            <div className="flex flex-wrap gap-1 overflow-hidden ">
               {(cellValue as string[]).map((topic) => (
-                <Tooltip key={topic} content={topic}>
-                  <Chip size="sm" className="w-20 truncate">
-                    {topic}
+                <Tooltip key={topic} content={StringUtils.convertAllCapsToCamelCase(topic)}>
+                  <Chip size="sm" className="truncate">
+                    {StringUtils.convertAllCapsToCamelCase(topic)}
                   </Chip>
                 </Tooltip>
               ))}
@@ -134,6 +140,7 @@ export default function QuestionTable({
       ></ModifyQuestionModal>
       <Table
         aria-label="table of questions"
+
         topContent={
           <Button onPress={(e) => openModal()}>Create Question</Button>
         }
@@ -143,6 +150,7 @@ export default function QuestionTable({
             <TableColumn
               key={column.key}
               align={column.key === "actions" ? "center" : "start"}
+              className={column.class}
             >
               {column.label}
             </TableColumn>
