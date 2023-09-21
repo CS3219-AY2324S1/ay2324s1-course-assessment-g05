@@ -1,19 +1,19 @@
 export enum SERVICE {
-  QUESTION = "question",
+  QUESTION = "questions",
 }
 
 export enum ServiceLocalPorts {
-    QUESTION = '8001'
+  QUESTION = "8001",
 }
 
 export enum Status {
-    ACTIVE = 'active',
-    INACTIVE = 'inactive'
+  ACTIVE = "active",
+  INACTIVE = "inactive",
 }
 
 export enum Role {
-    ADMIN = 'admin',
-    USER = 'user'
+  ADMIN = "admin",
+  USER = "user",
 }
 
 export enum COMPLEXITY {

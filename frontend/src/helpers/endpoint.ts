@@ -1,13 +1,21 @@
+"use server";
 import { SERVICE } from "@/types/enums";
 import { getLogger } from "./logger";
 const logger = getLogger("api");
 
-type apiConfig = {
+type ApiConfig = {
   method: string;
   service: SERVICE;
   path: string;
   body?: {};
   tags?: string[]; // cache scope
+};
+
+type ApiResponse = {
+  status?: number;
+  data?: any;
+  message?: string;
+  error?: string;
 };
 
 /**
@@ -16,12 +24,18 @@ type apiConfig = {
  * @param service
  * @param path
  */
-export const api = async (config: apiConfig) => {
+export default async function api(
+  config: ApiConfig,
+  success?: (res: any) => void,
+  error?: (err: any) => void,
+): Promise<ApiResponse> {
+  // Configure gateway host
   const host =
     process.env.NODE_ENV == "production"
       ? process.env.ENDPOINT_PROD
       : process.env.ENDPOINT_DEV;
 
+  // Configure local service port
   let servicePort = ":";
   switch (config.service) {
     case SERVICE.QUESTION:
@@ -32,13 +46,14 @@ export const api = async (config: apiConfig) => {
       break;
   }
 
-  const endpoint = `http://${host}${servicePort}/${config.path}`;
-
-  logger.info(`${config.method}: [${endpoint}]`);
+  // Build final endpoint
+  const endpoint = `http://${host}${servicePort}/api/${config.service}/${config.path}`;
+  logger.info(`[endpoint::api]: ${config.method}: ${endpoint}`);
   if (config.body) {
-    logger.info(`${config.body}`);
+    logger.debug(`[endpoint::api]: ${JSON.stringify(config.body)}`);
   }
 
+  // Fetch endpoint
   try {
     const res = await fetch(endpoint, {
       method: config.method,
@@ -51,15 +66,19 @@ export const api = async (config: apiConfig) => {
       },
     });
 
-    if (!res.ok) {
-      return [];
-    }
+    let data = await res.json();
+    logger.debug(`[${res.status}] ${config.method}: ${res.url}`);
 
-    return res.json();
+    return {
+      status: res.status,
+      data: data,
+      message: res.statusText,
+    };
   } catch (error) {
-    logger.error(`${error}`);
-    return [];
+    logger.error(`[endpoint::api] error: ${error}`);
+    return {
+      status: 500,
+      message: `Internal Error.`,
+    };
   }
-};
-
-export default api;
+}

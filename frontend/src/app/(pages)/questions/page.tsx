@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Question from "../../../types/question";
 import QuestionTable from "../../../components/question/QuestionTable";
-import { getQuestionList } from "../../../helpers/questions/services";
+import QuestionService from "../../../helpers/question/question_api_wrappers";
 
 export const metadata: Metadata = {
   title: "Questions",
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function QuestionsPage() {
-  const questions: Question[] = await getQuestionList();
+  const questions: Question[] = await QuestionService.getQuestionList();
 
   return (
     <>

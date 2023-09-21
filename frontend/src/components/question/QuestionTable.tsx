@@ -15,10 +15,10 @@ import {
 } from "@nextui-org/react";
 import Question from "@/types/question";
 import ModifyQuestionModal from "./ModifyQuestionModal";
-import { deleteQuestion } from "@/helpers/questions/services";
 import { redirect } from "next/navigation";
 import ComplexityChip from "./ComplexityChip";
 import { COMPLEXITY } from "@/types/enums";
+import QuestionService from "@/helpers/question/question_api_wrappers";
 
 export default function QuestionTable({
   questions,
@@ -29,7 +29,7 @@ export default function QuestionTable({
 }) {
   const columns = [
     {
-      key: "id",
+      key: "_id",
       label: "NO.",
     },
     {
@@ -54,9 +54,9 @@ export default function QuestionTable({
   const [toEditQuestion, setToEditQuestion] = React.useState<Question>();
 
   function renderCell(
-    item: Question,
+    item: any,
     columnKey: string,
-    readonly: Boolean,
+    readonly: boolean,
     deleteCallback?: (id: string) => void,
   ) {
     const cellValue = item[columnKey as keyof Question];
@@ -65,7 +65,7 @@ export default function QuestionTable({
       case "title":
         return (
           <>
-            <Link href={"questions/" + item.id}>{cellValue}</Link>
+            <Link href={"questions/" + item._id}>{cellValue as string}</Link>
           </>
         );
       case "complexity":
@@ -106,7 +106,7 @@ export default function QuestionTable({
               <span
                 className="text-lg text-danger cursor-pointer active:opacity-50"
                 onClick={(e) =>
-                  deleteCallback ? deleteCallback(item["id"]) : ""
+                  deleteCallback ? deleteCallback(item["_id"]!) : ""
                 }
               >
                 Delete
@@ -120,8 +120,15 @@ export default function QuestionTable({
   }
 
   async function handleDelete(id: string) {
-    deleteQuestion(id);
-    // use router to refresh table
+    QuestionService.deleteQuestion(
+      id,
+      (res) => {
+        // redirect on success
+      },
+      (err) => {
+        // prompt on error
+      },
+    );
   }
 
   function openModal(question?: Question) {
@@ -153,15 +160,15 @@ export default function QuestionTable({
           )}
         </TableHeader>
         <TableBody items={questions} emptyContent={"No rows to display."}>
-          {questions.map((row) => (
-            <TableRow key={row.id}>
+          {(row) => (
+            <TableRow key={row._id}>
               {(columnKey) => (
                 <TableCell>
-                  {renderCell(row, columnKey.toString(), false, handleDelete)}
+                  {renderCell(row, columnKey as string, false, handleDelete)}
                 </TableCell>
               )}
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </>
