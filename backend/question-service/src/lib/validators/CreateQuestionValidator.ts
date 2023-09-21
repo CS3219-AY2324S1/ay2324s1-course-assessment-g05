@@ -31,7 +31,7 @@ export const CreateQuestionValidator = z.object({
   constraints: z
     .array(z.string())
     .refine((arr) => arr === undefined || arr.length > 0, {
-      message: "At least one example is required.",
+      message: "At least one constraint is required.",
     })
     .optional(),
 });

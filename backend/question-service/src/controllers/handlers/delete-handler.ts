@@ -8,9 +8,9 @@ export const deleteQuestion = async (request: Request, response: Response) => {
     const { questionId } = request.params;
 
     // Find the question to delete in the database
-    const result = await questionDb.deleteOne({ _id: questionId }).exec();
+    const questionExist = await questionDb.findById(questionId);
 
-    if (result.deletedCount !== 1) {
+    if (!questionExist) {
       response.status(HttpStatusCode.NOT_FOUND).json({
         error: "NOT FOUND",
         message: `Question with id ${questionId} not found.`,
@@ -18,12 +18,15 @@ export const deleteQuestion = async (request: Request, response: Response) => {
       return;
     }
 
+    await questionDb.deleteOne({ _id: questionId });
+
     response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
     // log the error
     console.log(error);
-    response
-      .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
-      .send("An unexpected error has occurred.");
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "INTERNAL SERVER ERROR",
+      message: "An unexpected error has occurred.",
+    });
   }
 };

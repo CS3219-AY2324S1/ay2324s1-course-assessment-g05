@@ -16,7 +16,7 @@ export const updateQuestion = async (request: Request, response: Response) => {
 
     const { questionId } = request.params;
 
-    const question = await questionDb.findById(questionId).exec();
+    const question = await questionDb.findById(questionId);
 
     if (!question) {
       response.status(HttpStatusCode.NOT_FOUND).json({
@@ -77,7 +77,7 @@ export const updateQuestion = async (request: Request, response: Response) => {
 
     question.updatedOn = new Date(Date.now());
 
-    await question.save();
+    await questionDb.updateOne({ _id: questionId }, question);
 
     response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
