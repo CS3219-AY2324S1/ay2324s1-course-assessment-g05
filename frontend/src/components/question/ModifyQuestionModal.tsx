@@ -27,6 +27,7 @@ import {
   postQuestion,
   updateQuestion,
 } from "@/helpers/question/question_api_wrappers";
+import { FiCornerDownLeft } from "react-icons/fi";
 
 export default function ModifyQuestionModal({
   isOpen,
@@ -156,7 +157,7 @@ export default function ModifyQuestionModal({
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-row gap-2">
                       {/* ID and Title fields */}
-                      <Input
+                      {/* <Input
                         name="id"
                         type="number"
                         label="No."
@@ -170,7 +171,7 @@ export default function ModifyQuestionModal({
                         //   Number(v) > 0 ? setId(v) : setId("0")
                         // }
                         disabled={isLoading}
-                      ></Input>
+                      ></Input> */}
                       <Input
                         name="title"
                         type="text"
@@ -235,9 +236,7 @@ export default function ModifyQuestionModal({
                         isRequired
                         disabled={isLoading}
                         value={url}
-                        onValueChange={(v) =>
-                          setUrl("https://" + v.replace("https://", ""))
-                        }
+                        onValueChange={setUrl}
                       ></Input>
                     </div>
 
@@ -272,7 +271,13 @@ export default function ModifyQuestionModal({
                   <p className="absolute insert-x-0 left-0 py-2 px-4 text-danger">
                     {error}
                   </p>
-                  <Button color="primary" type="submit" disabled={isLoading}>
+                  <Button
+                    color="primary"
+                    type="submit"
+                    disabled={isLoading}
+                    isLoading={isLoading}
+                    startContent={<FiCornerDownLeft />}
+                  >
                     {isLoading ? "Loading..." : "Submit"}
                   </Button>
                 </ModalFooter>

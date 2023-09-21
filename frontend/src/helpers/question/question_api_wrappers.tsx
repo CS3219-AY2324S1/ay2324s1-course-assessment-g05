@@ -20,6 +20,11 @@ type ServiceResponse = {
 };
 
 type ServiceError = {
+  error: string;
+  message: any;
+};
+
+type FieldError = {
   code: string;
   minimum: number;
   type: string;
@@ -113,7 +118,7 @@ export async function postQuestion(
     logger.error(`[postQuestion] ${res.message}`);
     return {
       ok: false,
-      message: res.message,
+      message: res.data ? (res.data as ServiceError).message : res.message,
     };
   }
 }
@@ -148,7 +153,7 @@ export async function updateQuestion(
     return {
       ok: false,
       message: res.data
-        ? formatError(JSON.parse(res.data["message"]))
+        ? formatFieldError(JSON.parse((res.data as ServiceError).message))
         : res.message,
     };
   }
@@ -183,6 +188,6 @@ export async function deleteQuestion(id: string): Promise<ServiceResponse> {
   }
 }
 
-function formatError(error: ServiceError[]) {
-  return error.map((e) => `${e.path[0]}: ${e.message}`).join(", ");
+function formatFieldError(errors: FieldError[]) {
+  return errors.map((e) => `${e.path[0]}: ${e.message}`).join(", ");
 }

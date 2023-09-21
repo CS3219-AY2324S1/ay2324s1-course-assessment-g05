@@ -20,6 +20,7 @@ import ComplexityChip from "./ComplexityChip";
 import { COMPLEXITY } from "@/types/enums";
 import { deleteQuestion } from "@/helpers/question/question_api_wrappers";
 import { FiEdit, FiEye, FiTrash } from "react-icons/fi";
+import DeleteQuestion from "./DeleteQuestion";
 
 export default function QuestionTable({
   questions,
@@ -54,15 +55,12 @@ export default function QuestionTable({
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [toEditQuestion, setToEditQuestion] = React.useState<Question>();
 
-  function renderCell(
-    item: any,
-    columnKey: string,
-    readonly: boolean,
-    deleteCallback?: (id: string) => void,
-  ) {
+  function renderCell(item: any, columnKey: string, readonly: boolean) {
     const cellValue = item[columnKey as keyof Question];
 
     switch (columnKey) {
+      case "_id":
+        return questions.findIndex((x) => x._id == cellValue) + 1;
       case "title":
         return (
           <>
@@ -95,37 +93,26 @@ export default function QuestionTable({
         return (
           <div className="relative flex items-center gap-2">
             <Tooltip content={item.description}>
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+              <span className="text-lg text-default-400 cursor-pointer active:opacity-50 w-8 h-8 p-1.5">
                 <FiEye />
               </span>
             </Tooltip>
             <Tooltip content="Edit question">
               <span
-                className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                className="text-lg text-default-400 cursor-pointer active:opacity-50 w-8 h-8 p-1.5"
                 onClick={(e) => openModal(item)}
               >
                 <FiEdit />
               </span>
             </Tooltip>
             <Tooltip color="danger" content="Delete question">
-              <span
-                className="text-lg text-danger cursor-pointer active:opacity-50"
-                onClick={(e) =>
-                  deleteCallback ? deleteCallback(item["_id"]!) : ""
-                }
-              >
-                <FiTrash />
-              </span>
+              <DeleteQuestion id={item["_id"]}></DeleteQuestion>
             </Tooltip>
           </div>
         );
       default:
         return cellValue;
     }
-  }
-
-  async function handleDelete(id: string) {
-    deleteQuestion(id);
   }
 
   function openModal(question?: Question) {
@@ -166,7 +153,7 @@ export default function QuestionTable({
             <TableRow key={row._id}>
               {(columnKey) => (
                 <TableCell>
-                  {renderCell(row, columnKey as string, false, handleDelete)}
+                  {renderCell(row, columnKey as string, false)}
                 </TableCell>
               )}
             </TableRow>
