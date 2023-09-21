@@ -52,25 +52,9 @@ export default function QuestionDescription({
   onValueChange?: (value: string) => void;
   disabled?: boolean;
 }) {
-  React.useEffect(() => {
-    console.log(value);
-    
-  }, [value])
+
   return (
     <>
-      {/* <Textarea
-        isRequired
-        name={name}
-        label="Description"
-        labelPlacement="outside"
-        placeholder="Enter question description, sample and constrains etc"
-        minRows={10}
-        maxRows={20}
-        value={value}
-        onChange={onChange}
-        onValueChange={onValueChange}
-        disabled={disabled}
-      /> */}
       <div className="w-full">
       <p className="text-small">Descriptions<span className="text-danger">*</span></p>
       <ReactQuill
