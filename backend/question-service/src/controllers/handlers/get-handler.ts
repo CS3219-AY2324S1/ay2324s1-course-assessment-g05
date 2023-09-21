@@ -3,6 +3,7 @@ import HttpStatusCode from "../../lib/HttpStatusCode";
 import { QueryParamValidator } from "../../lib/validators/QueryParamValidator";
 import questionDb from "../../models/database/schema/question";
 import mongoose from "mongoose";
+import { ZodError } from "zod";
 
 // Check if database connection is successful
 export const getHealth = async (_: Request, response: Response) => {
@@ -29,7 +30,7 @@ export const getQuestions = async (request: Request, response: Response) => {
       ...(author && { author: author }),
     };
 
-    const questions = await questionDb.find(filters).exec();
+    const questions = await questionDb.find(filters);
 
     if (!questions) {
       response
@@ -42,6 +43,13 @@ export const getQuestions = async (request: Request, response: Response) => {
       .status(HttpStatusCode.OK)
       .json({ count: questions.length, data: questions });
   } catch (error) {
+    if (error instanceof ZodError) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: error.message,
+      });
+      return;
+    }
     // log the error
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
@@ -56,7 +64,7 @@ export const getQuestionById = async (request: Request, response: Response) => {
   try {
     const { questionId } = request.params;
 
-    const question = await questionDb.findById(questionId).exec();
+    const question = await questionDb.findById(questionId);
 
     if (!question) {
       response

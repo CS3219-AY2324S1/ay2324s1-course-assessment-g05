@@ -2,7 +2,7 @@ import HttpStatusCode from "../../lib/HttpStatusCode";
 import createServer from "../utils/server";
 import supertest from "supertest";
 
-const app = createServer();
+const app = createServer(true);
 
 describe("GET /health", () => {
   describe("Given the database is connected successfully", () => {
