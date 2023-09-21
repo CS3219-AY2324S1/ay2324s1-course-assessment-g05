@@ -98,12 +98,14 @@ export default function QuestionTable({
         }
         return (
           <div className="relative flex items-center gap-2">
-            <Tooltip content={item.description}>
+            <Tooltip content={
+              <p dangerouslySetInnerHTML={{ __html: item.description }}></p>
+            } delay={1000}>
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50 w-8 h-8 p-1.5">
                 <FiEye />
               </span>
             </Tooltip>
-            <Tooltip content="Edit question">
+            <Tooltip content="Edit question" delay={1000}>
               <span
                 className="text-lg text-default-400 cursor-pointer active:opacity-50 w-8 h-8 p-1.5"
                 onClick={(e) => openModal(item)}
@@ -111,9 +113,7 @@ export default function QuestionTable({
                 <FiEdit />
               </span>
             </Tooltip>
-            <Tooltip color="danger" content="Delete question">
-              <DeleteQuestion id={item["_id"]}></DeleteQuestion>
-            </Tooltip>
+            <DeleteQuestion id={item["_id"]}></DeleteQuestion>
           </div>
         );
       default:
