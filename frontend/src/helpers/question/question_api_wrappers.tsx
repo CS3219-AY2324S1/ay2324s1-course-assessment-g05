@@ -60,7 +60,7 @@ export async function getQuestionById(
 
   if (res.status === 200) {
     let question = res.data as Question;
-    logger.info(question, `[getQuestionById(${id})] Got question:`);
+    logger.info(`[getQuestionById(${id})] Got question: ${question.title}`);
     return question;
   } else {
     logger.error(res, `[getQuestionById(${id})] Error:`);
