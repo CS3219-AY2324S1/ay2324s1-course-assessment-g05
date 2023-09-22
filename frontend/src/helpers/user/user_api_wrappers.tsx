@@ -49,7 +49,7 @@ const getUserByEmail = async (email: string): Promise<User | undefined> => {
   );
 };
 
-const getUserById = async (id: string): Promise<User | undefined> => {
+const getUserById = async (id: string): Promise<User> => {
   // call GET /api/users/:id from user service
   const response = await api({
     method: HTTP_METHODS.GET,

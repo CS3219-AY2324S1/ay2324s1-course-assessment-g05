@@ -4,6 +4,7 @@ import HeatmapCard from "./HeatmapCard";
 import MatchingCard from "./MatchingCard";
 import StatisticsCard from "./StatisticsCard";
 import QuestionStatisticsCard from "./QuestionStatisticsCard";
+import { useAuthContext } from "@/providers/auth";
 
 const Dashboard = () => {
   return (

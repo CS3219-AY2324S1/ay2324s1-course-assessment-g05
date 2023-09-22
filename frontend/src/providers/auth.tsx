@@ -1,6 +1,7 @@
+import { UserService } from "@/helpers/user/user_api_wrappers";
 import { Role, Status } from "@/types/enums";
 import User from "@/types/user";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 interface IAuthContext {
   user: User;
@@ -12,8 +13,8 @@ interface IAuthProvider {
 
 const defaultUser: User = {
   id: "clmol5ekq00007k00es00hvun",
-  image: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-  name: "Your Updated Name",
+  image: "",
+  name: "",
   email: "",
   role: Role.ADMIN,
   status: Status.ACTIVE,
@@ -25,7 +26,16 @@ const useAuthContext = () => useContext(AuthContext);
 
 const AuthProvider = ({ children }: IAuthProvider) => {
   const [user, setUser] = useState<User>(defaultUser);
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
   const context = { user };
+  const fetchUser = async () => {
+    const rawUser = await UserService.getUserById(user.id);
+    console.log(rawUser);
+    setUser(rawUser);
+  };
 
   return (
     <AuthContext.Provider value={context}>{children}</AuthContext.Provider>

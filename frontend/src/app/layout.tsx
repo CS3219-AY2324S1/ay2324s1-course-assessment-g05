@@ -23,8 +23,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="h-screen bg-background" suppressHydrationWarning={true}>
-        {isAuthenticated && <NavBar />}
-        <Providers>{children}</Providers>
+        <Providers>
+          {isAuthenticated && <NavBar />}
+          {children}
+        </Providers>
       </body>
     </html>
   );
