@@ -1,9 +1,16 @@
+export type Example = {
+  input: string;
+  output: string;
+};
+
 type Question = {
-  id: string;
+  _id?: string;
   title: string;
   complexity: string;
-  topics: Set<string>;
+  topics: string[];
   description?: string;
+  examples?: Example[];
+  constraints?: string[];
   category?: string[];
   status?: string;
   createdOn?: string;

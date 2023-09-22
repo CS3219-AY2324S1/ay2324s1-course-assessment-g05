@@ -15,10 +15,13 @@ import {
 } from "@nextui-org/react";
 import Question from "@/types/question";
 import ModifyQuestionModal from "./ModifyQuestionModal";
-import { deleteQuestion } from "@/helpers/questions/services";
 import { redirect } from "next/navigation";
 import ComplexityChip from "./ComplexityChip";
 import { COMPLEXITY } from "@/types/enums";
+import { deleteQuestion } from "@/helpers/question/question_api_wrappers";
+import { FiEdit, FiEye, FiTrash } from "react-icons/fi";
+import DeleteQuestion from "./DeleteQuestion";
+import { StringUtils } from "@/utils/stringUtils";
 
 export default function QuestionTable({
   questions,
@@ -29,43 +32,45 @@ export default function QuestionTable({
 }) {
   const columns = [
     {
-      key: "id",
+      key: "_id",
       label: "NO.",
+      class: ""
     },
     {
       key: "title",
       label: "TITLE",
+      class: "w-3/6"
     },
     {
       key: "complexity",
       label: "COMPLEXITY",
+      class: "w-1/7"
     },
     {
       key: "topics",
       label: "TOPIC",
+      class: "w-2/6"
     },
     {
       key: "actions",
       label: "ACTIONS",
+      class: ""
     },
   ];
 
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [toEditQuestion, setToEditQuestion] = React.useState<Question>();
 
-  function renderCell(
-    item: Question,
-    columnKey: string,
-    readonly: Boolean,
-    deleteCallback?: (id: string) => void,
-  ) {
+  function renderCell(item: any, columnKey: string, readonly: boolean) {
     const cellValue = item[columnKey as keyof Question];
 
     switch (columnKey) {
+      case "_id":
+        return questions.findIndex((x) => x._id == cellValue) + 1;
       case "title":
         return (
           <>
-            <Link href={"questions/" + item.id}>{cellValue}</Link>
+            <Link href={"questions/" + item._id}>{cellValue as string}</Link>
           </>
         );
       case "complexity":
@@ -75,9 +80,13 @@ export default function QuestionTable({
       case "topics":
         return (
           <>
-            <div className="flex flex-row gap-1">
+            <div className="flex flex-wrap gap-1 overflow-hidden ">
               {(cellValue as string[]).map((topic) => (
-                <Chip key={topic}>{topic}</Chip>
+                <Tooltip key={topic} content={StringUtils.convertAllCapsToCamelCase(topic)}>
+                  <Chip size="sm" className="truncate">
+                    {StringUtils.convertAllCapsToCamelCase(topic)}
+                  </Chip>
+                </Tooltip>
               ))}
             </div>
           </>
@@ -89,39 +98,27 @@ export default function QuestionTable({
         }
         return (
           <div className="relative flex items-center gap-2">
-            <Tooltip content={item.description}>
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                Preview
+            <Tooltip content={
+              <p dangerouslySetInnerHTML={{ __html: item.description }}></p>
+            } delay={1000}>
+              <span className="text-lg text-default-400 cursor-pointer active:opacity-50 w-8 h-8 p-1.5">
+                <FiEye />
               </span>
             </Tooltip>
-            <Tooltip content="Edit question">
+            <Tooltip content="Edit question" delay={1000}>
               <span
-                className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                className="text-lg text-default-400 cursor-pointer active:opacity-50 w-8 h-8 p-1.5"
                 onClick={(e) => openModal(item)}
               >
-                Edit
+                <FiEdit />
               </span>
             </Tooltip>
-            <Tooltip color="danger" content="Delete question">
-              <span
-                className="text-lg text-danger cursor-pointer active:opacity-50"
-                onClick={(e) =>
-                  deleteCallback ? deleteCallback(item["id"]) : ""
-                }
-              >
-                Delete
-              </span>
-            </Tooltip>
+            <DeleteQuestion id={item["_id"]}></DeleteQuestion>
           </div>
         );
       default:
         return cellValue;
     }
-  }
-
-  async function handleDelete(id: string) {
-    deleteQuestion(id);
-    // use router to refresh table
   }
 
   function openModal(question?: Question) {
@@ -135,33 +132,40 @@ export default function QuestionTable({
 
   return (
     <>
-      <Button onPress={(e) => openModal()}>Create Question</Button>
       <ModifyQuestionModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         question={toEditQuestion}
+        closeCallback={onClose}
       ></ModifyQuestionModal>
-      <Table aria-label="table of questions">
+      <Table
+        aria-label="table of questions"
+
+        topContent={
+          <Button onPress={(e) => openModal()}>Create Question</Button>
+        }
+      >
         <TableHeader columns={columns}>
           {(column) => (
             <TableColumn
               key={column.key}
               align={column.key === "actions" ? "center" : "start"}
+              className={column.class}
             >
               {column.label}
             </TableColumn>
           )}
         </TableHeader>
         <TableBody items={questions} emptyContent={"No rows to display."}>
-          {questions.map((row) => (
-            <TableRow key={row.id}>
+          {(row) => (
+            <TableRow key={row._id}>
               {(columnKey) => (
                 <TableCell>
-                  {renderCell(row, columnKey.toString(), false, handleDelete)}
+                  {renderCell(row, columnKey as string, false)}
                 </TableCell>
               )}
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </>

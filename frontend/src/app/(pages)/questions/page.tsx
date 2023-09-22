@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Question from "../../../types/question";
-import QuestionTable from "../../../components/question/QuestionTable";
-import { getQuestionList } from "../../../helpers/questions/services";
+import Question from "@/types/question";
+import QuestionTable from "@/components/question/QuestionTable";
+import { getQuestionList } from "@/helpers/question/question_api_wrappers";
 
 export const metadata: Metadata = {
   title: "Questions",

@@ -1,21 +1,23 @@
 export enum SERVICE {
-  QUESTION = "question",
-  USER="user",
+  QUESTION = "questions",
+  USER="users",
 }
 
-export enum ServiceLocalPorts {
-    QUESTION = '8001',
-    USER = '5000'
+export enum HTTP_METHODS {
+  GET = "GET",
+  POST = "POST",
+  PUT = "PUT",
+  DELETE = "DELETE",
 }
 
 export enum Status {
-    ACTIVE = 'active',
-    INACTIVE = 'inactive'
+  ACTIVE = "active",
+  INACTIVE = "inactive",
 }
 
 export enum Role {
-    ADMIN = 'admin',
-    USER = 'user'
+  ADMIN = "admin",
+  USER = "user",
 }
 
 export enum COMPLEXITY {

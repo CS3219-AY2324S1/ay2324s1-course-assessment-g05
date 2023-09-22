@@ -11,64 +11,82 @@ import {
   Select,
   SelectItem,
   Chip,
+  colors,
+  Progress,
 } from "@nextui-org/react";
 import QuestionDescription from "./QuestionDescription";
+import { TOPIC, COMPLEXITY, SERVICE } from "@/types/enums";
+import Question, { Example } from "@/types/question";
+import QuestionExamplesTable from "./QuestionExamplesTable";
+import QuestionConstrainsTable from "./QuestionConstrainsTable";
+import { CLIENT_ROUTES } from "@/common/constants";
+import { Url } from "next/dist/shared/lib/router/router";
+import { redirect } from "next/navigation";
+import { revalidateTag } from "next/cache";
 import {
-  getQuestionById,
   postQuestion,
   updateQuestion,
-} from "@/helpers/questions/services";
-import { TOPIC, COMPLEXITY } from "@/types/enums";
-import Question from "@/types/question";
+} from "@/helpers/question/question_api_wrappers";
+import { FiCornerDownLeft } from "react-icons/fi";
 
 export default function ModifyQuestionModal({
   isOpen,
   onOpenChange,
+  closeCallback,
   question,
 }: {
   isOpen: boolean;
   onOpenChange: () => void;
+  closeCallback: () => void;
   question?: Question;
 }) {
   // component mode and const
   const editMode = question != null;
-  const topicSelections = Object.values(TOPIC).flatMap((k) => ({
-    label: k.toLowerCase(),
-    value: k.toLowerCase(),
+  const topicSelections = Object.values(TOPIC).map((k) => ({ value: k }));
+  const complexitySelections = Object.values(COMPLEXITY).map((k) => ({
+    value: k,
   }));
-  const complexitySelections = Object.values(COMPLEXITY).flatMap((k) => ({
-    label: k.toLowerCase(),
-    value: k.toLowerCase(),
-  }));
-  const initialState = {
-    id: "",
-    title: "",
-    complexity: ["easy"],
-    topics: new Set<string>([]),
-    description: "",
-  };
 
   // component states
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [form, setForm] = React.useState(initialState);
+  const [error, setError] = React.useState("");
+
+  // form arguments
+  const [id, setId] = React.useState("");
+  const [title, setTitle] = React.useState("");
+  const [complexity, setComplexity] = React.useState("EASY");
+  const [topics, setTopics] = React.useState<string[]>([]);
+  const [description, setDescription] = React.useState("");
+  const [constrains, setConstrains] = React.useState<string[]>([]);
+  const [examples, setExamples] = React.useState<Example[]>([]);
+  const [url, setUrl] = React.useState("");
 
   // prefill form base on mode
-  useEffect(() => {
+  React.useEffect(() => {
     if (isOpen && editMode) {
       console.log(
-        "[ModifyQuestionModal]: prefill form with qid:" + question?.id,
+        "[ModifyQuestionModal]: prefill form with qid:" + question?._id,
       );
 
-      setForm({
-        id: question!.id,
-        title: question!.title,
-        complexity: [question!.complexity],
-        topics: question!.topics,
-        description: question!.description || "",
-      });
+      setId(question!._id!);
+      setTitle(question!.title);
+      setComplexity(question!.complexity);
+      setTopics(question!.topics);
+      setDescription(question!.description!);
+      setConstrains(question!.constraints!);
+      setExamples(question!.examples!);
+      setUrl(question!.url!);
     } else {
       console.log("[ModifyQuestionModal]: close or open with empty form");
-      setForm(initialState);
+      setId("");
+      setTitle("");
+      setComplexity("EASY");
+      setTopics([]);
+      setDescription("");
+      setConstrains([]);
+      setExamples([]);
+      setError("");
+      setUrl("");
     }
   }, [isOpen]);
 
@@ -76,18 +94,38 @@ export default function ModifyQuestionModal({
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsLoading(true);
+    setError("");
 
     try {
-      const formData = new FormData(event.currentTarget);
-      formData.append("topics", JSON.stringify(Array.from(form.topics)));
-      formData.forEach((element) => {
-        console.log(element);
-      });
-      // formData.append('topics', JSON.stringify(topics.values))
-      // const response = editMode ? await updateQuestion(question!.id, formData) : await postQuestion(formData)
+      question = {
+        // id: id,
+        title: title.trim(),
+        complexity: complexity,
+        topics: Array.from(topics.values()),
+        description: description.trim(),
+        url: url.trim(),
+      };
 
-      // const data = await response.json()
-      // console.log(data);
+      constrains.length > 0
+        ? (question.constraints = constrains.filter((x) => x !== ""))
+        : {};
+      examples.length > 0
+        ? (question.examples = examples.filter(
+            (x) => x.input !== "" && x.output !== "",
+          ))
+        : {};
+
+      const response = editMode
+        ? await updateQuestion(id, question)
+        : await postQuestion(question);
+
+      let data = response.message;
+
+      if (response.ok) {
+        closeCallback();
+      } else {
+        setError(data as string);
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -102,130 +140,151 @@ export default function ModifyQuestionModal({
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         hideCloseButton={false}
+        scrollBehavior="outside"
+        classNames={{
+          header: "border-b-[1px] border-[#454545]",
+        }}
+        isDismissable={!isLoading}
       >
-        <ModalContent>
-          {() => (
-            <>
-              <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit}>
+          <ModalContent>
+            {(onClose) => (
+              <>
                 <ModalHeader className="flex flex-col gap-1">
                   {editMode ? "Edit" : "Add"} Question
                 </ModalHeader>
                 <ModalBody>
-                  <div className="flex flex-col md:flex-row gap-4">
-                    <div className="flex basis-1/4">
-                      <div className="flex flex-col gap-4">
-                        <div className="flex flex-row gap-2">
-                          {editMode ? (
-                            <Input
-                              name="id"
-                              type="number"
-                              label="No."
-                              labelPlacement="outside"
-                              placeholder="000"
-                              className="basis-1/3"
-                              value={form.id}
-                              isReadOnly
-                            ></Input>
-                          ) : (
-                            <Input
-                              name="id"
-                              type="number"
-                              label="No."
-                              labelPlacement="outside"
-                              placeholder="000"
-                              isRequired
-                              className="basis-1/3"
-                            ></Input>
-                          )}
-                          <Input
-                            name="title"
-                            type="text"
-                            label="Title"
-                            labelPlacement="outside"
-                            placeholder="Enter question title"
-                            value={form.title}
-                            isRequired
-                            onChange={(e) =>
-                              setForm({
-                                ...form,
-                                title: e.target.value,
-                              })
-                            }
-                          ></Input>
-                        </div>
-                        <Select
-                          name="complexity"
-                          isRequired
-                          label="Complexity"
-                          labelPlacement="outside"
-                          placeholder="Choose a complexity level"
-                          selectedKeys={form.complexity}
-                          className="max-w-xs"
-                          items={complexitySelections}
-                          onChange={(e) =>
-                            setForm({
-                              ...form,
-                              complexity: [e.target.value],
-                            })
-                          }
-                        >
-                          {(level) => (
-                            <SelectItem key={level.value}>
-                              {level.label}
-                            </SelectItem>
-                          )}
-                        </Select>
-                        <Select
-                          isRequired
-                          label="Topics"
-                          labelPlacement="outside"
-                          placeholder="Select question topics"
-                          className="max-w-xs"
-                          selectionMode="multiple"
-                          description="Allow multiple selections"
-                          isMultiline={true}
-                          items={topicSelections}
-                          selectedKeys={form.topics}
-                          onChange={(e) =>
-                            setForm({
-                              ...form,
-                              topics: new Set<string>(
-                                e.target.value.split(","),
-                              ),
-                            })
-                          }
-                        >
-                          {(topic) => (
-                            <SelectItem key={topic.value}>
-                              {topic.label}
-                            </SelectItem>
-                          )}
-                        </Select>
-                      </div>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-row gap-2">
+                      {/* ID and Title fields */}
+                      {/* <Input
+                        name="id"
+                        type="number"
+                        label="No."
+                        labelPlacement="outside"
+                        placeholder="000"
+                        className="flex-none w-20"
+                        // isRequired
+                        value={id}
+                        isReadOnly={editMode}
+                        // onValueChange={(v) =>
+                        //   Number(v) > 0 ? setId(v) : setId("0")
+                        // }
+                        disabled={isLoading}
+                      ></Input> */}
+                      <Input
+                        name="title"
+                        type="text"
+                        label="Title"
+                        labelPlacement="outside"
+                        placeholder="Enter question title"
+                        className="flex-initial"
+                        value={title}
+                        isRequired
+                        onValueChange={setTitle}
+                        disabled={isLoading}
+                      ></Input>
+
+                      <Select
+                        name="complexity"
+                        isRequired
+                        label="Complexity"
+                        labelPlacement="outside"
+                        placeholder="Choose a complexity level"
+                        className="flex-none w-36"
+                        selectedKeys={[complexity]}
+                        items={complexitySelections}
+                        onChange={(e) => setComplexity(e.target.value)}
+                        disabled={isLoading}
+                      >
+                        {(level) => (
+                          <SelectItem key={level.value}>
+                            {level.value}
+                          </SelectItem>
+                        )}
+                      </Select>
+
+                      <Select
+                        isRequired
+                        label="Topics"
+                        labelPlacement="outside"
+                        placeholder="Select question topics"
+                        selectionMode="multiple"
+                        description="Allow multiple selections"
+                        isMultiline={true}
+                        items={topicSelections}
+                        selectedKeys={topics}
+                        onChange={(e) => setTopics(e.target.value.split(","))}
+                        disabled={isLoading}
+                      >
+                        {(topic) => (
+                          <SelectItem key={topic.value}>
+                            {topic.value}
+                          </SelectItem>
+                        )}
+                      </Select>
                     </div>
-                    <div className="flex basis-3/4">
+
+                    <div className="flex">
+                      <Input
+                        name="Url"
+                        type="url"
+                        label="Question Source Url"
+                        labelPlacement="outside"
+                        placeholder="https://leetcode.com"
+                        className="flex"
+                        isRequired
+                        disabled={isLoading}
+                        value={url}
+                        onValueChange={setUrl}
+                      ></Input>
+                    </div>
+
+                    {/* Description, constrain and example fields */}
+                    <div className="flex">
                       <QuestionDescription
                         name="description"
-                        value={form.description}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            description: e.target.value,
-                          })
-                        }
+                        value={description}
+                        onValueChange={setDescription}
+                        disabled={isLoading}
                       ></QuestionDescription>
+                    </div>
+                    <div className="flex flex-row gap-2">
+                      <div className="flex flex-col basis-1/2">
+                        <QuestionConstrainsTable
+                          value={constrains}
+                          onValueChange={(v) => setConstrains(v)}
+                          disabled={isLoading}
+                        ></QuestionConstrainsTable>
+                      </div>
+                      <div className="flex flex-col basis-1/2">
+                        <QuestionExamplesTable
+                          value={examples}
+                          onValueChange={(v) => setExamples(v)}
+                          disabled={isLoading}
+                        ></QuestionExamplesTable>
+                      </div>
                     </div>
                   </div>
                 </ModalBody>
-                <ModalFooter>
-                  <Button color="primary" type="submit" disabled={isLoading}>
+                <ModalFooter className="relative items-center">
+                  <p className="absolute insert-x-0 left-0 py-2 px-4 text-danger">
+                    {error}
+                  </p>
+                  <Button
+                    color="primary"
+                    type="submit"
+                    disabled={isLoading}
+                    isLoading={isLoading}
+                    startContent={<FiCornerDownLeft />}
+                  >
                     {isLoading ? "Loading..." : "Submit"}
                   </Button>
                 </ModalFooter>
-              </form>
-            </>
-          )}
-        </ModalContent>
+              </>
+            )}
+          </ModalContent>
+        </form>
       </Modal>
     </>
   );
