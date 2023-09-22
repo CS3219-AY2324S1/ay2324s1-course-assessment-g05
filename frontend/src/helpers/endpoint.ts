@@ -43,6 +43,9 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
     case SERVICE.QUESTION:
       servicePort += process.env.ENDPOINT_QUESTION_PORT || "";
       break;
+    case SERVICE.USER:
+      servicePort += process.env.ENDPOINT_USER_PORT || "";
+      break;
     default:
       servicePort = "";
       break;
