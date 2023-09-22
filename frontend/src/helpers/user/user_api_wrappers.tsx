@@ -83,6 +83,7 @@ const createUser = async (user: User) => {
     method: HTTP_METHODS.POST,
     service: service,
     tags: scope,
+    body: user,
   });
 
   // successful response should return 201 and a user created message
@@ -115,6 +116,7 @@ const updateUser = async (id: string, user: User) => {
     method: HTTP_METHODS.PUT,
     service: service,
     path: id,
+    body: user,
     tags: scope,
   });
 
@@ -202,12 +204,13 @@ const getUserPreferenceById = async (id: string) => {
   );
 };
 
-const createUserPreference = async (id: string, userPreference: any) => {
+const createUserPreference = async (id: string, userPreference: Preference) => {
   // call POST /api/users/:id/preferences from user service
   const response = await api({
     method: HTTP_METHODS.POST,
     service: service,
     path: `${id}/preferences`,
+    body: userPreference,
     tags: scope,
   });
 
@@ -247,6 +250,7 @@ const updateUserPreference = async (id: string, userPreference: Preference) => {
     method: HTTP_METHODS.PUT,
     service: service,
     path: `${id}/preferences`,
+    body: userPreference,
     tags: scope,
   });
 
