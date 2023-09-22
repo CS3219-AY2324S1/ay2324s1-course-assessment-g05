@@ -27,6 +27,8 @@ export const api = async (config: apiConfig) => {
     case SERVICE.QUESTION:
       servicePort += process.env.ENDPOINT_QUESTION_PORT || "";
       break;
+    case SERVICE.USER:
+      servicePort += process.env.ENDPOINT_USER_PORT || "";
     default:
       servicePort = "";
       break;

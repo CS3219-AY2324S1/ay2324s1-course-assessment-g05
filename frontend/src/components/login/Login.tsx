@@ -11,9 +11,10 @@ import {
   CardHeader,
   Image
 } from "@nextui-org/react";
-import PeerPrepLogo from "../PeerPrepLogo";
+import PeerPrepLogo from "@/components/common/PeerPrepLogo"
+import { createUser } from "@/helpers/user/user_api_wrappers";
 
-export default function LoginComponent() {
+export function LoginComponent() {
   // States
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,7 +38,12 @@ export default function LoginComponent() {
 
   useEffect(() => {
     setArePasswordsEqual(!(password !== checkPassword && (password !== "" && checkPassword !== "")));
-  }, [password, checkPassword])
+  }, [password, checkPassword]);
+
+  const submitNewUser = () => {
+    createUser(name, email);
+    setIsSubmitted(true);
+  }
 
   return (
     <div className="flex items-center justify-center h-screen">
@@ -129,7 +135,12 @@ export default function LoginComponent() {
                   type="submit"
                   color="primary"
                   className="w-1/2"
-                  onClick={() => setIsSubmitted(true)}
+                  onClick={
+                    () => {
+                      submitNewUser();
+                      console.log("Email: " + email);
+                    }
+                  }
                 >
                   {isSubmitted ? null : <>Sign Up</>}
                 </Button>

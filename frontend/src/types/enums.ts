@@ -1,9 +1,11 @@
 export enum SERVICE {
   QUESTION = "question",
+  USER="user",
 }
 
 export enum ServiceLocalPorts {
-    QUESTION = '8001'
+    QUESTION = '8001',
+    USER = '5000'
 }
 
 export enum Status {

@@ -2,13 +2,19 @@ import { Status, Role } from "./enums"
 
 type User = {
     id: str,
-    image?: str,
     name: str,
     email: str,
-    password: str, 
     role: Role, // (admin, user)
+
+    image?: str,
+    bio?: string,
+    gender?: string,
+
+    // password: str, 
     status: Status, // (active, inactive)
     createdOn: Date;
+    updatedOn: Date;
+    preferences?: string
 }
 
 export default User;

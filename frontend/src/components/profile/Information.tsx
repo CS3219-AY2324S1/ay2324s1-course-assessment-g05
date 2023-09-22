@@ -1,10 +1,13 @@
 import { Input, Button, Link } from "@nextui-org/react";
+import { getUser } from "@/helpers/user/user_api_wrappers";
 
 interface InformationProps {
     setIsChangePassword: (isChangePassword: boolean) => void;
 }
 
 export default function Information({setIsChangePassword}: InformationProps) {
+
+
     return (
     <div>
         <header className="justify-center text-m underline">Edit your information:</header>
