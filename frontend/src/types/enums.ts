@@ -1,4 +1,5 @@
 export enum SERVICE {
+  USER = "user",
   QUESTION = "questions",
 }
 

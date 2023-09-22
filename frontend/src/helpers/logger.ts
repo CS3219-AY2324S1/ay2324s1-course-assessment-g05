@@ -5,7 +5,8 @@ import pino, { Logger } from "pino";
  */
 const logLevelConfig = {
   "*": "info",
-  api: "debug",
+  wrapper: "info",
+  endpoint: "info",
 };
 
 const logLevels = new Map<string, string>(Object.entries(logLevelConfig));
@@ -20,5 +21,5 @@ export function getLogLevel(logger: string): string {
  * @returns
  */
 export function getLogger(scope: string): Logger {
-  return pino({ scope, level: getLogLevel(scope) });
+  return pino({ scope, level: getLogLevel(scope)});
 }

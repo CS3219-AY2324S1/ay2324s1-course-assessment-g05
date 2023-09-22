@@ -22,6 +22,7 @@ import { deleteQuestion } from "@/helpers/question/question_api_wrappers";
 import { FiEdit, FiEye, FiTrash } from "react-icons/fi";
 import DeleteQuestion from "./DeleteQuestion";
 import { StringUtils } from "@/utils/stringUtils";
+import { CLIENT_ROUTES } from "@/common/constants";
 
 export default function QuestionTable({
   questions,
@@ -70,7 +71,7 @@ export default function QuestionTable({
       case "title":
         return (
           <>
-            <Link href={"questions/" + item._id}>{cellValue as string}</Link>
+            <Link href={`${CLIENT_ROUTES.QUESTIONS}/${item._id}`}>{cellValue as string}</Link>
           </>
         );
       case "complexity":
