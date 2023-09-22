@@ -15,11 +15,8 @@ import {
 } from "@nextui-org/react";
 import Question from "@/types/question";
 import ModifyQuestionModal from "./ModifyQuestionModal";
-import { redirect } from "next/navigation";
 import ComplexityChip from "./ComplexityChip";
-import { COMPLEXITY } from "@/types/enums";
-import { deleteQuestion } from "@/helpers/question/question_api_wrappers";
-import { FiEdit, FiEye, FiTrash } from "react-icons/fi";
+import { FiEdit, FiEye } from "react-icons/fi";
 import DeleteQuestion from "./DeleteQuestion";
 import { StringUtils } from "@/utils/stringUtils";
 import { CLIENT_ROUTES } from "@/common/constants";
