@@ -278,22 +278,6 @@ const updateUserPreference = async (id: string, userPreference: Preference) => {
   );
 };
 
-const getProfileUrl = (username: string) => {
-  return "https://i.pravatar.cc/150?u=a042581f4e29026704d";
-};
-
-const getUsername = () => {
-  return "test user";
-};
-
-const getUserPreferences = () => {
-  return {
-    languages: ["Python", "C++"],
-    difficulties: ["Easy", "Medium"],
-    topics: ["Array", "String", "Tree"],
-  };
-};
-
 export const UserService = {
   //async endpoint functions
   getUserById,
@@ -304,9 +288,4 @@ export const UserService = {
   getUserPreferenceById,
   createUserPreference,
   updateUserPreference,
-
-  //sync helper functions
-  getProfileUrl,
-  getUsername,
-  getUserPreferences,
 };

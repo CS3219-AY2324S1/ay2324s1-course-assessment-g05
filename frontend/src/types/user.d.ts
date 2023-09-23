@@ -9,6 +9,7 @@ type User = {
   role: Role; // (admin, user)
   status?: Status; // (active, inactive) this is optional because by default status is active, so we don't always provide the status
   createdOn?: Date; // this is optional because we don't need to provide this field when we create the user
+  preferences?: Preference;
 };
 
 export default User;

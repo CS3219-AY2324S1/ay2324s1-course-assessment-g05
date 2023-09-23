@@ -5,14 +5,18 @@ import { UserService } from "@/helpers/user/user_api_wrappers";
 import { MatchingService } from "@/helpers/matching/matching_api_wrappers";
 import { COMPLEXITY, LANGUAGE, TOPIC } from "@/types/enums";
 import { StringUtils } from "@/utils/stringUtils";
+import { useAuthContext } from "@/providers/auth";
 
 const MatchingCard = () => {
+  const {
+    user: { preferences: currentPreferences },
+  } = useAuthContext();
   const optionsLanguages = StringUtils.convertEnumsToCamelCase(LANGUAGE);
   const optionsDifficulties = StringUtils.convertEnumsToCamelCase(COMPLEXITY);
   const optionsTopics = StringUtils.convertEnumsToCamelCase(TOPIC);
 
   const [preferences, setPreferences] = React.useState(
-    UserService.getUserPreferences()
+    currentPreferences || { languages: [], difficulties: [], topics: [] }
   );
 
   const handleOnSelectionChange = (
