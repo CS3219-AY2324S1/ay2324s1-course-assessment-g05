@@ -3,22 +3,27 @@ import React from "react";
 import 'react-quill/dist/quill.snow.css'
 
 const modules = {
-  toolbar: [
-    [{ header: '1' }, { header: '2' }, { font: [] }],
-    [{ size: [] }],
-    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-    [
-      { list: 'ordered' },
-      { list: 'bullet' },
-      { indent: '-1' },
-      { indent: '+1' },
+  toolbar: {
+    container: [
+      [{ header: '1' }, { header: '2' }, { font: [] }],
+      [{ size: [] }],
+      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+      [
+        { list: 'ordered' },
+        { list: 'bullet' },
+        { indent: '-1' },
+        { indent: '+1' },
+      ],
+      ['link', 'image', 'video'],
+      ['clean'],
     ],
-    ['link', 'image', 'video'],
-    ['clean'],
-  ],
+    handlers: {
+      // image: imageCompressor
+    }
+  },
   clipboard: {
     matchVisual: false,
-  },
+  }
 }
 
 const formats = [
@@ -49,21 +54,21 @@ export default function QuestionDescription({
   onValueChange?: (value: string) => void;
   disabled?: boolean;
 }) {
-  const ReactQuill = React.useMemo(() => dynamic(() => import('react-quill'), { ssr: false }),[]);
+  const ReactQuill = React.useMemo(() => dynamic(() => import('react-quill'), { ssr: false }), []);
 
   return (
     <>
       <div className="w-full">
-      <p className="text-small">Descriptions<span className="text-danger">*</span></p>
-      <ReactQuill
-        className="py-2 my-2 rounded-lg"
-        value={value}
-        onChange={onValueChange}
-        placeholder="Enter question description, sample and constrains etc"
-        modules={modules}
-        formats={formats}
-        readOnly={disabled}
-        theme="snow" />
+        <p className="text-small">Descriptions<span className="text-danger">*</span></p>
+        <ReactQuill
+          className="py-2 my-2 rounded-lg"
+          value={value}
+          onChange={onValueChange}
+          placeholder="Enter question description, sample and constrains etc"
+          modules={modules}
+          formats={formats}
+          readOnly={disabled}
+          theme="snow" />
       </div>
     </>
   );
