@@ -54,7 +54,7 @@ export default function QuestionDescription({
   onValueChange?: (value: string) => void;
   disabled?: boolean;
 }) {
-  const ReactQuill = React.useMemo(() => dynamic(() => import('react-quill'), { ssr: false }), []);
+  const ReactQuill = React.useMemo(() => dynamic(() => import('react-quill'), { ssr: false }),[]);
 
   return (
     <>
