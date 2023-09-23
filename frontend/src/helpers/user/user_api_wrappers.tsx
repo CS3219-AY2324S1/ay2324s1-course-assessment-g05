@@ -1,18 +1,21 @@
 import api from "@/helpers/endpoint";
 import { getLogger } from "@/helpers/logger";
-import { SERVICE } from "@/types/enums"; 
+import { HTTP_METHODS, SERVICE } from "@/types/enums"; 
 import { revalidateTag } from "next/cache";
 import { Status, Role } from "@/types/enums";
 import User from "../../types/user";
 
 const logger = getLogger("user_api_wrappers");
 
+const service = SERVICE.USER;
+const scope = [SERVICE.USER];
+
 /**
  * get: /api/user
  * Retrieves the user information from the API
  * @returns {Promise<User>} the user object
  */
-export async function getUser(userid: string): Promise<User> {
+export async function getUser(email: string): Promise<User> {
   let user: User = {
     id: "",
     name: "",
@@ -31,18 +34,17 @@ export async function getUser(userid: string): Promise<User> {
 
   try {
     const res = await api({
-      method: `get`,
-      // service: "user",
-      tags: ["user"],
+      method: HTTP_METHODS.GET,
+      tags: scope,
       service: SERVICE.USER,
-      path: `/user/${userid}`,
-    });
+      path: `email?email=${email}`,
+      });
 
-    if(!res.ok) {
+    if(res.status !== 201) {
       throw new Error(JSON.stringify(res.message));
     }
 
-    if (res.ok) {
+    if (res.status === 201) {
       logger.info(res.data);
     }
     // user = res.data;
@@ -52,42 +54,42 @@ export async function getUser(userid: string): Promise<User> {
   return user
 }
 
-export async function createUser(name: string, email: string): Promise<User> {
-
-  let user: User = {
-    id: "abcdef",
-    name: name,
-    email: email,
-    role: Role.USER,
-
-    image: "",
-    bio: "",
-    gender: "",
-    
-    status: Status.ACTIVE,
-    createdOn: new Date(),
-    updatedOn: new Date(),
-    preferences: ""
-  };
+/**
+ * post: /api/user
+ * Creates the user information from the API
+ * @returns {{ok: boolean, message: string, status: number}} for client side
+ */
+export async function createUser(name: string, email: string): Promise<{ok: boolean, message: string, status: number}> {
 
   try {
     const res = await api({
-      method: `post`,
+      method: HTTP_METHODS.POST,
       tags: ["user"],
       service: SERVICE.USER,
-      path: `/user`,
-      body: user,
+      body: {
+        name: name,
+        email: email,
+        role: "USER",
+      },
     });
 
-    if (!res.ok) {
-      throw new Error(JSON.stringify(res.message));
+    if (res.status != 201) {
+      return {
+        ok: false,
+        message: res.data,
+        status: res.status
+      }
     }
 
-    if (res.ok) {
+    if (res.status == 201) {
       logger.info(res.data);
     }
 
-    return res.data;
+    return {
+      ok: true,
+      message: res.data,
+      status: res.status
+    };
   } catch (e) {
     logger.error("User not created:" + e);
     throw e;

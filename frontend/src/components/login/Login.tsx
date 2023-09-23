@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import {
   Card,
   Spacer,
@@ -13,14 +13,21 @@ import {
 } from "@nextui-org/react";
 import PeerPrepLogo from "@/components/common/PeerPrepLogo"
 import { createUser } from "@/helpers/user/user_api_wrappers";
+import { CLIENT_ROUTES } from "@/common/constants";
+import { useRouter } from "next/navigation";
+import { requestToBodyStream } from "next/dist/server/body-streams";
 
 export function LoginComponent() {
+
+  const router = useRouter()
+
   // States
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
   const [name, setName] = useState("");
   const [isRemembered, setIsRemembered] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   // Flags
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -28,6 +35,8 @@ export function LoginComponent() {
   const [isCheckPasswordVisible, setIsCheckPasswordVisible] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [arePasswordsEqual, setArePasswordsEqual] = useState(false);
+  const [isEmailValid, setIsEmailValid] = useState(false);
+  const [doesUserExist, setDoesUserExist] = useState(false);
 
   // Toggles
   const togglePasswordVisibility = () =>
@@ -38,17 +47,56 @@ export function LoginComponent() {
 
   useEffect(() => {
     setArePasswordsEqual(!(password !== checkPassword && (password !== "" && checkPassword !== "")));
+    
+    if (password !== "" && checkPassword !== "") {
+      if (password.length < 8) {
+        setErrorMsg("Password should contain 8 characters or more.");
+      }
+    } else {
+      setErrorMsg("");
+    }
   }, [password, checkPassword]);
 
-  const submitNewUser = () => {
-    createUser(name, email);
+  useEffect(() => {
+    if (!(email.includes("@") && email.includes("."))) {
+      setErrorMsg("Email is invalid. Please try again.");
+    } else {
+      setErrorMsg("");
+    }
+  }, [email])
+
+  async function submitNewUser(e: FormEvent<HTMLFormElement>) {
+    try {
+      e.preventDefault();
+      setIsSubmitted(true);
+      let res = await createUser(name, email);
+      if (res.ok) {
+        router.push(CLIENT_ROUTES.HOME);
+        return;
+      } 
+      
+      if (res.status == 400) {
+        setErrorMsg("User exists. Please login instead.");
+      } else {
+        throw new Error(res.message)
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setIsSubmitted(false);
+    }
+  }
+
+  async function getUser(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    // getUser
     setIsSubmitted(true);
   }
 
   return (
     <div className="flex items-center justify-center h-screen">
       <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
-        <form className="w-1/2">
+        <form className="w-1/2" onSubmit={ isSignUp ? submitNewUser : getUser }>
           <PeerPrepLogo />
           <CardHeader className="lg font-bold justify-center">
             PeerPrep
@@ -120,7 +168,6 @@ export function LoginComponent() {
                 }}
                 placeholder="Name"
               />
-              
               {arePasswordsEqual ? (
                 <Spacer y={6}/>
               ) : (
@@ -129,18 +176,13 @@ export function LoginComponent() {
                   Passwords do not match
                 </div>
               )}
+              <div className="text-red-500 text-center text-xs font-bold">{errorMsg}</div>
               <div className="flex flex-col items-center pt-5 space-y-5">
                 <Button
                   isLoading={isSubmitted}
                   type="submit"
                   color="primary"
                   className="w-1/2"
-                  onClick={
-                    () => {
-                      submitNewUser();
-                      console.log("Email: " + email);
-                    }
-                  }
                 >
                   {isSubmitted ? null : <>Sign Up</>}
                 </Button>
