@@ -28,6 +28,15 @@ export const getUserById = async (request: Request, response: Response) => {
       where: {
         id: userId,
       },
+      include: {
+        preferences: {
+          select: {
+            languages: true,
+            topics: true,
+            difficulties: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -67,6 +76,15 @@ export const getUserByEmail = async (request: Request, response: Response) => {
     const user = await db.user.findFirst({
       where: {
         email: parsedEmail,
+      },
+      include: {
+        preferences: {
+          select: {
+            languages: true,
+            topics: true,
+            difficulties: true,
+          },
+        },
       },
     });
 
