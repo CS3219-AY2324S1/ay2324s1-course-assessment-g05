@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
-import HttpStatusCode from "../../lib/HttpStatusCode";
+import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import { QueryParamValidator } from "../../lib/validators/QueryParamValidator";
 import questionDb from "../../models/database/schema/question";
 import mongoose from "mongoose";
 import { ZodError } from "zod";
+import { formatErrorMessage } from "../../lib/utils/errorUtils";
 
 // Check if database connection is successful
 export const getHealth = async (_: Request, response: Response) => {
@@ -44,10 +45,9 @@ export const getQuestions = async (request: Request, response: Response) => {
       .json({ count: questions.length, data: questions });
   } catch (error) {
     if (error instanceof ZodError) {
-      response.status(HttpStatusCode.BAD_REQUEST).json({
-        error: "BAD REQUEST",
-        message: error.message,
-      });
+      response
+        .status(HttpStatusCode.BAD_REQUEST)
+        .json({ error: "BAD REQUEST", message: formatErrorMessage(error) });
       return;
     }
     // log the error

@@ -4,6 +4,7 @@ import { UpdateUserValidator } from "../../lib/validators/UpdateUserValidator";
 import db from "../../lib/db";
 import { ZodError } from "zod";
 import { UpdateUserPreferencesValidator } from "../../lib/validators/UpdateUserPreferencesValidator";
+import { formatErrorMessage } from "../../lib/utils/errorUtils";
 
 export const updateUserById = async (request: Request, response: Response) => {
   try {
@@ -70,10 +71,9 @@ export const updateUserById = async (request: Request, response: Response) => {
     response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
     if (error instanceof ZodError) {
-      console.log(error.message);
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
-        message: "Invalid input request body.",
+        message: formatErrorMessage(error),
       });
       return;
     }
@@ -158,7 +158,7 @@ export const updateUserPreferences = async (
     if (error instanceof ZodError) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
-        message: error.message,
+        message: formatErrorMessage(error),
       });
       return;
     }

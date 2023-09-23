@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import { CreateUserValidator } from "../../lib/validators/CreateUserValidator";
 import { ZodError } from "zod";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
-import { convertStringToRole } from "../../lib/enums/Role";
 import db from "../../lib/db";
 import { CreateUserPreferencesValidator } from "../../lib/validators/CreateUserPreferencesValidator";
+import { formatErrorMessage } from "../../lib/utils/errorUtils";
 
 export const postUser = async (request: Request, response: Response) => {
   try {
@@ -53,7 +53,7 @@ export const postUser = async (request: Request, response: Response) => {
     if (error instanceof ZodError) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
-        message: error.message,
+        message: formatErrorMessage(error),
       });
       return;
     }
@@ -136,7 +136,7 @@ export const postUserPreferences = async (
     if (error instanceof ZodError) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
-        message: error.message,
+        message: formatErrorMessage(error),
       });
       return;
     }

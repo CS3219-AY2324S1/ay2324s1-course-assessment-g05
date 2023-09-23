@@ -2,7 +2,7 @@ import supertest from "supertest";
 import createServer from "../utils/server";
 import questionDb from "../../models/database/schema/question";
 import * as TestPayload from "../utils/payloads";
-import HttpStatusCode from "../../lib/HttpStatusCode";
+import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
 const app = createServer();
 const dbMock = questionDb as jest.Mocked<typeof questionDb>;

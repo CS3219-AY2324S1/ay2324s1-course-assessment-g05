@@ -1,10 +1,11 @@
 import { Response, Request } from "express";
 import { Example, Question } from "@/models/question";
-import HttpStatusCode from "../../lib/HttpStatusCode";
+import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import { convertStringToComplexity } from "../../lib/enums/Complexity";
-import { ZodError } from "zod";
 import { CreateQuestionValidator } from "../../lib/validators/CreateQuestionValidator";
 import questionDb from "../../models/database/schema/question";
+import { formatErrorMessage } from "../../lib/utils/errorUtils";
+import { ZodError } from "zod";
 
 export const postQuestion = async (request: Request, response: Response) => {
   try {
@@ -68,10 +69,9 @@ export const postQuestion = async (request: Request, response: Response) => {
     if (error instanceof ZodError) {
       response
         .status(HttpStatusCode.BAD_REQUEST)
-        .json({ error: "BAD REQUEST", message: error.message });
+        .json({ error: "BAD REQUEST", message: formatErrorMessage(error) });
       return;
     }
-
     // log the error
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({

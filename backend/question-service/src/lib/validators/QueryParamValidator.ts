@@ -7,6 +7,7 @@ export const QueryParamValidator = z.object({
   topics: z.union([
     z
       .array(z.string().transform(convertStringToTopic))
+      .refine((topics) => topics.length > 0, "At least one topic is required.")
       .refine(
         (topics) => new Set(topics).size === topics.length,
         "Duplicated topics detected"
