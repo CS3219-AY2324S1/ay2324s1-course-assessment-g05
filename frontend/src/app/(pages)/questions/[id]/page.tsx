@@ -1,18 +1,32 @@
-"use client";
+import { getQuestionById } from "@/helpers/question/question_api_wrappers";
 import Question from "@/types/question";
-import { getQuestionById } from "../../../../helpers/questions/services";
-import { useParams } from "next/navigation";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
-export default async function QuestionDetailPage() {
-  const params = useParams();
-  const question: Question = await getQuestionById(params.id as string);
+async function getQuestion(id: string) {
+  const res = await getQuestionById(id, 'no-cache');
+
+  if ('title' in res) {
+    return res as Question;
+  } else {
+    notFound();
+  }
+}
+
+export default async function QuestionDetailPage({
+  params,
+}: {
+  params: { id: string }
+}) {
+  const question = await getQuestion(params.id);
 
   return (
-    <>
-      <p>{question.id}</p>
+    <Suspense fallback={<div>Loading...</div>}>
+      <p>{question._id}</p>
       <p>{question.complexity}</p>
       <p>{question.topics}</p>
+      {/* will need to render the description in client side */}
       <p>{question.description}</p>
-    </>
+    </Suspense>
   );
 }
