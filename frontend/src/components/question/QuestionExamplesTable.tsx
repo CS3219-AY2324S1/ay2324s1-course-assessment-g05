@@ -1,6 +1,5 @@
 import { Example } from "@/types/question";
 import {
-  Button,
   Input,
   Table,
   TableBody,
@@ -10,7 +9,6 @@ import {
   TableRow,
 } from "@nextui-org/react";
 import React from "react";
-import { FiPlus } from "react-icons/fi";
 
 export default function QuestionExamplesTable({
   value,
