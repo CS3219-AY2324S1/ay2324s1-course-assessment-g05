@@ -8,7 +8,7 @@ export const CreateUserValidator = z.object({
   role: z.string().transform(convertStringToRole),
 
   image: z.string().url().optional(),
-  bio: z.string().max(255).optional(),
+  bio: z.string().min(3).max(255).optional(),
   gender: z.string().transform(convertStringToGender).optional(),
 });
 
