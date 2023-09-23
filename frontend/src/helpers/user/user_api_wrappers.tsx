@@ -4,116 +4,285 @@ import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import { revalidateTag } from "next/cache";
 import { Status, Role } from "@/types/enums";
 import User from "../../types/user";
+import HttpStatusCode from "@/types/HttpStatusCode";
+import { PeerPrepErrors } from "@/types/PeerPrepErrors";
+import { throwAndLogError } from "@/utils/errorUtils";
 
 const logger = getLogger("user_api_wrappers");
 
 const service = SERVICE.USER;
 const scope = [SERVICE.USER];
 
-/**
- * get: /api/user
- * Retrieves the user information from the API
- * @returns {Promise<User>} the user object
- */
-export async function getUser(email: string): Promise<User> {
-  let user: User = {
-    id: "",
-    name: "",
-    email: "",
-    role: Role.USER,
+const getUserByEmail = async (email: string): Promise<User | undefined> => {
+  const response = await api({
+    method: HTTP_METHODS.GET,
+    service: service,
+    path: `email?email=${email}`,
+    tags: scope,
+  });
 
-    image: "",
-    bio: "",
-    gender: "",
-    
-    status: Status.ACTIVE,
-    createdOn: new Date(),
-    updatedOn: new Date(),
-    preferences: ""
-  };
-
-  try {
-    const res = await api({
-      method: HTTP_METHODS.GET,
-      tags: scope,
-      service: SERVICE.USER,
-      path: `email?email=${email}`,
-      });
-
-    if(res.status !== 201) {
-      throw new Error(JSON.stringify(res.message));
-    }
-
-    if (res.status === 201) {
-      logger.info(res.data);
-    }
-    // user = res.data;
-  } catch (e) {
-    logger.error("Get user info:" + e);
+  // successful response should return 200 with the user data
+  if (response.status === HttpStatusCode.OK) {
+    const user = response.data as User;
+    logger.info(`[getUserByEmail(${email})] ${user}`);
+    return user;
+  } else if (response.status === HttpStatusCode.NOT_FOUND) {
+    return throwAndLogError(
+      "getUserByEmail",
+      response.message,
+      PeerPrepErrors.NotFoundError
+    );
+  } else if (response.status === HttpStatusCode.BAD_REQUEST) {
+    return throwAndLogError(
+      "getUserByEmail",
+      response.message,
+      PeerPrepErrors.BadRequestError
+    );
   }
-  return user
-}
-
-/**
- * post: /api/user
- * Creates the user information from the API
- * @returns {{ok: boolean, message: string, status: number}} for client side
- */
-export async function createUser(name: string, email: string): Promise<{ok: boolean, message: string, status: number}> {
-
-  try {
-    const res = await api({
-      method: HTTP_METHODS.POST,
-      tags: ["user"],
-      service: SERVICE.USER,
-      body: {
-        name: name,
-        email: email,
-        role: "USER",
-      },
-    });
-
-    if (res.status != 201) {
-      return {
-        ok: false,
-        message: res.data,
-        status: res.status
-      }
-    }
-
-    if (res.status == 201) {
-      logger.info(res.data);
-    }
-
-    return {
-      ok: true,
-      message: res.data,
-      status: res.status
-    };
-  } catch (e) {
-    logger.error("User not created:" + e);
-    throw e;
-  }
-}
-
-const getProfileUrl = (username: string) => {
-  return "https://i.pravatar.cc/150?u=a042581f4e29026704d";
+  return throwAndLogError(
+    "getUserByEmail",
+    response.message,
+    PeerPrepErrors.InternalServerError
+  );
 };
 
-const getUsername = () => {
-  return "test user";
+const getUserById = async (id: string): Promise<User> => {
+  // call GET /api/users/:id from user service
+  const response = await api({
+    method: HTTP_METHODS.GET,
+    service: service,
+    path: id,
+    tags: scope,
+  });
+
+  // successful response should return 200 with the user data
+  if (response.status === HttpStatusCode.OK) {
+    const user = response.data as User;
+    logger.info(`[getUserById(${id})] ${user}`);
+    return user;
+  } else if (response.status === HttpStatusCode.NOT_FOUND) {
+    return throwAndLogError(
+      "getUserById",
+      response.message,
+      PeerPrepErrors.NotFoundError
+    );
+  }
+  return throwAndLogError(
+    "getUserById",
+    response.message,
+    PeerPrepErrors.InternalServerError
+  );
 };
 
-const getUserPreferences = () => {
-  return {
-    languages: ["Python", "C++"],
-    difficulties: ["Easy", "Medium"],
-    topics: ["Array", "String", "Tree"],
-  };
+const createUser = async (user: User) => {
+  // call POST /api/users from user service
+  const response = await api({
+    method: HTTP_METHODS.POST,
+    service: service,
+    tags: scope,
+    body: user,
+  });
+
+  // successful response should return 201 and a user created message
+  if (response.status === HttpStatusCode.CREATED) {
+    revalidateTag(SERVICE.USER);
+    return true;
+  } else if (response.status === HttpStatusCode.BAD_REQUEST) {
+    return throwAndLogError(
+      "createUser",
+      response.message,
+      PeerPrepErrors.BadRequestError
+    );
+  } else if (response.status === HttpStatusCode.CONFLICT) {
+    return throwAndLogError(
+      "createUser",
+      response.message,
+      PeerPrepErrors.ConflictError
+    );
+  }
+  return throwAndLogError(
+    "createUser",
+    response.message,
+    PeerPrepErrors.InternalServerError
+  );
+};
+
+const updateUser = async (id: string, user: User) => {
+  // call PUT /api/users/:id from user service
+  const response = await api({
+    method: HTTP_METHODS.PUT,
+    service: service,
+    path: id,
+    body: user,
+    tags: scope,
+  });
+
+  // successful response should return 204
+  if (response.status === HttpStatusCode.NO_CONTENT) {
+    revalidateTag(SERVICE.USER);
+    return true;
+  } else if (response.status === HttpStatusCode.BAD_REQUEST) {
+    return throwAndLogError(
+      "updateUser",
+      response.message,
+      PeerPrepErrors.BadRequestError
+    );
+  } else if (response.status === HttpStatusCode.NOT_FOUND) {
+    return throwAndLogError(
+      "updateUser",
+      response.message,
+      PeerPrepErrors.NotFoundError
+    );
+  } else if (response.status === HttpStatusCode.CONFLICT) {
+    return throwAndLogError(
+      "updateUser",
+      response.message,
+      PeerPrepErrors.ConflictError
+    );
+  }
+  return throwAndLogError(
+    "updateUser",
+    response.message,
+    PeerPrepErrors.InternalServerError
+  );
+};
+
+const deleteUser = async (id: string) => {
+  // call DELETE /api/users/:id from user service
+  const response = await api({
+    method: HTTP_METHODS.DELETE,
+    service: service,
+    path: id,
+    tags: scope,
+  });
+
+  // successful response should return 204
+  if (response.status === HttpStatusCode.NO_CONTENT) {
+    return true;
+  } else if (response.status === HttpStatusCode.NOT_FOUND) {
+    return throwAndLogError(
+      "deleteUser",
+      response.message,
+      PeerPrepErrors.NotFoundError
+    );
+  }
+  return throwAndLogError(
+    "deleteUser",
+    response.message,
+    PeerPrepErrors.InternalServerError
+  );
+};
+
+const getUserPreferenceById = async (id: string) => {
+  // call GET /api/users/:id/preferences from user service
+  const response = await api({
+    method: HTTP_METHODS.GET,
+    service: service,
+    path: `${id}/preferences`,
+    tags: scope,
+  });
+
+  // successful response should return 200 with the user preference data
+  if (response.status === HttpStatusCode.OK) {
+    const userPreference = response.data as Preference;
+    logger.info(`[getUserPreferenceById(${id})] ${userPreference}`);
+    return userPreference;
+  } else if (response.status === HttpStatusCode.NOT_FOUND) {
+    return throwAndLogError(
+      "getUserPreferenceById",
+      response.message,
+      PeerPrepErrors.NotFoundError
+    );
+  }
+  return throwAndLogError(
+    "getUserPreferenceById",
+    response.message,
+    PeerPrepErrors.InternalServerError
+  );
+};
+
+const createUserPreference = async (id: string, userPreference: Preference) => {
+  // call POST /api/users/:id/preferences from user service
+  const response = await api({
+    method: HTTP_METHODS.POST,
+    service: service,
+    path: `${id}/preferences`,
+    body: userPreference,
+    tags: scope,
+  });
+
+  // successful response should return 201 and a user preference created message
+  if (response.status === HttpStatusCode.CREATED) {
+    revalidateTag(SERVICE.USER);
+    return true;
+  } else if (response.status === HttpStatusCode.BAD_REQUEST) {
+    return throwAndLogError(
+      "createUserPreference",
+      response.message,
+      PeerPrepErrors.BadRequestError
+    );
+  } else if (response.status === HttpStatusCode.NOT_FOUND) {
+    return throwAndLogError(
+      "createUserPreference",
+      response.message,
+      PeerPrepErrors.NotFoundError
+    );
+  } else if (response.status === HttpStatusCode.CONFLICT) {
+    return throwAndLogError(
+      "createUserPreference",
+      response.message,
+      PeerPrepErrors.ConflictError
+    );
+  }
+  return throwAndLogError(
+    "createUserPreference",
+    response.message,
+    PeerPrepErrors.InternalServerError
+  );
+};
+
+const updateUserPreference = async (id: string, userPreference: Preference) => {
+  // call PUT /api/users/:id/preferences from user service
+  const response = await api({
+    method: HTTP_METHODS.PUT,
+    service: service,
+    path: `${id}/preferences`,
+    body: userPreference,
+    tags: scope,
+  });
+
+  // successful response should return 204
+  if (response.status === HttpStatusCode.NO_CONTENT) {
+    revalidateTag(SERVICE.USER);
+    return true;
+  } else if (response.status === HttpStatusCode.BAD_REQUEST) {
+    return throwAndLogError(
+      "updateUserPreference",
+      response.message,
+      PeerPrepErrors.BadRequestError
+    );
+  } else if (response.status === HttpStatusCode.NOT_FOUND) {
+    return throwAndLogError(
+      "updateUserPreference",
+      response.message,
+      PeerPrepErrors.NotFoundError
+    );
+  }
+  return throwAndLogError(
+    "updateUserPreference",
+    response.message,
+    PeerPrepErrors.InternalServerError
+  );
 };
 
 export const UserService = {
-  getProfileUrl,
-  getUsername,
-  getUserPreferences,
+  //async endpoint functions
+  getUserById,
+  getUserByEmail,
+  createUser,
+  updateUser,
+  deleteUser,
+  getUserPreferenceById,
+  createUserPreference,
+  updateUserPreference,
 };

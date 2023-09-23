@@ -38,8 +38,19 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
       ? process.env.ENDPOINT_PROD
       : process.env.ENDPOINT_DEV;
 
-  // Configure local service port.
-  let servicePort = getServicePorts(config.service);
+  // Configure local service port based on the 'service' property in the configuration.
+  let servicePort = ":";
+  switch (config.service) {
+    case SERVICE.QUESTION:
+      servicePort += process.env.ENDPOINT_QUESTION_PORT || "";
+      break;
+    case SERVICE.USER:
+      servicePort += process.env.ENDPOINT_USER_PORT || "";
+      break;
+    default:
+      servicePort = "";
+      break;
+  }
 
   // Build the final API endpoint URL.
   const endpoint = `http://${host}${servicePort}/api/${config.service}/${config.path || ""}`;
@@ -101,6 +112,9 @@ function getServicePorts(service: SERVICE) {
     switch (service) {
       case SERVICE.QUESTION:
         servicePort += process.env.ENDPOINT_QUESTION_PORT || "";
+        break;
+      case SERVICE.USER:
+        servicePort += process.env.ENDPOINT_USER_PORT || "";
         break;
       default:
         servicePort = "";

@@ -1,20 +1,15 @@
-import { Status, Role } from "./enums"
+import { Status, Role } from "./enums";
 
 type User = {
-    id: str,
-    name: str,
-    email: str,
-    role: Role, // (admin, user)
-
-    image?: str,
-    bio?: string,
-    gender?: string,
-
-    // password: str, 
-    status: Status, // (active, inactive)
-    createdOn: Date;
-    updatedOn: Date;
-    preferences?: string
-}
+  id?: str; //this is optional because when we create user, we don't need to provide the user id
+  image?: str;
+  name: str;
+  email: str;
+  password?: str; //this is optional because if the user is logged in via OAuth, there is no need for password field
+  role: Role; // (admin, user)
+  status?: Status; // (active, inactive) this is optional because by default status is active, so we don't always provide the status
+  createdOn?: Date; // this is optional because we don't need to provide this field when we create the user
+  preferences?: Preference;
+};
 
 export default User;

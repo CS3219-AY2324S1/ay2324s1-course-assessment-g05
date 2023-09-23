@@ -12,7 +12,7 @@ import {
   Image
 } from "@nextui-org/react";
 import PeerPrepLogo from "@/components/common/PeerPrepLogo"
-import { createUser } from "@/helpers/user/user_api_wrappers";
+import { UserService } from "@/helpers/user/user_api_wrappers";
 import { CLIENT_ROUTES } from "@/common/constants";
 import { useRouter } from "next/navigation";
 import { requestToBodyStream } from "next/dist/server/body-streams";
@@ -69,7 +69,7 @@ export function LoginComponent() {
     try {
       e.preventDefault();
       setIsSubmitted(true);
-      let res = await createUser(name, email);
+      let res = await UserService.createUser(name, email);
       if (res.ok) {
         router.push(CLIENT_ROUTES.HOME);
         return;

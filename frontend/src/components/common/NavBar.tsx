@@ -10,6 +10,7 @@ import {
   DropdownMenu,
   DropdownSection,
   Button,
+  User,
 } from "@nextui-org/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,10 +19,13 @@ import PeerPrepLogo from "@/components/common/PeerPrepLogo";
 import ProfilePictureAvatar from "./ProfilePictureAvatar";
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import { MatchingService } from "@/helpers/matching/matching_api_wrappers";
+import { useAuthContext } from "@/providers/auth";
 
 const NavBar = () => {
+  const {
+    user: { image },
+  } = useAuthContext();
   const router = useRouter();
-
   const handleQuickMatchButtonPress = () => {
     const preferences = UserService.getUserPreferences();
     MatchingService.submitMatchPreferences(preferences);
@@ -36,10 +40,10 @@ const NavBar = () => {
   return (
     <Navbar className="bg-black justify-stretch" maxWidth="full" height="50px">
       <NavbarBrand className="flex-grow-0">
-        <Link href={CLIENT_ROUTES.HOME}>
+        <Link href={CLIENT_ROUTES.HOME} className="flex items-center gap-1">
           <PeerPrepLogo width="30px" height="30px" />
+          <p className="text-white text-2xl font-semibold"> PeerPrep </p>
         </Link>
-        <p className="text-white text-2xl font-semibold"> PeerPrep </p>
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4 p-3" justify="start">
         <NavbarItem>
@@ -58,7 +62,7 @@ const NavBar = () => {
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
             <button className="outline-none">
-              <ProfilePictureAvatar />
+              <ProfilePictureAvatar profileUrl={image} />
             </button>
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions">
