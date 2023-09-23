@@ -22,7 +22,7 @@ model User {
 
   createdOn   DateTime     @default(now())
   updatedOn   DateTime     @updatedAt
-  Preferences Preferences?
+  preferences Preferences?
 }
 
 model Preferences {
