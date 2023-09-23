@@ -37,7 +37,6 @@ export default function MatchingLobby({
   const debugStage = () => {
     let opts = Object.keys(MATCHING_STAGE);
     let next = opts.findIndex(x => x === stage.toString()) + 1 % opts.length;
-    console.log('set stage to next: ', next);
     setStage(next)
   }
 
@@ -52,16 +51,11 @@ export default function MatchingLobby({
 
   // Response to stage events
   React.useEffect(() => {
-    console.log("Matching: " + stage);
     switch (stage) {
       case MATCHING_STAGE.MATCHING:
         onMatchingStage();
         break;
-      case MATCHING_STAGE.READY:
-          // redirect to collab session
-          break;
       default:
-
         break;
     }
   }, [stage])
@@ -86,9 +80,9 @@ export default function MatchingLobby({
       console.log("matching process triggered");
 
       // Request to join matching queue
-      // setTimeout(() => {
-      //   setStage(MATCHING_STAGE.SUCCESS)
-      // }, 3000)
+      setTimeout(() => {
+        setStage(MATCHING_STAGE.SUCCESS)
+      }, 60 * 1000)
     } catch (error) {
       setStage(MATCHING_STAGE.ERROR)
     }
@@ -96,6 +90,13 @@ export default function MatchingLobby({
 
   const handleRetry = () => {
     setStage(MATCHING_STAGE.MATCHING);
+  }
+
+  const handleReady = () => {
+    console.log("User ready to start collab.");
+    // check if peer ready
+    // redirect to collab session
+    onClose();
   }
 
   const initialView = <>
@@ -131,10 +132,13 @@ export default function MatchingLobby({
           </div> */}
         </CardBody>
         <CardFooter className="justify-center p-2">
-          <Button onPress={onClose} color="success" isLoading>Ready</Button>
+          <Button onPress={handleReady} color="primary" className="w-full">Ready</Button>
         </CardFooter>
       </Card>
-      <FiCodepen className="m-4 w-12 h-12" />
+      <div className="text-center">
+        <p>Matched</p>
+        <FiCodepen className="m-4 w-12 h-12" />
+      </div>
       <Card>
         <CardBody className="items-center p-2">
           <ProfilePictureAvatar size="16" />
@@ -146,7 +150,7 @@ export default function MatchingLobby({
           </div> */}
         </CardBody>
         <CardFooter className="justify-center p-2">
-          <Button onPress={onClose} color="success" isLoading>Ready</Button>
+          <Button onPress={onClose} color="success" className="w-full" isLoading>Ready</Button>
         </CardFooter>
       </Card>
     </ModalBody>
