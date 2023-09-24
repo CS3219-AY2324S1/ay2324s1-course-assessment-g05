@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from "express";
 import router from "./routes";
 import bodyParser from "body-parser";
 import cors from "./middleware/cors";
-import HttpStatusCode from "./lib/HttpStatusCode";
+import HttpStatusCode from "./lib/enums/HttpStatusCode";
 import dotenv from "dotenv";
 import { connectToMongoDb } from "./models/database/dbConfig";
 

@@ -13,7 +13,8 @@ describe("POST /api/users", () => {
       // Arrange
       const requestBody = testPayloads.getPostUserPayload();
       dbMock.user.findFirst = jest.fn().mockReturnValue(null);
-      dbMock.user.create = jest.fn().mockResolvedValue(null);
+      dbMock.user.create = jest.fn().mockResolvedValue("userId123");
+      dbMock.preferences.create = jest.fn().mockResolvedValue(null);
 
       // Act
       const { body, statusCode } = await supertest(app)
