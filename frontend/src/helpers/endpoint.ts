@@ -55,6 +55,8 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
   // Build the final API endpoint URL.
   const endpoint = `http://${host}${servicePort}/api/${config.service}/${config.path || ""}`;
 
+  console.log(config.body);
+
   // Build the final request header
   const header = {
     ...(config.body ? { "Content-Type": "application/json" } : {}),

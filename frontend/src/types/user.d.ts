@@ -5,6 +5,8 @@ type User = {
   image?: str;
   name: str;
   email: str;
+  bio?: str;
+  gender?: str;
   password?: str; //this is optional because if the user is logged in via OAuth, there is no need for password field
   role: Role; // (admin, user)
   status?: Status; // (active, inactive) this is optional because by default status is active, so we don't always provide the status

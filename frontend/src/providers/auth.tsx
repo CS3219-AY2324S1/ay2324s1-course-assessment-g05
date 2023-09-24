@@ -37,7 +37,7 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   const fetchUser = async () => {
     const rawUser = await UserService.getUserById(user.id);
     console.log(rawUser);
-    setUser(rawUser);
+    if (rawUser) setUser(rawUser);
   };
 
   const context = { user, fetchUser };

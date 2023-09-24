@@ -13,12 +13,13 @@ const logger = getLogger("user_api_wrappers");
 const service = SERVICE.USER;
 const scope = [SERVICE.USER];
 
-const getUserByEmail = async (email: string): Promise<User | undefined> => {
+const getUserByEmail = async (email: string, cache: RequestCache='no-cache'): Promise<User | undefined> => {
   const response = await api({
     method: HTTP_METHODS.GET,
     service: service,
     path: `email?email=${email}`,
     tags: scope,
+    cache: cache
   });
 
   // successful response should return 200 with the user data
@@ -46,13 +47,14 @@ const getUserByEmail = async (email: string): Promise<User | undefined> => {
   );
 };
 
-const getUserById = async (id: string): Promise<User> => {
+const getUserById = async (id: string, cache: RequestCache='no-cache'): Promise<User> => {
   // call GET /api/users/:id from user service
   const response = await api({
     method: HTTP_METHODS.GET,
     service: service,
     path: id,
     tags: scope,
+    cache: cache,
   });
 
   // successful response should return 200 with the user data
@@ -74,19 +76,23 @@ const getUserById = async (id: string): Promise<User> => {
   );
 };
 
-const createUser = async (user: User) => {
+const createUser = async (user: User, cache: RequestCache='no-cache') => {
   // call POST /api/users from user service
+  console.log(user);
   const response = await api({
     method: HTTP_METHODS.POST,
     service: service,
     tags: scope,
     body: user,
+    cache: cache
   });
 
   // successful response should return 201 and a user created message
   if (response.status === HttpStatusCode.CREATED) {
-    revalidateTag(SERVICE.USER);
-    return true;
+    // revalidateTag(SERVICE.USER);
+    const res = response.data as User;
+    logger.info(`[createUser] ${res}`);
+    return res;
   } else if (response.status === HttpStatusCode.BAD_REQUEST) {
     return throwAndLogError(
       "createUser",
@@ -119,7 +125,7 @@ const updateUser = async (id: string, user: User) => {
 
   // successful response should return 204
   if (response.status === HttpStatusCode.NO_CONTENT) {
-    revalidateTag(SERVICE.USER);
+    // revalidateTag(SERVICE.USER);
     return true;
   } else if (response.status === HttpStatusCode.BAD_REQUEST) {
     return throwAndLogError(

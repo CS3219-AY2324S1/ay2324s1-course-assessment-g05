@@ -14,8 +14,12 @@ import {
 import PeerPrepLogo from "@/components/common/PeerPrepLogo"
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import { CLIENT_ROUTES } from "@/common/constants";
-import { useRouter } from "next/navigation";
-import { requestToBodyStream } from "next/dist/server/body-streams";
+// import { useRouter } from "next/router";
+import { useRouter, useParams } from "next/navigation"
+import { PeerPrepErrors } from "@/types/PeerPrepErrors";
+import User from "@/types/user";
+import { Role } from "@/types/enums";
+import { toast } from "react-toastify"
 
 export function LoginComponent() {
 
@@ -48,17 +52,17 @@ export function LoginComponent() {
   useEffect(() => {
     setArePasswordsEqual(!(password !== checkPassword && (password !== "" && checkPassword !== "")));
     
-    if (password !== "" && checkPassword !== "") {
-      if (password.length < 8) {
-        setErrorMsg("Password should contain 8 characters or more.");
-      }
+    if (password !== "" && checkPassword !== "" && password.length < 8) {
+      setErrorMsg("Password should contain 8 characters or more.");
+    } else if (!arePasswordsEqual) {
+      setErrorMsg("Passwords do not match. Please try again.")
     } else {
       setErrorMsg("");
     }
-  }, [password, checkPassword]);
+  }, [password, checkPassword, setPassword, setCheckPassword, arePasswordsEqual]);
 
   useEffect(() => {
-    if (!(email.includes("@") && email.includes("."))) {
+    if (!(email.includes("@") && email.includes(".")) && email !== "") {
       setErrorMsg("Email is invalid. Please try again.");
     } else {
       setErrorMsg("");
@@ -66,31 +70,86 @@ export function LoginComponent() {
   }, [email])
 
   async function submitNewUser(e: FormEvent<HTMLFormElement>) {
-    try {
-      e.preventDefault();
-      setIsSubmitted(true);
-      let res = await UserService.createUser(name, email);
-      if (res.ok) {
-        router.push(CLIENT_ROUTES.HOME);
-        return;
-      } 
-      
-      if (res.status == 400) {
-        setErrorMsg("User exists. Please login instead.");
+    e.preventDefault();
+    setIsSubmitted(true);
+    let user: User = {
+      name: name,
+      email: email,
+      role: Role.USER,
+    }
+
+    try {      
+      let res = await UserService.createUser(user);
+      router.push(CLIENT_ROUTES.HOME); //TODO: Update with verifying OTP/Email address when auth
+      sessionStorage.setItem("email", res.email);
+    } catch (error) {
+      if (error instanceof PeerPrepErrors.ConflictError) {
+        toast.error("User already exists. Please login instead.", {
+          position: toast.POSITION.BOTTOM_CENTER,
+          autoClose: 5000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: false,
+          draggable: false,
+          theme: "dark"
+        })
       } else {
-        throw new Error(res.message)
+        console.log(error);
+        toast.error("Something went wrong. Please refresh and try again.", {
+          position: toast.POSITION.BOTTOM_CENTER,
+          autoClose: 5000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: false,
+          draggable: false,
+          theme: "dark"
+        })
       }
-    } catch (e) {
-      console.log(e);
     } finally {
+      // Cleanup
       setIsSubmitted(false);
     }
   }
 
   async function getUser(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    // getUser
-    setIsSubmitted(true);
+    try {
+      setIsSubmitted(true);
+      let res = await UserService.getUserByEmail(email);
+      if (res) {
+        sessionStorage.setItem("email", res.email);
+        router.push(CLIENT_ROUTES.HOME);
+      }
+      
+      //TODO: Update with verifying OTP/Email address when auth
+    } catch (error) {
+      if (error instanceof PeerPrepErrors.NotFoundError) {
+        toast.error("User not found. Please sign up instead.", {
+          position: toast.POSITION.BOTTOM_CENTER,
+          autoClose: 5000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: false,
+          draggable: false,
+          theme: "dark"
+        })
+      } else {
+        console.log(error);
+        toast.error("Something went wrong. Please refresh and try again.", {
+          position: toast.POSITION.BOTTOM_CENTER,
+          autoClose: 5000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: false,
+          draggable: false,
+          theme: "dark"
+        })
+      }
+    } finally {
+      // Cleanup
+      setIsSubmitted(false);
+    }
+
   }
 
   return (
@@ -168,14 +227,7 @@ export function LoginComponent() {
                 }}
                 placeholder="Name"
               />
-              {arePasswordsEqual ? (
-                <Spacer y={6}/>
-              ) : (
-                <div className="text-red-500 text-center text-xs font-bold">
-                  <Spacer y={2} />
-                  Passwords do not match
-                </div>
-              )}
+              <Spacer y={2} />
               <div className="text-red-500 text-center text-xs font-bold">{errorMsg}</div>
               <div className="flex flex-col items-center pt-5 space-y-5">
                 <Button
@@ -216,10 +268,10 @@ export function LoginComponent() {
                   aria-label="Submit"
                   size="sm"
                   color="primary"
-                  onClick={() => {
-                    setIsSubmitted(true);
-                  }}
-                  href="/verify"
+                  // onClick={() => {
+                  //   setIsSubmitted(true);
+                  // }}
+                  // href="/verify"
                 >
                   {!isSubmitted ? (
                     <Image src="submit_button.svg"/>
