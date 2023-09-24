@@ -1,8 +1,6 @@
 "use client"
 import ProfileComponent from "@/components/profile/Profile"
 import { UserService } from "@/helpers/user/user_api_wrappers";
-import { useAuthContext } from "@/providers/auth";
-import { Role } from "@/types/enums";
 import User from "@/types/user";
 import { Metadata } from "next"
 import { FormEvent, useEffect, useState } from "react";
@@ -29,15 +27,14 @@ export default async function ProfilePage() {
         setUser(rawUser);
     }
     
-
-    async function saveInformation(e: FormEvent<HTMLFormElement>, updatedUser: User) {
+    async function saveInformation(e: FormEvent<HTMLFormElement>, updatedUser: User, preferences: Preference) {
         e.preventDefault();
         try {
             // Redundant error handling for typescript to stop error
             if (!user) {
                 throw new Error("User not retrieved");
             }
-
+            let resPref = await UserService.updateUserPreference(user.id, preferences);
             let res = await UserService.updateUser(user.id, updatedUser);
             toast.success("Information updated successfully.", {
                 position: toast.POSITION.BOTTOM_CENTER,

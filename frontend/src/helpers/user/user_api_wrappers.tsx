@@ -247,7 +247,7 @@ const createUserPreference = async (id: string, userPreference: Preference) => {
   );
 };
 
-const updateUserPreference = async (id: string, userPreference: Preference) => {
+const updateUserPreference = async (id: string, userPreference: Preference, cache: RequestCache='no-cache') => {
   // call PUT /api/users/:id/preferences from user service
   const response = await api({
     method: HTTP_METHODS.PUT,
@@ -255,11 +255,12 @@ const updateUserPreference = async (id: string, userPreference: Preference) => {
     path: `${id}/preferences`,
     body: userPreference,
     tags: scope,
+    cache: cache,
   });
 
   // successful response should return 204
   if (response.status === HttpStatusCode.NO_CONTENT) {
-    revalidateTag(SERVICE.USER);
+    // revalidateTag(SERVICE.USER);
     return true;
   } else if (response.status === HttpStatusCode.BAD_REQUEST) {
     return throwAndLogError(

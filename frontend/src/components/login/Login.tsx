@@ -39,8 +39,6 @@ export function LoginComponent() {
   const [isCheckPasswordVisible, setIsCheckPasswordVisible] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [arePasswordsEqual, setArePasswordsEqual] = useState(false);
-  const [isEmailValid, setIsEmailValid] = useState(false);
-  const [doesUserExist, setDoesUserExist] = useState(false);
 
   // Toggles
   const togglePasswordVisibility = () =>

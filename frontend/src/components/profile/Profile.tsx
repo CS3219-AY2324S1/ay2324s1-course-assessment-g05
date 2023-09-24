@@ -10,7 +10,7 @@ import { CLIENT_ROUTES } from "@/common/constants";
 
 interface ProfileComponentProps {
     user: User;
-    saveInformation: (e: FormEvent<HTMLFormElement>, updatedUser: User) => void;
+    saveInformation: (e: FormEvent<HTMLFormElement>, updatedUser: User, preferences: Preference) => void;
 }
 
 export default function ProfileComponent({ user, saveInformation }: ProfileComponentProps) {
