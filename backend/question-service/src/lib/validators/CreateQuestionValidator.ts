@@ -4,7 +4,7 @@ import { convertStringToComplexity } from "../enums/Complexity";
 
 export const CreateQuestionValidator = z.object({
   title: z.string().min(3).max(100),
-  description: z.string().min(3).max(1000),
+  description: z.string().min(3).max(10000),
   topics: z
     .array(z.string().transform(convertStringToTopic))
     .refine(
@@ -20,7 +20,7 @@ export const CreateQuestionValidator = z.object({
       z.object({
         input: z.string().min(1).max(1000),
         output: z.string().min(1).max(1000),
-        explanation: z.string().min(3).max(1000).optional(),
+        explanation: z.string().min(3).max(10000).optional(),
       })
     )
     .refine((arr) => arr === undefined || arr.length > 0, {

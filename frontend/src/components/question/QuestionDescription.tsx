@@ -1,8 +1,5 @@
-import { CircularProgress, Textarea } from "@nextui-org/react";
 import dynamic from "next/dynamic";
 import React from "react";
-import { ChangeEventHandler } from "react";
-import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'
 
 const modules = {
@@ -52,6 +49,7 @@ export default function QuestionDescription({
   onValueChange?: (value: string) => void;
   disabled?: boolean;
 }) {
+  const ReactQuill = React.useMemo(() => dynamic(() => import('react-quill'), { ssr: false }),[]);
 
   return (
     <>

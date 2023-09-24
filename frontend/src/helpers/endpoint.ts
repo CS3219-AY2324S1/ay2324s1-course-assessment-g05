@@ -1,9 +1,8 @@
 "use server";
 import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import { getLogger } from "./logger";
-import { revalidateTag } from "next/cache";
 
-const logger = getLogger("api");
+const logger = getLogger("endpoint");
 
 /**
  * Configuration object for API calls.
@@ -11,9 +10,11 @@ const logger = getLogger("api");
 type ApiConfig = {
   method: HTTP_METHODS; // HTTP method.
   service: SERVICE; // Enum representing the service type.
+  header?: {}; // Optional headers
   path?: string; // Optional endpoint path.
   body?: {}; // Optional request body.
   tags?: string[]; // Optional array of caching scopes.
+  cache?: RequestCache;
 };
 
 /**
@@ -37,48 +38,41 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
       ? process.env.ENDPOINT_PROD
       : process.env.ENDPOINT_DEV;
 
-  // Configure local service port based on the 'service' property in the configuration.
-  let servicePort = ":";
-  switch (config.service) {
-    case SERVICE.QUESTION:
-      servicePort += process.env.ENDPOINT_QUESTION_PORT || "";
-      break;
-    case SERVICE.USER:
-      servicePort += process.env.ENDPOINT_USER_PORT || "";
-      break;
-    default:
-      servicePort = "";
-      break;
-  }
+  // Configure local service port.
+  let servicePort = getServicePorts(config.service);
 
   // Build the final API endpoint URL.
   const endpoint = `http://${host}${servicePort}/api/${config.service}/${
     config.path || ""
   }`;
-  logger.info(`[endpoint::api] ${config.method}: ${endpoint}`);
+
+  // Build the final request header
+  const header = {
+    ...(config.body ? { "Content-Type": "application/json" } : {}),
+    ...config.header,
+  };
+  logger.info(header, `[endpoint] ${config.method}: ${endpoint}`);
 
   // Log the request body if it exists.
   if (config.body) {
-    logger.debug(`[endpoint::api] ${JSON.stringify(config.body)}`);
+    logger.debug(config.body, `[endpoint] request body:`);
   }
 
   try {
     // Fetch data from the constructed API endpoint.
     const res = await fetch(endpoint, {
       method: config.method,
-      headers: {
-        ...(config.body ? { "Content-Type": "application/json" } : {}),
-      },
+      headers: header,
       body: JSON.stringify(config.body),
       next: {
         tags: config.tags,
       },
+      cache: config.cache,
     });
 
-    // Parse the response body for all status codes except 204 (no content).
+    // Parse the response body for all status codes except 204 (no content), expand this to handle more codes without content.
     let data = res.status != 204 ? await res.json() : {};
-
-    logger.info(`[${res.status}] ${config.method}: ${res.url}}`);
+    logger.info(`[${res.status}] ${config.method}: ${res.url}`);
 
     // Return an ApiResponse object with status, data, and message.
     return {
@@ -88,12 +82,33 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
     };
   } catch (error) {
     // Handle errors and log them.
-    logger.error(`[endpoint::api] ${error}`);
+    logger.error(error, `[endpoint]`);
 
     // Return an ApiResponse with a 500 status code and an error message.
     return {
       status: 500,
-      message: `Internal Error.`,
+      message: `Error occurs, please call tech support.`,
     };
   }
+}
+
+/**
+ * Retrieves the corresponding port number from .env base on services.
+ * @param service {SERVICE}
+ * @returns port number
+ */
+function getServicePorts(service: SERVICE) {
+  if (process.env.NODE_ENV == "development") {
+    let servicePort = ":";
+    switch (service) {
+      case SERVICE.QUESTION:
+        servicePort += process.env.ENDPOINT_QUESTION_PORT || "";
+        break;
+      default:
+        servicePort = "";
+        break;
+    }
+    return servicePort;
+  }
+  return "";
 }

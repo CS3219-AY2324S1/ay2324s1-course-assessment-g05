@@ -4,34 +4,15 @@ import { getLogger } from "@/helpers/logger";
 import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import Question from "@/types/question";
 import { revalidateTag } from "next/cache";
+import { ServiceError, ServiceResponse, formatFieldError } from "../service";
 
-const logger = getLogger("api");
+const logger = getLogger("wrapper");
 const service = SERVICE.QUESTION;
 const scope = [SERVICE.QUESTION];
 
 type MongoQuestionList = {
   count: number;
   data: Question[];
-};
-
-type ServiceResponse = {
-  ok: boolean;
-  message: string;
-};
-
-type ServiceError = {
-  error: string;
-  message: any;
-};
-
-type FieldError = {
-  code: string;
-  minimum: number;
-  type: string;
-  inclusive: boolean;
-  exact: boolean;
-  message: string;
-  path: string[];
 };
 
 /**
@@ -42,22 +23,18 @@ type FieldError = {
 export async function getQuestionList(): Promise<Question[]> {
   let questions: Question[] = [];
 
-  try {
-    const res = await api({
-      method: HTTP_METHODS.GET,
-      service: service,
-      tags: scope,
-    });
+  const res = await api({
+    method: HTTP_METHODS.GET,
+    service: service,
+    tags: scope,
+  });
 
-    if (res.status === 200) {
-      let mongoRes = res.data as MongoQuestionList;
-      questions = mongoRes.data;
-      logger.info(`[getQuestionList.questions] Got ${mongoRes.count} items.`);
-    } else {
-      throw new Error(JSON.stringify(res.message));
-    }
-  } catch (error) {
-    logger.error(`[getQuestionList.error] ${error}`);
+  if (res.status === 200) {
+    let mongoRes = res.data as MongoQuestionList;
+    questions = mongoRes.data;
+    logger.info(`[getQuestionList] Got ${mongoRes.count} items.`);
+  } else {
+    logger.error(res, `[getQuestionList] Error:`);
   }
 
   return questions;
@@ -71,24 +48,26 @@ export async function getQuestionList(): Promise<Question[]> {
  */
 export async function getQuestionById(
   id: string,
-): Promise<Question | undefined> {
-  try {
-    const res = await api({
-      method: HTTP_METHODS.GET,
-      service: service,
-      path: id,
-      tags: scope,
-    });
+  cache?: RequestCache
+): Promise<Question | ServiceResponse> {
+  const res = await api({
+    method: HTTP_METHODS.GET,
+    service: service,
+    path: id,
+    tags: scope,
+    cache: cache
+  });
 
-    if (res.status === 200) {
-      let question = res.data as Question;
-      logger.info(`[getQuestionById(${id})] ${question}`);
-      return question;
-    } else {
-      throw new Error(res.message);
-    }
-  } catch (error) {
-    logger.error(`[getQuestionById(${id})] ${error}`);
+  if (res.status === 200) {
+    let question = res.data as Question;
+    logger.info(`[getQuestionById(${id})] Got question: ${question.title}`);
+    return question;
+  } else {
+    logger.error(res, `[getQuestionById(${id})] Error:`);
+    return {
+      ok: false,
+      message: res.data ? (res.data as ServiceError).message : res.message,
+    };
   }
 }
 
@@ -115,7 +94,7 @@ export async function postQuestion(
       message: res.data,
     };
   } else {
-    logger.error(`[postQuestion] ${res.message}`);
+    logger.error(res, `[postQuestion] Error:`);
     return {
       ok: false,
       message: res.data ? (res.data as ServiceError).message : res.message,
@@ -149,7 +128,7 @@ export async function updateQuestion(
       message: res.data,
     };
   } else {
-    logger.error(`[updateQuestion] ${JSON.stringify(res.message)}`);
+    logger.error(res, `[updateQuestion] Error:`);
     return {
       ok: false,
       message: res.data
@@ -180,14 +159,10 @@ export async function deleteQuestion(id: string): Promise<ServiceResponse> {
       message: res.data,
     };
   } else {
-    logger.error(`[deleteQuestion] ${res.message}`);
+    logger.error(res, `[deleteQuestion] Error:`);
     return {
       ok: false,
       message: res.message,
     };
   }
-}
-
-function formatFieldError(errors: FieldError[]) {
-  return errors.map((e) => `${e.path[0]}: ${e.message}`).join(", ");
 }
