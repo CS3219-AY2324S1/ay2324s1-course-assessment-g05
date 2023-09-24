@@ -2,9 +2,8 @@ import { COMPLEXITY } from "@/types/enums";
 import { Chip } from "@nextui-org/react";
 
 const variant = "solid";
-const size = "sm";
 
-function renderChip(complexity: string) {
+function renderChip(complexity: string, size: "sm" | "md" | "lg") {
   switch (complexity.toUpperCase()) {
     case COMPLEXITY.EASY:
       return (
@@ -29,6 +28,11 @@ function renderChip(complexity: string) {
   }
 }
 
-export default function ComplexityChip({ complexity }: { complexity: string }) {
-  return renderChip(complexity);
+export default function ComplexityChip({ 
+  complexity, 
+  size 
+}: { 
+  complexity: string, 
+  size: "sm" | "md" | "lg" }) {
+  return renderChip(complexity, size);
 }

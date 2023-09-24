@@ -15,7 +15,6 @@ export default async function QuestionsPage() {
   return (
     <>
       <QuestionTable questions={questions}></QuestionTable>
-      <MatchingLobby></MatchingLobby>
     </>
   );
 }

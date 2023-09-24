@@ -28,12 +28,20 @@ enum MATCHING_STAGE {
 }
 
 export default function MatchingLobby({
+  isOpen,
+  onClose,
   options
-} : {
-  options:{}
+}: {
+  isOpen: boolean,
+  onClose: () => void,
+  options: {
+    languages: string[],
+    difficulties: string[],
+    topics: string[],
+  }
 }) {
   const [stage, setStage] = React.useState(MATCHING_STAGE.INITIAL);
-  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const { onOpenChange } = useDisclosure();
 
   const debugStage = () => {
     let opts = Object.keys(MATCHING_STAGE);
@@ -42,7 +50,7 @@ export default function MatchingLobby({
   }
 
   // Trigger matching process on modal open
-  React.useEffect(() => { 
+  React.useEffect(() => {
     if (isOpen) {
       setStage(MATCHING_STAGE.MATCHING)
     } else {
@@ -116,10 +124,14 @@ export default function MatchingLobby({
         }}
         label="Looking for a peer...">
       </CircularProgress>
-      <div className="flex flex-col gap-2">
-        <span>C++</span>
-        <span><ComplexityChip complexity="Easy"></ComplexityChip></span>
-        <span className="truncate">Array</span>
+      <div className="flex flex-col gap-2 items-center text-small">
+        <span>{options.languages.join(", ")}</span>
+        <span className="flex gap-2">
+          {options.difficulties.map(item => (
+            <ComplexityChip key={item} complexity={item} size="sm"></ComplexityChip>
+          ))}
+        </span>
+        <span className="truncate">{options.topics.join(", ")}</span>
       </div>
     </ModalBody>
     <ModalFooter>
@@ -130,7 +142,7 @@ export default function MatchingLobby({
   const successView = <MatchingLobbySuccessView
     peer=""
     cancel={onClose}
-    rematch={() => setStage(MATCHING_STAGE.MATCHING)}/>
+    rematch={() => setStage(MATCHING_STAGE.MATCHING)} />
 
   const failureView = <>
     <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center">
@@ -157,7 +169,6 @@ export default function MatchingLobby({
 
   return (
     <>
-      <Button onPress={onOpen}>Open</Button>
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
