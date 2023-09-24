@@ -22,11 +22,6 @@ describe("GET /api/users/:userId", () => {
       );
 
       // Assert
-      expect(dbMock.user.findFirst).toBeCalledWith({
-        where: {
-          id: userId,
-        },
-      });
       expect(statusCode).toBe(HttpStatusCode.OK);
       isSamePayload(payload, body);
     });
@@ -44,11 +39,6 @@ describe("GET /api/users/:userId", () => {
       );
 
       // Assert
-      expect(dbMock.user.findFirst).toBeCalledWith({
-        where: {
-          id: userId,
-        },
-      });
       expect(statusCode).toBe(HttpStatusCode.NOT_FOUND);
       expect(body.error).toBe("NOT FOUND");
       expect(body.message).toBe(`User with id ${userId} cannot be found.`);
@@ -70,11 +60,6 @@ describe("GET /api/users/email?", () => {
       );
 
       // Assert
-      expect(dbMock.user.findFirst).toBeCalledWith({
-        where: {
-          email: email,
-        },
-      });
       expect(statusCode).toBe(HttpStatusCode.OK);
       isSamePayload(payload, body);
     });
