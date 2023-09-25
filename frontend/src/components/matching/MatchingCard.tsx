@@ -21,20 +21,18 @@ const MatchingCard = () => {
   } = useAuthContext();
 
   const [preferences, setPreferences] = React.useState<Preference | undefined>(
-    id ? UserService.getUserPreferenceById(id) : { languages: [], difficulties: [], topics: [] }
+   { languages: [], difficulties: [], topics: [] }
   );
 
   useEffect(() => {
     fetchPreference();
-  })
+  }, [])
 
   const fetchPreference = async () => {
     let obtainPref:Preference = { languages: [], difficulties: [], topics: [] }
     if (id) obtainPref = await UserService.getUserPreferenceById(id)
     setPreferences(obtainPref);
   }
-
-
 
   const handleOnSelectionChange = (
     event: React.ChangeEvent<HTMLSelectElement>
