@@ -1,6 +1,7 @@
 "use server";
 import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import { getLogger } from "./logger";
+import { io } from "socket.io-client";
 
 const logger = getLogger("endpoint");
 
@@ -91,6 +92,29 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
 }
 
 /**
+ * Builds the corresponding Socket IO
+ * @param service 
+ * @returns 
+ */
+export async function getSocketConfig(service: SERVICE) {
+  // Configure gateway host based on the environment (production or development).
+  const host =
+    process.env.NODE_ENV == "production"
+      ? process.env.ENDPOINT_PROD
+      : process.env.ENDPOINT_DEV;
+
+  // Configure local service port.
+  let servicePort = getServicePorts(service);
+
+  // Build the final API endpoint URL.
+  const endpoint = `http://${host}${servicePort}`;
+  const path = `/socket/${service}/`
+  logger.info(`[endpoint] socket: ${endpoint}`);
+
+  return {endpoint, path};
+}
+
+/**
  * Retrieves the corresponding port number from .env base on services.
  * @param service {SERVICE}
  * @returns port number 
@@ -101,6 +125,9 @@ function getServicePorts(service: SERVICE) {
     switch (service) {
       case SERVICE.QUESTION:
         servicePort += process.env.ENDPOINT_QUESTION_PORT || "";
+        break;
+      case SERVICE.MATCHING:
+        servicePort += process.env.ENDPOINT_MATCHING_PORT || "";
         break;
       default:
         servicePort = "";

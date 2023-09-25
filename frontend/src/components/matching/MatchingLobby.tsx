@@ -9,6 +9,8 @@ import {
 import { FiUserX, FiWifiOff } from "react-icons/fi";
 import ComplexityChip from "../question/ComplexityChip";
 import MatchingLobbySuccessView from "./MatchingLobbySuccessView";
+import { getMatchingSocket } from "@/helpers/matching/matching_api_wrappers";
+import { Socket, io } from 'socket.io-client'
 
 /**
  * Service flow:
@@ -42,6 +44,7 @@ export default function MatchingLobby({
 }) {
   const [stage, setStage] = React.useState(MATCHING_STAGE.INITIAL);
   const { onOpenChange } = useDisclosure();
+  let socket: Socket;
 
   const debugStage = () => {
     let opts = Object.keys(MATCHING_STAGE);
@@ -53,6 +56,7 @@ export default function MatchingLobby({
   React.useEffect(() => {
     if (isOpen) {
       setStage(MATCHING_STAGE.MATCHING)
+      socket ?? socketInitializer();
     } else {
       setStage(MATCHING_STAGE.INITIAL)
     }
@@ -68,6 +72,29 @@ export default function MatchingLobby({
         break;
     }
   }, [stage])
+
+  // React.useEffect(() => {
+  //   socket ?? socketInitializer();
+  // },[])
+
+  const socketInitializer = () => {
+    getMatchingSocket().then(config => {
+      console.log("Get socket config: ", config);
+      socket = io(config.endpoint, {
+        path:config.path
+      });
+      socket.on('connect', () => {
+        console.log(socket.id);
+      })
+
+      socket.on("disconnect", () => {
+        console.log(socket.id); // undefined
+      });
+
+      console.log("Try connect server");
+      socket.connect();
+    });
+  }
 
   // Handle view switching
   const renderView = (stage: MATCHING_STAGE) => {
@@ -89,9 +116,7 @@ export default function MatchingLobby({
       console.log("matching process triggered");
 
       // Request to join matching queue
-      setTimeout(() => {
-        setStage(MATCHING_STAGE.SUCCESS)
-      }, 60 * 1000)
+      socket.emit("matching", "testkey");
     } catch (error) {
       setStage(MATCHING_STAGE.ERROR)
     }
@@ -112,6 +137,12 @@ export default function MatchingLobby({
     //  - peer exit
 
     // redirect to collab session
+    handleClose();
+  }
+
+  const handleClose = () => {
+    console.log("Graceful close: will shut socket before modal.");
+    !socket ?? socket.emit("disconnect");
     onClose();
   }
 
@@ -135,13 +166,13 @@ export default function MatchingLobby({
       </div>
     </ModalBody>
     <ModalFooter>
-      <Button onPress={onClose}>Cancel</Button>
+      <Button onPress={handleClose}>Cancel</Button>
     </ModalFooter>
   </>
 
   const successView = <MatchingLobbySuccessView
     peer=""
-    cancel={onClose}
+    cancel={handleClose}
     rematch={() => setStage(MATCHING_STAGE.MATCHING)} />
 
   const failureView = <>
@@ -151,7 +182,7 @@ export default function MatchingLobby({
       <p>Please try again later.</p>
     </ModalBody>
     <ModalFooter>
-      <Button onPress={onClose}>Cancel</Button>
+      <Button onPress={handleClose}>Cancel</Button>
       <Button onPress={handleRetry} color="primary">Retry</Button>
     </ModalFooter>
   </>
@@ -163,7 +194,7 @@ export default function MatchingLobby({
       <p>Please try again later.</p>
     </ModalBody>
     <ModalFooter>
-      <Button onPress={onClose}>Ok</Button>
+      <Button onPress={handleClose}>Ok</Button>
     </ModalFooter>
   </>
 
