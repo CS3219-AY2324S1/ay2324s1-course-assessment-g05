@@ -4,7 +4,7 @@ import { UserService } from "@/helpers/user/user_api_wrappers";
 import User from "@/types/user";
 import { useEffect, useState } from "react";
 
-export default async function ProfilePage() {
+export default function ProfilePage() {
 
     const [user, setUser] = useState<User | undefined>(undefined);
 

@@ -14,10 +14,6 @@ interface ProfileComponentProps {
 
 export default function ProfileComponent({ user }: ProfileComponentProps) {
     const router = useRouter();
-    // States
-    const [oldPassword, setOldPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
     // Flags
     const [isChangePassword, setIsChangePassword] = useState(false);
@@ -26,7 +22,7 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
         <div className="flex flex-col items-center align-middle justify-center h-screen space-y-6">
             <Card className="flex w-unit-8xl">
                 <CardHeader className="justify-center">
-                    <ProfileCard name={user.name} email={user.email} image={user.image}/>
+                    <ProfileCard name={user.name} email={user.email} image={user.image ? user.image : "https://cdn-icons-png.flaticon.com/512/149/149071.png"}/>
                 </CardHeader>
                 <CardBody className="justify-center space-y-5">
                     { isChangePassword ? (

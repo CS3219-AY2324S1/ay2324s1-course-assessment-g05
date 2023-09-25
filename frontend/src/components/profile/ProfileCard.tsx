@@ -30,7 +30,7 @@ export default function ProfileCard({ name, email, image }: ProfileCardProps) {
                 <CardHeader className="">
                     <div className="flex flex-row items-center">
                         <div className="w-1/3 items-center pr-5">
-                            <Image className="shadow-lg border rounded-3xl hover:cursor-pointer w-12" src={image ? image : "https://cdn-icons-png.flaticon.com/512/149/149071.png"} onClick={() => {onImageClick()}}/>
+                            <Image className="shadow-lg border rounded-3xl hover:cursor-pointer w-12" src={image} onClick={() => {onImageClick()}}/>
                             <input type='file' id='file' ref={inputFile} style={{display: 'none'}}/>
                         </div>
                         <div className="flex flex-col align-left w-2/3">
