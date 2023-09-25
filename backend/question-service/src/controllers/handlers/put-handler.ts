@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
-import HttpStatusCode from "../../lib/HttpStatusCode";
+import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import { UpdateQuestionValidator } from "../../lib/validators/UpdateQuestionValidator";
 import { ZodError } from "zod";
 import questionDb from "../../models/database/schema/question";
+import { formatErrorMessage } from "../../lib/utils/errorUtils";
 
 export const updateQuestion = async (request: Request, response: Response) => {
   try {
@@ -82,9 +83,10 @@ export const updateQuestion = async (request: Request, response: Response) => {
     response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
     if (error instanceof ZodError) {
+      console.log(error.message);
       response
         .status(HttpStatusCode.BAD_REQUEST)
-        .json({ error: "BAD REQUEST", message: error.message });
+        .json({ error: "BAD REQUEST", message: formatErrorMessage(error) });
       return;
     }
 

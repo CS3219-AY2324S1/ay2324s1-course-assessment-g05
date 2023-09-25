@@ -12,7 +12,7 @@ export const getUserPayload = ({
     role: "ADMIN",
     image: "https://testimage.com/image.png",
     bio: "Test bio",
-    gender: "male",
+    gender: "MALE",
     createdOn: new Date(),
     updatedOn: new Date(),
   };
@@ -25,6 +25,6 @@ export const getPostUserPayload = () => {
     role: "USER",
     image: "https://testimage.com/image.png",
     bio: "Test bio",
-    gender: "male",
+    gender: "MALE",
   };
 };

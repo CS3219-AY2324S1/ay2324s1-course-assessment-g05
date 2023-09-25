@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import HttpStatusCode from "../../lib/HttpStatusCode";
+import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import questionDb from "../../models/database/schema/question";
 
 // Deletes a question from database based on questionId

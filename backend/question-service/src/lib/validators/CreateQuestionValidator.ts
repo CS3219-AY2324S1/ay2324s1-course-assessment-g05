@@ -4,9 +4,10 @@ import { convertStringToComplexity } from "../enums/Complexity";
 
 export const CreateQuestionValidator = z.object({
   title: z.string().min(3).max(100),
-  description: z.string().min(3).max(10000),
+  description: z.string().min(3),
   topics: z
     .array(z.string().transform(convertStringToTopic))
+    .refine((topics) => topics.length > 0, "At least one topic is required.")
     .refine(
       (topics) => new Set(topics).size === topics.length,
       "Each topic must be unique."

@@ -3,6 +3,7 @@ import { CreateUserValidator } from "../../lib/validators/CreateUserValidator";
 import { ZodError } from "zod";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import db from "../../lib/db";
+import { formatErrorMessage } from "../../lib/utils/errorUtils";
 
 export const postUser = async (request: Request, response: Response) => {
   try {
@@ -60,7 +61,7 @@ export const postUser = async (request: Request, response: Response) => {
     if (error instanceof ZodError) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
-        message: error.message,
+        message: formatErrorMessage(error),
       });
       return;
     }

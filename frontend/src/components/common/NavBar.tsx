@@ -26,10 +26,6 @@ const NavBar = () => {
     user: { image },
   } = useAuthContext();
   const router = useRouter();
-  const handleQuickMatchButtonPress = () => {
-    const preferences = UserService.getUserPreferences();
-    MatchingService.submitMatchPreferences(preferences);
-  };
   const handleEditProfileButtonPress = () => {
     router.push(CLIENT_ROUTES.PROFILE);
   };
@@ -53,12 +49,6 @@ const NavBar = () => {
         </NavbarItem>
       </NavbarContent>
       <NavbarContent as="div" justify="end">
-        <Button
-          className="bg-yellow text-black h-[30px]"
-          onPress={handleQuickMatchButtonPress}
-        >
-          Quick Match
-        </Button>
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
             <button className="outline-none">

@@ -1,7 +1,7 @@
 import questionDb from "../../models/database/schema/question";
 import * as TestPayload from "../utils/payloads";
 import createServer from "../utils/server";
-import HttpStatusCode from "../../lib/HttpStatusCode";
+import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import supertest from "supertest";
 
 const app = createServer();
@@ -76,7 +76,7 @@ describe("POST /questions", () => {
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.BAD_REQUEST);
-      expect(JSON.parse(body.message)[0].message).toEqual("Invalid url");
+      expect(body.message).toEqual("Invalid url");
     });
   });
 
@@ -96,9 +96,7 @@ describe("POST /questions", () => {
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.BAD_REQUEST);
-      expect(JSON.parse(body.message)[0].message).toEqual(
-        "Each topic must be unique."
-      );
+      expect(body.message).toEqual("Each topic must be unique.");
     });
   });
 
@@ -124,11 +122,7 @@ describe("POST /questions", () => {
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.BAD_REQUEST);
-      expect(JSON.parse(body.message)[0].path).toEqual([
-        "examples",
-        0,
-        "input",
-      ]);
+      expect(body.message).toEqual("Input in examples is required.");
     });
   });
 
@@ -149,9 +143,7 @@ describe("POST /questions", () => {
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.BAD_REQUEST);
-      expect(JSON.parse(body.message)[0].message).toEqual(
-        "At least one constraint is required."
-      );
+      expect(body.message).toEqual("At least one constraint is required.");
     });
   });
 });

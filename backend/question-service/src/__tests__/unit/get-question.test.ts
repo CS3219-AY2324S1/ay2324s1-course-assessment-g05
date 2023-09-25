@@ -1,6 +1,6 @@
 import supertest from "supertest";
 import createServer from "../utils/server";
-import HttpStatusCode from "../../lib/HttpStatusCode";
+import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import questionDb from "../../models/database/schema/question";
 import * as TestPayload from "../utils/payloads";
 import { nanoid } from "nanoid";
