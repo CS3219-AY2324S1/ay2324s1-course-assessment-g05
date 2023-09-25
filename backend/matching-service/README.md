@@ -1,0 +1,1 @@
+only need a .env file with SERVICE_PORT=5200 to run for now
