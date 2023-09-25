@@ -1,6 +1,6 @@
 import { getLogger } from "@/helpers/logger";
 
-const logger = getLogger("api");
+const logger = getLogger("wrapper");
 
 export function throwAndLogError<T extends Error>(
   endpoint: string,

@@ -3,3 +3,5 @@ type Preference = {
   topics: string[];
   difficulties: string[];
 };
+
+export default Preference;

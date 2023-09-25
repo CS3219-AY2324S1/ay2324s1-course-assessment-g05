@@ -5,6 +5,8 @@ import { Poppins } from "next/font/google";
 import { Providers } from "./providers";
 import NavBar from "@/components/common/NavBar";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 const inter = Inter({ subsets: ["latin"] });
 const poppins = Poppins({ weight: ["400", "600"], subsets: ["latin"] });
@@ -26,6 +28,7 @@ export default function RootLayout({
         <Providers>
           {isAuthenticated && <NavBar />}
           {children}
+          <ToastContainer />
         </Providers>
       </body>
     </html>

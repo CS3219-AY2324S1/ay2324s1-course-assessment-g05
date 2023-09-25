@@ -22,14 +22,13 @@ export const getHealth = async (_: Request, response: Response) => {
 export const getUserById = async (request: Request, response: Response) => {
   try {
     const userId = request.params.userId;
-
     // query database for user with id
     const user = await db.user.findFirst({
       where: {
         id: userId,
       },
       include: {
-        Preferences: {
+        preferences: {
           select: {
             languages: true,
             topics: true,
@@ -78,7 +77,7 @@ export const getUserByEmail = async (request: Request, response: Response) => {
         email: parsedEmail,
       },
       include: {
-        Preferences: {
+        preferences: {
           select: {
             languages: true,
             topics: true,

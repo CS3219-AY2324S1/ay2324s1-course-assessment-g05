@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import {
   Card,
   Spacer,
@@ -11,15 +11,29 @@ import {
   CardHeader,
   Image
 } from "@nextui-org/react";
-import PeerPrepLogo from "../PeerPrepLogo";
+import PeerPrepLogo from "@/components/common/PeerPrepLogo"
+import { UserService } from "@/helpers/user/user_api_wrappers";
+import { CLIENT_ROUTES } from "@/common/constants";
+// import { useRouter } from "next/router";
+import { useRouter, useParams } from "next/navigation"
+import { PeerPrepErrors } from "@/types/PeerPrepErrors";
+import User from "@/types/user";
+import { Role } from "@/types/enums";
+import { toast } from "react-toastify"
+import Toast from "@/components/common/Toast";
+import { ToastType } from "@/types/enums"
 
-export default function LoginComponent() {
+export function LoginComponent() {
+
+  const router = useRouter()
+
   // States
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
   const [name, setName] = useState("");
   const [isRemembered, setIsRemembered] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   // Flags
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -37,18 +51,94 @@ export default function LoginComponent() {
 
   useEffect(() => {
     setArePasswordsEqual(!(password !== checkPassword && (password !== "" && checkPassword !== "")));
-  }, [password, checkPassword])
+    
+    if (password !== "" && checkPassword !== "" && password.length < 8) {
+      setErrorMsg("Password should contain 8 characters or more.");
+    } else if (!arePasswordsEqual) {
+      setErrorMsg("Passwords do not match. Please try again.")
+    } else {
+      setErrorMsg("");
+    }
+  }, [password, checkPassword, setPassword, setCheckPassword, arePasswordsEqual]);
+
+  async function submitNewUser(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsSubmitted(true);
+    let user: User = {
+      name: name,
+      email: email,
+      role: Role.USER,
+    }
+
+    try {      
+      let res = await UserService.createUser(user);
+      router.push(CLIENT_ROUTES.HOME); //TODO: Update with verifying OTP/Email address when auth
+      sessionStorage.setItem("email", res.email.toString());
+    } catch (error) {
+      if (error instanceof PeerPrepErrors.ConflictError) {
+        toast.error("User already exists. Please login instead.", {
+          position: toast.POSITION.BOTTOM_CENTER,
+          autoClose: 5000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: false,
+          draggable: false,
+          theme: "dark"
+        })
+      } else {
+        console.log(error);
+        toast.error("Something went wrong. Please refresh and try again.", {
+          position: toast.POSITION.BOTTOM_CENTER,
+          autoClose: 5000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: false,
+          draggable: false,
+          theme: "dark"
+        })
+      }
+    } finally {
+      // Cleanup
+      setIsSubmitted(false);
+    }
+  }
+
+  async function getUser(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    try {
+      setIsSubmitted(true);
+      let res = await UserService.getUserByEmail(email);
+      if (res) {
+        sessionStorage.setItem("email", res.email);
+        router.push(CLIENT_ROUTES.HOME);
+      }
+      
+      //TODO: Update with verifying OTP/Email address when auth
+    } catch (error) {
+      if (error instanceof PeerPrepErrors.NotFoundError) {
+        Toast("User not found, please sign up instead.", ToastType.ERROR)
+      } else {
+        console.log(error);
+        Toast("Something went wrong. Please refresh and try again.", ToastType.ERROR)
+      }
+    } finally {
+      // Cleanup
+      setIsSubmitted(false);
+    }
+
+  }
 
   return (
     <div className="flex items-center justify-center h-screen">
       <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
-        <form className="w-1/2">
+        <form className="w-1/2" onSubmit={ isSignUp ? submitNewUser : getUser }>
           <PeerPrepLogo />
           <CardHeader className="lg font-bold justify-center">
             PeerPrep
           </CardHeader>
           <Spacer y={3} />
           <Input
+            type="email"
             isClearable
             isRequired
             fullWidth
@@ -114,22 +204,14 @@ export default function LoginComponent() {
                 }}
                 placeholder="Name"
               />
-              
-              {arePasswordsEqual ? (
-                <Spacer y={6}/>
-              ) : (
-                <div className="text-red-500 text-center text-xs font-bold">
-                  <Spacer y={2} />
-                  Passwords do not match
-                </div>
-              )}
+              <Spacer y={2} />
+              <div className="text-red-500 text-center text-xs font-bold">{errorMsg}</div>
               <div className="flex flex-col items-center pt-5 space-y-5">
                 <Button
                   isLoading={isSubmitted}
                   type="submit"
                   color="primary"
                   className="w-1/2"
-                  onClick={() => setIsSubmitted(true)}
                 >
                   {isSubmitted ? null : <>Sign Up</>}
                 </Button>
@@ -163,10 +245,10 @@ export default function LoginComponent() {
                   aria-label="Submit"
                   size="sm"
                   color="primary"
-                  onClick={() => {
-                    setIsSubmitted(true);
-                  }}
-                  href="/verify"
+                  // onClick={() => {
+                  //   setIsSubmitted(true);
+                  // }}
+                  // href="/verify"
                 >
                   {!isSubmitted ? (
                     <Image src="submit_button.svg"/>
