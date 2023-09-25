@@ -74,3 +74,10 @@ export enum TOPIC {
   QUICKSELECT = "QUICKSELECT",
   BRAINTEASER = "BRAIN TEASER",
 }
+
+export enum ToastType {
+  SUCCESS = "success",
+  ERROR = "error",
+  WARNING = "warning",
+  INFO = "info"
+}

@@ -10,10 +10,9 @@ import { CLIENT_ROUTES } from "@/common/constants";
 
 interface ProfileComponentProps {
     user: User;
-    saveInformation: (e: FormEvent<HTMLFormElement>, updatedUser: User, preferences: Preference) => void;
 }
 
-export default function ProfileComponent({ user, saveInformation }: ProfileComponentProps) {
+export default function ProfileComponent({ user }: ProfileComponentProps) {
     const router = useRouter();
     // States
     const [oldPassword, setOldPassword] = useState("");
@@ -33,7 +32,7 @@ export default function ProfileComponent({ user, saveInformation }: ProfileCompo
                     { isChangePassword ? (
                         <ChangePassword setIsChangePassword={setIsChangePassword}/>
                     ) : (
-                        <Information setIsChangePassword={setIsChangePassword} saveInformation={saveInformation} user={user}/>
+                        <Information setIsChangePassword={setIsChangePassword} user={user}/>
                     )}
                 </CardBody>
             </Card>

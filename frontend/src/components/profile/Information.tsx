@@ -3,17 +3,19 @@ import User from "@/types/user";
 import { FormEvent, useEffect, useState } from "react";
 import { COMPLEXITY, LANGUAGE, TOPIC } from "@/types/enums";
 import { StringUtils } from "@/utils/stringUtils";
+import { ToastType } from "@/types/enums";
+import Toast from "@/components/common/Toast";
+import { UserService } from "@/helpers/user/user_api_wrappers";
 
 interface InformationProps {
     user: User;
     setIsChangePassword: (isChangePassword: boolean) => void;
-    saveInformation: (e: FormEvent<HTMLFormElement>, updatedUser: User, preference: Preference) => void;
 }
 
-export default function Information({user, setIsChangePassword, saveInformation}: InformationProps) {
+export default function Information({user, setIsChangePassword}: InformationProps) {
 
-    const [name, setName] = useState<String>(user.name);
-    const [bio, setBio] = useState<String>(user.bio);
+    const [name, setName] = useState<string>(user.name);
+    const [bio, setBio] = useState<string>(user.bio ? user.bio : "");
     const [gender, setGender] = useState(user.gender ? user.gender : "");
     const [preferences, setPreferences] = useState(
         user.preferences || { languages: [], difficulties: [], topics: [] }
@@ -74,13 +76,32 @@ export default function Information({user, setIsChangePassword, saveInformation}
         console.log("User info: " + JSON.stringify(user));
     }
 
-
     let updatedUser: User = {
         name: name,
         email: user.email,
         bio: bio ? bio : undefined,
         role: user.role,
         gender: gender === "Prefer not to say" ? undefined : gender,
+    }
+
+    async function saveInformation(e: FormEvent<HTMLFormElement>, updatedUser: User, preferences: Preference) {
+        e.preventDefault();
+        try {
+            
+            if (!user) {
+                throw new Error("User not retrieved");
+            }
+
+            if (!user.id) {
+                throw new Error("User ID not retrieved");
+            }
+
+            let resPref = await UserService.updateUserPreference(user.id, preferences);
+            let res = await UserService.updateUser(user.id, updatedUser);
+            Toast("Information saved successfully!", ToastType.SUCCESS);
+        } catch (error) {
+            Toast("Something went wrong. Please refresh and try again.", ToastType.ERROR);
+        }
     }
 
     return (
@@ -93,14 +114,14 @@ export default function Information({user, setIsChangePassword, saveInformation}
                 label="Name"
                 isClearable
                 defaultValue={user.name}
-                onInput={(e) => {setName(e.currentTarget.value)}}
+                onValueChange={setName}
             />
             <Input
                 label="Bio"
                 isClearable
                 maxLength={50}
                 defaultValue={user.bio}
-                onInput={(e) => {setBio(e.currentTarget.value)}}
+                onValueChange={setBio}
             />
             <div className="flex flex-row space-x-5 items-center">
                 <p>Gender:</p>

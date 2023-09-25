@@ -2,11 +2,9 @@
 import { Button } from "@nextui-org/react";
 import ProfilePictureAvatar from "@/components/common/ProfilePictureAvatar";
 import { UserService } from "@/helpers/user/user_api_wrappers";
-// import { useRouter } from "next/router";
 import { useRouter, useParams } from "next/navigation";
 import { CLIENT_ROUTES } from "@/common/constants";
 import User from "@/types/user";
-import { Role } from "@/types/enums";
 import { useEffect, useState } from "react";
 import { useAuthContext } from "@/providers/auth";
 

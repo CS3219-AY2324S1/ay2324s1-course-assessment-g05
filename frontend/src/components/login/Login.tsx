@@ -20,6 +20,8 @@ import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 import User from "@/types/user";
 import { Role } from "@/types/enums";
 import { toast } from "react-toastify"
+import Toast from "@/components/common/Toast";
+import { ToastType } from "@/types/enums"
 
 export function LoginComponent() {
 
@@ -59,14 +61,6 @@ export function LoginComponent() {
     }
   }, [password, checkPassword, setPassword, setCheckPassword, arePasswordsEqual]);
 
-  useEffect(() => {
-    if (!(email.includes("@") && email.includes(".")) && email !== "") {
-      setErrorMsg("Email is invalid. Please try again.");
-    } else {
-      setErrorMsg("");
-    }
-  }, [email])
-
   async function submitNewUser(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsSubmitted(true);
@@ -79,7 +73,7 @@ export function LoginComponent() {
     try {      
       let res = await UserService.createUser(user);
       router.push(CLIENT_ROUTES.HOME); //TODO: Update with verifying OTP/Email address when auth
-      sessionStorage.setItem("email", res.email);
+      sessionStorage.setItem("email", res.email.toString());
     } catch (error) {
       if (error instanceof PeerPrepErrors.ConflictError) {
         toast.error("User already exists. Please login instead.", {
@@ -122,26 +116,10 @@ export function LoginComponent() {
       //TODO: Update with verifying OTP/Email address when auth
     } catch (error) {
       if (error instanceof PeerPrepErrors.NotFoundError) {
-        toast.error("User not found. Please sign up instead.", {
-          position: toast.POSITION.BOTTOM_CENTER,
-          autoClose: 5000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: false,
-          draggable: false,
-          theme: "dark"
-        })
+        Toast("User not found, please sign up instead.", ToastType.ERROR)
       } else {
         console.log(error);
-        toast.error("Something went wrong. Please refresh and try again.", {
-          position: toast.POSITION.BOTTOM_CENTER,
-          autoClose: 5000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: false,
-          draggable: false,
-          theme: "dark"
-        })
+        Toast("Something went wrong. Please refresh and try again.", ToastType.ERROR)
       }
     } finally {
       // Cleanup
@@ -160,6 +138,7 @@ export function LoginComponent() {
           </CardHeader>
           <Spacer y={3} />
           <Input
+            type="email"
             isClearable
             isRequired
             fullWidth
