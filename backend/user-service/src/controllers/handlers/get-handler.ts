@@ -29,7 +29,7 @@ export const getUserById = async (request: Request, response: Response) => {
         id: userId,
       },
       include: {
-        preferences: {
+        Preferences: {
           select: {
             languages: true,
             topics: true,
@@ -78,7 +78,7 @@ export const getUserByEmail = async (request: Request, response: Response) => {
         email: parsedEmail,
       },
       include: {
-        preferences: {
+        Preferences: {
           select: {
             languages: true,
             topics: true,

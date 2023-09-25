@@ -1,7 +1,7 @@
 // Used in api path, value should be in small caps
 export enum SERVICE {
-  USER = "user",
-  QUESTION = "questions",
+  USER = "users",
+  QUESTION = "question",
 }
 
 export enum HTTP_METHODS {

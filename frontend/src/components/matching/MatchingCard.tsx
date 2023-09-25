@@ -1,20 +1,35 @@
 "use client";
 import React from "react";
-import { Button, ButtonGroup, Card, CardBody, CardHeader, Select, SelectItem, Selection, useDisclosure } from "@nextui-org/react";
+import {
+  Button,
+  ButtonGroup,
+  Card,
+  CardBody,
+  CardHeader,
+  Select,
+  SelectItem,
+  Selection,
+  useDisclosure,
+} from "@nextui-org/react";
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import { MatchingService } from "@/helpers/matching/matching_api_wrappers";
 import { COMPLEXITY, LANGUAGE, TOPIC } from "@/types/enums";
 import { StringUtils } from "@/utils/stringUtils";
 import MatchingLobby from "./MatchingLobby";
+import { useAuthContext } from "@/providers/auth";
 
 const MatchingCard = () => {
+  const {
+    user: { preferences: currentPreferences },
+  } = useAuthContext();
+
   const optionsLanguages = StringUtils.convertEnumsToCamelCase(LANGUAGE);
   const optionsDifficulties = StringUtils.convertEnumsToCamelCase(COMPLEXITY);
   const optionsTopics = StringUtils.convertEnumsToCamelCase(TOPIC);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [preferences, setPreferences] = React.useState(
-    UserService.getUserPreferences()
+    currentPreferences || { languages: [], difficulties: [], topics: [] }
   );
 
   const handleOnSelectionChange = (
@@ -34,7 +49,7 @@ const MatchingCard = () => {
   //for now, get matched button will print to console keys selected
   const handleGetMatchedButtonPress = () => {
     console.log(preferences);
-    if (Object.values(preferences).some(x => x.length == 0)) {
+    if (Object.values(preferences).some((x) => x.length == 0)) {
       console.log("Invalid option");
       return;
     }
@@ -42,16 +57,13 @@ const MatchingCard = () => {
   };
 
   const handleQuickMatch = () => {
-    setPreferences(UserService.getUserPreferences())
+    setPreferences(preferences);
     onOpen();
-  }
-
+  };
 
   return (
     <Card className="flex flex-col h-full bg-black rounded-lg text-sm overflow-hidden p-2">
-      <CardHeader className="p-2">
-        Find a pair programmer
-      </CardHeader>
+      <CardHeader className="p-2">Find a pair programmer</CardHeader>
       <CardBody className="flex flex-col  gap-4 p-2">
         <Select
           isRequired
@@ -119,7 +131,11 @@ const MatchingCard = () => {
             Get Matched
           </Button>
         </ButtonGroup>
-        <MatchingLobby isOpen={isOpen} onClose={onClose} options={preferences}></MatchingLobby>
+        <MatchingLobby
+          isOpen={isOpen}
+          onClose={onClose}
+          options={preferences}
+        ></MatchingLobby>
       </CardBody>
     </Card>
   );
