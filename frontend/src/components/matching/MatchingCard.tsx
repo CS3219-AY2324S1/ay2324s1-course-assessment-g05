@@ -6,6 +6,9 @@ import { MatchingService } from "@/helpers/matching/matching_api_wrappers";
 import { COMPLEXITY, LANGUAGE, TOPIC } from "@/types/enums";
 import { StringUtils } from "@/utils/stringUtils";
 import MatchingLobby from "./MatchingLobby";
+import { useAuthContext } from "@/providers/auth";
+import { useEffect, useState } from "react";
+import { Preference } from "@/types/preference"
 
 const MatchingCard = () => {
   const optionsLanguages = StringUtils.convertEnumsToCamelCase(LANGUAGE);
@@ -13,9 +16,25 @@ const MatchingCard = () => {
   const optionsTopics = StringUtils.convertEnumsToCamelCase(TOPIC);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [preferences, setPreferences] = React.useState(
-    UserService.getUserPreferences()
+  const {
+    user: { id },
+  } = useAuthContext();
+
+  const [preferences, setPreferences] = React.useState<Preference | undefined>(
+    id ? UserService.getUserPreferenceById(id) : { languages: [], difficulties: [], topics: [] }
   );
+
+  useEffect(() => {
+    fetchPreference();
+  })
+
+  const fetchPreference = async () => {
+    let obtainPref:Preference = { languages: [], difficulties: [], topics: [] }
+    if (id) obtainPref = await UserService.getUserPreferenceById(id)
+    setPreferences(obtainPref);
+  }
+
+
 
   const handleOnSelectionChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -42,12 +61,14 @@ const MatchingCard = () => {
   };
 
   const handleQuickMatch = () => {
-    setPreferences(UserService.getUserPreferences())
+    setPreferences(id ? UserService.getUserPreferenceById(id) : { languages: [], difficulties: [], topics: [] })
     onOpen();
   }
 
 
   return (
+    <>
+    { preferences &&
     <Card className="flex flex-col h-full bg-black rounded-lg text-sm overflow-hidden p-2">
       <CardHeader className="p-2">
         Find a pair programmer
@@ -121,7 +142,8 @@ const MatchingCard = () => {
         </ButtonGroup>
         <MatchingLobby isOpen={isOpen} onClose={onClose} options={preferences}></MatchingLobby>
       </CardBody>
-    </Card>
+    </Card>}
+    </>
   );
 };
 

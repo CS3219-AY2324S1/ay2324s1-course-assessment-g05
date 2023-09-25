@@ -14,12 +14,12 @@ import {
 } from "@nextui-org/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CLIENT_ROUTES } from "@/common/constants";
 import PeerPrepLogo from "@/components/common/PeerPrepLogo";
 import ProfilePictureAvatar from "./ProfilePictureAvatar";
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import { MatchingService } from "@/helpers/matching/matching_api_wrappers";
 import { useAuthContext } from "@/providers/auth";
+import { CLIENT_ROUTES } from "@/common/constants";
 
 const NavBar = () => {
   const {

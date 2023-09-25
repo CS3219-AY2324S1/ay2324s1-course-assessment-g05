@@ -12,11 +12,8 @@ export default function ProfileLayout({
     children: React.ReactNode;
   }) {
     return (
-      <html lang="en" className="dark">
-        <body className="h-screen bg-background" suppressHydrationWarning={true}>
-            <NavBar />
+        <div className="h-screen bg-background" suppressHydrationWarning={true}>
             {children}
-        </body>
-      </html>
+        </div>
     );
   }

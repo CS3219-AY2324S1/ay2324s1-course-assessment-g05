@@ -1,4 +1,5 @@
 import { Status, Role } from "./enums";
+import { Preference } from "./preference"
 
 type User = {
   id?: string; //this is optional because when we create user, we don't need to provide the user id
