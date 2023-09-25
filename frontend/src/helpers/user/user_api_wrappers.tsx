@@ -22,28 +22,16 @@ const getUserByEmail = async (email: string, cache: RequestCache='no-cache'): Pr
     cache: cache
   });
 
-  // successful response should return 200 with the user data
   if (response.status === HttpStatusCode.OK) {
     const user = response.data as User;
     logger.info(`[getUserByEmail(${email})] ${user}`);
     return user;
-  } else if (response.status === HttpStatusCode.NOT_FOUND) {
-    return throwAndLogError(
-      "getUserByEmail",
-      response.message,
-      PeerPrepErrors.NotFoundError
-    );
-  } else if (response.status === HttpStatusCode.BAD_REQUEST) {
-    return throwAndLogError(
-      "getUserByEmail",
-      response.message,
-      PeerPrepErrors.BadRequestError
-    );
   }
+
   return throwAndLogError(
     "getUserByEmail",
     response.message,
-    PeerPrepErrors.InternalServerError
+    getError(response.status)
   );
 };
 
@@ -62,17 +50,12 @@ const getUserById = async (id: string, cache: RequestCache='no-cache'): Promise<
     const user = response.data as User;
     logger.info(`[getUserById(${id})] ${user}`);
     return user;
-  } else if (response.status === HttpStatusCode.NOT_FOUND) {
-    return throwAndLogError(
-      "getUserById",
-      response.message,
-      PeerPrepErrors.NotFoundError
-    );
   }
+
   return throwAndLogError(
     "getUserById",
     response.message,
-    PeerPrepErrors.InternalServerError
+    getError(response.status)
   );
 };
 
@@ -93,23 +76,12 @@ const createUser = async (user: User, cache: RequestCache='no-cache') => {
     const res = response.data as User;
     logger.info(`[createUser] ${res}`);
     return res;
-  } else if (response.status === HttpStatusCode.BAD_REQUEST) {
-    return throwAndLogError(
-      "createUser",
-      response.message,
-      PeerPrepErrors.BadRequestError
-    );
-  } else if (response.status === HttpStatusCode.CONFLICT) {
-    return throwAndLogError(
-      "createUser",
-      response.message,
-      PeerPrepErrors.ConflictError
-    );
   }
+
   return throwAndLogError(
     "createUser",
     response.message,
-    PeerPrepErrors.InternalServerError
+    getError(response.status)
   );
 };
 
@@ -123,33 +95,14 @@ const updateUser = async (id: string, user: User) => {
     tags: scope,
   });
 
-  // successful response should return 204
   if (response.status === HttpStatusCode.NO_CONTENT) {
-    // revalidateTag(SERVICE.USER);
     return true;
-  } else if (response.status === HttpStatusCode.BAD_REQUEST) {
-    return throwAndLogError(
-      "updateUser",
-      response.message,
-      PeerPrepErrors.BadRequestError
-    );
-  } else if (response.status === HttpStatusCode.NOT_FOUND) {
-    return throwAndLogError(
-      "updateUser",
-      response.message,
-      PeerPrepErrors.NotFoundError
-    );
-  } else if (response.status === HttpStatusCode.CONFLICT) {
-    return throwAndLogError(
-      "updateUser",
-      response.message,
-      PeerPrepErrors.ConflictError
-    );
   }
+
   return throwAndLogError(
     "updateUser",
     response.message,
-    PeerPrepErrors.InternalServerError
+    getError(response.status)
   );
 };
 
@@ -165,17 +118,12 @@ const deleteUser = async (id: string) => {
   // successful response should return 204
   if (response.status === HttpStatusCode.NO_CONTENT) {
     return true;
-  } else if (response.status === HttpStatusCode.NOT_FOUND) {
-    return throwAndLogError(
-      "deleteUser",
-      response.message,
-      PeerPrepErrors.NotFoundError
-    );
   }
+
   return throwAndLogError(
     "deleteUser",
     response.message,
-    PeerPrepErrors.InternalServerError
+    getError(response.status)
   );
 };
 
@@ -193,57 +141,12 @@ const getUserPreferenceById = async (id: string) => {
     const userPreference = response.data as Preference;
     logger.info(`[getUserPreferenceById(${id})] ${userPreference}`);
     return userPreference;
-  } else if (response.status === HttpStatusCode.NOT_FOUND) {
-    return throwAndLogError(
-      "getUserPreferenceById",
-      response.message,
-      PeerPrepErrors.NotFoundError
-    );
-  }
+  } 
+
   return throwAndLogError(
     "getUserPreferenceById",
     response.message,
-    PeerPrepErrors.InternalServerError
-  );
-};
-
-const createUserPreference = async (id: string, userPreference: Preference) => {
-  // call POST /api/users/:id/preferences from user service
-  const response = await api({
-    method: HTTP_METHODS.POST,
-    service: service,
-    path: `${id}/preferences`,
-    body: userPreference,
-    tags: scope,
-  });
-
-  // successful response should return 201 and a user preference created message
-  if (response.status === HttpStatusCode.CREATED) {
-    revalidateTag(SERVICE.USER);
-    return true;
-  } else if (response.status === HttpStatusCode.BAD_REQUEST) {
-    return throwAndLogError(
-      "createUserPreference",
-      response.message,
-      PeerPrepErrors.BadRequestError
-    );
-  } else if (response.status === HttpStatusCode.NOT_FOUND) {
-    return throwAndLogError(
-      "createUserPreference",
-      response.message,
-      PeerPrepErrors.NotFoundError
-    );
-  } else if (response.status === HttpStatusCode.CONFLICT) {
-    return throwAndLogError(
-      "createUserPreference",
-      response.message,
-      PeerPrepErrors.ConflictError
-    );
-  }
-  return throwAndLogError(
-    "createUserPreference",
-    response.message,
-    PeerPrepErrors.InternalServerError
+    getError(response.status)
   );
 };
 
@@ -262,25 +165,27 @@ const updateUserPreference = async (id: string, userPreference: Preference, cach
   if (response.status === HttpStatusCode.NO_CONTENT) {
     // revalidateTag(SERVICE.USER);
     return true;
-  } else if (response.status === HttpStatusCode.BAD_REQUEST) {
-    return throwAndLogError(
-      "updateUserPreference",
-      response.message,
-      PeerPrepErrors.BadRequestError
-    );
-  } else if (response.status === HttpStatusCode.NOT_FOUND) {
-    return throwAndLogError(
-      "updateUserPreference",
-      response.message,
-      PeerPrepErrors.NotFoundError
-    );
-  }
+  } 
+
   return throwAndLogError(
     "updateUserPreference",
     response.message,
-    PeerPrepErrors.InternalServerError
+    getError(response.status)
   );
 };
+
+function getError(status: HttpStatusCode) {
+  switch (status) {
+    case HttpStatusCode.BAD_REQUEST:
+      return PeerPrepErrors.BadRequestError;
+    case HttpStatusCode.NOT_FOUND:
+      return PeerPrepErrors.NotFoundError;
+    case HttpStatusCode.CONFLICT:
+      return PeerPrepErrors.ConflictError;
+    default:
+      return PeerPrepErrors.InternalServerError;
+  }
+}
 
 export const UserService = {
   //async endpoint functions
@@ -290,6 +195,5 @@ export const UserService = {
   updateUser,
   deleteUser,
   getUserPreferenceById,
-  createUserPreference,
   updateUserPreference,
 };

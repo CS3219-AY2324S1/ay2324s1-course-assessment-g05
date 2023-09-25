@@ -23,10 +23,9 @@ export default async function ProfilePage() {
 
     const fetchUser = async () => {
         const rawUser = await UserService.getUserByEmail(email);
-        console.log("User retrieved: " + JSON.stringify(rawUser));
         setUser(rawUser);
     }
-    
+
     async function saveInformation(e: FormEvent<HTMLFormElement>, updatedUser: User, preferences: Preference) {
         e.preventDefault();
         try {
@@ -34,6 +33,7 @@ export default async function ProfilePage() {
             if (!user) {
                 throw new Error("User not retrieved");
             }
+
             let resPref = await UserService.updateUserPreference(user.id, preferences);
             let res = await UserService.updateUser(user.id, updatedUser);
             toast.success("Information updated successfully.", {
@@ -46,7 +46,6 @@ export default async function ProfilePage() {
                 theme: "dark"
               })
         } catch (error) {
-            console.log("Profile: Save error: " + error);
             toast.error("Something went wrong. Please refresh and try again.", {
                 position: toast.POSITION.BOTTOM_CENTER,
                 autoClose: 5000,
@@ -56,8 +55,6 @@ export default async function ProfilePage() {
                 draggable: false,
                 theme: "dark"
               })
-        } finally {
-            //cleanup if necessary
         }
     }
   
