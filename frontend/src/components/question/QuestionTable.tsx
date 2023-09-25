@@ -13,6 +13,7 @@ import {
   Chip,
   Link,
 } from "@nextui-org/react";
+import parse from 'html-react-parser';
 import Question from "@/types/question";
 import ModifyQuestionModal from "./ModifyQuestionModal";
 import ComplexityChip from "./ComplexityChip";
@@ -97,7 +98,7 @@ export default function QuestionTable({
         return (
           <div className="relative flex items-center gap-2">
             <Tooltip content={
-              <p dangerouslySetInnerHTML={{ __html: item.description }}></p>
+              <>{parse(item.description)}</>
             } delay={1000}>
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50 w-8 h-8 p-1.5">
                 <FiEye />

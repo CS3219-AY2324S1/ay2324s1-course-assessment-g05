@@ -1,7 +1,7 @@
 import React from "react";
 import ProfileCard from "./ProfileCard";
 import HeatmapCard from "./HeatmapCard";
-import MatchingCard from "./MatchingCard";
+import MatchingCard from "../matching/MatchingCard";
 import StatisticsCard from "./StatisticsCard";
 import QuestionStatisticsCard from "./QuestionStatisticsCard";
 

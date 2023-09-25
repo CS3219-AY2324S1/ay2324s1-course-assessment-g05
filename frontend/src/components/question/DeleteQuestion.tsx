@@ -1,7 +1,6 @@
 import { deleteQuestion } from "@/helpers/question/question_api_wrappers";
 import { CircularProgress } from "@nextui-org/react";
 import React from "react";
-import { Children } from "react";
 import { FiTrash, FiX } from "react-icons/fi";
 
 export default function DeleteQuestion({ id }: { id: string }) {

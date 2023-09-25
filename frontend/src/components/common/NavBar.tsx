@@ -26,10 +26,6 @@ const NavBar = () => {
     user: { image },
   } = useAuthContext();
   const router = useRouter();
-  const handleQuickMatchButtonPress = () => {
-    const preferences = UserService.getUserPreferences();
-    MatchingService.submitMatchPreferences(preferences);
-  };
   const handleEditProfileButtonPress = () => {
     router.push(CLIENT_ROUTES.PROFILE);
   };
@@ -40,7 +36,7 @@ const NavBar = () => {
   return (
     <Navbar className="bg-black justify-stretch" maxWidth="full" height="50px">
       <NavbarBrand className="flex-grow-0">
-        <Link href={CLIENT_ROUTES.HOME} className="flex items-center gap-1">
+        <Link href={CLIENT_ROUTES.HOME} className="flex">
           <PeerPrepLogo width="30px" height="30px" />
           <p className="text-white text-2xl font-semibold"> PeerPrep </p>
         </Link>
@@ -53,12 +49,6 @@ const NavBar = () => {
         </NavbarItem>
       </NavbarContent>
       <NavbarContent as="div" justify="end">
-        <Button
-          className="bg-yellow text-black h-[30px]"
-          onPress={handleQuickMatchButtonPress}
-        >
-          Quick Match
-        </Button>
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
             <button className="outline-none">

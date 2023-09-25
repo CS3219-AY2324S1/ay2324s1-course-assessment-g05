@@ -1,5 +1,4 @@
-import React, { FormEvent, useEffect } from "react";
-import useSWR from "swr";
+import React, { FormEvent } from "react";
 import {
   Modal,
   ModalContent,
@@ -10,19 +9,12 @@ import {
   Input,
   Select,
   SelectItem,
-  Chip,
-  colors,
-  Progress,
 } from "@nextui-org/react";
 import QuestionDescription from "./QuestionDescription";
-import { TOPIC, COMPLEXITY, SERVICE } from "@/types/enums";
+import { TOPIC, COMPLEXITY } from "@/types/enums";
 import Question, { Example } from "@/types/question";
 import QuestionExamplesTable from "./QuestionExamplesTable";
 import QuestionConstrainsTable from "./QuestionConstrainsTable";
-import { CLIENT_ROUTES } from "@/common/constants";
-import { Url } from "next/dist/shared/lib/router/router";
-import { redirect } from "next/navigation";
-import { revalidateTag } from "next/cache";
 import {
   postQuestion,
   updateQuestion,

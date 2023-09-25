@@ -2,6 +2,7 @@ import { getQuestionById } from "@/helpers/question/question_api_wrappers";
 import Question from "@/types/question";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import parse from 'html-react-parser';
 
 async function getQuestion(id: string) {
   const res = await getQuestionById(id, 'no-cache');
@@ -26,7 +27,7 @@ export default async function QuestionDetailPage({
       <p>{question.complexity}</p>
       <p>{question.topics}</p>
       {/* will need to render the description in client side */}
-      <p>{question.description}</p>
+      {parse(question.description!)}
     </Suspense>
   );
 }
