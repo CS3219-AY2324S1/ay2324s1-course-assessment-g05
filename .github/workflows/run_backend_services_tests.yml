@@ -1,0 +1,44 @@
+name: Backend Services Tests
+# targeting pull requests to master branch
+on:
+  pull_request:
+    branches: [master]
+jobs:
+  coverage:
+    permissions:
+      checks: write
+      pull-requests: write
+      contents: write
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [18.x]
+        service: [user-service, question-service]
+    steps:
+      - name: Checkout Current Branch
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{matrix.node-version}}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{matrix.node-version}}
+
+      - name: Clean up
+        run: |
+          rm -rf backend/${{matrix.service}}/node_modules
+
+      - name: Install Dependencies
+        run: |
+          cd backend/${{matrix.service}}
+          npm ci
+
+      - uses: jwalton/gh-find-current-pr@v1
+        id: findPr
+
+      - name: Run Tests and Collect Coverage Reports
+        uses: ArtiomTr/jest-coverage-report-action@v2 # uses the action from the marketplace
+        with:
+          working-directory: backend/${{matrix.service}}
+          prnumber: ${{steps.findPr.outputs.prNumber}}
+          custom-title: ${{matrix.service}} Tests Report
