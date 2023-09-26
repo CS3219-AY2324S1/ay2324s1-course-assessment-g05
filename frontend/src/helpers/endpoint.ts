@@ -10,11 +10,11 @@ const logger = getLogger("endpoint");
 type ApiConfig = {
   method: HTTP_METHODS; // HTTP method.
   service: SERVICE; // Enum representing the service type.
-  header?: {} // Optional headers
+  header?: {}; // Optional headers
   path?: string; // Optional endpoint path.
   body?: {}; // Optional request body.
   tags?: string[]; // Optional array of caching scopes.
-  cache?: RequestCache
+  cache?: RequestCache;
 };
 
 /**
@@ -42,7 +42,9 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
   let servicePort = getServicePorts(config.service);
 
   // Build the final API endpoint URL.
-  const endpoint = `http://${host}${servicePort}/api/${config.service}/${config.path || ""}`;
+  const endpoint = `http://${host}${servicePort}/api/${config.service}/${
+    config.path || ""
+  }`;
 
   console.log(config.body);
 
@@ -50,7 +52,7 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
   const header = {
     ...(config.body ? { "Content-Type": "application/json" } : {}),
     ...config.header,
-  }
+  };
   logger.info(header, `[endpoint] ${config.method}: ${endpoint}`);
 
   // Log the request body if it exists.
@@ -67,7 +69,7 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
       next: {
         tags: config.tags,
       },
-      cache: config.cache
+      cache: config.cache,
     });
 
     // Parse the response body for all status codes except 204 (no content), expand this to handle more codes without content.
@@ -95,7 +97,7 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
 /**
  * Retrieves the corresponding port number from .env base on services.
  * @param service {SERVICE}
- * @returns port number 
+ * @returns port number
  */
 function getServicePorts(service: SERVICE) {
   if (process.env.NODE_ENV == "development") {

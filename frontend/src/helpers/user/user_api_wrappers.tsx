@@ -1,25 +1,27 @@
 import api from "@/helpers/endpoint";
 import { getLogger } from "@/helpers/logger";
-import { HTTP_METHODS, SERVICE } from "@/types/enums"; 
-import { revalidateTag } from "next/cache";
-import { Status, Role } from "@/types/enums";
+import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import User from "../../types/user";
 import HttpStatusCode from "@/types/HttpStatusCode";
 import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 import { throwAndLogError } from "@/utils/errorUtils";
+import Preference from "@/types/preference";
 
 const logger = getLogger("user_api_wrappers");
 
 const service = SERVICE.USER;
 const scope = [SERVICE.USER];
 
-const getUserByEmail = async (email: string, cache: RequestCache='no-cache'): Promise<User | undefined> => {
+const getUserByEmail = async (
+  email: string,
+  cache: RequestCache = "no-cache"
+): Promise<User | undefined> => {
   const response = await api({
     method: HTTP_METHODS.GET,
     service: service,
     path: `email?email=${email}`,
     tags: scope,
-    cache: cache
+    cache: cache,
   });
 
   if (response.status === HttpStatusCode.OK) {
@@ -35,7 +37,10 @@ const getUserByEmail = async (email: string, cache: RequestCache='no-cache'): Pr
   );
 };
 
-const getUserById = async (id: string, cache: RequestCache='no-cache'): Promise<User> => {
+const getUserById = async (
+  id: string,
+  cache: RequestCache = "no-cache"
+): Promise<User> => {
   // call GET /api/users/:id from user service
   const response = await api({
     method: HTTP_METHODS.GET,
@@ -59,7 +64,7 @@ const getUserById = async (id: string, cache: RequestCache='no-cache'): Promise<
   );
 };
 
-const createUser = async (user: User, cache: RequestCache='no-cache') => {
+const createUser = async (user: User, cache: RequestCache = "no-cache") => {
   // call POST /api/users from user service
   console.log(user);
   const response = await api({
@@ -67,7 +72,7 @@ const createUser = async (user: User, cache: RequestCache='no-cache') => {
     service: service,
     tags: scope,
     body: user,
-    cache: cache
+    cache: cache,
   });
 
   // successful response should return 201 and a user created message
@@ -141,7 +146,7 @@ const getUserPreferenceById = async (id: string) => {
     const userPreference = response.data as Preference;
     logger.info(`[getUserPreferenceById(${id})] ${userPreference}`);
     return userPreference;
-  } 
+  }
 
   return throwAndLogError(
     "getUserPreferenceById",
@@ -150,7 +155,11 @@ const getUserPreferenceById = async (id: string) => {
   );
 };
 
-const updateUserPreference = async (id: string, userPreference: Preference, cache: RequestCache='no-cache') => {
+const updateUserPreference = async (
+  id: string,
+  userPreference: Preference,
+  cache: RequestCache = "no-cache"
+) => {
   // call PUT /api/users/:id/preferences from user service
   const response = await api({
     method: HTTP_METHODS.PUT,
@@ -165,7 +174,7 @@ const updateUserPreference = async (id: string, userPreference: Preference, cach
   if (response.status === HttpStatusCode.NO_CONTENT) {
     // revalidateTag(SERVICE.USER);
     return true;
-  } 
+  }
 
   return throwAndLogError(
     "updateUserPreference",

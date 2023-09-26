@@ -4,6 +4,7 @@ const convertAllCapsToCamelCase = (str: string) => {
 };
 
 const convertEnumsToCamelCase = (obj: any) => {
+  if (!obj) return [];
   return Object.values(obj).map((item: any) => {
     return convertAllCapsToCamelCase(item);
   });
