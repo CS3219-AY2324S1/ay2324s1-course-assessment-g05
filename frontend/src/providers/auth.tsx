@@ -1,13 +1,19 @@
+import { CLIENT_ROUTES } from "@/common/constants";
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import { Role, Status } from "@/types/enums";
 import User from "@/types/user";
 import { StringUtils } from "@/utils/stringUtils";
 import { Spinner } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
+import { P } from "pino";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface IAuthContext {
   user: User;
-  fetchUser: () => Promise<void>;
+  fetchUser: (userId: string) => Promise<void>;
+  logIn: (email: string) => Promise<void>;
+  logOut: () => Promise<void>;
+  isAuthenticated: () => boolean;
 }
 
 interface IAuthProvider {
@@ -15,7 +21,7 @@ interface IAuthProvider {
 }
 
 const defaultUser: User = {
-  id: "clmol5ekq00007k00es00hvun",
+  id: "",
   name: "",
   email: "",
   role: Role.USER,
@@ -29,7 +35,10 @@ const defaultUser: User = {
 
 const AuthContext = createContext<IAuthContext>({
   user: defaultUser,
-  fetchUser: () => Promise.resolve(),
+  fetchUser: (userId: string) => Promise.resolve(),
+  logIn: () => Promise.resolve(),
+  isAuthenticated: () => true,
+  logOut: () => Promise.resolve(),
 });
 
 const useAuthContext = () => useContext(AuthContext);
@@ -37,35 +46,67 @@ const useAuthContext = () => useContext(AuthContext);
 const AuthProvider = ({ children }: IAuthProvider) => {
   const [user, setUser] = useState<User>(defaultUser);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const router = useRouter();
 
   useEffect(() => {
-    fetchUser();
+    const userId = sessionStorage.getItem("userId");
+    if (userId) {
+      const parsedUserId = JSON.parse(userId);
+      fetchUser(parsedUserId);
+    } else {
+      setIsLoading(false);
+    }
   }, []);
 
-  const fetchUser = async () => {
+  const fetchUser = async (userId: string) => {
     try {
       setIsLoading(true);
 
-      if (!user.id) return;
+      if (!userId) return;
 
-      const rawUser = await UserService.getUserById(user.id);
-      console.log(rawUser);
-      rawUser.preferences = {
-        languages: StringUtils.convertEnumsToCamelCase(
-          rawUser.preferences?.languages
-        ),
-        difficulties: StringUtils.convertEnumsToCamelCase(
-          rawUser.preferences?.difficulties
-        ),
-        topics: StringUtils.convertEnumsToCamelCase(
-          rawUser.preferences?.topics
-        ),
-      };
+      const rawUser = await UserService.getUserById(userId);
+      updateUser(rawUser);
 
       setUser(rawUser);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const formatPreferences = (rawUser: User) => {
+    rawUser.preferences = {
+      languages: StringUtils.convertEnumsToCamelCase(
+        rawUser.preferences?.languages
+      ),
+      difficulties: StringUtils.convertEnumsToCamelCase(
+        rawUser.preferences?.difficulties
+      ),
+      topics: StringUtils.convertEnumsToCamelCase(rawUser.preferences?.topics),
+    };
+  };
+
+  const logIn = async (email: string) => {
+    const rawUser = await UserService.getUserByEmail(email);
+    updateUser(rawUser);
+  };
+
+  const updateUser = (rawUser: User | undefined) => {
+    if (!rawUser) return;
+    formatPreferences(rawUser);
+    setUser(rawUser);
+    sessionStorage.setItem("userId", JSON.stringify(rawUser.id));
+  };
+
+  const isAuthenticated = () => {
+    console.log(user.id);
+    return !!user.id;
+  };
+
+  const logOut = async () => {
+    // TODO: Clear cookie from backend
+    sessionStorage.removeItem("userId");
+    setUser(defaultUser);
+    router.push(CLIENT_ROUTES.HOME);
   };
 
   const renderChildren = () => {
@@ -75,7 +116,7 @@ const AuthProvider = ({ children }: IAuthProvider) => {
     return children;
   };
 
-  const context = { user, fetchUser };
+  const context = { user, fetchUser, logIn, isAuthenticated, logOut };
 
   return (
     <AuthContext.Provider value={context}>

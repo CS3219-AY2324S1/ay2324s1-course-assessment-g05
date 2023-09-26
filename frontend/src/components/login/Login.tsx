@@ -9,23 +9,24 @@ import {
   Link,
   Divider,
   CardHeader,
-  Image
+  Image,
 } from "@nextui-org/react";
-import PeerPrepLogo from "@/components/common/PeerPrepLogo"
+import PeerPrepLogo from "@/components/common/PeerPrepLogo";
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import { CLIENT_ROUTES } from "@/common/constants";
 // import { useRouter } from "next/router";
-import { useRouter, useParams } from "next/navigation"
+import { useRouter, useParams } from "next/navigation";
 import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 import User from "@/types/user";
 import { Role } from "@/types/enums";
-import { toast } from "react-toastify"
-import Toast from "@/components/common/Toast";
-import { ToastType } from "@/types/enums"
+import { toast } from "react-toastify";
+import displayToast from "@/components/common/Toast";
+import { ToastType } from "@/types/enums";
+import { useAuthContext } from "@/providers/auth";
 
 export function LoginComponent() {
-
-  const router = useRouter()
+  const { logIn } = useAuthContext();
+  const router = useRouter();
 
   // States
   const [email, setEmail] = useState("");
@@ -50,16 +51,24 @@ export function LoginComponent() {
   const toggleSignUp = () => setIsSignUp(!isSignUp);
 
   useEffect(() => {
-    setArePasswordsEqual(!(password !== checkPassword && (password !== "" && checkPassword !== "")));
-    
+    setArePasswordsEqual(
+      !(password !== checkPassword && password !== "" && checkPassword !== "")
+    );
+
     if (password !== "" && checkPassword !== "" && password.length < 8) {
       setErrorMsg("Password should contain 8 characters or more.");
     } else if (!arePasswordsEqual) {
-      setErrorMsg("Passwords do not match. Please try again.")
+      setErrorMsg("Passwords do not match. Please try again.");
     } else {
       setErrorMsg("");
     }
-  }, [password, checkPassword, setPassword, setCheckPassword, arePasswordsEqual]);
+  }, [
+    password,
+    checkPassword,
+    setPassword,
+    setCheckPassword,
+    arePasswordsEqual,
+  ]);
 
   async function submitNewUser(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -68,34 +77,18 @@ export function LoginComponent() {
       name: name,
       email: email,
       role: Role.USER,
-    }
+    };
 
-    try {      
+    try {
       let res = await UserService.createUser(user);
+      displayToast("Sign up success!", ToastType.SUCCESS);
       router.push(CLIENT_ROUTES.HOME); //TODO: Update with verifying OTP/Email address when auth
       sessionStorage.setItem("email", res.email.toString());
     } catch (error) {
       if (error instanceof PeerPrepErrors.ConflictError) {
-        toast.error("User already exists. Please login instead.", {
-          position: toast.POSITION.BOTTOM_CENTER,
-          autoClose: 5000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: false,
-          draggable: false,
-          theme: "dark"
-        })
+        displayToast("User already exists. Please login instead.", ToastType.ERROR);
       } else {
-        console.log(error);
-        toast.error("Something went wrong. Please refresh and try again.", {
-          position: toast.POSITION.BOTTOM_CENTER,
-          autoClose: 5000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: false,
-          draggable: false,
-          theme: "dark"
-        })
+        displayToast("Something went wrong. Please refresh and try again.", ToastType.ERROR);
       }
     } finally {
       // Cleanup
@@ -107,31 +100,28 @@ export function LoginComponent() {
     e.preventDefault();
     try {
       setIsSubmitted(true);
-      let res = await UserService.getUserByEmail(email);
-      if (res) {
-        sessionStorage.setItem("email", res.email);
-        router.push(CLIENT_ROUTES.HOME);
-      }
-      
-      //TODO: Update with verifying OTP/Email address when auth
+      await logIn(email);
+      displayToast("Login success!", ToastType.SUCCESS)
+      router.push(CLIENT_ROUTES.HOME);
     } catch (error) {
       if (error instanceof PeerPrepErrors.NotFoundError) {
-        Toast("User not found, please sign up instead.", ToastType.ERROR)
+        displayToast("User not found, please sign up instead.", ToastType.ERROR);
       } else {
-        console.log(error);
-        Toast("Something went wrong. Please refresh and try again.", ToastType.ERROR)
+        displayToast(
+          "Something went wrong. Please refresh and try again.",
+          ToastType.ERROR
+        );
       }
     } finally {
       // Cleanup
       setIsSubmitted(false);
     }
-
   }
 
   return (
     <div className="flex items-center justify-center h-screen">
       <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
-        <form className="w-1/2" onSubmit={ isSignUp ? submitNewUser : getUser }>
+        <form className="w-1/2" onSubmit={isSignUp ? submitNewUser : getUser}>
           <PeerPrepLogo />
           <CardHeader className="lg font-bold justify-center">
             PeerPrep
@@ -158,16 +148,19 @@ export function LoginComponent() {
               setPassword(e.currentTarget.value);
             }}
             endContent={
-                <Button
-                  variant="light"
-                  className="focus:outline-none p-2"
-                  size="sm"
-                  isIconOnly
-                  onClick={togglePasswordVisibility}
-                >
-                  { isPasswordVisible ? <Image src="/eye-hide.svg"/> : <Image src="/eye-show.svg"/>}
-                  
-                </Button>
+              <Button
+                variant="light"
+                className="focus:outline-none p-2"
+                size="sm"
+                isIconOnly
+                onClick={togglePasswordVisibility}
+              >
+                {isPasswordVisible ? (
+                  <Image src="/eye-hide.svg" />
+                ) : (
+                  <Image src="/eye-show.svg" />
+                )}
+              </Button>
             }
           />
           {isSignUp ? (
@@ -183,15 +176,19 @@ export function LoginComponent() {
                   setCheckPassword(e.currentTarget.value);
                 }}
                 endContent={
-                    <Button
-                      variant="light"
-                      className="focus:outline-none p-2"
-                      size="sm"
-                      isIconOnly
-                      onClick={() => toggleCheckPasswordVisibility()}
-                    >
-                      { isCheckPasswordVisible ? <Image src="/eye-hide.svg"/> : <Image src="/eye-show.svg"/> }
-                    </Button>
+                  <Button
+                    variant="light"
+                    className="focus:outline-none p-2"
+                    size="sm"
+                    isIconOnly
+                    onClick={() => toggleCheckPasswordVisibility()}
+                  >
+                    {isCheckPasswordVisible ? (
+                      <Image src="/eye-hide.svg" />
+                    ) : (
+                      <Image src="/eye-show.svg" />
+                    )}
+                  </Button>
                 }
               />
               <Spacer y={1} />
@@ -205,7 +202,9 @@ export function LoginComponent() {
                 placeholder="Name"
               />
               <Spacer y={2} />
-              <div className="text-red-500 text-center text-xs font-bold">{errorMsg}</div>
+              <div className="text-red-500 text-center text-xs font-bold">
+                {errorMsg}
+              </div>
               <div className="flex flex-col items-center pt-5 space-y-5">
                 <Button
                   isLoading={isSubmitted}
@@ -250,11 +249,7 @@ export function LoginComponent() {
                   // }}
                   // href="/verify"
                 >
-                  {!isSubmitted ? (
-                    <Image src="submit_button.svg"/>
-                  ) : (
-                    null
-                  )}
+                  {!isSubmitted ? <Image src="submit_button.svg" /> : null}
                 </Button>
               </div>
               <Spacer y={5} />
@@ -279,10 +274,10 @@ export function LoginComponent() {
                 <header className="text-xs">Sign in with:</header>
                 <div className="flex justify-between space-x-5 p-x-5">
                   <Button className="p-2" isIconOnly variant="faded">
-                    <Image src="/github.svg"/>
+                    <Image src="/github.svg" />
                   </Button>
                   <Button className="p-2" isIconOnly variant="faded">
-                    <Image src="/google.svg"/>
+                    <Image src="/google.svg" />
                   </Button>
                 </div>
               </div>

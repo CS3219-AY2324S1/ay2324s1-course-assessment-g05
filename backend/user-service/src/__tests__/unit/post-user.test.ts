@@ -9,11 +9,15 @@ const dbMock = db;
 
 describe("POST /api/users", () => {
   describe("Given the request body payload is valid", () => {
-    it("should return 201 with a message of User Created", async () => {
+    it("should return 201 with a message of User Created and the registered userId", async () => {
       // Arrange
       const requestBody = testPayloads.getPostUserPayload();
       dbMock.user.findFirst = jest.fn().mockReturnValue(null);
-      dbMock.user.create = jest.fn().mockResolvedValue("userId123");
+      dbMock.user.create = jest
+        .fn()
+        .mockResolvedValue(
+          testPayloads.getUserPayload({ userId: "userId123" })
+        );
       dbMock.preferences.create = jest.fn().mockResolvedValue(null);
 
       // Act
@@ -26,6 +30,7 @@ describe("POST /api/users", () => {
         data: requestBody,
       });
       expect(statusCode).toBe(HttpStatusCode.CREATED);
+      expect(body.id).toBe("userId123");
       expect(body.message).toBe("User created.");
     });
   });

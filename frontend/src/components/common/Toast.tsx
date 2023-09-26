@@ -5,7 +5,7 @@ import { ToastType } from "@/types/enums"
  * Toasts for success, error, warning, and info
  */
 
-export default function Toast(message: string, type: ToastType=ToastType.INFO) {
+export default function displayToast(message: string, type: ToastType=ToastType.INFO) {
     switch (type) {
         case ToastType.SUCCESS:
             toast.success(message, {
