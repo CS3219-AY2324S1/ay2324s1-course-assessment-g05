@@ -27,7 +27,7 @@ model User {
 
 model Preferences {
   userId String @unique
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   languages    String[]
   difficulties String[]
