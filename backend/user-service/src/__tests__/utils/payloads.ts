@@ -28,3 +28,20 @@ export const getPostUserPayload = () => {
     gender: "MALE",
   };
 };
+
+export const getUserPreferencesPayload = ({ userId }: { userId?: string }) => {
+  return {
+    userId: userId || "test-user-id",
+    languages: ["PYTHON", "JAVA", "C++", "JAVASCRIPT"],
+    difficulties: ["EASY", "MEDIUM", "HARD"],
+    topics: ["ARRAY", "STRING", "DYNAMIC PROGRAMMING"],
+  };
+};
+
+export const getUpdatePreferencesPayload = () => {
+  return {
+    languages: ["Python", "Java", "C++", "Javascript"],
+    difficulties: ["Easy", "Medium", "Hard"],
+    topics: ["Array", "String", "Dynamic Programming"],
+  };
+};
