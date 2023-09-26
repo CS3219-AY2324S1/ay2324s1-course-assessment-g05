@@ -1,8 +1,10 @@
+import { CLIENT_ROUTES } from "@/common/constants";
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import { Role, Status } from "@/types/enums";
 import User from "@/types/user";
 import { StringUtils } from "@/utils/stringUtils";
 import { Spinner } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 import { P } from "pino";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -10,6 +12,7 @@ interface IAuthContext {
   user: User;
   fetchUser: (userId: string) => Promise<void>;
   logIn: (email: string) => Promise<void>;
+  logOut: () => Promise<void>;
   isAuthenticated: () => boolean;
 }
 
@@ -35,6 +38,7 @@ const AuthContext = createContext<IAuthContext>({
   fetchUser: (userId: string) => Promise.resolve(),
   logIn: () => Promise.resolve(),
   isAuthenticated: () => true,
+  logOut: () => Promise.resolve(),
 });
 
 const useAuthContext = () => useContext(AuthContext);
@@ -42,9 +46,10 @@ const useAuthContext = () => useContext(AuthContext);
 const AuthProvider = ({ children }: IAuthProvider) => {
   const [user, setUser] = useState<User>(defaultUser);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const router = useRouter();
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
+    const userId = sessionStorage.getItem("userId");
     if (userId) {
       const parsedUserId = JSON.parse(userId);
       fetchUser(parsedUserId);
@@ -89,12 +94,19 @@ const AuthProvider = ({ children }: IAuthProvider) => {
     if (!rawUser) return;
     formatPreferences(rawUser);
     setUser(rawUser);
-    localStorage.setItem("userId", JSON.stringify(rawUser.id));
+    sessionStorage.setItem("userId", JSON.stringify(rawUser.id));
   };
 
   const isAuthenticated = () => {
     console.log(user.id);
     return !!user.id;
+  };
+
+  const logOut = async () => {
+    // TODO: Clear cookie from backend
+    sessionStorage.removeItem("userId");
+    setUser(defaultUser);
+    router.push(CLIENT_ROUTES.HOME);
   };
 
   const renderChildren = () => {
@@ -104,7 +116,7 @@ const AuthProvider = ({ children }: IAuthProvider) => {
     return children;
   };
 
-  const context = { user, fetchUser, logIn, isAuthenticated };
+  const context = { user, fetchUser, logIn, isAuthenticated, logOut };
 
   return (
     <AuthContext.Provider value={context}>

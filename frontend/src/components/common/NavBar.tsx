@@ -21,13 +21,14 @@ const NavBar = () => {
   const {
     user: { image },
     isAuthenticated,
+    logOut,
   } = useAuthContext();
   const router = useRouter();
   const handleEditProfileButtonPress = () => {
     router.push(CLIENT_ROUTES.PROFILE);
   };
-  const handleLogoutButtonPress = () => {
-    router.push(CLIENT_ROUTES.LOGOUT);
+  const handleLogoutButtonPress = async () => {
+    await logOut();
   };
 
   if (!isAuthenticated()) {
