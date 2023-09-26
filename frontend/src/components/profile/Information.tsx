@@ -15,7 +15,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { COMPLEXITY, LANGUAGE, TOPIC } from "@/types/enums";
 import { StringUtils } from "@/utils/stringUtils";
 import { ToastType } from "@/types/enums";
-import Toast from "@/components/common/Toast";
+import displayToast from "@/components/common/Toast";
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import Preference from "@/types/preference";
 import { useAuthContext } from "@/providers/auth";
@@ -128,9 +128,9 @@ export default function Information({
       );
       let res = await UserService.updateUser(user.id, updatedUser);
       await fetchUser(currentUser.id!);
-      Toast("Information saved successfully!", ToastType.SUCCESS);
+      displayToast("Information saved successfully!", ToastType.SUCCESS);
     } catch (error) {
-      Toast(
+      displayToast(
         "Something went wrong. Please refresh and try again.",
         ToastType.ERROR
       );

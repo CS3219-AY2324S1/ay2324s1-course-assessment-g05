@@ -20,7 +20,7 @@ import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 import User from "@/types/user";
 import { Role } from "@/types/enums";
 import { toast } from "react-toastify";
-import Toast from "@/components/common/Toast";
+import displayToast from "@/components/common/Toast";
 import { ToastType } from "@/types/enums";
 import { useAuthContext } from "@/providers/auth";
 
@@ -81,30 +81,14 @@ export function LoginComponent() {
 
     try {
       let res = await UserService.createUser(user);
+      displayToast("Sign up success!", ToastType.SUCCESS);
       router.push(CLIENT_ROUTES.HOME); //TODO: Update with verifying OTP/Email address when auth
       sessionStorage.setItem("email", res.email.toString());
     } catch (error) {
       if (error instanceof PeerPrepErrors.ConflictError) {
-        toast.error("User already exists. Please login instead.", {
-          position: toast.POSITION.BOTTOM_CENTER,
-          autoClose: 5000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: false,
-          draggable: false,
-          theme: "dark",
-        });
+        displayToast("User already exists. Please login instead.", ToastType.ERROR);
       } else {
-        console.log(error);
-        toast.error("Something went wrong. Please refresh and try again.", {
-          position: toast.POSITION.BOTTOM_CENTER,
-          autoClose: 5000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: false,
-          draggable: false,
-          theme: "dark",
-        });
+        displayToast("Something went wrong. Please refresh and try again.", ToastType.ERROR);
       }
     } finally {
       // Cleanup
@@ -117,14 +101,13 @@ export function LoginComponent() {
     try {
       setIsSubmitted(true);
       await logIn(email);
+      displayToast("Login success!", ToastType.SUCCESS)
       router.push(CLIENT_ROUTES.HOME);
-      //TODO: Update with verifying OTP/Email address when auth
     } catch (error) {
       if (error instanceof PeerPrepErrors.NotFoundError) {
-        Toast("User not found, please sign up instead.", ToastType.ERROR);
+        displayToast("User not found, please sign up instead.", ToastType.ERROR);
       } else {
-        console.log(error);
-        Toast(
+        displayToast(
           "Something went wrong. Please refresh and try again.",
           ToastType.ERROR
         );
