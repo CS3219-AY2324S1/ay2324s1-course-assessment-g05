@@ -4,7 +4,6 @@ import { Inter } from "next/font/google";
 import { Poppins } from "next/font/google";
 import { Providers } from "./providers";
 import NavBar from "@/components/common/NavBar";
-import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 
@@ -21,12 +20,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const isAuthenticated = AuthService.validateAuth();
   return (
     <html lang="en" className="dark">
       <body className="h-screen bg-background" suppressHydrationWarning={true}>
         <Providers>
-          {isAuthenticated && <NavBar />}
+          <NavBar />
           {children}
           <ToastContainer />
         </Providers>

@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 import { AuthProvider } from "@/providers/auth";
 import { NextUIProvider } from "@nextui-org/react";
 
