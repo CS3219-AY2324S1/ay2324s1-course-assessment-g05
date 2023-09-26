@@ -27,18 +27,14 @@ jobs:
       - name: Clean up
         run: |
           rm -rf backend/${{matrix.service}}/node_modules
+          rm -rf backend/${{matrix.service}}/coverage
 
       - name: Install Dependencies
         run: |
           cd backend/${{matrix.service}}
           npm ci
 
-      - uses: jwalton/gh-find-current-pr@v1
-        id: findPr
-
       - name: Run Tests and Collect Coverage Reports
-        uses: ArtiomTr/jest-coverage-report-action@v2 # uses the action from the marketplace
-        with:
-          working-directory: backend/${{matrix.service}}
-          prnumber: ${{steps.findPr.outputs.prNumber}}
-          custom-title: ${{matrix.service}} Tests Report
+        run: |
+          cd backend/${{matrix.service}}
+          npm test --coverage
