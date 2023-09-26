@@ -209,7 +209,7 @@ describe("PUT /api/users/:userId/preferences", () => {
       // Assert
       expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
       expect(body.error).toBe("BAD REQUEST");
-      expect(body.message).toBe("Language provided must be unique.");
+      expect(body.message).toBe("Language provided must be unique");
     });
   });
 
