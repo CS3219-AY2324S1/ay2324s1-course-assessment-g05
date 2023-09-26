@@ -1,6 +1,6 @@
 // Used in api path, value should be in small caps
 export enum SERVICE {
-  USER = "user",
+  USER = "users",
   QUESTION = "questions",
 }
 
@@ -73,4 +73,11 @@ export enum TOPIC {
   TOPOSORT = "TOPOLOGICAL SORT",
   QUICKSELECT = "QUICKSELECT",
   BRAINTEASER = "BRAIN TEASER",
+}
+
+export enum ToastType {
+  SUCCESS = "success",
+  ERROR = "error",
+  WARNING = "warning",
+  INFO = "info",
 }

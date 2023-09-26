@@ -2,7 +2,7 @@
 /*                        mock backend for auth service                       */
 /* -------------------------------------------------------------------------- */
 const validateAuth = () => {
-  return true;
+  return false;
 };
 
 export const AuthService = {

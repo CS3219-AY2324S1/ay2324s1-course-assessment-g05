@@ -1,9 +1,9 @@
-import ProfileComponent from "@/components/profile/Profile"
+"use client";
+import ProfileComponent from "@/components/profile/Profile";
+import { useAuthContext } from "@/providers/auth";
 
 export default function ProfilePage() {
-    return (
-        <>
-            <ProfileComponent/>
-        </>
-    )
+  const { user } = useAuthContext();
+
+  return <>{user && <ProfileComponent user={user} />}</>;
 }

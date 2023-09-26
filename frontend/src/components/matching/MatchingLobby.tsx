@@ -125,7 +125,7 @@ export default function MatchingLobby({
         label="Looking for a peer...">
       </CircularProgress>
       <div className="flex flex-col gap-2 items-center text-small">
-        <span>{options.languages.join(", ")}</span>
+        {/* <span>{options.languages.join(", ")}</span> */}
         <span className="flex gap-2">
           {options.difficulties.map(item => (
             <ComplexityChip key={item} complexity={item} size="sm"></ComplexityChip>

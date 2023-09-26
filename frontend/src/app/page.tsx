@@ -1,8 +1,18 @@
+"use client";
 import Dashboard from "@/components/dashboard/Dashboard";
 import Landing from "@/components/landing/Landing";
-import { AuthService } from "@/helpers/auth/auth_api_wrappers";
+
+import { useAuthContext } from "@/providers/auth";
 
 export default function Home() {
-  const isAuthenticated = AuthService.validateAuth();
-  return isAuthenticated ? <Dashboard /> : <Landing />;
+  const { user, isAuthenticated } = useAuthContext();
+
+  const renderComponent = () => {
+    if (!isAuthenticated()) {
+      return <Landing />;
+    } else {
+      return <Dashboard />;
+    }
+  };
+  return renderComponent();
 }
