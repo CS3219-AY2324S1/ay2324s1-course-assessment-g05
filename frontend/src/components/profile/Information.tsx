@@ -127,7 +127,7 @@ export default function Information({
         preferences
       );
       let res = await UserService.updateUser(user.id, updatedUser);
-      await fetchUser();
+      await fetchUser(currentUser.id!);
       Toast("Information saved successfully!", ToastType.SUCCESS);
     } catch (error) {
       Toast(

@@ -3,11 +3,12 @@ import { Role, Status } from "@/types/enums";
 import User from "@/types/user";
 import { StringUtils } from "@/utils/stringUtils";
 import { Spinner } from "@nextui-org/react";
+import { P } from "pino";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface IAuthContext {
   user: User;
-  fetchUser: () => Promise<void>;
+  fetchUser: (userId: string) => Promise<void>;
   logIn: (email: string) => Promise<void>;
   isAuthenticated: () => boolean;
 }
@@ -31,9 +32,9 @@ const defaultUser: User = {
 
 const AuthContext = createContext<IAuthContext>({
   user: defaultUser,
-  fetchUser: () => Promise.resolve(),
+  fetchUser: (userId: string) => Promise.resolve(),
   logIn: () => Promise.resolve(),
-  isAuthenticated: () => false,
+  isAuthenticated: () => true,
 });
 
 const useAuthContext = () => useContext(AuthContext);
@@ -43,28 +44,23 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    fetchUser();
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      const parsedUserId = JSON.parse(userId);
+      fetchUser(parsedUserId);
+    } else {
+      setIsLoading(false);
+    }
   }, []);
 
-  const fetchUser = async () => {
+  const fetchUser = async (userId: string) => {
     try {
       setIsLoading(true);
 
-      if (!user.id) return;
+      if (!userId) return;
 
-      const rawUser = await UserService.getUserById(user.id);
-      console.log(rawUser);
-      rawUser.preferences = {
-        languages: StringUtils.convertEnumsToCamelCase(
-          rawUser.preferences?.languages
-        ),
-        difficulties: StringUtils.convertEnumsToCamelCase(
-          rawUser.preferences?.difficulties
-        ),
-        topics: StringUtils.convertEnumsToCamelCase(
-          rawUser.preferences?.topics
-        ),
-      };
+      const rawUser = await UserService.getUserById(userId);
+      updateUser(rawUser);
 
       setUser(rawUser);
     } finally {
@@ -72,14 +68,32 @@ const AuthProvider = ({ children }: IAuthProvider) => {
     }
   };
 
+  const formatPreferences = (rawUser: User) => {
+    rawUser.preferences = {
+      languages: StringUtils.convertEnumsToCamelCase(
+        rawUser.preferences?.languages
+      ),
+      difficulties: StringUtils.convertEnumsToCamelCase(
+        rawUser.preferences?.difficulties
+      ),
+      topics: StringUtils.convertEnumsToCamelCase(rawUser.preferences?.topics),
+    };
+  };
+
   const logIn = async (email: string) => {
     const rawUser = await UserService.getUserByEmail(email);
-    if (rawUser) {
-      setUser(rawUser);
-    }
+    updateUser(rawUser);
+  };
+
+  const updateUser = (rawUser: User | undefined) => {
+    if (!rawUser) return;
+    formatPreferences(rawUser);
+    setUser(rawUser);
+    localStorage.setItem("userId", JSON.stringify(rawUser.id));
   };
 
   const isAuthenticated = () => {
+    console.log(user.id);
     return !!user.id;
   };
 
