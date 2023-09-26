@@ -2,7 +2,7 @@
 
 import { getQuestionById } from "@/helpers/question/question_api_wrappers";
 import Question from "@/types/question";
-import { FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ProblemDescription from "./ProblemDescription";
 
 const ProblemPanel = ({}) => {
@@ -17,8 +17,6 @@ const ProblemPanel = ({}) => {
       const rawQuestion = (await getQuestionById(
         "650a5979bf32dcb1ae15bf11"
       )) as Question;
-
-      console.log(rawQuestion);
 
       if (!rawQuestion) {
         throw new Error("Question not found");
