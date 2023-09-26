@@ -6,6 +6,7 @@ type UserProfile = {
   id: string;
   name: string;
   email: string;
+  password: string;
   role: Role; //enum
 
   //optional attributes

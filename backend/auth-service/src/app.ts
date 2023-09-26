@@ -4,6 +4,8 @@ import router from "./routes";
 import bodyParser from "body-parser";
 import HttpStatusCode from "./lib/enums/HttpStatusCode";
 import cors from "./middleware/cors";
+import passport from "passport";
+import { getEmailJwtStrategy } from "./config/passport";
 
 dotenv.config();
 
@@ -14,6 +16,9 @@ app.use(cors);
 
 // implement body-parser for parsing request body
 app.use(bodyParser.json());
+
+passport.use(getEmailJwtStrategy());
+app.use(passport.initialize());
 
 // implement routes for API endpoints
 app.use("/api", router);
