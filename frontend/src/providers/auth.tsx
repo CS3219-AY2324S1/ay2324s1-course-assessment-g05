@@ -8,6 +8,8 @@ import { createContext, useContext, useEffect, useState } from "react";
 interface IAuthContext {
   user: User;
   fetchUser: () => Promise<void>;
+  logIn: (email: string) => Promise<void>;
+  isAuthenticated: () => boolean;
 }
 
 interface IAuthProvider {
@@ -15,7 +17,7 @@ interface IAuthProvider {
 }
 
 const defaultUser: User = {
-  id: "clmol5ekq00007k00es00hvun",
+  id: "",
   name: "",
   email: "",
   role: Role.USER,
@@ -30,6 +32,8 @@ const defaultUser: User = {
 const AuthContext = createContext<IAuthContext>({
   user: defaultUser,
   fetchUser: () => Promise.resolve(),
+  logIn: () => Promise.resolve(),
+  isAuthenticated: () => false,
 });
 
 const useAuthContext = () => useContext(AuthContext);
@@ -68,6 +72,17 @@ const AuthProvider = ({ children }: IAuthProvider) => {
     }
   };
 
+  const logIn = async (email: string) => {
+    const rawUser = await UserService.getUserByEmail(email);
+    if (rawUser) {
+      setUser(rawUser);
+    }
+  };
+
+  const isAuthenticated = () => {
+    return !!user.id;
+  };
+
   const renderChildren = () => {
     if (isLoading) {
       return <Spinner color="primary" />;
@@ -75,7 +90,7 @@ const AuthProvider = ({ children }: IAuthProvider) => {
     return children;
   };
 
-  const context = { user, fetchUser };
+  const context = { user, fetchUser, logIn, isAuthenticated };
 
   return (
     <AuthContext.Provider value={context}>

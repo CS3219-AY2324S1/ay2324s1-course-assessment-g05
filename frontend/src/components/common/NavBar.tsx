@@ -20,6 +20,7 @@ import { CLIENT_ROUTES } from "@/common/constants";
 const NavBar = () => {
   const {
     user: { image },
+    isAuthenticated,
   } = useAuthContext();
   const router = useRouter();
   const handleEditProfileButtonPress = () => {
@@ -29,6 +30,9 @@ const NavBar = () => {
     router.push(CLIENT_ROUTES.LOGOUT);
   };
 
+  if (!isAuthenticated()) {
+    return <></>;
+  }
   return (
     <Navbar className="bg-black justify-stretch" maxWidth="full" height="50px">
       <NavbarBrand className="flex-grow-0">
