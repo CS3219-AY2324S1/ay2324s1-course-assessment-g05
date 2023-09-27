@@ -92,6 +92,7 @@ export default function Information({
     MALE: "Male",
     FEMALE: "Female",
     "": "Prefer not to say",
+    OTHER: "Prefer not to say",
   };
 
   const handleGenderChange = (value: string) => {
@@ -104,7 +105,7 @@ export default function Information({
     email: user.email,
     bio: bio ? bio : undefined,
     role: user.role,
-    gender: gender === "Prefer not to say" ? undefined : gender,
+    gender: gender,
   };
 
   async function saveInformation(
@@ -179,7 +180,7 @@ export default function Information({
               <DropdownItem key="FEMALE" color={"default"}>
                 Female
               </DropdownItem>
-              <DropdownItem key="" color={"default"}>
+              <DropdownItem key="OTHER" color={"default"}>
                 Prefer not to say
               </DropdownItem>
             </DropdownMenu>
