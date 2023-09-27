@@ -30,8 +30,6 @@ export default function ProfileCard({ user, setImageUrl }: ProfileCardProps) {
 
     const handleFileUpload = async (file: File) => {
 
-        // setFile(file)
-
         try {
 
             if (!user.id && file) {
@@ -119,15 +117,11 @@ export default function ProfileCard({ user, setImageUrl }: ProfileCardProps) {
                 }
 
                 await handleFileUpload(selectedFile);
-                // await awsUpload(selectedFile);
               }
         } catch (error: any) {
             console.log(error);
             displayToast(error.message, ToastType.ERROR);
-        } finally {
-
-        }
-
+        } 
     }
 
     function isImgValid(file: File): boolean {
