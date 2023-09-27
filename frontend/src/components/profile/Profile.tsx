@@ -5,15 +5,18 @@ import {
   Card,
   CardBody,
   CardHeader,
-  Input,
   Button,
   Link,
+  useDisclosure,
 } from "@nextui-org/react";
 import Information from "./Information";
 import ChangePassword from "./ChangePassword";
+import DeleteModal from "./DeleteModal"
 import User from "@/types/user";
 import { useRouter } from "next/navigation";
 import { CLIENT_ROUTES } from "@/common/constants";
+import displayToast from "../common/Toast";
+import { ToastType } from "@/types/enums";
 
 interface ProfileComponentProps {
   user: User;
@@ -24,6 +27,16 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
 
   // Flags
   const [isChangePassword, setIsChangePassword] = useState(false);
+
+  const {isOpen, onOpen, onClose} = useDisclosure();
+
+  function openModal() {
+    if (user.id) {
+      onOpen();
+    } else {
+      displayToast("Unable to perform this action right now.", ToastType.ERROR)
+    }
+  }
 
   return (
     <div className="flex flex-col items-center align-middle justify-center h-screen space-y-6">
@@ -59,6 +72,10 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
           Back to dashboard
         </Link>
       </Button>
+      <Button className="bg-red-700" onClick={() => {openModal()}}>
+        Delete User
+      </Button>
+      { user.id && <DeleteModal userid={user.id} isOpen={isOpen} onClose={onClose}/> }
     </div>
   );
 }

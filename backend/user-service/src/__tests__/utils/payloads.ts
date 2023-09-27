@@ -22,6 +22,18 @@ export const getPostUserPayload = () => {
   return {
     name: "Test Username",
     email: "username@email.com",
+    password: "somehasedpassword",
+    role: "USER",
+    image: "https://testimage.com/image.png",
+    bio: "Test bio",
+    gender: "MALE",
+  };
+};
+
+export const getUpdateUserPayload = () => {
+  return {
+    name: "Test Username",
+    email: "username@email.com",
     role: "USER",
     image: "https://testimage.com/image.png",
     bio: "Test bio",

@@ -23,6 +23,7 @@ import { toast } from "react-toastify";
 import displayToast from "@/components/common/Toast";
 import { ToastType } from "@/types/enums";
 import { useAuthContext } from "@/providers/auth";
+import bcrypt from "bcryptjs-react";
 
 export function LoginComponent() {
   const { logIn } = useAuthContext();
@@ -70,25 +71,53 @@ export function LoginComponent() {
     arePasswordsEqual,
   ]);
 
+  useEffect(() => {
+    if (name !== "" && name.length < 2) {
+      setErrorMsg("Name has to contain at least 2 characters");
+    } else {
+      setErrorMsg("");
+    }
+  });
+
   async function submitNewUser(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (errorMsg !== "") {
+      displayToast("Please fix the errors before submitting.", ToastType.ERROR);
+      return;
+    }
+
     setIsSubmitted(true);
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log(hashedPassword);
+
     let user: User = {
       name: name,
       email: email,
+      password: hashedPassword,
       role: Role.USER,
     };
 
     try {
       let res = await UserService.createUser(user);
+      // Update the user context in AuthProvider
+      await logIn(email);
       displayToast("Sign up success!", ToastType.SUCCESS);
       router.push(CLIENT_ROUTES.HOME); //TODO: Update with verifying OTP/Email address when auth
-      sessionStorage.setItem("email", res.email.toString());
+      sessionStorage.setItem("email", email.toString());
     } catch (error) {
       if (error instanceof PeerPrepErrors.ConflictError) {
-        displayToast("User already exists. Please login instead.", ToastType.ERROR);
+        displayToast(
+          "User already exists. Please login instead.",
+          ToastType.ERROR
+        );
       } else {
-        displayToast("Something went wrong. Please refresh and try again.", ToastType.ERROR);
+        console.log(error);
+        displayToast(
+          "Something went wrong. Please refresh and try again.",
+          ToastType.ERROR
+        );
       }
     } finally {
       // Cleanup
@@ -101,11 +130,14 @@ export function LoginComponent() {
     try {
       setIsSubmitted(true);
       await logIn(email);
-      displayToast("Login success!", ToastType.SUCCESS)
+      displayToast("Login success!", ToastType.SUCCESS);
       router.push(CLIENT_ROUTES.HOME);
     } catch (error) {
       if (error instanceof PeerPrepErrors.NotFoundError) {
-        displayToast("User not found, please sign up instead.", ToastType.ERROR);
+        displayToast(
+          "User not found, please sign up instead.",
+          ToastType.ERROR
+        );
       } else {
         displayToast(
           "Something went wrong. Please refresh and try again.",
@@ -196,6 +228,7 @@ export function LoginComponent() {
                 isClearable
                 isRequired
                 fullWidth
+                minLength={2}
                 onInput={(e) => {
                   setName(e.currentTarget.value);
                 }}
