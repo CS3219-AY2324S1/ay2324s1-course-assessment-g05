@@ -228,6 +228,7 @@ export function LoginComponent() {
                 isClearable
                 isRequired
                 fullWidth
+                minLength={2}
                 onInput={(e) => {
                   setName(e.currentTarget.value);
                 }}

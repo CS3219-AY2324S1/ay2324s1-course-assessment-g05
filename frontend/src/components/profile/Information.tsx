@@ -114,6 +114,7 @@ export default function Information({
     preferences: Preference
   ) {
     e.preventDefault();
+
     try {
       if (!user) {
         throw new Error("User not retrieved");
@@ -154,6 +155,7 @@ export default function Information({
           isRequired
           label="Name"
           isClearable
+          minLength={2}
           defaultValue={user.name}
           onValueChange={setName}
         />
