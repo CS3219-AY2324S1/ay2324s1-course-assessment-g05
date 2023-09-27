@@ -49,6 +49,12 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({ partner, language }) => {
     }
   }, [partner]);
 
+  if (language === "cpp") {
+    language = "C++";
+  }
+
+  language = language.toLowerCase();
+
   return (
     <div className="flex items-center justify-between h-11 w-full">
       {/* Show the coding language matched */}
@@ -57,7 +63,7 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({ partner, language }) => {
           <Icons.BsFileEarmarkCode />
         </div>
         <CodeEditorNavBarTooltip content={`Code using ${language}`}>
-          <Code className="text-sm bg-gray-400 bg-opacity-50 mx-2 text-opacity-80">
+          <Code className="text-sm bg-gray-400 bg-opacity-50 mx-2 text-opacity-80 capitalize">
             {language}
           </Code>
         </CodeEditorNavBarTooltip>
@@ -108,6 +114,19 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({ partner, language }) => {
               ) : (
                 <Icons.BiExitFullscreen />
               )}
+            </Button>
+          </CodeEditorNavBarTooltip>
+        </div>
+
+        <div className="mx-1">
+          <CodeEditorNavBarTooltip content="End the session">
+            <Button
+              size="sm"
+              radius="sm"
+              onClick={() => {}}
+              className="bg-red-600 font-medium"
+            >
+              End Session
             </Button>
           </CodeEditorNavBarTooltip>
         </div>

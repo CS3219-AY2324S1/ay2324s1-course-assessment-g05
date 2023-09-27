@@ -36,11 +36,13 @@ const CodeEditorPanel: FC<CodeEditorPanelProps> = ({}) => {
 
   const { user } = useAuthContext();
 
+  const language = "cpp";
+
   return (
     <div>
-      <CodeEditorNavbar partner={partner!} language="C++" />
+      <CodeEditorNavbar partner={partner!} language={language} />
       <Divider className="space-y-2" />
-      <CodeEditor />
+      <CodeEditor language={language} />
     </div>
   );
 };
