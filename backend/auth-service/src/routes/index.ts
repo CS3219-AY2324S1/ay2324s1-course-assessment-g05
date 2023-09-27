@@ -3,6 +3,7 @@ import { getHealth } from "../controllers/handlers/get-handler";
 import {
   logInByEmail,
   registerByEmail,
+  logOut,
 } from "../controllers/handlers/post-handler";
 import passport from "passport";
 
@@ -16,7 +17,6 @@ router
   .post(passport.authenticate("jwt", { session: false }), (req, res, next) => {
     res.status(200).json({ data: req.user });
   });
-
-//consider handling register to issue jwt
+router.route("/auth/logout").post(logOut);
 
 export default router;

@@ -1,11 +1,25 @@
-import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import {
+  Strategy as JwtStrategy,
+  ExtractJwt,
+  StrategyOptions,
+} from "passport-jwt";
 import { getJWTSecret } from "../lib/utils";
 import { getUserById } from "../lib/user_api_helpers";
 import HttpStatusCode from "../common/HttpStatusCode";
 import { UserProfile } from "../common/types";
+import { Request } from "express";
+import passport from "passport";
 
-const options = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+const cookieExtractor = (req: Request) => {
+  let token = null;
+  if (req && req.cookies) {
+    token = req.cookies["jwt"];
+  }
+  return token;
+};
+
+const options: StrategyOptions = {
+  jwtFromRequest: cookieExtractor,
   secretOrKey: getJWTSecret(),
 };
 
@@ -27,17 +41,15 @@ const authenticateWithJWT = async (
   return user;
 };
 
-const getEmailJwtStrategy = (): JwtStrategy => {
-  return new JwtStrategy(options, async (jwt_payload, done) => {
-    //if code is here, JWT is authenticated; now we check if user exists
-    const result = await authenticateWithJWT(jwt_payload);
+const jwtStrategy = new JwtStrategy(options, async (jwt_payload, done) => {
+  // if code is here, JWT is authenticated and valid
+  // now, check if user exists
+  const result = await authenticateWithJWT(jwt_payload);
+  if (!result) {
+    return done(null, false);
+  }
 
-    if (!result) {
-      return done(null, false);
-    }
+  return done(null, result);
+});
 
-    return done(null, result);
-  });
-};
-
-export { getEmailJwtStrategy };
+passport.use("jwt", jwtStrategy);

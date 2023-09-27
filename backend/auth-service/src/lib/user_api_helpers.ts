@@ -12,7 +12,7 @@ const createUser = async (user: UserProfile) => {
   const res = await fetch(`${getUserServiceEndpoint()}/api/users/`, {
     method: "POST",
     body: JSON.stringify(user),
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", bypass: "true" },
   });
 
   return res;
@@ -20,13 +20,16 @@ const createUser = async (user: UserProfile) => {
 
 const getUserByEmail = async (email: string) => {
   const res = await fetch(
-    `${getUserServiceEndpoint()}/api/users/email?email=${email}`
+    `${getUserServiceEndpoint()}/api/users/email?email=${email}`,
+    { headers: { "Content-Type": "application/json", bypass: "true" } }
   );
   return res;
 };
 
 const getUserById = async (id: string) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/api/users/${id}`);
+  const res = await fetch(`${getUserServiceEndpoint()}/api/users/${id}`, {
+    headers: { "Content-Type": "application/json", bypass: "true" },
+  });
   return res;
 };
 

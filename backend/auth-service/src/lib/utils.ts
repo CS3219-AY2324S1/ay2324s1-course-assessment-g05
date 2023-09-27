@@ -13,23 +13,18 @@ const getJWTSecret = (): string => {
 };
 
 const issueJWT = (userId: string) => {
-  const expiresIn = "1d";
   const payload = {
     sub: userId,
     iat: Date.now(),
   };
 
   const signedToken = jwt.sign(payload, getJWTSecret(), {
-    expiresIn: expiresIn,
+    expiresIn: process.env.JWT_EXPIRES_IN || "1d",
   });
 
-  //needs to be stored in localStorage
-  return {
-    token: "Bearer " + signedToken,
-    expires: expiresIn,
-  };
+  return signedToken;
 };
 
 export { validatePassword, getJWTSecret, issueJWT };
 
-//fe login -> auth returns token -> fe stores token in localstorage -> use next middleware to call auth verify route before every route (temp sol) -> if verified, call next() -> if not verified, redirect to login
+//fe login -> auth returns token -> fe stores token in cookie -> use next middleware to call auth verify route before every route (temp sol) -> if verified, call next() -> if not verified, redirect to login

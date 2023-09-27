@@ -5,9 +5,10 @@ import bodyParser from "body-parser";
 import HttpStatusCode from "./common/HttpStatusCode";
 import cors from "./middleware/cors";
 import passport from "passport";
-import { getEmailJwtStrategy } from "./config/passport";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
+import "./config/passport";
 
 const app: Express = express();
 
@@ -16,8 +17,7 @@ app.use(cors);
 
 // implement body-parser for parsing request body
 app.use(bodyParser.json());
-
-passport.use(getEmailJwtStrategy());
+app.use(cookieParser());
 
 app.use(passport.initialize());
 

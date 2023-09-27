@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import HttpStatusCode from "../../common/HttpStatusCode";
 import { createUser, getUserByEmail } from "../../lib/user_api_helpers";
-import { issueJWT, validatePassword } from "../../lib/utils";
+import { getJWTSecret, issueJWT, validatePassword } from "../../lib/utils";
 import { UserProfile } from "../../common/types";
+import jwt from "jsonwebtoken";
 
 export const registerByEmail = async (request: Request, response: Response) => {
   const res = await createUser(request.body);
@@ -17,12 +18,13 @@ export const registerByEmail = async (request: Request, response: Response) => {
 
   const user = await res.json();
   const tokenObject = issueJWT(user.id);
-  response.status(HttpStatusCode.OK).json({
-    success: true,
-    token: tokenObject.token,
-    expiresIn: tokenObject.expires,
-    userId: user.id,
-  });
+  response
+    .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
+    .status(HttpStatusCode.OK)
+    .json({
+      success: true,
+      userId: user.id,
+    });
 };
 
 export const logInByEmail = async (request: Request, response: Response) => {
@@ -43,16 +45,22 @@ export const logInByEmail = async (request: Request, response: Response) => {
   if (await validatePassword(password, user.password)) {
     //if password is correct, return jwt and user
     const tokenObject = issueJWT(user.id);
-    response.status(HttpStatusCode.OK).json({
-      success: true,
-      token: tokenObject.token,
-      expiresIn: tokenObject.expires,
-      user: user,
-    });
+    response
+      .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
+      .status(HttpStatusCode.OK)
+      .json({
+        success: true,
+        user: user,
+      });
     return;
   }
   response.status(HttpStatusCode.UNAUTHORIZED).json({
     error: "UNAUTHORIZED",
     message: `Incorrect password.`,
   });
+};
+
+export const logOut = async (request: Request, response: Response) => {
+  response.clearCookie("jwt");
+  response.redirect(process.env.CLIENT_URL || "http://localhost:3000");
 };
