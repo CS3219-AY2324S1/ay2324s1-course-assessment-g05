@@ -87,9 +87,11 @@ export function LoginComponent() {
 
     try {
       let res = await UserService.createUser(user);
+      // Update the user context in AuthProvider
+      await logIn(email);
       displayToast("Sign up success!", ToastType.SUCCESS);
       router.push(CLIENT_ROUTES.HOME); //TODO: Update with verifying OTP/Email address when auth
-      sessionStorage.setItem("email", res.email.toString());
+      sessionStorage.setItem("email", email.toString());
     } catch (error) {
       if (error instanceof PeerPrepErrors.ConflictError) {
         displayToast(
@@ -97,6 +99,7 @@ export function LoginComponent() {
           ToastType.ERROR
         );
       } else {
+        console.log(error);
         displayToast(
           "Something went wrong. Please refresh and try again.",
           ToastType.ERROR

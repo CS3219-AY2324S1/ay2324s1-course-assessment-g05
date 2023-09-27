@@ -75,10 +75,10 @@ const createUser = async (user: User, cache: RequestCache = "no-cache") => {
     cache: cache,
   });
 
-  // successful response should return 201 and a user created message
+  // successful response should return 201 and userid
   if (response.status === HttpStatusCode.CREATED) {
-    // revalidateTag(SERVICE.USER);
-    const res = response.data as User;
+    // res contains user's id
+    const res = response.data as string;
     logger.info(`[createUser] ${res}`);
     return res;
   }
