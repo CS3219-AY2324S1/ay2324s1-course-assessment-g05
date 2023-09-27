@@ -77,8 +77,8 @@ const createUser = async (user: User, cache: RequestCache = "no-cache") => {
 
   // successful response should return 201 and userid
   if (response.status === HttpStatusCode.CREATED) {
-    // res contains user's id
-    const res = response.data as string;
+    // res contains { id: string, message: "User created"}
+    const res = response.data as { id: string, message: string};
     logger.info(`[createUser] ${res}`);
     return res;
   }
