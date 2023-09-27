@@ -24,6 +24,7 @@ import displayToast from "@/components/common/Toast";
 import { ToastType } from "@/types/enums";
 import { useAuthContext } from "@/providers/auth";
 import bcrypt from "bcryptjs-react";
+import { error } from "console";
 
 export function LoginComponent() {
   const { logIn } = useAuthContext();
@@ -71,8 +72,22 @@ export function LoginComponent() {
     arePasswordsEqual,
   ]);
 
+  useEffect(() => {
+    if (name !== "" && name.length < 2) {
+      setErrorMsg("Name has to contain at least 2 characters");
+    } else {
+      setErrorMsg("");
+    }
+  })
+
   async function submitNewUser(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (errorMsg !== "") {
+      displayToast("Please fix the errors before submitting.", ToastType.ERROR);
+      return;
+    }
+
     setIsSubmitted(true);
 
     const hashedPassword = await bcrypt.hash(password, 10);
