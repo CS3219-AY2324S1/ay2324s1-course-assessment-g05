@@ -4,16 +4,11 @@ import {
     Card,
     CardHeader,
     Spacer,
-    Button,
-    CardBody,
-    Image
 } from "@nextui-org/react";
 import User from "@/types/user";
 import displayToast from "../common/Toast";
-import { HTTP_METHODS, SERVICE, ToastType } from "@/types/enums";
+import { HTTP_METHODS, ToastType } from "@/types/enums";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
-import api from "@/helpers/endpoint";
-import { s3Client, s3GetUrl, s3BucketName } from "@/helpers/aws";
 
 interface ProfileCardProps {
     user: User;
@@ -31,47 +26,6 @@ export default function ProfileCard({ user, setImageUrl }: ProfileCardProps) {
     const onImageClick = () => {
         if (inputFile.current !== null)
             inputFile.current.click();
-    }
-
-    const awsUpload = async (file: File) => {
-
-        const fileKey = `users/${user.id}/image/${file.name}`;
-        const fileType = file.type;
-
-        console.log(`S3 Get URL: ${s3GetUrl}`);
-        console.log(`S3 bucket: ${s3BucketName}`);
-
-        const fileParams = {
-            Bucket: s3BucketName,
-            Key: fileKey,
-            Expires: 600,
-            ContentType: fileType,
-          };
-
-        const uploadUrl = await s3Client.getSignedUrlPromise(
-            "putObject",
-            fileParams,
-          );
-
-        console.log("Signature success!", uploadUrl);
-
-        const headers = new Headers();
-        headers.append("Content-Type", fileType);
-        headers.append("Access-Control-Allow-Origin", "*");
-
-        // Upload image
-        await fetch(uploadUrl, {
-            method: HTTP_METHODS.PUT,
-            headers: headers,
-            body: file
-        })
-
-        // Get image
-        const awsImageUrl = s3GetUrl + fileKey;
-
-        setCurrImage(awsImageUrl);
-        setImageUrl(awsImageUrl);
-
     }
 
     const handleFileUpload = async (file: File) => {

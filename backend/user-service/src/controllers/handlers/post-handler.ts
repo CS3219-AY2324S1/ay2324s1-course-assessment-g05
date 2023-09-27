@@ -86,71 +86,25 @@ export const postImage = async (
   response: Response
 ) => {
   try {
+    const fileParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: request.body.fileKey,
+      Expires: 600,
+      ContentType: request.body.fileType,
+    };
 
-    const { method } = request;
+    const url = await client_s3.getSignedUrlPromise(
+      "putObject",
+      fileParams,
+    );
 
-    switch (method) {
+    console.log("Signature success!", url);
 
-      case "POST":
-        try {
-
-          // await upload.single('file')
-
-          // const file = request.file;
-          // if (!file) throw Error("File not found.");
-          // const fileKey = `users/${request.params.userId}/image/${file.filename}`;
-          // console.log(file)
-          // const fileType = request.body.fileType;
-
-          const fileParams = {
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: request.body.fileKey,
-            Expires: 600,
-            ContentType: request.body.fileType,
-          };
-
-          const url = await client_s3.getSignedUrlPromise(
-            "putObject",
-            fileParams,
-          );
-
-          console.log("Signature success!", url);
-
-          response.status(HttpStatusCode.OK).json({ ok: true, url: url });
-
-          
-          // const putObjectParams:PutObjectRequest = {
-          //   Bucket: process.env.AWS_BUCKET_NAME!,
-          //   Key: request.body.fileKey,
-          //   Body: request.body.file,
-          //   ContentType: request.body.fileType,
-          // };
-
-          // const res = await client_s3.putObject(putObjectParams).promise();
-
-
-          // console.log("post success!", res);
-
-          // response.status(HttpStatusCode.OK).json({ ok: true, res: res });
-
-        } catch (error) {
-
-          response.status(HttpStatusCode.BAD_REQUEST).json({ ok: false, error: error });
-
-        }
-
-        break;
-      default:
-        response.setHeader("Allow", ["PUT"]);
-        response.status(HttpStatusCode.METHOD_NOT_ALLOWED).json({
-          ok: false,
-          error: "METHOD NOT ALLOWED",
-          message: `Method ${method} not allowed.`,
-        });
-    }
-    // TODO
+    response.status(HttpStatusCode.OK).json({ ok: true, url: url });
+    
   } catch (error) {
-    // TODO
+    console.log("post error", error);
+    response.status(HttpStatusCode.BAD_REQUEST).json({ ok: false, error: error });
   }
 }
 
