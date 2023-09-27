@@ -48,14 +48,14 @@ export async function getQuestionList(): Promise<Question[]> {
  */
 export async function getQuestionById(
   id: string,
-  cache?: RequestCache
+  cache: RequestCache = "no-cache"
 ): Promise<Question | ServiceResponse> {
   const res = await api({
     method: HTTP_METHODS.GET,
     service: service,
     path: id,
     tags: scope,
-    cache: cache
+    cache: cache,
   });
 
   if (res.status === 200) {
@@ -78,7 +78,7 @@ export async function getQuestionById(
  * @returns {Promise<{ ok: boolean, message: string }>} - A success indicator and a message.
  */
 export async function postQuestion(
-  question: Question,
+  question: Question
 ): Promise<ServiceResponse> {
   const res = await api({
     method: HTTP_METHODS.POST,
@@ -111,7 +111,7 @@ export async function postQuestion(
  */
 export async function updateQuestion(
   id: string,
-  question: Question,
+  question: Question
 ): Promise<ServiceResponse> {
   const res = await api({
     method: HTTP_METHODS.PUT,

@@ -6,43 +6,51 @@ import {
   ModalFooter,
   Button, useDisclosure, CircularProgress, CardBody, CardFooter, Card
 } from "@nextui-org/react";
-import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
-import { FiCodepen, FiUserX, FiWifiOff, FiX } from "react-icons/fi";
+import { FiUserX, FiWifiOff } from "react-icons/fi";
 import ComplexityChip from "../question/ComplexityChip";
+import MatchingLobbySuccessView from "./MatchingLobbySuccessView";
 
 /**
  * Service flow:
  * Initial -> Matching -> Success -> Ready (both) -> redirect(collab)
+ *                     -> Success -> Peer left -> Matching/exit
  *                     -> Fail  -> Matching
- *                     -> Error -> Initial
+ *                     -> Error -> exit
  */
 enum MATCHING_STAGE {
   INITIAL,
   MATCHING, // Send request to join queue, wait for update
-  SUCCESS, // Ready to start collab
-  READY,  // User confirm to start, waiting for peer (skip if peer already in ready stage)
-  FAIL,    // Exceed time limit for matching
-  CANCEL,  // User request to cancel
-  ERROR,   // Error with matching service
+  SUCCESS,  // Ready to start collab
+  FAIL,     // Exceed time limit for matching
+  READY,    // User confirm to start, waiting for peer (skip if peer already in ready stage)
+  CANCEL,   // User request to cancel
+  ERROR,    // Error with matching service
 }
 
 export default function MatchingLobby({
+  isOpen,
+  onClose,
   options
-} : {
-  options:{}
+}: {
+  isOpen: boolean,
+  onClose: () => void,
+  options: {
+    languages: string[],
+    difficulties: string[],
+    topics: string[],
+  }
 }) {
   const [stage, setStage] = React.useState(MATCHING_STAGE.INITIAL);
-  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const { onOpenChange } = useDisclosure();
 
   const debugStage = () => {
     let opts = Object.keys(MATCHING_STAGE);
     let next = opts.findIndex(x => x === stage.toString()) + 1 % opts.length;
-    console.log('set stage to next: ', next);
     setStage(next)
   }
 
   // Trigger matching process on modal open
-  React.useEffect(() => { 
+  React.useEffect(() => {
     if (isOpen) {
       setStage(MATCHING_STAGE.MATCHING)
     } else {
@@ -52,16 +60,11 @@ export default function MatchingLobby({
 
   // Response to stage events
   React.useEffect(() => {
-    console.log("Matching: " + stage);
     switch (stage) {
       case MATCHING_STAGE.MATCHING:
         onMatchingStage();
         break;
-      case MATCHING_STAGE.READY:
-          // redirect to collab session
-          break;
       default:
-
         break;
     }
   }, [stage])
@@ -80,22 +83,36 @@ export default function MatchingLobby({
     }
   }
 
-  // Handles initial stage
+  // Handles matching event
   const onMatchingStage = () => {
     try {
       console.log("matching process triggered");
 
       // Request to join matching queue
-      // setTimeout(() => {
-      //   setStage(MATCHING_STAGE.SUCCESS)
-      // }, 3000)
+      setTimeout(() => {
+        setStage(MATCHING_STAGE.SUCCESS)
+      }, 60 * 1000)
     } catch (error) {
       setStage(MATCHING_STAGE.ERROR)
     }
   }
 
+  // Handles retry action
   const handleRetry = () => {
     setStage(MATCHING_STAGE.MATCHING);
+  }
+
+  // Handles user ready action
+  const handleReady = () => {
+    console.log("User ready to start collab.");
+    // Send update to backend indicating user ready to start.
+    // Backend return with status:
+    //  - wait for peer
+    //  - start collab session
+    //  - peer exit
+
+    // redirect to collab session
+    onClose();
   }
 
   const initialView = <>
@@ -107,10 +124,14 @@ export default function MatchingLobby({
         }}
         label="Looking for a peer...">
       </CircularProgress>
-      <div className="flex flex-col gap-2">
-        <span>C++</span>
-        <span><ComplexityChip complexity="Easy"></ComplexityChip></span>
-        <span className="truncate">Array</span>
+      <div className="flex flex-col gap-2 items-center text-small">
+        {/* <span>{options.languages.join(", ")}</span> */}
+        <span className="flex gap-2">
+          {options.difficulties.map(item => (
+            <ComplexityChip key={item} complexity={item} size="sm"></ComplexityChip>
+          ))}
+        </span>
+        <span className="truncate">{options.topics.join(", ")}</span>
       </div>
     </ModalBody>
     <ModalFooter>
@@ -118,52 +139,15 @@ export default function MatchingLobby({
     </ModalFooter>
   </>
 
-  const successView = <>
-    <ModalBody className="flex flex-row gap-2 items-center justify-center">
-      <Card>
-        <CardBody className="items-center p-2">
-          <ProfilePictureAvatar size="16" />
-          <p className="w-24 truncate text-center">Username</p>
-          {/* <div className="flex flex-col gap-2">
-            <span>C++</span>
-            <span><ComplexityChip complexity="Easy"></ComplexityChip></span>
-            <span className="truncate">Array</span>
-          </div> */}
-        </CardBody>
-        <CardFooter className="justify-center p-2">
-          <Button onPress={onClose} color="success" isLoading>Ready</Button>
-        </CardFooter>
-      </Card>
-      <FiCodepen className="m-4 w-12 h-12" />
-      <Card>
-        <CardBody className="items-center p-2">
-          <ProfilePictureAvatar size="16" />
-          <p className="w-24 truncate text-center">Username</p>
-          {/* <div className="flex flex-col gap-2">
-            <span>C++</span>
-            <span><ComplexityChip complexity="Easy"></ComplexityChip></span>
-            <span className="truncate">Array</span>
-          </div> */}
-        </CardBody>
-        <CardFooter className="justify-center p-2">
-          <Button onPress={onClose} color="success" isLoading>Ready</Button>
-        </CardFooter>
-      </Card>
-    </ModalBody>
-    <ModalFooter>
-      <Button onPress={onClose}>Cancel</Button>
-    </ModalFooter>
-  </>
+  const successView = <MatchingLobbySuccessView
+    peer=""
+    cancel={onClose}
+    rematch={() => setStage(MATCHING_STAGE.MATCHING)} />
 
   const failureView = <>
     <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center">
       <FiUserX className="w-24 h-24  text-danger" />
       <p>Unable to find a match.</p>
-      {/* <div className="flex flex-col gap-2">
-        <span>C++</span>
-        <span><ComplexityChip complexity="Easy"></ComplexityChip></span>
-        <span className="truncate">Array</span>
-      </div> */}
       <p>Please try again later.</p>
     </ModalBody>
     <ModalFooter>
@@ -185,7 +169,6 @@ export default function MatchingLobby({
 
   return (
     <>
-      <Button onPress={onOpen}>Open</Button>
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
@@ -202,7 +185,7 @@ export default function MatchingLobby({
           {() => (
             <>
               {renderView(stage)}
-              <Button onPress={debugStage} className="absolute bottom-0">Debug</Button>
+              <Button onPress={debugStage} className="absolute bottom-0" size="sm">debug</Button>
             </>
           )}
         </ModalContent>

@@ -47,6 +47,10 @@ export const postUser = async (request: Request, response: Response) => {
       data: createUserBody,
     });
 
+    if (!user) {
+      throw new Error("Failed to register user.");
+    }
+
     await db.preferences.create({
       data: {
         userId: user.id,
@@ -56,7 +60,9 @@ export const postUser = async (request: Request, response: Response) => {
       },
     });
 
-    response.status(HttpStatusCode.CREATED).json({ message: "User created." });
+    response
+      .status(HttpStatusCode.CREATED)
+      .json({ id: user.id, message: "User created." });
   } catch (error) {
     if (error instanceof ZodError) {
       response.status(HttpStatusCode.BAD_REQUEST).json({

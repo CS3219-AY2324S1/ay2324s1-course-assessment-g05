@@ -22,9 +22,38 @@ export const getPostUserPayload = () => {
   return {
     name: "Test Username",
     email: "username@email.com",
+    password: "somehasedpassword",
     role: "USER",
     image: "https://testimage.com/image.png",
     bio: "Test bio",
     gender: "MALE",
+  };
+};
+
+export const getUpdateUserPayload = () => {
+  return {
+    name: "Test Username",
+    email: "username@email.com",
+    role: "USER",
+    image: "https://testimage.com/image.png",
+    bio: "Test bio",
+    gender: "MALE",
+  };
+};
+
+export const getUserPreferencesPayload = ({ userId }: { userId?: string }) => {
+  return {
+    userId: userId || "test-user-id",
+    languages: ["PYTHON", "JAVA", "C++", "JAVASCRIPT"],
+    difficulties: ["EASY", "MEDIUM", "HARD"],
+    topics: ["ARRAY", "STRING", "DYNAMIC PROGRAMMING"],
+  };
+};
+
+export const getUpdatePreferencesPayload = () => {
+  return {
+    languages: ["Python", "Java", "C++", "Javascript"],
+    difficulties: ["Easy", "Medium", "Hard"],
+    topics: ["Array", "String", "Dynamic Programming"],
   };
 };
