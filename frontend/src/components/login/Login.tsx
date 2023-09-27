@@ -24,7 +24,6 @@ import displayToast from "@/components/common/Toast";
 import { ToastType } from "@/types/enums";
 import { useAuthContext } from "@/providers/auth";
 import bcrypt from "bcryptjs-react";
-import { error } from "console";
 
 export function LoginComponent() {
   const { logIn } = useAuthContext();
@@ -78,7 +77,7 @@ export function LoginComponent() {
     } else {
       setErrorMsg("");
     }
-  })
+  });
 
   async function submitNewUser(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
