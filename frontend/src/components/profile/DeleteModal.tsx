@@ -1,11 +1,9 @@
 "use client"
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@nextui-org/react";
 import { UserService } from "@/helpers/user/user_api_wrappers";
-import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 import displayToast from "../common/Toast";
 import { ToastType } from "@/types/enums";
-import { useRouter } from "next/navigation";
-import { CLIENT_ROUTES } from "@/common/constants";
+import { useAuthContext } from "@/providers/auth";
 
 interface DeleteModalProps {
     userid: string;
@@ -15,14 +13,13 @@ interface DeleteModalProps {
 
 export default function DeleteModal({ userid, isOpen, onClose }: DeleteModalProps) {
 
-    const router = useRouter()
+    const { logOut } = useAuthContext();
 
     const handleDeleteUser = async () => {
         try {
             let res = await UserService.deleteUser(userid);
             displayToast("User deleted successfully", ToastType.SUCCESS);
-            router.push(CLIENT_ROUTES.LOGIN); // Push user to login/sign-up again
-            // TODO: Need to clear authentication context here
+            logOut() // Push user to login/sign-up again and logout
         } catch (error) {
             displayToast("Something went wrong, please try again later.", ToastType.ERROR)
         }

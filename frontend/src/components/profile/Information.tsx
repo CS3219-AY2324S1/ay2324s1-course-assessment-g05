@@ -32,7 +32,7 @@ export default function Information({
   const { user: currentUser, fetchUser } = useAuthContext();
   const [name, setName] = useState<string>(user.name);
   const [bio, setBio] = useState<string>(user.bio ? user.bio : "");
-  const [gender, setGender] = useState(user.gender ? user.gender : "");
+  const [gender, setGender] = useState(user.gender ? user.gender : "OTHER");
   const [preferences, setPreferences] = useState(
     user.preferences || { languages: [], difficulties: [], topics: [] }
   );
@@ -92,6 +92,7 @@ export default function Information({
     MALE: "Male",
     FEMALE: "Female",
     "": "Prefer not to say",
+    OTHER: "Prefer not to say",
   };
 
   const handleGenderChange = (value: string) => {
@@ -104,7 +105,7 @@ export default function Information({
     email: user.email,
     bio: bio ? bio : undefined,
     role: user.role,
-    gender: gender === "Prefer not to say" ? undefined : gender,
+    gender: gender,
   };
 
   async function saveInformation(
@@ -113,6 +114,7 @@ export default function Information({
     preferences: Preference
   ) {
     e.preventDefault();
+
     try {
       if (!user) {
         throw new Error("User not retrieved");
@@ -153,6 +155,7 @@ export default function Information({
           isRequired
           label="Name"
           isClearable
+          minLength={2}
           defaultValue={user.name}
           onValueChange={setName}
         />
@@ -171,7 +174,7 @@ export default function Information({
             </DropdownTrigger>
             <DropdownMenu
               aria-label="Gender"
-              onAction={(key) => handleGenderChange(String(key))}
+              onAction={(key: string) => handleGenderChange(String(key))}
             >
               <DropdownItem key="MALE" color={"default"}>
                 Male
@@ -179,7 +182,7 @@ export default function Information({
               <DropdownItem key="FEMALE" color={"default"}>
                 Female
               </DropdownItem>
-              <DropdownItem key="" color={"default"}>
+              <DropdownItem key="OTHER" color={"default"}>
                 Prefer not to say
               </DropdownItem>
             </DropdownMenu>
