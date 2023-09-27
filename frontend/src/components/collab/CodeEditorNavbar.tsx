@@ -3,7 +3,7 @@
 import User from "@/types/user";
 import { FC, useEffect, useState } from "react";
 import { Icons } from "../common/Icons";
-import { Code, Spacer, Tooltip } from "@nextui-org/react";
+import { Button, Code, Spacer, Tooltip } from "@nextui-org/react";
 import CodeEditorNavBarTooltip from "./CodeEditorNavBarTooltip";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
 import Timer from "./Timer";
@@ -92,31 +92,25 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({ partner, language }) => {
 
       {/* Buttons for some interaction */}
       <div className="flex items-center m-2">
-        <CodeEditorNavBarTooltip content="Reset to default code definition">
-          <button
-            className="relative px-2 py-1.5 mr-2 ml-auto hover:bg-gray-200 hover:bg-opacity-40 rounded-md transition-all"
-            onClick={() => {}}
-          >
-            <div className="h-4 w-4 text-lg">
+        <div className="mx-1">
+          <CodeEditorNavBarTooltip content="Reset to default code definition">
+            <Button size="sm" isIconOnly={true} onClick={() => {}}>
               <Icons.RxReset color="white" />
-            </div>
-          </button>
-        </CodeEditorNavBarTooltip>
+            </Button>
+          </CodeEditorNavBarTooltip>
+        </div>
 
-        <CodeEditorNavBarTooltip content="Full Screen">
-          <button
-            className="relative px-2 py-1.5 mr-2 ml-auto hover:bg-gray-200 hover:bg-opacity-40 rounded-md transition-all"
-            onClick={handleFullScreen}
-          >
-            <div className="h-4 w-4 text-lg">
+        <div className="mx-1">
+          <CodeEditorNavBarTooltip content="Full Screen">
+            <Button size="sm" isIconOnly={true} onClick={handleFullScreen}>
               {!isFullScreen ? (
                 <Icons.BiFullscreen />
               ) : (
                 <Icons.BiExitFullscreen />
               )}
-            </div>
-          </button>
-        </CodeEditorNavBarTooltip>
+            </Button>
+          </CodeEditorNavBarTooltip>
+        </div>
       </div>
     </div>
   );

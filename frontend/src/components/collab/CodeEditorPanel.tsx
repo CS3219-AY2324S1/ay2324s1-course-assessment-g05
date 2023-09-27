@@ -4,6 +4,8 @@ import User from "@/types/user";
 import CodeEditorNavbar from "./CodeEditorNavbar";
 import { useAuthContext } from "@/providers/auth";
 import { Divider } from "@nextui-org/react";
+import Editor from "@monaco-editor/react";
+import CodeEditor from "./CodeEditor";
 
 interface CodeEditorPanelProps {}
 
@@ -38,6 +40,7 @@ const CodeEditorPanel: FC<CodeEditorPanelProps> = ({}) => {
     <div>
       <CodeEditorNavbar partner={partner!} language="C++" />
       <Divider className="space-y-2" />
+      <CodeEditor />
     </div>
   );
 };

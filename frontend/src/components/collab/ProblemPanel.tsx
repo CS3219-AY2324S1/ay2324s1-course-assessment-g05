@@ -6,8 +6,6 @@ import { useEffect, useState } from "react";
 import ProblemDescription from "./ProblemDescription";
 
 const ProblemPanel = ({}) => {
-  // const question = await getMatchedQuestion();
-  // hardcode this to get reverse string
   const [question, setQuestion] = useState<Question>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
