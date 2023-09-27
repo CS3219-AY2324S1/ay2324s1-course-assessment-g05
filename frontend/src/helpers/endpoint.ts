@@ -2,6 +2,7 @@
 import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import { getLogger } from "./logger";
 
+
 const logger = getLogger("endpoint");
 
 /**

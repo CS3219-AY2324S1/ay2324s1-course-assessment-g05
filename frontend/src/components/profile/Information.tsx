@@ -22,11 +22,13 @@ import { useAuthContext } from "@/providers/auth";
 
 interface InformationProps {
   user: User;
+  imageUrl: string;
   setIsChangePassword: (isChangePassword: boolean) => void;
 }
 
 export default function Information({
   user,
+  imageUrl,
   setIsChangePassword,
 }: InformationProps) {
   const { user: currentUser, fetchUser } = useAuthContext();
@@ -100,12 +102,17 @@ export default function Information({
     console.log("User info: " + JSON.stringify(user));
   };
 
+  useEffect(() => {
+    updatedUser.image = imageUrl;
+  }, [imageUrl]);
+
   let updatedUser: User = {
     name: name,
     email: user.email,
     bio: bio ? bio : undefined,
     role: user.role,
     gender: gender,
+    image: imageUrl ? imageUrl : undefined,
   };
 
   async function saveInformation(
@@ -114,6 +121,8 @@ export default function Information({
     preferences: Preference
   ) {
     e.preventDefault();
+
+    console.log(updatedUser);
 
     try {
       if (!user) {

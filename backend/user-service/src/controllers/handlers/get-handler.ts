@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
-import db from "../../lib/db";
+import db, { client_s3 } from "../../lib/db";
 import { EmailValidator } from "../../lib/validators/EmailValidator";
 import { ZodError } from "zod";
+import { GetObjectRequest } from "aws-sdk/clients/s3";
 
 export const getHealth = async (_: Request, response: Response) => {
   try {
@@ -144,3 +145,32 @@ export const getPreferencesByUserId = async (
     });
   }
 };
+
+export const getImage = async (
+  request: Request,
+  response: Response
+) => {
+  const { userId, fileName } = request.params;
+
+  try {
+
+    const url = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/users/${userId}/image/${fileName}`
+
+    console.log(url);
+
+    response.status(HttpStatusCode.OK).json({ 
+      ok: true, 
+      url: url 
+    });
+        
+
+    // TODO
+  } catch (error) {
+    console.log(error)
+    response.status(HttpStatusCode.METHOD_NOT_ALLOWED).json({
+      ok: false,
+      error: error,
+      message: `Request with file named: ${fileName}`,
+    });
+  }
+}

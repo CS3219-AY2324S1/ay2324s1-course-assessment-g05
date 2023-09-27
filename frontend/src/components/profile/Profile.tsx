@@ -29,6 +29,7 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
   const [isChangePassword, setIsChangePassword] = useState(false);
 
   const {isOpen, onOpen, onClose} = useDisclosure();
+  const [imageUrl, setImageUrl] = useState<string>("");
 
   function openModal() {
     if (user.id) {
@@ -41,25 +42,21 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
   return (
     <div className="flex flex-col items-center align-middle justify-center h-screen space-y-6">
       <Card className="flex w-unit-8xl">
-        <CardHeader className="justify-center">
-          <ProfileCard
-            name={user.name}
-            email={user.email}
-            image={
-              user.image
-                ? user.image
-                : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-            }
-          />
-        </CardHeader>
         <CardBody className="justify-center space-y-5">
           {isChangePassword ? (
             <ChangePassword setIsChangePassword={setIsChangePassword} />
           ) : (
-            <Information
-              setIsChangePassword={setIsChangePassword}
-              user={user}
-            />
+            <>
+              <ProfileCard
+                user={user}
+                setImageUrl={setImageUrl}
+              />
+              <Information
+                setIsChangePassword={setIsChangePassword}
+                imageUrl={imageUrl}
+                user={user}
+              />
+            </>
           )}
         </CardBody>
       </Card>
