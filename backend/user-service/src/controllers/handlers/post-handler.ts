@@ -5,7 +5,6 @@ import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import db, { client_s3 } from "../../lib/db";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
 import { PutObjectRequest } from "aws-sdk/clients/s3";
-import multer from 'multer';
 
 export const postUser = async (request: Request, response: Response) => {
   try {
@@ -81,7 +80,6 @@ export const postUser = async (request: Request, response: Response) => {
   }
 };
 
-const upload = multer({ dest: 'uploads/'})
 
 export const postImage = async (
   request: Request,
