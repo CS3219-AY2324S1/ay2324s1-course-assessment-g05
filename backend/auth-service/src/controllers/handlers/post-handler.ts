@@ -5,7 +5,7 @@ import { getJWTSecret, issueJWT, validatePassword } from "../../lib/utils";
 import { UserProfile } from "../../common/types";
 import jwt from "jsonwebtoken";
 
-export const registerByEmail = async (request: Request, response: Response) => {
+const registerByEmail = async (request: Request, response: Response) => {
   const res = await createUser(request.body);
   if (res.status !== HttpStatusCode.CREATED) {
     const data = await res.json();
@@ -27,7 +27,7 @@ export const registerByEmail = async (request: Request, response: Response) => {
     });
 };
 
-export const logInByEmail = async (request: Request, response: Response) => {
+const logInByEmail = async (request: Request, response: Response) => {
   const { email, password } = request.body;
 
   //check if user exists
@@ -60,7 +60,9 @@ export const logInByEmail = async (request: Request, response: Response) => {
   });
 };
 
-export const logOut = async (request: Request, response: Response) => {
+const logOut = async (request: Request, response: Response) => {
   response.clearCookie("jwt");
   response.redirect(process.env.CLIENT_URL || "http://localhost:3000");
 };
+
+export { registerByEmail, logInByEmail, logOut };

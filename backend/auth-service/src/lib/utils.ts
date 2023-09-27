@@ -12,6 +12,10 @@ const getJWTSecret = (): string => {
   return process.env.JWT_SECRET || "secret";
 };
 
+const getServiceSecret = (): string => {
+  return process.env.SERVICE_SECRET || "secret";
+};
+
 const issueJWT = (userId: string) => {
   const payload = {
     sub: userId,
@@ -25,6 +29,6 @@ const issueJWT = (userId: string) => {
   return signedToken;
 };
 
-export { validatePassword, getJWTSecret, issueJWT };
+export { validatePassword, getJWTSecret, getServiceSecret, issueJWT };
 
 //fe login -> auth returns token -> fe stores token in cookie -> use next middleware to call auth verify route before every route (temp sol) -> if verified, call next() -> if not verified, redirect to login
