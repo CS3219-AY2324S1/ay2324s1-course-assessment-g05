@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import router from "./routes";
 import bodyParser from "body-parser";
-import HttpStatusCode from "./lib/enums/HttpStatusCode";
+import HttpStatusCode from "./common/HttpStatusCode";
 import cors from "./middleware/cors";
 import passport from "passport";
 import { getEmailJwtStrategy } from "./config/passport";
@@ -18,6 +18,7 @@ app.use(cors);
 app.use(bodyParser.json());
 
 passport.use(getEmailJwtStrategy());
+
 app.use(passport.initialize());
 
 // implement routes for API endpoints

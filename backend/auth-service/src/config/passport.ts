@@ -1,6 +1,8 @@
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-import { PassportStatic } from "passport";
-import { getJWTSecret, getUserServiceEndpoint } from "../lib/utils";
+import { getJWTSecret } from "../lib/utils";
+import { getUserById } from "../lib/user_api_helpers";
+import HttpStatusCode from "../common/HttpStatusCode";
+import { UserProfile } from "../common/types";
 
 const options = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -10,22 +12,31 @@ const options = {
 interface JwtPayload {
   sub: string;
   iat: number;
-  userId: string;
 }
 
-const authenticateWithJWT = async (jwt_payload: JwtPayload) => {
-  const response = await fetch(
-    `${getUserServiceEndpoint()}/api/users/${jwt_payload.userId}`
-  );
-  // query database for user with id
-  // if user exists, return user
-  // else return false
-  return false;
+const authenticateWithJWT = async (
+  jwt_payload: JwtPayload
+): Promise<UserProfile | undefined> => {
+  const response = await getUserById(jwt_payload.sub);
+
+  if (response.status !== HttpStatusCode.OK) {
+    return undefined;
+  }
+  const user = (await response.json()) as UserProfile;
+
+  return user;
 };
 
 const getEmailJwtStrategy = (): JwtStrategy => {
-  return new JwtStrategy(options, (jwt_payload, done) => {
-    authenticateWithJWT(jwt_payload);
+  return new JwtStrategy(options, async (jwt_payload, done) => {
+    //if code is here, JWT is authenticated; now we check if user exists
+    const result = await authenticateWithJWT(jwt_payload);
+
+    if (!result) {
+      return done(null, false);
+    }
+
+    return done(null, result);
   });
 };
 
