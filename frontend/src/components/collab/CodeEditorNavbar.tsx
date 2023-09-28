@@ -11,9 +11,14 @@ import Timer from "./Timer";
 interface CodeEditorNavbarProps {
   partner: User;
   language: string;
+  handleResetToDefaultCode: () => void;
 }
 
-const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({ partner, language }) => {
+const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
+  partner,
+  language,
+  handleResetToDefaultCode,
+}) => {
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
 
@@ -48,12 +53,6 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({ partner, language }) => {
       setIsReady(true);
     }
   }, [partner]);
-
-  if (language === "cpp") {
-    language = "C++";
-  }
-
-  language = language.toLowerCase();
 
   return (
     <div className="flex items-center justify-between h-11 w-full">
@@ -100,7 +99,11 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({ partner, language }) => {
       <div className="flex items-center m-2">
         <div className="mx-1">
           <CodeEditorNavBarTooltip content="Reset to default code definition">
-            <Button size="sm" isIconOnly={true} onClick={() => {}}>
+            <Button
+              size="sm"
+              isIconOnly={true}
+              onClick={handleResetToDefaultCode}
+            >
               <Icons.RxReset color="white" />
             </Button>
           </CodeEditorNavBarTooltip>

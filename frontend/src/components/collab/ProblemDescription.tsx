@@ -2,7 +2,7 @@ import Question from "@/types/question";
 import { FC } from "react";
 import ComplexityChip from "../question/ComplexityChip";
 import { Divider } from "@nextui-org/react";
-import { parse } from "node-html-parser";
+import parse from "html-react-parser";
 
 interface ProblemDescriptionProps {
   question: Question;

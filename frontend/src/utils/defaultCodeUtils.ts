@@ -1,4 +1,4 @@
-export const defaultCode = (language: string): string => {
+export const getDefaultCode = (language: string): string => {
   switch (language.toLowerCase()) {
     case "cpp":
       return `#include <iostream>\nusing namespace std;\n\nint main() {\n\tcout << "Hello World!";\n\treturn 0;\n}`;
