@@ -12,7 +12,7 @@ describe("PUT /api/users/:userId", () => {
     it("should return 204 with no content", async () => {
       // Arrange
       const userId = "existinguserid123";
-      const requestBody = testPayloads.getPostUserPayload();
+      const requestBody = testPayloads.getUpdateUserPayload();
       const user = testPayloads.getUserPayload({ userId });
       dbMock.user.findFirst = jest
         .fn()
@@ -74,7 +74,7 @@ describe("PUT /api/users/:userId", () => {
     it("should return 404 with an error message in json", async () => {
       // Arrange
       const userId = "nonexistinguserid123";
-      const requestBody = testPayloads.getPostUserPayload();
+      const requestBody = testPayloads.getUpdateUserPayload();
       dbMock.user.findFirst = jest.fn().mockResolvedValue(null);
 
       // Act

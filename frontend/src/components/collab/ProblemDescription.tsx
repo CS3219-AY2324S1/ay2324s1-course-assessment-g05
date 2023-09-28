@@ -2,6 +2,7 @@ import Question from "@/types/question";
 import { FC } from "react";
 import ComplexityChip from "../question/ComplexityChip";
 import { Divider } from "@nextui-org/react";
+import { parse } from "node-html-parser";
 
 interface ProblemDescriptionProps {
   question: Question;
@@ -29,7 +30,7 @@ const ProblemDescription: FC<ProblemDescriptionProps> = ({ question }) => {
         {/* Question description */}
         <div className="flex mt-3">
           <div className="text-md text-white text-justify">
-            {question.description}
+            {parse(question.description)}
           </div>
         </div>
 
@@ -41,10 +42,10 @@ const ProblemDescription: FC<ProblemDescriptionProps> = ({ question }) => {
               <div className="">
                 <pre className="bg-gray-600 bg-opacity-50 my-4 p-4 rounded-lg text-white text-sm whitespace-pre-wrap">
                   <strong className="text-white text-base">Input: </strong>{" "}
-                  {example.input}
+                  {parse(example.input)}
                   <br />
                   <strong className="text-white text-base">Output: </strong>
-                  {example.output}
+                  {parse(example.output)}
                   <br />
                   {example.explanation && (
                     <>

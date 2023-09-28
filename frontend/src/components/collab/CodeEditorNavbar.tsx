@@ -3,7 +3,7 @@
 import User from "@/types/user";
 import { FC, useEffect, useState } from "react";
 import { Icons } from "../common/Icons";
-import { Button, Code, Spacer, Tooltip } from "@nextui-org/react";
+import { Button, Code, Spacer } from "@nextui-org/react";
 import CodeEditorNavBarTooltip from "./CodeEditorNavBarTooltip";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
 import Timer from "./Timer";
