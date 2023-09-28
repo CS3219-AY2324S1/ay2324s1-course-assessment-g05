@@ -1,8 +1,4 @@
-import {
-  Strategy as JwtStrategy,
-  ExtractJwt,
-  StrategyOptions,
-} from "passport-jwt";
+import { Strategy as JwtStrategy, StrategyOptions } from "passport-jwt";
 import { getJWTSecret } from "../lib/utils";
 import { getUserById } from "../lib/user_api_helpers";
 import HttpStatusCode from "../common/HttpStatusCode";
@@ -15,6 +11,7 @@ const cookieExtractor = (req: Request) => {
   if (req && req.cookies) {
     token = req.cookies["jwt"];
   }
+  console.log("jwt exists in cookie and has been extracted");
   return token;
 };
 

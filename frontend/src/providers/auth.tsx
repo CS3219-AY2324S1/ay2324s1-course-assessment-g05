@@ -1,17 +1,18 @@
 import { CLIENT_ROUTES } from "@/common/constants";
+import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import { Role, Status } from "@/types/enums";
 import User from "@/types/user";
 import { StringUtils } from "@/utils/stringUtils";
 import { Spinner } from "@nextui-org/react";
+import { cookies } from "next/headers";
 import { useRouter } from "next/navigation";
-import { P } from "pino";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface IAuthContext {
   user: User;
   fetchUser: (userId: string) => Promise<void>;
-  logIn: (email: string) => Promise<void>;
+  logIn: (email: string, password: string) => Promise<void>;
   logOut: () => Promise<void>;
   isAuthenticated: () => boolean;
 }
@@ -36,7 +37,7 @@ const defaultUser: User = {
 const AuthContext = createContext<IAuthContext>({
   user: defaultUser,
   fetchUser: (userId: string) => Promise.resolve(),
-  logIn: () => Promise.resolve(),
+  logIn: (email: string, password: string) => Promise.resolve(),
   isAuthenticated: () => true,
   logOut: () => Promise.resolve(),
 });
@@ -85,8 +86,8 @@ const AuthProvider = ({ children }: IAuthProvider) => {
     };
   };
 
-  const logIn = async (email: string) => {
-    const rawUser = await UserService.getUserByEmail(email);
+  const logIn = async (email: string, password: string) => {
+    const rawUser = await AuthService.logInByEmail(email, password);
     updateUser(rawUser);
   };
 

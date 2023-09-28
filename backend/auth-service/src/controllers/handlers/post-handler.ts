@@ -20,7 +20,7 @@ const registerByEmail = async (request: Request, response: Response) => {
   const tokenObject = issueJWT(user.id);
   response
     .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
-    .status(HttpStatusCode.OK)
+    .status(HttpStatusCode.CREATED)
     .json({
       success: true,
       userId: user.id,
@@ -43,7 +43,7 @@ const logInByEmail = async (request: Request, response: Response) => {
   //if user exists, check if password is correct
   const user = (await res.json()) as UserProfile;
   if (await validatePassword(password, user.password)) {
-    //if password is correct, return jwt and user
+    //if password is correct, attach cookie and return user
     const tokenObject = issueJWT(user.id);
     response
       .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
