@@ -66,7 +66,11 @@ const ProblemDescription: FC<ProblemDescriptionProps> = ({ question }) => {
           <div className="text-white text-sm font-medium">Constraints:</div>
           <ul className="text-white ml-5 list-disc ">
             {question.constraints?.map((constraint, index) => (
-              <li key={index}>{constraint}</li>
+              <li key={index} className="my-1">
+                <span className="bg-gray-500 bg-opacity-50 px-1 py-[.5] rounded-lg">
+                  {constraint}
+                </span>
+              </li>
             ))}
           </ul>
         </div>
