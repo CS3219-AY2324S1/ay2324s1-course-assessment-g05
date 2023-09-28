@@ -1,17 +1,21 @@
-"use client";
-
 import { FC } from "react";
 import Split from "react-split";
 import ProblemPanel from "./ProblemPanel";
 import CodeEditorPanel from "./CodeEditorPanel";
+import User from "@/types/user";
+import Question from "@/types/question";
 
-interface WorkspaceProps {}
+interface WorkspaceProps {
+  question: Question;
+  partner: User;
+  language: string;
+}
 
-const Workspace: FC<WorkspaceProps> = ({}) => {
+const Workspace: FC<WorkspaceProps> = ({ question, partner, language }) => {
   return (
     <Split className="flex flex-row">
-      <ProblemPanel />
-      <CodeEditorPanel />
+      <ProblemPanel question={question} />
+      <CodeEditorPanel partner={partner} language={language} />
     </Split>
   );
 };
