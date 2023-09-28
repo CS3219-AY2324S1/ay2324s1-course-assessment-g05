@@ -1,13 +1,22 @@
-export const getDefaultCode = (language: string): string => {
+import { StringUtils } from "./stringUtils";
+
+export const getCodeTemplate = (
+  language: string,
+  questionTitle: string
+): string => {
+  // transform the question title into a camel case string
+  const formattedQuestionTitle =
+    StringUtils.convertStringToCamelCase(questionTitle);
+
   switch (language.toLowerCase()) {
     case "cpp":
-      return `#include <iostream>\nusing namespace std;\n\nint main() {\n\tcout << "Hello World!";\n\treturn 0;\n}`;
+      return `class Solution {\npublic:\n\t// change your function type below if necessary\n\tvoid ${formattedQuestionTitle}(/*define your params here*/){\n\t\t\n\t};\n}`;
     case "java":
-      return `public class Solution {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println("Hello World!");\n\t}\n}`;
+      return `class Solution {\n\t// change your function type below if necessary\n\tpublic static void ${formattedQuestionTitle}(/*define your params here*/) {\n\t\t\n\t}\n}\n`;
     case "python":
-      return `print("Hello World!")`;
+      return `class Solution:\n\tdef ${formattedQuestionTitle}():\n\t\treturn\n`;
     case "javascript":
-      return `console.log("Hello World!")`;
+      return `const ${formattedQuestionTitle} = (/*define your params here*/) => {\n\treturn;\n}`;
     default:
       return "";
   }

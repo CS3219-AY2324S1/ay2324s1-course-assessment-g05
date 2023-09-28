@@ -15,7 +15,11 @@ const Workspace: FC<WorkspaceProps> = ({ question, partner, language }) => {
   return (
     <Split className="flex flex-row">
       <ProblemPanel question={question} />
-      <CodeEditorPanel partner={partner} language={language} />
+      <CodeEditorPanel
+        partner={partner}
+        language={language}
+        questionTitle={question.title}
+      />
     </Split>
   );
 };

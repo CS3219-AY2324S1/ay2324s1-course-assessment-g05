@@ -2,22 +2,26 @@ import { FC, SetStateAction, useState } from "react";
 import User from "@/types/user";
 import CodeEditorNavbar from "./CodeEditorNavbar";
 import { Divider } from "@nextui-org/react";
-import Editor from "@monaco-editor/react";
 import CodeEditor from "./CodeEditor";
-import { getDefaultCode } from "@/utils/defaultCodeUtils";
+import { getCodeTemplate } from "@/utils/defaultCodeUtils";
 
 interface CodeEditorPanelProps {
   partner: User;
   language: string;
+  questionTitle: string;
 }
 
-const CodeEditorPanel: FC<CodeEditorPanelProps> = ({ partner, language }) => {
+const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
+  partner,
+  language,
+  questionTitle,
+}) => {
   const [defaultCode, setDefaultCode] = useState<string>(
-    getDefaultCode(language)
+    getCodeTemplate(language, questionTitle)
   );
 
   const handleResetToDefaultCode = () => {
-    setDefaultCode(getDefaultCode(language));
+    setDefaultCode(getCodeTemplate(language, questionTitle));
   };
 
   const handleEditorChange = (value: SetStateAction<string>, event: any) => {
