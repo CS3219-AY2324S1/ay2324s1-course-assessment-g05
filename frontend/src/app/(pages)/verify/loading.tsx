@@ -1,11 +1,6 @@
-"use client"
 import React from "react";
-import { Spinner } from "@nextui-org/react";
+import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 
 export default function Loading() {
-    return (
-        <div>
-            <Spinner color="primary"/>
-        </div>
-    )
+  return <LogoLoadingComponent />;
 }

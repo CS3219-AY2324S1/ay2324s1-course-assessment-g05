@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { FC, SetStateAction, useEffect, useRef, useState } from "react";
+=======
+import { FC, SetStateAction, useState } from "react";
+>>>>>>> master
 import User from "@/types/user";
 import CodeEditorNavbar from "./CodeEditorNavbar";
 import { Divider } from "@nextui-org/react";

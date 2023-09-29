@@ -13,7 +13,7 @@ import {
   Chip,
   Link,
 } from "@nextui-org/react";
-import parse from 'html-react-parser';
+import parse from "html-react-parser";
 import Question from "@/types/question";
 import ModifyQuestionModal from "./ModifyQuestionModal";
 import ComplexityChip from "./ComplexityChip";
@@ -33,27 +33,27 @@ export default function QuestionTable({
     {
       key: "_id",
       label: "NO.",
-      class: ""
+      class: "",
     },
     {
       key: "title",
       label: "TITLE",
-      class: "w-3/6"
+      class: "w-3/6",
     },
     {
       key: "complexity",
       label: "COMPLEXITY",
-      class: "w-1/7"
+      class: "w-1/7",
     },
     {
       key: "topics",
       label: "TOPIC",
-      class: "w-2/6"
+      class: "w-2/6",
     },
     {
       key: "actions",
       label: "ACTIONS",
-      class: ""
+      class: "",
     },
   ];
 
@@ -69,19 +69,27 @@ export default function QuestionTable({
       case "title":
         return (
           <>
-            <Link href={`${CLIENT_ROUTES.QUESTIONS}/${item._id}`}>{cellValue as string}</Link>
+            <Link href={`${CLIENT_ROUTES.QUESTIONS}/${item._id}`}>
+              {cellValue as string}
+            </Link>
           </>
         );
       case "complexity":
         return (
-          <ComplexityChip complexity={cellValue as string}></ComplexityChip>
+          <ComplexityChip
+            size="md"
+            complexity={cellValue as string}
+          ></ComplexityChip>
         );
       case "topics":
         return (
           <>
             <div className="flex flex-wrap gap-1 overflow-hidden ">
               {(cellValue as string[]).map((topic) => (
-                <Tooltip key={topic} content={StringUtils.convertAllCapsToCamelCase(topic)}>
+                <Tooltip
+                  key={topic}
+                  content={StringUtils.convertAllCapsToCamelCase(topic)}
+                >
                   <Chip size="sm" className="truncate">
                     {StringUtils.convertAllCapsToCamelCase(topic)}
                   </Chip>
@@ -97,9 +105,7 @@ export default function QuestionTable({
         }
         return (
           <div className="relative flex items-center gap-2">
-            <Tooltip content={
-              <>{parse(item.description)}</>
-            } delay={1000}>
+            <Tooltip content={<>{parse(item.description)}</>} delay={1000}>
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50 w-8 h-8 p-1.5">
                 <FiEye />
               </span>
@@ -139,7 +145,6 @@ export default function QuestionTable({
       ></ModifyQuestionModal>
       <Table
         aria-label="table of questions"
-
         topContent={
           <Button onPress={(e) => openModal()}>Create Question</Button>
         }
