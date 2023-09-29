@@ -91,6 +91,7 @@ const page: FC<pageProps> = ({ params: { roomId } }) => {
         </>
       ) : (
         <Workspace
+          roomId={roomId}
           partner={partner!}
           question={question!}
           language={matchedLanguage}

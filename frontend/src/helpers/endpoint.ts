@@ -117,3 +117,14 @@ function getServicePorts(service: SERVICE) {
   }
   return "";
 }
+
+export async function endpoint() {
+  const host =
+  process.env.NODE_ENV == "production"
+  ? process.env.ENDPOINT_PROD
+  : process.env.ENDPOINT_DEV;
+
+  const servicePort = process.env.ENDPOINT_COLLABORATION_PORT
+
+  return `http://${host}${servicePort}`;
+}

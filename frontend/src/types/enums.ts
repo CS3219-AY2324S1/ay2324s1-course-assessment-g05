@@ -11,12 +11,6 @@ export enum HTTP_METHODS {
   DELETE = "DELETE",
 }
 
-// Port moved to .env.development
-// export enum ServiceLocalPorts {
-//   USER = "5000",
-//   QUESTION = "5100",
-// }
-
 export enum Status {
   ACTIVE = "ACTIVE",
   INACTIVE = "INACTIVE",
@@ -80,4 +74,12 @@ export enum ToastType {
   ERROR = "error",
   WARNING = "warning",
   INFO = "info",
+}
+
+export enum SocketEvent {
+  CONNECT = "connect",
+  DISCONNECT = "disconnect",
+  JOIN_ROOM = "join_room",
+  CODE_CHANGE = "code_change",
+  CODE_UPDATE = "code_update",
 }

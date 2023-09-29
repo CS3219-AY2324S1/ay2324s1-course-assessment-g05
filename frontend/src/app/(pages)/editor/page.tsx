@@ -2,7 +2,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import Editor, { Monaco } from "@monaco-editor/react";
 import { Socket, io } from "socket.io-client";
-import { Button, Input } from "@nextui-org/react";
+import { Button, Code, Input } from "@nextui-org/react";
+import CodeEditor from "@/components/collab/CodeEditor";
 
 const socket = io("http://localhost:5300");
 socket.on("connect", () => {
@@ -20,7 +21,7 @@ export default function EditorPage() {
     const [editorContent, setEditorContent] = useState("// Start your code here");
 
     useEffect(() => {
-        socket.on("code update", (newContent) => {
+        socket.on("code update", (newContent: string) => {
             setEditorContent(newContent);
         })
     })
@@ -42,12 +43,12 @@ export default function EditorPage() {
     function handleEditorDidMount(editor: any, monaco: Monaco) {
         // here is the editor instance
         // you can store it in `useRef` for further usage
-        console.log("hhh", editor, monaco);
         editorRef.current = editor;
     }
 
     return (
         <div>
+        {/* <CodeEditor> */}
         <Editor
             height="90vh"
             defaultLanguage="javascript"
@@ -67,48 +68,7 @@ export default function EditorPage() {
             onChange={(e) => setRoom(e.target.value)}
         />   
         <Button onClick={joinRoom}>Join Room</Button>
-        <Chat socket={socket} username={username} roomId={room}></Chat>
         </div>
     );
 }
 
-const Chat: React.FC<{ socket: Socket; username: string; roomId: string }> = ({
-    socket,
-    username,
-    roomId,
-}) => {
-    const [currentMessage, setCurrentMessage] = useState("");
-
-    const sendMessage = async () => {
-        if (currentMessage !== "") {
-            const messageData = {
-                roomId: roomId,
-                author: username,
-                message: currentMessage,
-                time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
-            }
-            socket.emit(currentMessage, roomId);
-            await socket.emit("send message", messageData);
-
-        }
-
-    }
-    
-    return (
-        <>
-            <div className="chat">
-                <div className="messages"></div>
-                <div className="inputMessage">
-                    <input
-                        type="text"
-                        placeholder="Message"
-                        onChange={(e) => {
-                            setCurrentMessage(e.target.value);
-                        }}
-                    />
-                    <button onClick={() => {sendMessage()}}>send</button>
-                </div>
-            </div>
-        </>
-    );
-};
