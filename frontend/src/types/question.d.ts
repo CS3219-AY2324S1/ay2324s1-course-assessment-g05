@@ -1,6 +1,7 @@
 export type Example = {
   input: string;
   output: string;
+  explanation: string;
 };
 
 type Question = {
@@ -8,7 +9,7 @@ type Question = {
   title: string;
   complexity: string;
   topics: string[];
-  description?: string;
+  description: string;
   examples?: Example[];
   constraints?: string[];
   category?: string[];

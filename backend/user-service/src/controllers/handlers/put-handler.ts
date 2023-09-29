@@ -46,19 +46,22 @@ export const updateUserById = async (request: Request, response: Response) => {
       return;
     }
 
-    const existingUserWithSameEmail = await db.user.findFirst({
-      where: {
-        id: { not: userId },
-        email: updateUserBody.email,
-      },
-    });
-
-    if (existingUserWithSameEmail) {
-      response.status(HttpStatusCode.CONFLICT).json({
-        error: "CONFLICT",
-        message: `User with email ${updateUserBody.email} already exists.`,
+    if (updateUserBody.email) {
+      console.log(updateUserBody.email);
+      const existingUserWithSameEmail = await db.user.findFirst({
+        where: {
+          id: { not: userId },
+          email: updateUserBody.email,
+        },
       });
-      return;
+
+      if (existingUserWithSameEmail) {
+        response.status(HttpStatusCode.CONFLICT).json({
+          error: "CONFLICT",
+          message: `User with email ${updateUserBody.email} already exists.`,
+        });
+        return;
+      }
     }
 
     await db.user.update({
@@ -131,7 +134,7 @@ export const updateUserPreferences = async (
       return;
     }
 
-    // check no duplicate preference exists
+    // check the user preferences exist
     const existingUserPreferences = await db.preferences.findFirst({
       where: {
         userId: userId,
