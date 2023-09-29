@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import parse from "html-react-parser";
 import ProblemDescription from "@/components/collab/ProblemDescription";
+import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 
 async function getQuestion(id: string) {
   const res = await getQuestionById(id, "no-cache");
@@ -23,7 +24,7 @@ export default async function QuestionDetailPage({
   const question = await getQuestion(params.id);
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<LogoLoadingComponent />}>
       <ProblemDescription question={question} />
     </Suspense>
   );
