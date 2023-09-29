@@ -9,12 +9,14 @@ interface CodeEditorPanelProps {
   partner: User;
   language: string;
   questionTitle: string;
+  roomId: string;
 }
 
 const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
   partner,
   language,
   questionTitle,
+  roomId,
 }) => {
   const [defaultCode, setDefaultCode] = useState<string>(
     getCodeTemplate(language, questionTitle)
@@ -33,6 +35,7 @@ const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
       <CodeEditorNavbar
         partner={partner!}
         language={language}
+        roomId={roomId}
         handleResetToDefaultCode={handleResetToDefaultCode}
       />
       <Divider className="space-y-2" />

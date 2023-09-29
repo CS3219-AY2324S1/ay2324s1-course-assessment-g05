@@ -9,9 +9,15 @@ interface WorkspaceProps {
   question: Question;
   partner: User;
   language: string;
+  roomId: string;
 }
 
-const Workspace: FC<WorkspaceProps> = ({ question, partner, language }) => {
+const Workspace: FC<WorkspaceProps> = ({
+  question,
+  partner,
+  language,
+  roomId,
+}) => {
   return (
     <Split className="flex flex-row">
       <ProblemPanel question={question} />
@@ -19,6 +25,7 @@ const Workspace: FC<WorkspaceProps> = ({ question, partner, language }) => {
         partner={partner}
         language={language}
         questionTitle={question.title}
+        roomId={roomId}
       />
     </Split>
   );

@@ -3,20 +3,23 @@
 import User from "@/types/user";
 import { FC, useEffect, useState } from "react";
 import { Icons } from "../common/Icons";
-import { Button, Code, Spacer } from "@nextui-org/react";
+import { Button, Code, Spacer, useDisclosure } from "@nextui-org/react";
 import CodeEditorNavBarTooltip from "./CodeEditorNavBarTooltip";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
 import Timer from "./Timer";
+import EndSessionModal from "./EndSessionModal";
 
 interface CodeEditorNavbarProps {
   partner: User;
   language: string;
+  roomId: string;
   handleResetToDefaultCode: () => void;
 }
 
 const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
   partner,
   language,
+  roomId,
   handleResetToDefaultCode,
 }) => {
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
@@ -53,6 +56,8 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
       setIsReady(true);
     }
   }, [partner]);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <div className="flex items-center justify-between h-11 w-full">
@@ -126,12 +131,13 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
             <Button
               size="sm"
               radius="sm"
-              onClick={() => {}}
+              onClick={onOpen}
               className="bg-red-600 font-medium"
             >
               End Session
             </Button>
           </CodeEditorNavBarTooltip>
+          <EndSessionModal roomId={roomId} onClose={onClose} isOpen={isOpen} />
         </div>
       </div>
     </div>
