@@ -1,6 +1,7 @@
 "use client";
 
 import Workspace from "@/components/collab/Workspace";
+import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import { MatchingService } from "@/helpers/matching/matching_api_wrappers";
 import { getQuestionById } from "@/helpers/question/question_api_wrappers";
 import { UserService } from "@/helpers/user/user_api_wrappers";
@@ -83,17 +84,13 @@ const page: FC<pageProps> = ({ params: { roomId } }) => {
   return (
     <div>
       {isLoading ? (
-        <>
-          <p>
-            Need some loading animation, can refer to how instagram, facebook
-            loads
-          </p>
-        </>
+        <LogoLoadingComponent />
       ) : (
         <Workspace
           partner={partner!}
           question={question!}
           language={matchedLanguage}
+          roomId={roomId}
         />
       )}
     </div>

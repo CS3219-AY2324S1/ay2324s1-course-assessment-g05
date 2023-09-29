@@ -1,11 +1,10 @@
 import { CLIENT_ROUTES } from "@/common/constants";
+import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import { Role, Status } from "@/types/enums";
 import User from "@/types/user";
 import { StringUtils } from "@/utils/stringUtils";
-import { Spinner } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { P } from "pino";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface IAuthContext {
@@ -111,7 +110,8 @@ const AuthProvider = ({ children }: IAuthProvider) => {
 
   const renderChildren = () => {
     if (isLoading) {
-      return <Spinner color="primary" />;
+      // this is the loading component that will render in every page when fetching user auth status
+      return <LogoLoadingComponent />;
     }
     return children;
   };
