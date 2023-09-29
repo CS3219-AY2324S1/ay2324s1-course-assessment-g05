@@ -44,7 +44,28 @@ export default function MatchingLobby({
 }) {
   const [stage, setStage] = React.useState(MATCHING_STAGE.INITIAL);
   const { onOpenChange } = useDisclosure();
-  let socket: Socket;
+  const [ socket, setSocket ] = React.useState<Socket>();
+
+  const initializeSocket = async () => {
+    const config = await getMatchingSocket();
+    const so = io(config.endpoint, { path: config.path });
+
+    so.on('connect', () => {
+      console.log("connected: ", so.id);
+      setStage(MATCHING_STAGE.MATCHING);
+    });
+
+    so.on("disconnect", () => {
+      console.log("disconnect.");
+      setStage(MATCHING_STAGE.ERROR);
+    });
+
+    so.on("connect_error", (error) => {
+      console.log("connect_error: ", error);
+      setStage(MATCHING_STAGE.ERROR);
+    });
+    return so;
+  }
 
   const debugStage = () => {
     let opts = Object.keys(MATCHING_STAGE);
@@ -55,8 +76,7 @@ export default function MatchingLobby({
   // Trigger matching process on modal open
   React.useEffect(() => {
     if (isOpen) {
-      setStage(MATCHING_STAGE.MATCHING)
-      socket ?? socketInitializer();
+      socket ?? initializeSocket().then(socket => setSocket(socket));
     } else {
       setStage(MATCHING_STAGE.INITIAL)
     }
@@ -64,36 +84,54 @@ export default function MatchingLobby({
 
   // Response to stage events
   React.useEffect(() => {
-    switch (stage) {
-      case MATCHING_STAGE.MATCHING:
-        onMatchingStage();
-        break;
-      default:
-        break;
+    if (socket) {
+      switch (stage) {
+        case MATCHING_STAGE.MATCHING:
+          onMatchingStage(socket);
+          break;
+        default:
+          break;
+      }
     }
   }, [stage])
 
-  // React.useEffect(() => {
-  //   socket ?? socketInitializer();
-  // },[])
+  // Handles matching event
+  const onMatchingStage = (so:Socket) => {
+    try {
+      console.log(`[${so.id}]: trigger matching process`);
 
-  const socketInitializer = () => {
-    getMatchingSocket().then(config => {
-      console.log("Get socket config: ", config);
-      socket = io(config.endpoint, {
-        path:config.path
-      });
-      socket.on('connect', () => {
-        console.log(socket.id);
-      })
+      // Request to join matching queue
+      so.emit("matching", "testkey");
+    } catch (error) {
+      console.log("onMatchingStage: ", error);
+      setStage(MATCHING_STAGE.ERROR)
+    }
+  }
 
-      socket.on("disconnect", () => {
-        console.log(socket.id); // undefined
-      });
+  // Handles retry action
+  const handleRetry = () => {
+    setStage(MATCHING_STAGE.MATCHING);
+  }
 
-      console.log("Try connect server");
-      socket.connect();
-    });
+  // Handles user ready action
+  const handleReady = (so:Socket) => {
+    console.log("User ready to start collab.");
+    // Send update to backend indicating user ready to start.
+    // Backend return with status:
+    //  - wait for peer
+    //  - start collab session
+    //  - peer exit
+
+    // redirect to collab session
+    handleClose();
+  }
+
+  const handleClose = () => {
+    console.log("Graceful close: will shut socket before modal.");
+    if (socket) {
+      socket.disconnect();
+    }
+    onClose();
   }
 
   // Handle view switching
@@ -108,42 +146,6 @@ export default function MatchingLobby({
       default:
         return errorView;
     }
-  }
-
-  // Handles matching event
-  const onMatchingStage = () => {
-    try {
-      console.log("matching process triggered");
-
-      // Request to join matching queue
-      socket.emit("matching", "testkey");
-    } catch (error) {
-      setStage(MATCHING_STAGE.ERROR)
-    }
-  }
-
-  // Handles retry action
-  const handleRetry = () => {
-    setStage(MATCHING_STAGE.MATCHING);
-  }
-
-  // Handles user ready action
-  const handleReady = () => {
-    console.log("User ready to start collab.");
-    // Send update to backend indicating user ready to start.
-    // Backend return with status:
-    //  - wait for peer
-    //  - start collab session
-    //  - peer exit
-
-    // redirect to collab session
-    handleClose();
-  }
-
-  const handleClose = () => {
-    console.log("Graceful close: will shut socket before modal.");
-    !socket ?? socket.emit("disconnect");
-    onClose();
   }
 
   const initialView = <>

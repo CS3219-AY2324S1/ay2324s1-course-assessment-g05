@@ -3,7 +3,7 @@
 /* -------------------------------------------------------------------------- */
 "use server"
 import { HTTP_METHODS, SERVICE } from "@/types/enums";
-import endpoint, { getSocket, getSocketConfig } from "../endpoint";
+import endpoint, { getSocketConfig } from "../endpoint";
 import { io } from "socket.io-client";
 import api from "../endpoint";
 import { getLogger } from "../logger";
@@ -18,5 +18,3 @@ export async function submitMatchPreferences (preferences: {}) {
 export async function getMatchingSocket()  {
   return await getSocketConfig(SERVICE.MATCHING);
 }
-
-// export const MatchingService = { submitMatchPreferences };
