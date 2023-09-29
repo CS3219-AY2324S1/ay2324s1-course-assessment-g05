@@ -32,7 +32,11 @@ enum MATCHING_STAGE {
 export default function MatchingLobby({
   isOpen,
   onClose,
-  options
+  options = {
+    languages: [],
+    difficulties: [],
+    topics: [],
+  }
 }: {
   isOpen: boolean,
   onClose: () => void,
