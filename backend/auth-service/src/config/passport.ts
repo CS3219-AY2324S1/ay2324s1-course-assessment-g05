@@ -11,7 +11,6 @@ const cookieExtractor = (req: Request) => {
   if (req && req.cookies) {
     token = req.cookies["jwt"];
   }
-  console.log("jwt exists in cookie and has been extracted");
   return token;
 };
 

@@ -14,7 +14,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PeerPrepLogo from "@/components/common/PeerPrepLogo";
 import ProfilePictureAvatar from "./ProfilePictureAvatar";
-import { useAuthContext } from "@/providers/auth";
+import { useAuthContext } from "@/contexts/auth";
 import { CLIENT_ROUTES } from "@/common/constants";
 
 const NavBar = () => {
@@ -31,7 +31,7 @@ const NavBar = () => {
     await logOut();
   };
 
-  if (!isAuthenticated()) {
+  if (!isAuthenticated) {
     return <></>;
   }
   return (

@@ -78,7 +78,7 @@ const createUser = async (user: User, cache: RequestCache = "no-cache") => {
   // successful response should return 201 and userid
   if (response.status === HttpStatusCode.CREATED) {
     // res contains { id: string, message: "User created"}
-    const res = response.data as { id: string, message: string};
+    const res = response.data as { id: string; message: string };
     logger.info(`[createUser] ${res}`);
     return res;
   }
@@ -160,6 +160,7 @@ const updateUserPreference = async (
   userPreference: Preference,
   cache: RequestCache = "no-cache"
 ) => {
+  console.log(userPreference);
   // call PUT /api/users/:id/preferences from user service
   const response = await api({
     method: HTTP_METHODS.PUT,

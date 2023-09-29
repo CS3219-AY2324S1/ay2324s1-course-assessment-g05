@@ -15,7 +15,7 @@ router.route("/auth/loginByEmail").post(logInByEmail);
 router
   .route("/auth/validate")
   .post(passport.authenticate("jwt", { session: false }), (req, res, next) => {
-    res.status(200).json({ data: req.user });
+    res.status(200).json(req.user);
   });
 router.route("/auth/logout").post(logOut);
 

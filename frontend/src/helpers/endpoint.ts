@@ -2,6 +2,7 @@
 import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import { getLogger } from "./logger";
 import { cookies } from "next/headers";
+import HttpStatusCode from "@/types/HttpStatusCode";
 
 const logger = getLogger("endpoint");
 
@@ -16,6 +17,7 @@ type ApiConfig = {
   body?: {}; // Optional request body.
   tags?: string[]; // Optional array of caching scopes.
   cache?: RequestCache;
+  deleteJWTCookie?: boolean;
 };
 
 /**
@@ -93,8 +95,18 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
       }
     }
 
+    // If deleteCookie is true, delete the JWT cookie from the browser.
+    if (config.deleteJWTCookie) {
+      cookies().delete("jwt");
+      logger.info(`JWT cookie has been removed from browser`);
+    }
+
     // Parse the response body for all status codes except 204 (no content), expand this to handle more codes without content.
-    let data = res.status != 204 ? await res.json() : {};
+    let data =
+      res.status != HttpStatusCode.NO_CONTENT &&
+      res.status != HttpStatusCode.UNAUTHORIZED
+        ? await res.json()
+        : {};
     logger.info(`[${res.status}] ${config.method}: ${res.url}`);
 
     // Return an ApiResponse object with status, data, and message.

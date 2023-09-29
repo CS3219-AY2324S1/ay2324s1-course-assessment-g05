@@ -20,7 +20,7 @@ import User from "@/types/user";
 import { Role } from "@/types/enums";
 import displayToast from "@/components/common/Toast";
 import { ToastType } from "@/types/enums";
-import { useAuthContext } from "@/providers/auth";
+import { useAuthContext } from "@/contexts/auth";
 import bcrypt from "bcryptjs-react";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 
