@@ -2,13 +2,13 @@
 import Dashboard from "@/components/dashboard/Dashboard";
 import Landing from "@/components/landing/Landing";
 
-import { useAuthContext } from "@/providers/auth";
+import { useAuthContext } from "@/contexts/auth";
 
 export default function Home() {
-  const { user, isAuthenticated } = useAuthContext();
+  const { isAuthenticated } = useAuthContext();
 
   const renderComponent = () => {
-    if (!isAuthenticated()) {
+    if (!isAuthenticated) {
       return <Landing />;
     } else {
       return <Dashboard />;

@@ -5,7 +5,6 @@ import { throwAndLogError } from "@/utils/errorUtils";
 import api from "../endpoint";
 import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 import User from "@/types/user";
-import { cookies } from "next/headers";
 
 const logger = getLogger("auth_api_wrappers");
 
@@ -42,7 +41,7 @@ const logInByEmail = async (
 };
 
 const registerByEmail = async (user: User, cache: RequestCache = "default") => {
-  // call POST /api/auth/registerbyEmail from user service
+  // call POST /api/auth/registerbyEmail from auth service
   console.log(user);
   const response = await api({
     method: HTTP_METHODS.POST,
@@ -67,6 +66,40 @@ const registerByEmail = async (user: User, cache: RequestCache = "default") => {
   );
 };
 
+const validateUser = async () => {
+  // call POST /api/auth/validate from auth service
+  const response = await api({
+    method: HTTP_METHODS.POST,
+    service: service,
+    path: "validate",
+    tags: scope,
+  });
+
+  if (response.status === HttpStatusCode.OK) {
+    const user = response.data as User;
+    return user;
+  }
+
+  return throwAndLogError(
+    "validateUser",
+    "User is not authenticated",
+    getError(response.status)
+  );
+};
+
+const logOut = async () => {
+  // call POST /api/auth/logout from auth service, which will also handle the routing
+  const response = await api({
+    method: HTTP_METHODS.POST,
+    service: service,
+    path: "logout",
+    tags: scope,
+    deleteJWTCookie: true,
+  });
+
+  return;
+};
+
 function getError(status: HttpStatusCode) {
   switch (status) {
     case HttpStatusCode.BAD_REQUEST:
@@ -85,4 +118,6 @@ function getError(status: HttpStatusCode) {
 export const AuthService = {
   logInByEmail,
   registerByEmail,
+  validateUser,
+  logOut,
 };
