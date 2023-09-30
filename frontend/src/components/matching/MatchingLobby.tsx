@@ -43,6 +43,7 @@ export default function MatchingLobby({
     userReady: false,
     partnerReady: false,
     partnerLeft: false,
+    owner: false,
     partner: {
       id: "",
       name: "",
@@ -104,11 +105,13 @@ export default function MatchingLobby({
   /////////////////////////////////////////////
   const handleMatched = (res: {
     room: string,
+    owner: string,
     partner: Partner
   }) => {
     setSuccessState(prev => ({
       ...prev,
-      partner: res.partner
+      partner: res.partner,
+      owner: res.owner == user.id
     }));
 
     setStage(MATCHING_STAGE.SUCCESS);
@@ -148,7 +151,8 @@ export default function MatchingLobby({
 
   const notifyStart = () => {
     // TODO: link with collab
-    logger.debug("notify start");
+    console.log("handle start");
+    
   }
 
   /////////////////////////////////////////////
@@ -164,10 +168,10 @@ export default function MatchingLobby({
       case MATCHING_STAGE.SUCCESS:
         return <MatchingLobbySuccessView
           state={successState}
-          notifyUserReady={notifyUserReady}
-          notifyStartCollab={notifyStart}
-          cancel={handleClose}
-          rematch={() => setStage(MATCHING_STAGE.MATCHING)} />;
+          onUserReady={notifyUserReady}
+          onStart={notifyStart}
+          onCancel={handleClose}
+          onRematch={() => setStage(MATCHING_STAGE.MATCHING)} />;
       case MATCHING_STAGE.FAIL:
         return <MatchingLobbyNoMatchView onClose={handleClose} onRetry={handleRetry} />;
       default:
