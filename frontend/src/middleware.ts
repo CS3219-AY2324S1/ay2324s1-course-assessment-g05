@@ -7,12 +7,13 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
   const baseUrl = "http://localhost:3000";
-  const publicContent = ["/_next", "/assets"];
+  const publicContent = ["/_next", "/assets", "/logout"];
   if (publicContent.some((path) => request.nextUrl.pathname.startsWith(path))) {
     return NextResponse.next();
   }
   try {
     const rawUser = await AuthService.validateUser();
+
     if (rawUser) {
       if (
         request.nextUrl.pathname === "/login" ||

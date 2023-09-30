@@ -49,8 +49,6 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
     config.path || ""
   }`;
 
-  console.log(config.body);
-
   // If JWT cookies exist in the browser, add them to the request header.
   let jwtCookieString = "";
   if (cookies().get("jwt")) {

@@ -6,7 +6,7 @@ import { Role } from "@/types/enums";
 import User from "@/types/user";
 import { StringUtils } from "@/utils/stringUtils";
 import { Spinner } from "@nextui-org/react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface IAuthContext {
@@ -45,6 +45,7 @@ interface IAuthProvider {
 const AuthProvider = ({ children }: IAuthProvider) => {
   const [user, setUser] = useState<User>(defaultUser);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const router = useRouter();
 
   useEffect(() => {
     console.log("here");
@@ -57,7 +58,6 @@ const AuthProvider = ({ children }: IAuthProvider) => {
     try {
       const rawUser = await AuthService.validateUser();
       updateUser(rawUser);
-      console.log("authenticated");
     } catch (error) {
       console.log({ error });
       setUser(defaultUser);
@@ -91,8 +91,8 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   };
 
   const logOut = async () => {
-    await AuthService.logOut();
     setUser(defaultUser);
+    await AuthService.logOut();
   };
 
   const renderComponents = () => {
