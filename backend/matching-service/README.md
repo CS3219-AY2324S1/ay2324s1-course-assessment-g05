@@ -1,1 +1,7 @@
-only need a .env file with SERVICE_PORT=5200 to run for now
+Sample .env
+```
+NODE_ENV=development
+SERVICE_PORT="5200"
+MATCHING_TIMEOUT=10000
+LOG_LEVEL="debug"
+```
