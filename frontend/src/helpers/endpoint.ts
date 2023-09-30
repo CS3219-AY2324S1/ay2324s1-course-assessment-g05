@@ -42,9 +42,7 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
   let servicePort = getServicePorts(config.service);
 
   // Build the final API endpoint URL.
-  const endpoint = `http://${host}${servicePort}/api/${config.service}/${
-    config.path || ""
-  }`;
+  const endpoint = `http://${host}${servicePort}/api/${config.service}/${config.path || ""}`;
 
   console.log(config.body);
 
@@ -95,6 +93,29 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
 }
 
 /**
+ * Builds the corresponding Socket IO
+ * @param service 
+ * @returns 
+ */
+export async function getSocketConfig(service: SERVICE) {
+  // Configure gateway host based on the environment (production or development).
+  const host =
+    process.env.NODE_ENV == "production"
+      ? process.env.ENDPOINT_PROD
+      : process.env.ENDPOINT_DEV;
+
+  // Configure local service port.
+  let servicePort = getServicePorts(service);
+
+  // Build the final API endpoint URL.
+  const endpoint = `http://${host}${servicePort}`;
+  const path = `/socket/${service}/`
+  logger.info(`[endpoint] socket: ${endpoint}`);
+
+  return { endpoint, path };
+}
+
+/**
  * Retrieves the corresponding port number from .env base on services.
  * @param service {SERVICE}
  * @returns port number
@@ -109,6 +130,9 @@ function getServicePorts(service: SERVICE) {
       case SERVICE.USER:
         servicePort += process.env.ENDPOINT_USER_PORT || "";
         break;
+      case SERVICE.COLLABORATION:
+        servicePort += process.env.ENDPOINT_COLLABORATION_PORT || "";
+        break;
       default:
         servicePort = "";
         break;
@@ -117,3 +141,4 @@ function getServicePorts(service: SERVICE) {
   }
   return "";
 }
+

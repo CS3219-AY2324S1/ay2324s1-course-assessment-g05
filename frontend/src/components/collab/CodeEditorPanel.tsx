@@ -1,15 +1,11 @@
-<<<<<<< HEAD
 import { FC, SetStateAction, useEffect, useRef, useState } from "react";
-=======
-import { FC, SetStateAction, useState } from "react";
->>>>>>> master
 import User from "@/types/user";
 import CodeEditorNavbar from "./CodeEditorNavbar";
 import { Divider } from "@nextui-org/react";
 import CodeEditor from "./CodeEditor";
 import { getCodeTemplate } from "@/utils/defaultCodeUtils";
 import SocketService from "@/helpers/collaboration/socket_service"
-import { Socket, io } from "socket.io-client";
+import { getCollaborationSocketConfig } from "@/helpers/collaboration/collaboration_api_wrappers";
 
 interface CodeEditorPanelProps {
   partner: User;
@@ -22,11 +18,11 @@ const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
   partner,
   language,
   questionTitle,
-  roomId,
+  roomId
 }) => {
 
   const [socketService, setSocketService] = useState<SocketService | null>(null);
-
+  const [isSocketConnected, setIsSocketConnected] = useState<boolean>(false);
   const editorRef = useRef(null);
 
   const [currentCode, setCurrentCode] = useState<string>(
@@ -39,6 +35,17 @@ const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
     }
   });
 
+  setInterval(() => {
+    if (socketService) {
+      setIsSocketConnected(socketService.getConnectionStatus());
+    }
+  })
+
+  const initializeSocket = async () => {
+    const config = await getCollaborationSocketConfig();
+    setSocketService(new SocketService(roomId, config.endpoint, config.path));
+  }
+
   const handleEditorChange = (currentContent: string | undefined) => {
     if (!currentContent) return;
     setCurrentCode(currentContent!);
@@ -47,7 +54,8 @@ const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
 
   const handleEditorDidMount = (editor: any, monaco: any) => {
     editorRef.current = editor;
-    setSocketService(new SocketService(roomId));
+    // setSocketService(new SocketService(roomId, host, servicePort));
+    initializeSocket();
   }
 
   const handleResetToDefaultCode = () => {
@@ -62,6 +70,7 @@ const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
         language={language}
         roomId={roomId}
         handleResetToDefaultCode={handleResetToDefaultCode}
+        isSocketConnected={isSocketConnected}
       />
       <Divider className="space-y-2" />
       <CodeEditor

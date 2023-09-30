@@ -16,6 +16,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: corsOptions,
+    path: '/socket/collaboration/'
 })
 
 io.on(SocketEvent.CONNECTION, (socket: Socket) => {

@@ -2,6 +2,7 @@
 export enum SERVICE {
   USER = "users",
   QUESTION = "questions",
+  COLLABORATION = "collaboration",
 }
 
 export enum HTTP_METHODS {

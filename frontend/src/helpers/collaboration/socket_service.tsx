@@ -7,35 +7,15 @@ class SocketService {
     socket: Socket;
     roomId: string;
 
-    constructor(roomId: string) {
+    constructor(roomId: string, endpoint: string, path: string) {
         this.roomId = roomId;
-        this.socket = this.createSocket();
-        
-        console.log("Socket created");
-        
+        this.socket = this.createSocket(endpoint, path);        
         this.connectToService();
         this.joinRoom(roomId);
     }
 
-
-
-    createSocket = () => {
-
-
-        const host = `http://localhost:5300`;
-
-        return io(host);
-
-        // Not sure why it can't detect this...
-
-        // const host =
-        //     process.env.NODE_ENV == "production"
-        //     ? process.env.ENDPOINT_PROD
-        //     : process.env.ENDPOINT_DEV;
-    
-        // const servicePort = process.env.ENDPOINT_COLLABORATION_PORT
-    
-        // return io(`http://${host}:${servicePort}`);
+    createSocket = (endpoint: string, path: string) => {
+        return io(endpoint, { path: path });
     }
 
     connectToService = () => {
@@ -46,6 +26,10 @@ class SocketService {
 
     getSocket() {
         return this.socket;
+    }
+    
+    getConnectionStatus() {
+        return this.socket.connected;
     }
 
     joinRoom = (roomId: string) => {
