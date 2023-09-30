@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ProfileDashboardCard from "./ProfileDashboardCard";
 import HeatmapCard from "./HeatmapCard";
 import MatchingCard from "../matching/MatchingCard";
@@ -7,7 +7,7 @@ import QuestionStatisticsCard from "./QuestionStatisticsCard";
 
 const Dashboard = () => {
   return (
-    <div className="grid grid-rows-2 grid-cols-4 gap-4 p-[30px] h-[92vh]">
+    <div className="grid grid-rows-2 grid-cols-4 gap-4 p-[30px] h-[95vh]">
       <div className="row-start-1 col-start-1">
         <ProfileDashboardCard />
       </div>

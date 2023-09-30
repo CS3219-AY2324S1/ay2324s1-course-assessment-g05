@@ -21,6 +21,7 @@ const NavBar = () => {
   const {
     user: { image },
     isAuthenticated,
+    mutate,
     logOut,
   } = useAuthContext();
   const router = useRouter();
@@ -29,6 +30,7 @@ const NavBar = () => {
   };
   const handleLogoutButtonPress = async () => {
     await logOut();
+    router.push(CLIENT_ROUTES.HOME);
   };
 
   if (!isAuthenticated) {

@@ -6,9 +6,8 @@ import { CLIENT_ROUTES } from "@/common/constants";
 import { useAuthContext } from "@/contexts/auth";
 
 const ProfileDashboardCard = () => {
-  const router = useRouter();
-
   const { user } = useAuthContext();
+  const router = useRouter();
 
   const handleEditProfileButtonPress = () => {
     router.push(CLIENT_ROUTES.PROFILE);
