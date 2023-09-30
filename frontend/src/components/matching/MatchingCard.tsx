@@ -11,11 +11,12 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { UserService } from "@/helpers/user/user_api_wrappers";
-import { COMPLEXITY, LANGUAGE, TOPIC } from "@/types/enums";
+import { COMPLEXITY, LANGUAGE, TOPIC, ToastType } from "@/types/enums";
 import { StringUtils } from "@/utils/stringUtils";
 import MatchingLobby from "./MatchingLobby";
 import { useAuthContext } from "@/providers/auth";
 import Preference from "@/types/preference";
+import displayToast from "../common/Toast";
 
 const MatchingCard = () => {
   const {
@@ -35,8 +36,7 @@ const MatchingCard = () => {
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     if (event.target.value === "") {
-      console.log("Field required: " + event.target.name);
-      // Toast to notify user
+      displayToast(`${event.target.name} is required`);
       return;
     }
     setPreferences({
@@ -46,10 +46,9 @@ const MatchingCard = () => {
   };
 
   //for now, get matched button will print to console keys selected
-  const handleGetMatchedButtonPress = () => {
-    console.log(preferences);
+  const handleGetMatched = () => {
     if (Object.values(preferences).some((x) => x.length == 0)) {
-      console.log("Invalid option");
+      displayToast(`Invalid matching options.`, ToastType.ERROR);
       return;
     }
     onOpen();
@@ -57,7 +56,7 @@ const MatchingCard = () => {
 
   const handleQuickMatch = () => {
     setPreferences(preferences);
-    onOpen();
+    handleGetMatched();
   };
 
   return (
@@ -75,6 +74,9 @@ const MatchingCard = () => {
               placeholder="Select a language"
               selectedKeys={preferences.languages}
               onChange={handleOnSelectionChange}
+              errorMessage={
+                preferences.languages.length == 0 && <span>Language is required</span>
+              }
             >
               {optionsLanguages.map((value) => (
                 <SelectItem key={value} value={value}>
@@ -92,6 +94,9 @@ const MatchingCard = () => {
               placeholder="Select a complexity level"
               selectedKeys={preferences.difficulties}
               onChange={handleOnSelectionChange}
+              errorMessage={
+                preferences.difficulties.length == 0 && <span>Difficulty is required</span>
+              }
             >
               {optionsDifficulties.map((value) => (
                 <SelectItem key={value} value={value}>
@@ -109,6 +114,9 @@ const MatchingCard = () => {
               placeholder="Select a topic"
               selectedKeys={preferences.topics}
               onChange={handleOnSelectionChange}
+              errorMessage={
+                preferences.topics.length == 0 && <span>Topics is required</span>
+              }
             >
               {optionsTopics.map((value) => (
                 <SelectItem key={value} value={value}>
@@ -127,7 +135,7 @@ const MatchingCard = () => {
               </Button>
               <Button
                 className="bg-yellow text-black"
-                onPress={handleGetMatchedButtonPress}
+                onPress={handleGetMatched}
               >
                 Get Matched
               </Button>
