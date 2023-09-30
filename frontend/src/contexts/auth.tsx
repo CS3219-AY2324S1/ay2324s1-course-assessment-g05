@@ -1,5 +1,6 @@
 "use client";
 import { CLIENT_ROUTES } from "@/common/constants";
+import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 import { Role } from "@/types/enums";
 import User from "@/types/user";
@@ -96,7 +97,8 @@ const AuthProvider = ({ children }: IAuthProvider) => {
 
   const renderComponents = () => {
     if (isLoading) {
-      return <Spinner color="primary" />;
+      // this is the loading component that will render in every page when fetching user auth status
+      return <LogoLoadingComponent />;
     }
     return children;
   };

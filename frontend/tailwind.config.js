@@ -33,4 +33,9 @@ module.exports = {
       },
     }),
   ],
+  keygrames: {
+    shimer: {
+      "100%": { transform: "translateX(100%)" },
+    },
+  },
 };

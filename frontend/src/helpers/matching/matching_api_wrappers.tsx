@@ -7,4 +7,24 @@ const submitMatchPreferences = (preferences: {}) => {
   console.log(`Submitted for matching: ${JSON.stringify(preferences)}`);
 };
 
-export const MatchingService = { submitMatchPreferences };
+// TODO: update this to an actual API call to matching service
+const getMatchedRecord = ({
+  firstUserId,
+  secondUserId,
+  questionId,
+  matchedLanguage,
+}: {
+  firstUserId: string;
+  secondUserId: string;
+  questionId: string;
+  matchedLanguage: string;
+}) => {
+  return {
+    firstUserId: firstUserId,
+    secondUserId: secondUserId,
+    questionId: questionId,
+    matchedLanguage: matchedLanguage,
+  };
+};
+
+export const MatchingService = { submitMatchPreferences, getMatchedRecord };

@@ -50,6 +50,8 @@ export function LoginComponent() {
     setIsCheckPasswordVisible(!isCheckPasswordVisible);
   const toggleSignUp = () => setIsSignUp(!isSignUp);
 
+  // Validation
+
   useEffect(() => {
     setArePasswordsEqual(
       !(password !== checkPassword && password !== "" && checkPassword !== "")
@@ -59,10 +61,13 @@ export function LoginComponent() {
       setErrorMsg("Password should contain 8 characters or more.");
     } else if (!arePasswordsEqual) {
       setErrorMsg("Passwords do not match. Please try again.");
+    } else if (name !== "" && name.length < 2) {
+      setErrorMsg("Name has to contain at least 2 characters");
     } else {
       setErrorMsg("");
     }
   }, [
+    name,
     password,
     checkPassword,
     setPassword,
@@ -70,19 +75,11 @@ export function LoginComponent() {
     arePasswordsEqual,
   ]);
 
-  useEffect(() => {
-    if (name !== "" && name.length < 2) {
-      setErrorMsg("Name has to contain at least 2 characters");
-    } else {
-      setErrorMsg("");
-    }
-  });
-
   async function submitNewUser(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (errorMsg !== "") {
-      displayToast("Please fix the errors before submitting.", ToastType.ERROR);
+      displayToast("Sign up failed. Please address the errors before submitting.", ToastType.ERROR);
       return;
     }
 
@@ -111,7 +108,6 @@ export function LoginComponent() {
           ToastType.ERROR
         );
       } else {
-        console.log(error);
         displayToast(
           "Something went wrong. Please refresh and try again.",
           ToastType.ERROR
