@@ -6,11 +6,18 @@ import HttpStatusCode from "./lib/enums/HttpStatusCode";
 import cors, {corsOptions} from "./middleware/cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { SocketHandler } from "./controllers";
+import {SocketHandler} from "./controllers";
+import expressPino from 'express-pino-logger';
+import logger from './lib/utils/logger'; 
+
 
 dotenv.config();
 
 const app = express();
+const expressLogger = expressPino({ logger });
+
+// Use the logger middleware
+app.use(expressLogger);
 
 // implement cors for CORS protection
 app.use(cors);
@@ -34,11 +41,14 @@ const io = new Server(httpServer, {
   path:'/socket/matching/'
 });
 
+// Socket handlers
 io.on("connection", SocketHandler);
 io.on("connection_error", (error) => {
-  console.log(error);
+  logger.error(error, 'Connection error..');
 });
 
 httpServer.listen(process.env.SERVICE_PORT, () => {
-  console.log(`Server running on port ${process.env.SERVICE_PORT}`);
+  logger.info(`Server running on port ${process.env.SERVICE_PORT}`);
 });
+
+export { io };

@@ -1,6 +1,8 @@
 type Preferences = {
-  id: string;
+  id?: string,
   languages: Language[];
   difficulties: Difficulty[];
   topics: Topic[];
 };
+
+export default Preferences;
