@@ -1,5 +1,5 @@
 import { ModalBody, ModalFooter, Button } from "@nextui-org/react";
-import { FiUserX } from "react-icons/fi";
+import { Icons } from "../common/Icons";
 
 export default function MatchingLobbyNoMatchView(
     {
@@ -13,7 +13,7 @@ export default function MatchingLobbyNoMatchView(
     return (
         <>
             <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center my-10">
-                <FiUserX className="w-24 h-24  text-danger" />
+                <Icons.FiUserX className="w-24 h-24  text-danger" />
                 <p>Unable to find a match.</p>
                 <p>Please try again later.</p>
             </ModalBody>

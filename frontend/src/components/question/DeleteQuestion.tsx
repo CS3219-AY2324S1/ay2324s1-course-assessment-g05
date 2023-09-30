@@ -2,6 +2,7 @@ import { deleteQuestion } from "@/helpers/question/question_api_wrappers";
 import { CircularProgress } from "@nextui-org/react";
 import React from "react";
 import { FiTrash, FiX } from "react-icons/fi";
+import { Icons } from "../common/Icons";
 
 export default function DeleteQuestion({ id }: { id: string }) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -28,8 +29,8 @@ export default function DeleteQuestion({ id }: { id: string }) {
           className="text-lg text-danger cursor-pointer active:opacity-50 w-8 h-8 p-1.5"
           onClick={(e) => handleDelete(id)}
         >
-          {!error && <FiTrash />}
-          {error && <FiX />}
+          {!error && <Icons.FiTrash />}
+          {error && <Icons.FiX />}
         </span>
       )}
     </>

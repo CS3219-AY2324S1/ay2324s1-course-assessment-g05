@@ -1,9 +1,9 @@
 import { ModalBody, Card, CardBody, CardFooter, Button, ModalFooter } from "@nextui-org/react";
-import { FiCodepen, FiPlay, FiThumbsUp, FiX } from "react-icons/fi";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
 import React from "react";
 import Partner from "@/types/partner";
 import { useAuthContext } from "@/providers/auth";
+import { Icons } from "../common/Icons";
 
 export type MatchingSuccessState = {
   userReady: boolean,
@@ -38,7 +38,7 @@ export default function MatchingLobbySuccessView({
           </CardBody>
           <CardFooter className="justify-center p-2">
             <Button onPress={e => onUserReady(!state.userReady)} color={state.userReady ? "success" : "primary"} className="w-full" startContent={
-              state.userReady ? <FiThumbsUp /> : <FiPlay />
+              state.userReady ? <Icons.FiThumbsUp /> : <Icons.FiPlay />
             } isDisabled={state.userReady || state.partnerLeft}>
               {state.userReady ? "Ready" : "Start"}
             </Button>
@@ -46,7 +46,7 @@ export default function MatchingLobbySuccessView({
         </Card>
         <div className="text-center">
           <p>Matched!</p>
-          <FiCodepen className="m-4 w-12 h-12" />
+          <Icons.FiCodepen className="m-4 w-12 h-12" />
         </div>
         <Card className="flex-1">
           <CardBody className="items-center p-2 py-4">
@@ -56,14 +56,14 @@ export default function MatchingLobbySuccessView({
           <CardFooter className="justify-center p-2">
             {!state.partnerLeft &&
               <Button color={state.partnerReady ? "success" : "warning"} className="w-full" isLoading={!state.partnerReady} isDisabled startContent={
-                state.partnerReady ? <FiThumbsUp /> : <></>
+                state.partnerReady ? <Icons.FiThumbsUp /> : <></>
               }>
                 {state.partnerReady ? "Ready" : "Waiting"}
               </Button>
             }
             {state.partnerLeft &&
               <Button color="danger" className="w-full" isDisabled startContent={
-                <FiX />
+                <Icons.FiX />
               }>
                 Left
               </Button>
