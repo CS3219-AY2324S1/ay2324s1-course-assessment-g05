@@ -54,7 +54,6 @@ const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
 
   const handleEditorDidMount = (editor: any, monaco: any) => {
     editorRef.current = editor;
-    // setSocketService(new SocketService(roomId, host, servicePort));
     initializeSocket();
   }
 

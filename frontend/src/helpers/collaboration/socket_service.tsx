@@ -11,7 +11,7 @@ class SocketService {
         this.roomId = roomId;
         this.socket = this.createSocket(endpoint, path);        
         this.connectToService();
-        this.joinRoom(roomId);
+        this.joinRoom();
     }
 
     createSocket = (endpoint: string, path: string) => {
@@ -32,12 +32,12 @@ class SocketService {
         return this.socket.connected;
     }
 
-    joinRoom = (roomId: string) => {
-        this.socket.emit(SocketEvent.JOIN_ROOM, roomId);
+    joinRoom = () => {
+        this.socket.emit(SocketEvent.JOIN_ROOM, this.roomId);
     }
 
-    leaveRoom = (roomId: string) => {
-        this.socket.emit(SocketEvent.DISCONNECT, roomId);
+    leaveRoom = () => {
+        this.socket.emit(SocketEvent.DISCONNECT, this.roomId);
     }
 
     sendCodeChange = (content: string) => {
