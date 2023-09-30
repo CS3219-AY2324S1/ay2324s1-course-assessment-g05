@@ -9,7 +9,7 @@ type Question = {
   title: string;
   complexity: string;
   topics: string[];
-  description?: string;
+  description: string;
   examples?: Example[];
   constraints?: string[];
   category?: string[];

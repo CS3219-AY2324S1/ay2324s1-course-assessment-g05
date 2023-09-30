@@ -1,4 +1,5 @@
-"use client"
+"use client";
+
 import Question from "@/types/question";
 import { FC } from "react";
 import ComplexityChip from "../question/ComplexityChip";
@@ -21,15 +22,9 @@ const ProblemDescription: FC<ProblemDescriptionProps> = ({ question }) => {
         </div>
         {/* Question complexity */}
         <div className="flex items-center mt-3">
-          <div className="px-2.5 py-1 text-sm font-medium capitalize">
+          <div className="px-2.5 py-1 text-sm font-medium capitalize bg-green">
             <ComplexityChip complexity={question.complexity} size="sm" />
           </div>
-          {question.author && (
-            <div className="px-2.5 py-1 text-sm font-medium text-gray-300">
-              From <span className="font-semibold">{question.author}</span>
-              <sup>&copy;</sup>
-            </div>
-          )}
         </div>
 
         <Divider className="mt-4 mb-2" />
@@ -37,7 +32,7 @@ const ProblemDescription: FC<ProblemDescriptionProps> = ({ question }) => {
         {/* Question description */}
         <div className="flex mt-3">
           <div className="text-md text-white text-justify">
-            {parse(question.description!)}
+            {parse(question.description)}
           </div>
         </div>
 
@@ -73,7 +68,11 @@ const ProblemDescription: FC<ProblemDescriptionProps> = ({ question }) => {
           <div className="text-white text-sm font-medium">Constraints:</div>
           <ul className="text-white ml-5 list-disc ">
             {question.constraints?.map((constraint, index) => (
-              <li key={index}>{constraint}</li>
+              <li key={index} className="my-1">
+                <span className="bg-gray-500 bg-opacity-50 px-1 py-[.5] rounded-lg">
+                  {constraint}
+                </span>
+              </li>
             ))}
           </ul>
         </div>

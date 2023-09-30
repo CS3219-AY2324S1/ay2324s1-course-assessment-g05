@@ -1,43 +1,49 @@
-import { FC, useEffect, useState } from "react";
-import { UserService } from "@/helpers/user/user_api_wrappers";
+import { FC, SetStateAction, useState } from "react";
 import User from "@/types/user";
 import CodeEditorNavbar from "./CodeEditorNavbar";
-import { useAuthContext } from "@/providers/auth";
 import { Divider } from "@nextui-org/react";
+import CodeEditor from "./CodeEditor";
+import { getCodeTemplate } from "@/utils/defaultCodeUtils";
 
-interface CodeEditorPanelProps {}
+interface CodeEditorPanelProps {
+  partner: User;
+  language: string;
+  questionTitle: string;
+  roomId: string;
+}
 
-const CodeEditorPanel: FC<CodeEditorPanelProps> = ({}) => {
-  // should get the matched details, including the chosen language and the partner
-  const [partner, setPartner] = useState<User>();
+const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
+  partner,
+  language,
+  questionTitle,
+  roomId,
+}) => {
+  const [defaultCode, setDefaultCode] = useState<string>(
+    getCodeTemplate(language, questionTitle)
+  );
 
-  const getMatchedPartner = async () => {
-    try {
-      const rawMatchedUser = await UserService.getUserById(
-        "clmztpxlq00007kpsvkgt9as7"
-      );
-
-      console.log(rawMatchedUser);
-
-      if (!rawMatchedUser) throw new Error("No matched user found.");
-
-      setPartner(rawMatchedUser);
-    } catch (error) {
-      console.log(error);
-    }
+  const handleResetToDefaultCode = () => {
+    setDefaultCode(getCodeTemplate(language, questionTitle));
   };
 
-  useEffect(() => {
-    getMatchedPartner();
-    console.log("Hey CodeEditorPanel");
-  }, []);
-
-  const { user } = useAuthContext();
+  const handleEditorChange = (value: SetStateAction<string>, event: any) => {
+    setDefaultCode(value);
+  };
 
   return (
     <div>
-      <CodeEditorNavbar partner={partner!} language="C++" />
+      <CodeEditorNavbar
+        partner={partner!}
+        language={language}
+        roomId={roomId}
+        handleResetToDefaultCode={handleResetToDefaultCode}
+      />
       <Divider className="space-y-2" />
+      <CodeEditor
+        language={language}
+        defaultCode={defaultCode}
+        handleEditorChange={handleEditorChange}
+      />
     </div>
   );
 };

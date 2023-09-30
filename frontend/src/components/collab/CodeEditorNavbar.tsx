@@ -3,17 +3,25 @@
 import User from "@/types/user";
 import { FC, useEffect, useState } from "react";
 import { Icons } from "../common/Icons";
-import { Code, Spacer, Tooltip } from "@nextui-org/react";
+import { Button, Code, Spacer, useDisclosure } from "@nextui-org/react";
 import CodeEditorNavBarTooltip from "./CodeEditorNavBarTooltip";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
 import Timer from "./Timer";
+import EndSessionModal from "./EndSessionModal";
 
 interface CodeEditorNavbarProps {
   partner: User;
   language: string;
+  roomId: string;
+  handleResetToDefaultCode: () => void;
 }
 
-const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({ partner, language }) => {
+const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
+  partner,
+  language,
+  roomId,
+  handleResetToDefaultCode,
+}) => {
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
 
@@ -49,6 +57,8 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({ partner, language }) => {
     }
   }, [partner]);
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <div className="flex items-center justify-between h-11 w-full">
       {/* Show the coding language matched */}
@@ -57,7 +67,7 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({ partner, language }) => {
           <Icons.BsFileEarmarkCode />
         </div>
         <CodeEditorNavBarTooltip content={`Code using ${language}`}>
-          <Code className="text-sm bg-gray-400 bg-opacity-50 mx-2 text-opacity-80">
+          <Code className="text-sm bg-gray-400 bg-opacity-50 mx-2 text-opacity-80 capitalize">
             {language}
           </Code>
         </CodeEditorNavBarTooltip>
@@ -92,31 +102,43 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({ partner, language }) => {
 
       {/* Buttons for some interaction */}
       <div className="flex items-center m-2">
-        <CodeEditorNavBarTooltip content="Reset to default code definition">
-          <button
-            className="relative px-2 py-1.5 mr-2 ml-auto hover:bg-gray-200 hover:bg-opacity-40 rounded-md transition-all"
-            onClick={() => {}}
-          >
-            <div className="h-4 w-4 text-lg">
+        <div className="mx-1">
+          <CodeEditorNavBarTooltip content="Reset to default code definition">
+            <Button
+              size="sm"
+              isIconOnly={true}
+              onClick={handleResetToDefaultCode}
+            >
               <Icons.RxReset color="white" />
-            </div>
-          </button>
-        </CodeEditorNavBarTooltip>
+            </Button>
+          </CodeEditorNavBarTooltip>
+        </div>
 
-        <CodeEditorNavBarTooltip content="Full Screen">
-          <button
-            className="relative px-2 py-1.5 mr-2 ml-auto hover:bg-gray-200 hover:bg-opacity-40 rounded-md transition-all"
-            onClick={handleFullScreen}
-          >
-            <div className="h-4 w-4 text-lg">
+        <div className="mx-1">
+          <CodeEditorNavBarTooltip content="Full Screen">
+            <Button size="sm" isIconOnly={true} onClick={handleFullScreen}>
               {!isFullScreen ? (
                 <Icons.BiFullscreen />
               ) : (
                 <Icons.BiExitFullscreen />
               )}
-            </div>
-          </button>
-        </CodeEditorNavBarTooltip>
+            </Button>
+          </CodeEditorNavBarTooltip>
+        </div>
+
+        <div className="mx-1">
+          <CodeEditorNavBarTooltip content="End the session">
+            <Button
+              size="sm"
+              radius="sm"
+              onClick={onOpen}
+              className="bg-red-600 font-medium"
+            >
+              End Session
+            </Button>
+          </CodeEditorNavBarTooltip>
+          <EndSessionModal roomId={roomId} onClose={onClose} isOpen={isOpen} />
+        </div>
       </div>
     </div>
   );
