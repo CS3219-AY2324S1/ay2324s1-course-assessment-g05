@@ -2,9 +2,8 @@ import { Request, Response } from "express";
 import { CreateUserValidator } from "../../lib/validators/CreateUserValidator";
 import { ZodError } from "zod";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
-import db, { client_s3 } from "../../lib/db";
+import db from "../../lib/db";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
-import { PutObjectRequest } from "aws-sdk/clients/s3";
 
 export const postUser = async (request: Request, response: Response) => {
   try {
@@ -79,32 +78,3 @@ export const postUser = async (request: Request, response: Response) => {
     });
   }
 };
-
-
-export const postImage = async (
-  request: Request,
-  response: Response
-) => {
-  try {
-    const fileParams = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: request.body.fileKey,
-      Expires: 600,
-      ContentType: request.body.fileType,
-    };
-
-    const url = await client_s3.getSignedUrlPromise(
-      "putObject",
-      fileParams,
-    );
-
-    console.log("Signature success!", url);
-
-    response.status(HttpStatusCode.OK).json({ ok: true, url: url });
-    
-  } catch (error) {
-    console.log("post error", error);
-    response.status(HttpStatusCode.BAD_REQUEST).json({ ok: false, error: error });
-  }
-}
-
