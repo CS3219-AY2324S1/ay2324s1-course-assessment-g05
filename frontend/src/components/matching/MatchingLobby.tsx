@@ -1,31 +1,24 @@
 "use client"
-import React from "react";
+import { getLogger } from "@/helpers/logger";
+import { getMatchingSocket } from "@/helpers/matching/matching_api_wrappers";
+import { useAuthContext } from "@/providers/auth";
+import Partner from "@/types/partner";
 import {
   Modal,
-  ModalContent, ModalBody,
-  ModalFooter,
-  Button, useDisclosure, CircularProgress, CardBody, CardFooter, Card
+  ModalContent
 } from "@nextui-org/react";
-import { FiUserX, FiWifiOff } from "react-icons/fi";
-import ComplexityChip from "../question/ComplexityChip";
-import MatchingLobbySuccessView from "./MatchingLobbySuccessView";
-import { getMatchingSocket } from "@/helpers/matching/matching_api_wrappers";
-import { Socket, io } from 'socket.io-client'
+import React from "react";
+import { Socket, io } from 'socket.io-client';
+import MatchingLobbyErrorView from "./MatchingLobbyErrorView";
+import MatchingLobbyMatchingView from "./MatchingLobbyMatchingView";
+import MatchingLobbyNoMatchView from "./MatchingLobbyNoMatchView";
+import MatchingLobbySuccessView, { MatchingSuccessState } from "./MatchingLobbySuccessView";
 
-/**
- * Service flow:
- * Initial -> Matching -> Success -> Ready (both) -> redirect(collab)
- *                     -> Success -> Peer left -> Matching/exit
- *                     -> Fail  -> Matching
- *                     -> Error -> exit
- */
 enum MATCHING_STAGE {
-  INITIAL,
+  INITIAL,  // To establish socket connection
   MATCHING, // Send request to join queue, wait for update
-  SUCCESS,  // Ready to start collab
+  SUCCESS,  // Partner found, waiting to start
   FAIL,     // Exceed time limit for matching
-  READY,    // User confirm to start, waiting for peer (skip if peer already in ready stage)
-  CANCEL,   // User request to cancel
   ERROR,    // Error with matching service
 }
 
@@ -46,174 +39,171 @@ export default function MatchingLobby({
     topics: string[],
   }
 }) {
+  const initialSuccessState: MatchingSuccessState = {
+    userReady: false,
+    partnerReady: false,
+    partnerLeft: false,
+    partner: {
+      id: "",
+      name: "",
+      image: undefined
+    }
+  }
+
   const [stage, setStage] = React.useState(MATCHING_STAGE.INITIAL);
-  const { onOpenChange } = useDisclosure();
-  const [ socket, setSocket ] = React.useState<Socket>();
+  const [successState, setSuccessState] = React.useState(initialSuccessState);
 
+  const [socket, setSocket] = React.useState<Socket>();
+  const { user } = useAuthContext();
+
+  const logger = getLogger('matching');
+
+  /////////////////////////////////////////////
+  // Stage fired events
+  /////////////////////////////////////////////
   const initializeSocket = async () => {
-    const config = await getMatchingSocket();
-    const so = io(config.endpoint, { path: config.path });
-
-    so.on('connect', () => {
-      console.log("connected: ", so.id);
-      setStage(MATCHING_STAGE.MATCHING);
-    });
-
-    so.on("disconnect", () => {
-      console.log("disconnect.");
-      setStage(MATCHING_STAGE.ERROR);
-    });
-
-    so.on("connect_error", (error) => {
-      console.log("connect_error: ", error);
-      setStage(MATCHING_STAGE.ERROR);
-    });
-    return so;
-  }
-
-  const debugStage = () => {
-    let opts = Object.keys(MATCHING_STAGE);
-    let next = opts.findIndex(x => x === stage.toString()) + 1 % opts.length;
-    setStage(next)
-  }
-
-  // Trigger matching process on modal open
-  React.useEffect(() => {
-    if (isOpen) {
-      socket ?? initializeSocket().then(socket => setSocket(socket));
-    } else {
-      setStage(MATCHING_STAGE.INITIAL)
-    }
-  }, [isOpen])
-
-  // Response to stage events
-  React.useEffect(() => {
-    if (socket) {
-      switch (stage) {
-        case MATCHING_STAGE.MATCHING:
-          onMatchingStage(socket);
-          break;
-        default:
-          break;
-      }
-    }
-  }, [stage])
-
-  // Handles matching event
-  const onMatchingStage = (so:Socket) => {
     try {
-      console.log(`[${so.id}]: trigger matching process`);
+      const config = await getMatchingSocket();
+      const socket = io(config.endpoint, { path: config.path });
 
-      // Request to join matching queue
-      so.emit("matching", "testkey");
+      // Register server events
+      socket.on('connect', () => setStage(MATCHING_STAGE.MATCHING));
+      socket.on("disconnect", () => setStage(MATCHING_STAGE.ERROR));
+      socket.on("connect_error", () => setStage(MATCHING_STAGE.ERROR));
+      socket.on("matched", handleMatched);
+      socket.on("no_match", handleNoMatch);
+      socket.on("room_closed", handleRoomClosed);
+      socket.on("peer_ready_change", handlePartnerReadyChange);
+
+      setSocket(socket);
     } catch (error) {
-      console.log("onMatchingStage: ", error);
+      logger.error(error);
       setStage(MATCHING_STAGE.ERROR)
     }
   }
 
-  // Handles retry action
-  const handleRetry = () => {
-    setStage(MATCHING_STAGE.MATCHING);
+  const onMatchingStage = () => {
+    try {
+      setSuccessState(initialSuccessState);
+      socket?.emit("request_match", {
+        user: {
+          id: user.id,
+          name: user.name,
+          image: user.image
+        },
+        preferences: options
+      });
+    } catch (error) {
+      logger.error(error);
+      setStage(MATCHING_STAGE.ERROR);
+    }
   }
 
-  // Handles user ready action
-  const handleReady = (so:Socket) => {
-    console.log("User ready to start collab.");
-    // Send update to backend indicating user ready to start.
-    // Backend return with status:
-    //  - wait for peer
-    //  - start collab session
-    //  - peer exit
+  /////////////////////////////////////////////
+  // Server fired events
+  /////////////////////////////////////////////
+  const handleMatched = (res: {
+    room: string,
+    partner: Partner
+  }) => {
+    setSuccessState(prev => ({
+      ...prev,
+      partner: res.partner
+    }));
 
-    // redirect to collab session
-    handleClose();
+    setStage(MATCHING_STAGE.SUCCESS);
+  }
+
+  const handleRoomClosed = () => setSuccessState(prev => ({
+    ...prev,
+    partnerLeft: true
+  }));
+
+  const handleNoMatch = () => setStage(MATCHING_STAGE.FAIL);
+
+  const handlePartnerReadyChange = (ready: boolean) => setSuccessState(prev => ({
+    ...prev,
+    partnerReady: ready
+  }))
+
+
+  /////////////////////////////////////////////
+  // User fired events
+  /////////////////////////////////////////////
+  const notifyUserReady = (ready: boolean) => {
+    setSuccessState(prev => ({
+      ...prev,
+      userReady: ready
+    }))
+    socket?.emit('update_ready', ready);
   }
 
   const handleClose = () => {
-    console.log("Graceful close: will shut socket before modal.");
-    if (socket) {
-      socket.disconnect();
-    }
+    logger.info("Cancel matching")
+    socket?.disconnect();
     onClose();
   }
 
-  // Handle view switching
+  const handleRetry = () => setStage(MATCHING_STAGE.MATCHING);
+
+  const notifyStart = () => {
+    // TODO: link with collab
+    logger.debug("notify start");
+  }
+
+  /////////////////////////////////////////////
+  // Modal views
+  /////////////////////////////////////////////
+
   const renderView = (stage: MATCHING_STAGE) => {
     switch (stage) {
+      case MATCHING_STAGE.INITIAL:
+        return <></>
       case MATCHING_STAGE.MATCHING:
-        return initialView;
+        return <MatchingLobbyMatchingView onClose={handleClose} preference={options} />;
       case MATCHING_STAGE.SUCCESS:
-        return successView;
+        return <MatchingLobbySuccessView
+          state={successState}
+          notifyUserReady={notifyUserReady}
+          notifyStartCollab={notifyStart}
+          cancel={handleClose}
+          rematch={() => setStage(MATCHING_STAGE.MATCHING)} />;
       case MATCHING_STAGE.FAIL:
-        return failureView;
+        return <MatchingLobbyNoMatchView onClose={handleClose} onRetry={handleRetry} />;
       default:
-        return errorView;
+        return <MatchingLobbyErrorView onClose={handleClose} />;
     }
   }
 
-  const initialView = <>
-    <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center">
-      <CircularProgress
-        classNames={{
-          svg: "w-24 h-24",
-          value: "text-lg"
-        }}
-        label="Looking for a peer...">
-      </CircularProgress>
-      <div className="flex flex-col gap-2 items-center text-small">
-        {/* <span>{options.languages.join(", ")}</span> */}
-        <span className="flex gap-2">
-          {options.difficulties.map(item => (
-            <ComplexityChip key={item} complexity={item} size="sm"></ComplexityChip>
-          ))}
-        </span>
-        <span className="truncate">{options.topics.join(", ")}</span>
-      </div>
-    </ModalBody>
-    <ModalFooter>
-      <Button onPress={handleClose}>Cancel</Button>
-    </ModalFooter>
-  </>
-
-  const successView = <MatchingLobbySuccessView
-    peer=""
-    cancel={handleClose}
-    rematch={() => setStage(MATCHING_STAGE.MATCHING)} />
-
-  const failureView = <>
-    <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center">
-      <FiUserX className="w-24 h-24  text-danger" />
-      <p>Unable to find a match.</p>
-      <p>Please try again later.</p>
-    </ModalBody>
-    <ModalFooter>
-      <Button onPress={handleClose}>Cancel</Button>
-      <Button onPress={handleRetry} color="primary">Retry</Button>
-    </ModalFooter>
-  </>
-
-  const errorView = <>
-    <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center">
-      <FiWifiOff className="w-24 h-24  text-danger" />
-      <p>Connection lost!</p>
-      <p>Please try again later.</p>
-    </ModalBody>
-    <ModalFooter>
-      <Button onPress={handleClose}>Ok</Button>
-    </ModalFooter>
-  </>
+  /////////////////////////////////////////////
+  // React hooks
+  /////////////////////////////////////////////
+  React.useEffect(() => {
+    if (isOpen) {
+      switch (stage) {
+        case MATCHING_STAGE.INITIAL:
+          initializeSocket();
+          break;
+        case MATCHING_STAGE.MATCHING:
+          onMatchingStage();
+          break;
+        default:
+          break;
+      }
+    } else {
+      setStage(MATCHING_STAGE.INITIAL);
+    }
+  }, [isOpen, stage])
 
   return (
     <>
       <Modal
         isOpen={isOpen}
-        onOpenChange={onOpenChange}
         isDismissable={false}
         hideCloseButton
         size="md"
         classNames={{
-          base: "h-1/2",
+          base: "h-fit",
           body: "p-4",
           footer: "p-4"
         }}
@@ -222,7 +212,6 @@ export default function MatchingLobby({
           {() => (
             <>
               {renderView(stage)}
-              <Button onPress={debugStage} className="absolute bottom-0" size="sm">debug</Button>
             </>
           )}
         </ModalContent>
