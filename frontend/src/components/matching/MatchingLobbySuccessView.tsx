@@ -10,41 +10,34 @@ export type MatchingSuccessState = {
   partner: Partner,
   partnerReady: boolean,
   partnerLeft: boolean,
+  owner: boolean,
 }
 
 export default function MatchingLobbySuccessView({
   state,
-  notifyUserReady,
-  notifyStartCollab,
-  cancel,
-  rematch,
+  onUserReady,
+  onStart,
+  onCancel,
+  onRematch,
 }: {
   state: MatchingSuccessState,
-  notifyUserReady: (ready: boolean) => void,
-  notifyStartCollab: () => void,
-  cancel: () => void,
-  rematch?: () => void,
+  onUserReady: (ready: boolean) => void,
+  onStart: () => void,
+  onCancel: () => void,
+  onRematch?: () => void,
 }) {
   const { user } = useAuthContext();
 
-  React.useEffect(() => {
-    if (state.userReady && state.partnerReady) {
-      console.log("I am the last person to be ready, I should create room in collab");
-
-      notifyStartCollab();
-    }
-  }, [state.userReady, state.partnerReady])
-
   return (
     <>
-      <ModalBody className="flex flex-row gap-2 items-center justify-center">
-        <Card className="flex-1 m-4">
+      <ModalBody className="flex flex-row gap-2 items-center justify-center mt-10">
+        <Card className="flex-1">
           <CardBody className="items-center p-2">
-            <ProfilePictureAvatar size="16" profileUrl="" />
+            <ProfilePictureAvatar size="16" profileUrl={user.image!} />
             <p className="w-24 truncate text-center">{user.name}</p>
           </CardBody>
           <CardFooter className="justify-center p-2">
-            <Button onPress={e => notifyUserReady(!state.userReady)} color={state.userReady ? "success" : "primary"} className="w-full" startContent={
+            <Button onPress={e => onUserReady(!state.userReady)} color={state.userReady ? "success" : "primary"} className="w-full" startContent={
               state.userReady ? <FiThumbsUp /> : <FiPlay />
             } isDisabled={state.userReady || state.partnerLeft}>
               {state.userReady ? "Ready" : "Start"}
@@ -55,10 +48,10 @@ export default function MatchingLobbySuccessView({
           <p>Matched!</p>
           <FiCodepen className="m-4 w-12 h-12" />
         </div>
-        <Card className="flex-1 m-4">
+        <Card className="flex-1">
           <CardBody className="items-center p-2">
-            <ProfilePictureAvatar size="16" profileUrl="" />
-            <p className="w-24 truncate text-center">{state.partner.id}</p>
+            <ProfilePictureAvatar size="16" profileUrl={state.partner.image!} />
+            <p className="w-24 truncate text-center">{state.partner.name}</p>
           </CardBody>
           <CardFooter className="justify-center p-2">
             {!state.partnerLeft &&
@@ -79,8 +72,13 @@ export default function MatchingLobbySuccessView({
         </Card>
       </ModalBody>
       <ModalFooter>
-        <Button onPress={cancel}>Cancel</Button>
-        {state.partnerLeft && <Button onPress={rematch} color="primary">Rematch</Button>}
+        <Button onPress={onCancel}>Cancel</Button>
+        {state.partnerLeft && 
+          <Button onPress={onRematch} color="primary">Rematch</Button>
+        }
+        {state.owner && state.userReady && state.partnerReady && !state.partnerLeft && 
+          <Button onPress={onStart} color="primary">Start</Button>
+        }
       </ModalFooter>
     </>
   )

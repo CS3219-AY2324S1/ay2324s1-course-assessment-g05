@@ -19,23 +19,23 @@ export async function getMatchingSocket()  {
   return await getSocketConfig(SERVICE.MATCHING);
 }
 // TODO: update this to an actual API call to matching service
-const getMatchedRecord = ({
-  firstUserId,
-  secondUserId,
-  questionId,
-  matchedLanguage,
-}: {
-  firstUserId: string;
-  secondUserId: string;
-  questionId: string;
-  matchedLanguage: string;
-}) => {
-  return {
-    firstUserId: firstUserId,
-    secondUserId: secondUserId,
-    questionId: questionId,
-    matchedLanguage: matchedLanguage,
-  };
-};
+// const getMatchedRecord = ({
+//   firstUserId,
+//   secondUserId,
+//   questionId,
+//   matchedLanguage,
+// }: {
+//   firstUserId: string;
+//   secondUserId: string;
+//   questionId: string;
+//   matchedLanguage: string;
+// }) => {
+//   return {
+//     firstUserId: firstUserId,
+//     secondUserId: secondUserId,
+//     questionId: questionId,
+//     matchedLanguage: matchedLanguage,
+//   };
+// };
 
-export const MatchingService = { submitMatchPreferences, getMatchedRecord };
+// export const MatchingService = { submitMatchPreferences, getMatchedRecord };
