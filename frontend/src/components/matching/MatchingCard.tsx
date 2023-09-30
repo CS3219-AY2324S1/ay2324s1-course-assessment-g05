@@ -15,7 +15,6 @@ import { COMPLEXITY, LANGUAGE, TOPIC } from "@/types/enums";
 import { StringUtils } from "@/utils/stringUtils";
 import MatchingLobby from "./MatchingLobby";
 import { useAuthContext } from "@/providers/auth";
-import { useEffect, useState } from "react";
 import Preference from "@/types/preference";
 
 const MatchingCard = () => {
