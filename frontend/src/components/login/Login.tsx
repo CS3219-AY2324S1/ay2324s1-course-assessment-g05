@@ -111,6 +111,30 @@ export function LoginComponent() {
         }
     }
 
+    async function getUser(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        try {
+            setIsSubmitted(true);
+            await logIn(email, password);
+            displayToast("Login success!", ToastType.SUCCESS);
+            router.push(CLIENT_ROUTES.HOME);
+        } catch (error) {
+            if (error instanceof PeerPrepErrors.NotFoundError) {
+                displayToast("User not found, please sign up instead.", ToastType.ERROR);
+            } else if (error instanceof PeerPrepErrors.UnauthorisedError) {
+                displayToast("Incorrect password. Please try again.", ToastType.ERROR);
+            } else {
+                displayToast(
+                    "Something went wrong. Please refresh and try again.",
+                    ToastType.ERROR
+                );
+            }
+        } finally {
+            // Cleanup
+            setIsSubmitted(false);
+        }
+    }
+
     return (
         <div className="flex items-center justify-center h-screen">
             <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
