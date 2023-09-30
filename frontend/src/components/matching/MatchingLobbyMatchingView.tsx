@@ -26,7 +26,7 @@ export default function MatchingLobbyMatchingView(
 
     return (
         <>
-            <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center">
+            <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center my-5">
                 <CircularProgress
                     classNames={{
                         svg: "w-24 h-24"

@@ -30,10 +30,10 @@ export default function MatchingLobbySuccessView({
 
   return (
     <>
-      <ModalBody className="flex flex-row gap-2 items-center justify-center mt-10">
+      <ModalBody className="flex flex-row gap-2 items-center justify-center mt-5">
         <Card className="flex-1">
-          <CardBody className="items-center p-2">
-            <ProfilePictureAvatar size="16" profileUrl={user.image!} />
+          <CardBody className="items-center p-2 py-4">
+            <ProfilePictureAvatar size="20" profileUrl={user.image!} />
             <p className="w-24 truncate text-center">{user.name}</p>
           </CardBody>
           <CardFooter className="justify-center p-2">
@@ -49,8 +49,8 @@ export default function MatchingLobbySuccessView({
           <FiCodepen className="m-4 w-12 h-12" />
         </div>
         <Card className="flex-1">
-          <CardBody className="items-center p-2">
-            <ProfilePictureAvatar size="16" profileUrl={state.partner.image!} />
+          <CardBody className="items-center p-2 py-4">
+            <ProfilePictureAvatar size="20" profileUrl={state.partner.image!} />
             <p className="w-24 truncate text-center">{state.partner.name}</p>
           </CardBody>
           <CardFooter className="justify-center p-2">

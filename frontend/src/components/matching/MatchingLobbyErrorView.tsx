@@ -10,7 +10,7 @@ export default function MatchingLobbyErrorView(
 ) {
     return (
         <>
-            <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center">
+            <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center mt-10">
                 <FiWifiOff className="w-24 h-24  text-danger" />
                 <p>Connection lost!</p>
                 <p>Please try again later.</p>
