@@ -1,6 +1,5 @@
 "use strict"
 import { SocketEvent } from "@/types/enums";
-import { Component, SetStateAction } from "react";
 import { Socket, io } from "socket.io-client";
 
 class SocketService {

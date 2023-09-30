@@ -1,4 +1,4 @@
-# Simple guide about how to launch the user service
+# Simple guide about how to launch the collaboration service
 
 ## Set up
 
