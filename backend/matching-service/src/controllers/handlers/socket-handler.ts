@@ -40,13 +40,15 @@ const handleMatched = (socket: Socket, room: Room, requester: Partner) => {
     // inform owner 
     socket.to(room.id).emit("matched", {
         room: room.id,
-        partner: requester
+        partner: requester,
+        owner: room.owner.id
     })
 
     // inform self
     socket.emit("matched", {
         room: room.id,
-        partner: room.owner
+        partner: room.owner,
+        owner: room.owner.id
     })
 }
 
