@@ -32,6 +32,9 @@ const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
   useEffect(() => {
     if (socketService) {
       socketService.receiveCodeUpdate(setCurrentCode);
+      if (!isSocketConnected) {
+        socketService.joinRoom(); // Ensures that socket attempts to rejoin the room if it disconnects
+      }
     }
   });
 
@@ -39,7 +42,7 @@ const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
     if (socketService) {
       setIsSocketConnected(socketService.getConnectionStatus());
     }
-  })
+  }, 500)
 
   const initializeSocket = async () => {
     const config = await getCollaborationSocketConfig();
@@ -52,9 +55,9 @@ const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
     if (socketService) socketService.sendCodeChange(currentContent!);
   };
 
-  const handleEditorDidMount = (editor: any, monaco: any) => {
+  const handleEditorDidMount = async (editor: any, monaco: any) => {
     editorRef.current = editor;
-    initializeSocket();
+    await initializeSocket();
   }
 
   const handleResetToDefaultCode = () => {
