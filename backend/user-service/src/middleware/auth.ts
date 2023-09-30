@@ -15,6 +15,11 @@ export const authMiddleware = async (
     }
   }
 
+  if (req.url === "/health") {
+    next();
+    return;
+  }
+
   const authRes = await fetch("http://localhost:5050/api/auth/validate", {
     method: "POST",
     headers: {
