@@ -66,13 +66,14 @@ const registerByEmail = async (user: User, cache: RequestCache = "default") => {
   );
 };
 
-const validateUser = async () => {
+const validateUser = async (cache: RequestCache = "no-cache") => {
   // call POST /api/auth/validate from auth service
   const response = await api({
     method: HTTP_METHODS.POST,
     service: service,
     path: "validate",
     tags: scope,
+    cache: cache,
   });
 
   if (response.status === HttpStatusCode.OK) {
@@ -96,8 +97,7 @@ const logOut = async () => {
     tags: scope,
     deleteJWTCookie: true,
   });
-
-  return;
+  return response;
 };
 
 function getError(status: HttpStatusCode) {

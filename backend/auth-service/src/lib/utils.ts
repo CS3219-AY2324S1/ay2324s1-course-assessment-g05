@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { UserProfile } from "../common/types";
 
 const validatePassword = async (
   password: string,
@@ -16,10 +17,11 @@ const getServiceSecret = (): string => {
   return process.env.SERVICE_SECRET || "secret";
 };
 
-const issueJWT = (userId: string) => {
+const issueJWT = (user: UserProfile) => {
   const payload = {
-    sub: userId,
+    sub: user.id,
     iat: Date.now(),
+    role: user.role,
   };
 
   const signedToken = jwt.sign(payload, getJWTSecret(), {
@@ -30,5 +32,3 @@ const issueJWT = (userId: string) => {
 };
 
 export { validatePassword, getJWTSecret, getServiceSecret, issueJWT };
-
-//fe login -> auth returns token -> fe stores token in cookie -> use next middleware to call auth verify route before every route (temp sol) -> if verified, call next() -> if not verified, redirect to login

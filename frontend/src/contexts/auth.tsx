@@ -1,19 +1,20 @@
+"use client";
 import { CLIENT_ROUTES } from "@/common/constants";
+import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
-import { Role, Status } from "@/types/enums";
+import { Role } from "@/types/enums";
 import User from "@/types/user";
 import { StringUtils } from "@/utils/stringUtils";
 import { Spinner } from "@nextui-org/react";
-import { cookies } from "next/headers";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface IAuthContext {
   user: User;
+  mutate: (preventLoading: boolean) => Promise<void>;
+  isAuthenticated: boolean;
   logIn: (email: string, password: string) => Promise<void>;
   logOut: () => Promise<void>;
-  isAuthenticated: boolean;
-  isLoading: boolean;
 }
 
 const defaultUser: User = {
@@ -21,7 +22,7 @@ const defaultUser: User = {
   name: "",
   email: "",
   role: Role.USER,
-  image: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+  image: "",
   preferences: {
     languages: [],
     difficulties: [],
@@ -31,10 +32,10 @@ const defaultUser: User = {
 
 const AuthContext = createContext<IAuthContext>({
   user: defaultUser,
+  mutate: () => Promise.resolve(),
+  isAuthenticated: false,
   logIn: (email: string, password: string) => Promise.resolve(),
   logOut: () => Promise.resolve(),
-  isAuthenticated: false,
-  isLoading: true,
 });
 
 interface IAuthProvider {
@@ -45,29 +46,27 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   const [user, setUser] = useState<User>(defaultUser);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const router = useRouter();
-  const isAuthenticated = !!user.id;
 
   useEffect(() => {
-    console.log("authenticating");
-    authenticateUser();
+    console.log("here");
+    fetchUser();
   }, []);
 
-  // checks if user has token and is logged in, if not, redirect to home page
-  const authenticateUser = async () => {
-    setIsLoading(true);
+  //fetch user using JWT cookie
+  const fetchUser = async (preventLoading?: boolean) => {
+    !preventLoading && setIsLoading(true);
     try {
       const rawUser = await AuthService.validateUser();
       updateUser(rawUser);
-      console.log("authenticated");
     } catch (error) {
       console.log({ error });
       setUser(defaultUser);
-      router.push(CLIENT_ROUTES.HOME);
+    } finally {
+      !preventLoading && setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
-  // formats preferences and sets user in state
+  //formats preferences and sets user in state
   const updateUser = (rawUser: User) => {
     formatPreferences(rawUser);
     setUser(rawUser);
@@ -87,54 +86,38 @@ const AuthProvider = ({ children }: IAuthProvider) => {
 
   const logIn = async (email: string, password: string) => {
     const rawUser = await AuthService.logInByEmail(email, password);
-    rawUser && updateUser(rawUser);
+    await fetchUser(true);
+    console.log("logged in!");
   };
 
-  // delete JWT cookie, set user to default, and redirect to home page
   const logOut = async () => {
-    await AuthService.logOut();
     setUser(defaultUser);
+    await AuthService.logOut();
   };
 
-  const context = {
-    user,
-    logIn,
-    isAuthenticated: !!user.id,
-    logOut,
-    isLoading,
+  const renderComponents = () => {
+    if (isLoading) {
+      // this is the loading component that will render in every page when fetching user auth status
+      return <LogoLoadingComponent />;
+    }
+    return children;
   };
 
   return (
-    <AuthContext.Provider value={context}>{children}</AuthContext.Provider>
+    <AuthContext.Provider
+      value={{
+        user,
+        mutate: fetchUser,
+        isAuthenticated: !!user.id,
+        logIn,
+        logOut,
+      }}
+    >
+      {renderComponents()}
+    </AuthContext.Provider>
   );
 };
 
 const useAuthContext = () => useContext(AuthContext);
 
-interface IProtectRoute {
-  children: React.ReactNode;
-}
-
-const ProtectRoute = ({ children }: IProtectRoute) => {
-  const router = useRouter();
-  const pathName = usePathname();
-  const { isAuthenticated, isLoading } = useAuthContext();
-
-  useEffect(() => {
-    if (!isLoading && isAuthenticated && pathName === CLIENT_ROUTES.LOGIN) {
-      router.push(CLIENT_ROUTES.HOME);
-    }
-  }, [isLoading, isAuthenticated, pathName]);
-
-  if (
-    isLoading ||
-    (!isAuthenticated &&
-      // pathName !== CLIENT_ROUTES.LOGIN &&
-      pathName !== CLIENT_ROUTES.HOME)
-  ) {
-    return <Spinner color="primary" />;
-  }
-  return children;
-};
-
-export { useAuthContext, AuthProvider, ProtectRoute };
+export { useAuthContext, AuthProvider };

@@ -16,6 +16,8 @@ app.use(cors);
 // implement body-parser for parsing request body
 app.use(bodyParser.json());
 
+app.use(express.json());
+
 // implement routes for API endpoints
 app.use("/api", authMiddleware, router);
 

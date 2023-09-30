@@ -20,9 +20,9 @@ import User from "@/types/user";
 import { Role } from "@/types/enums";
 import displayToast from "@/components/common/Toast";
 import { ToastType } from "@/types/enums";
-import { useAuthContext } from "@/contexts/auth";
 import bcrypt from "bcryptjs-react";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
+import { useAuthContext } from "@/contexts/auth";
 
 export function LoginComponent() {
     const { logIn } = useAuthContext();
@@ -48,6 +48,8 @@ export function LoginComponent() {
     const toggleCheckPasswordVisibility = () => setIsCheckPasswordVisible(!isCheckPasswordVisible);
     const toggleSignUp = () => setIsSignUp(!isSignUp);
 
+    // Validation
+
     useEffect(() => {
         setArePasswordsEqual(
             !(password !== checkPassword && password !== "" && checkPassword !== "")
@@ -57,24 +59,21 @@ export function LoginComponent() {
             setErrorMsg("Password should contain 8 characters or more.");
         } else if (!arePasswordsEqual) {
             setErrorMsg("Passwords do not match. Please try again.");
-        } else {
-            setErrorMsg("");
-        }
-    }, [password, checkPassword, setPassword, setCheckPassword, arePasswordsEqual]);
-
-    useEffect(() => {
-        if (name !== "" && name.length < 2) {
+        } else if (name !== "" && name.length < 2) {
             setErrorMsg("Name has to contain at least 2 characters");
         } else {
             setErrorMsg("");
         }
-    });
+    }, [name, password, checkPassword, setPassword, setCheckPassword, arePasswordsEqual]);
 
     async function submitNewUser(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
         if (errorMsg !== "") {
-            displayToast("Please fix the errors before submitting.", ToastType.ERROR);
+            displayToast(
+                "Sign up failed. Please address the errors before submitting.",
+                ToastType.ERROR
+            );
             return;
         }
 
@@ -101,30 +100,6 @@ export function LoginComponent() {
                 displayToast("User already exists. Please login instead.", ToastType.ERROR);
             } else {
                 console.log(error);
-                displayToast(
-                    "Something went wrong. Please refresh and try again.",
-                    ToastType.ERROR
-                );
-            }
-        } finally {
-            // Cleanup
-            setIsSubmitted(false);
-        }
-    }
-
-    async function getUser(e: FormEvent<HTMLFormElement>) {
-        e.preventDefault();
-        try {
-            setIsSubmitted(true);
-            await logIn(email, password);
-            displayToast("Login success!", ToastType.SUCCESS);
-            router.push(CLIENT_ROUTES.HOME);
-        } catch (error) {
-            if (error instanceof PeerPrepErrors.NotFoundError) {
-                displayToast("User not found, please sign up instead.", ToastType.ERROR);
-            } else if (error instanceof PeerPrepErrors.UnauthorisedError) {
-                displayToast("Incorrect password. Please try again.", ToastType.ERROR);
-            } else {
                 displayToast(
                     "Something went wrong. Please refresh and try again.",
                     ToastType.ERROR
@@ -172,9 +147,9 @@ export function LoginComponent() {
                                 onClick={togglePasswordVisibility}
                             >
                                 {isPasswordVisible ? (
-                                    <Image src="/eye-hide.svg" />
+                                    <Image src="/assets/eye-hide.svg" />
                                 ) : (
-                                    <Image src="/eye-show.svg" />
+                                    <Image src="/assets/eye-show.svg" />
                                 )}
                             </Button>
                         }
@@ -200,9 +175,9 @@ export function LoginComponent() {
                                         onClick={() => toggleCheckPasswordVisibility()}
                                     >
                                         {isCheckPasswordVisible ? (
-                                            <Image src="/eye-hide.svg" />
+                                            <Image src="/assets/eye-hide.svg" />
                                         ) : (
-                                            <Image src="/eye-show.svg" />
+                                            <Image src="/assets/eye-show.svg" />
                                         )}
                                     </Button>
                                 }
@@ -266,7 +241,9 @@ export function LoginComponent() {
                                     // }}
                                     // href="/verify"
                                 >
-                                    {!isSubmitted ? <Image src="submit_button.svg" /> : null}
+                                    {!isSubmitted ? (
+                                        <Image src="/assets/submit_button.svg" />
+                                    ) : null}
                                 </Button>
                             </div>
                             <Spacer y={5} />
@@ -291,10 +268,10 @@ export function LoginComponent() {
                                 <header className="text-xs">Sign in with:</header>
                                 <div className="flex justify-between space-x-5 p-x-5">
                                     <Button className="p-2" isIconOnly variant="faded">
-                                        <Image src="/github.svg" />
+                                        <Image src="/assets/github.svg" />
                                     </Button>
                                     <Button className="p-2" isIconOnly variant="faded">
-                                        <Image src="/google.svg" />
+                                        <Image src="/assets/google.svg" />
                                     </Button>
                                 </div>
                             </div>

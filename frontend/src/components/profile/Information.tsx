@@ -11,7 +11,7 @@ import {
   Select,
 } from "@nextui-org/react";
 import User from "@/types/user";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, Key, useEffect, useState } from "react";
 import { COMPLEXITY, LANGUAGE, TOPIC } from "@/types/enums";
 import { StringUtils } from "@/utils/stringUtils";
 import { ToastType } from "@/types/enums";
@@ -21,15 +21,11 @@ import Preference from "@/types/preference";
 import { useAuthContext } from "@/contexts/auth";
 
 interface InformationProps {
-  user: User;
   setIsChangePassword: (isChangePassword: boolean) => void;
 }
 
-export default function Information({
-  user,
-  setIsChangePassword,
-}: InformationProps) {
-  const { user: currentUser, fetchUser } = useAuthContext();
+export default function Information({ setIsChangePassword }: InformationProps) {
+  const { user, mutate } = useAuthContext();
   const [name, setName] = useState<string>(user.name);
   const [bio, setBio] = useState<string>(user.bio ? user.bio : "");
   const [gender, setGender] = useState(user.gender ? user.gender : "OTHER");
@@ -124,12 +120,9 @@ export default function Information({
         throw new Error("User ID not retrieved");
       }
 
-      let resPref = await UserService.updateUserPreference(
-        user.id,
-        preferences
-      );
-      let res = await UserService.updateUser(user.id, updatedUser);
-      await fetchUser(currentUser.id!);
+      await UserService.updateUserPreference(user.id, preferences);
+      await UserService.updateUser(user.id, updatedUser);
+      await mutate(true);
       displayToast("Information saved successfully!", ToastType.SUCCESS);
     } catch (error) {
       displayToast(
@@ -174,7 +167,7 @@ export default function Information({
             </DropdownTrigger>
             <DropdownMenu
               aria-label="Gender"
-              onAction={(key: string) => handleGenderChange(String(key))}
+              onAction={(key: Key) => handleGenderChange(String(key))}
             >
               <DropdownItem key="MALE" color={"default"}>
                 Male

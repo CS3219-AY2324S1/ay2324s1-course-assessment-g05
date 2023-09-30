@@ -11,7 +11,7 @@ import {
 } from "@nextui-org/react";
 import Information from "./Information";
 import ChangePassword from "./ChangePassword";
-import DeleteModal from "./DeleteModal"
+import DeleteModal from "./DeleteModal";
 import User from "@/types/user";
 import { useRouter } from "next/navigation";
 import { CLIENT_ROUTES } from "@/common/constants";
@@ -28,13 +28,13 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
   // Flags
   const [isChangePassword, setIsChangePassword] = useState(false);
 
-  const {isOpen, onOpen, onClose} = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   function openModal() {
     if (user.id) {
       onOpen();
     } else {
-      displayToast("Unable to perform this action right now.", ToastType.ERROR)
+      displayToast("Unable to perform this action right now.", ToastType.ERROR);
     }
   }
 
@@ -56,10 +56,7 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
           {isChangePassword ? (
             <ChangePassword setIsChangePassword={setIsChangePassword} />
           ) : (
-            <Information
-              setIsChangePassword={setIsChangePassword}
-              user={user}
-            />
+            <Information setIsChangePassword={setIsChangePassword} />
           )}
         </CardBody>
       </Card>
@@ -72,10 +69,17 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
           Back to dashboard
         </Link>
       </Button>
-      <Button className="bg-red-700" onClick={() => {openModal()}}>
+      <Button
+        className="bg-red-700"
+        onClick={() => {
+          openModal();
+        }}
+      >
         Delete User
       </Button>
-      { user.id && <DeleteModal userid={user.id} isOpen={isOpen} onClose={onClose}/> }
+      {user.id && (
+        <DeleteModal userid={user.id} isOpen={isOpen} onClose={onClose} />
+      )}
     </div>
   );
 }

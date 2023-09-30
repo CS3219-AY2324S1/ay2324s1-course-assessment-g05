@@ -17,7 +17,7 @@ const registerByEmail = async (request: Request, response: Response) => {
   }
 
   const user = await res.json();
-  const tokenObject = issueJWT(user.id);
+  const tokenObject = issueJWT(user);
   response
     .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
     .status(HttpStatusCode.CREATED)
@@ -44,7 +44,7 @@ const logInByEmail = async (request: Request, response: Response) => {
   const user = (await res.json()) as UserProfile;
   if (await validatePassword(password, user.password)) {
     //if password is correct, attach cookie and return user
-    const tokenObject = issueJWT(user.id);
+    const tokenObject = issueJWT(user);
     response
       .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
       .status(HttpStatusCode.OK)
@@ -62,7 +62,9 @@ const logInByEmail = async (request: Request, response: Response) => {
 
 const logOut = async (request: Request, response: Response) => {
   response.clearCookie("jwt");
-  response.redirect(process.env.CLIENT_URL || "http://localhost:3000");
+  response.status(HttpStatusCode.OK).json({
+    success: true,
+  });
 };
 
 export { registerByEmail, logInByEmail, logOut };
