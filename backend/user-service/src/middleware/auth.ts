@@ -6,7 +6,6 @@ export const authMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(req.body);
   if (req.headers.bypass) {
     const serviceSecret = process.env.SERVICE_SECRET || "secret";
     // bypass auth for calls from auth service
@@ -18,7 +17,10 @@ export const authMiddleware = async (
 
   const authRes = await fetch("http://localhost:5050/api/auth/validate", {
     method: "POST",
-    headers: req.headers as HeadersInit,
+    headers: {
+      ...(req.headers as HeadersInit), // Pass headers from the incoming request
+      "content-length": "0", // Override content-length to 0
+    },
   });
 
   if (authRes.status !== HttpStatusCode.OK) {
@@ -29,5 +31,6 @@ export const authMiddleware = async (
     });
     return;
   }
+
   next();
 };

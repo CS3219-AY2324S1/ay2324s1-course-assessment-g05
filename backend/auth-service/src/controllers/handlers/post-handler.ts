@@ -62,7 +62,9 @@ const logInByEmail = async (request: Request, response: Response) => {
 
 const logOut = async (request: Request, response: Response) => {
   response.clearCookie("jwt");
-  response.redirect(process.env.CLIENT_URL || "http://localhost:3000");
+  response.status(HttpStatusCode.OK).json({
+    success: true,
+  });
 };
 
 export { registerByEmail, logInByEmail, logOut };
