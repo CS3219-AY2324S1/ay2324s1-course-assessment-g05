@@ -5,7 +5,6 @@ import {
   MdSignalWifiConnectedNoInternet0,
   MdSignalWifiStatusbar4Bar,
 } from "react-icons/md";
-import { BsSendFill } from "react-icons/bs";
 
 export const Icons = {
   BsFileEarmarkCode,
@@ -14,5 +13,4 @@ export const Icons = {
   BiExitFullscreen,
   MdSignalWifiConnectedNoInternet0,
   MdSignalWifiStatusbar4Bar,
-  BsSendFill,
 };

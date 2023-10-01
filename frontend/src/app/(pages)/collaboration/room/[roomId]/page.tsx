@@ -1,6 +1,7 @@
 "use client";
 
 import Workspace from "@/components/collab/Workspace";
+import ChatSpaceToggle from "@/components/collab/chat/ChatSpaceToggle";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import { MatchingService } from "@/helpers/matching/matching_api_wrappers";
 import { getQuestionById } from "@/helpers/question/question_api_wrappers";
@@ -86,12 +87,15 @@ const page: FC<pageProps> = ({ params: { roomId } }) => {
       {isLoading ? (
         <LogoLoadingComponent />
       ) : (
-        <Workspace
-          partner={partner!}
-          question={question!}
-          language={matchedLanguage}
-          roomId={roomId}
-        />
+        <>
+          <Workspace
+            partner={partner!}
+            question={question!}
+            language={matchedLanguage}
+            roomId={roomId}
+          />
+          <ChatSpaceToggle partner={partner!} />
+        </>
       )}
     </div>
   );
