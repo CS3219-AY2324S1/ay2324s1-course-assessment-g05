@@ -4,6 +4,7 @@ import { getLogger } from "./logger";
 import { cookies } from "next/headers";
 import HttpStatusCode from "@/types/HttpStatusCode";
 
+
 const logger = getLogger("endpoint");
 
 /**
