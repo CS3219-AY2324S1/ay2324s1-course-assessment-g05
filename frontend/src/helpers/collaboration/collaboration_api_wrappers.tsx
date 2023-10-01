@@ -1,4 +1,4 @@
-"use sever"
+"use server"
 import { SERVICE } from "@/types/enums"
 import { getSocketConfig } from "../endpoint";
 
