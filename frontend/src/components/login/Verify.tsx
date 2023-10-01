@@ -16,7 +16,10 @@ export default function VerifyComponent() {
 
     async function verifyEmail(email: string, token: string) {
         try {
-            await AuthService.verifyEmail(email, token);
+            const res = await AuthService.verifyEmail(email, token);
+            if (res) {
+                setIsSuccessfulVerification(true);
+            }
         } catch (error) {
             displayToast("Something went wrong. Please refresh and try again.", ToastType.ERROR);
         }
@@ -28,11 +31,10 @@ export default function VerifyComponent() {
 
         if (email && token) {
             setIsVerificationFromEmailLink(true);
-            verifyEmail(email, token).then(() => {
-                setIsSuccessfulVerification(true);
-            });
+            verifyEmail(email, token);
         }
     }, []);
+
     return (
         <div className="flex items-center justify-center h-screen">
             <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
