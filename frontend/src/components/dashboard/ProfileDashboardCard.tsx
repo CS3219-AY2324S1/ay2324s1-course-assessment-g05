@@ -15,7 +15,7 @@ const ProfileDashboardCard = () => {
 
   return (
     <div className="flex flex-col h-full justify-center gap-4 items-center bg-black rounded-lg p-6 overflow-hidden">
-      <ProfilePictureAvatar profileUrl={user.image!} size="300" />
+      <ProfilePictureAvatar profileUrl={user.image!} size="40" />
       <p className="text-white text-3l font-semibold">{user.name}</p>
       <Button variant="bordered" onPress={handleEditProfileButtonPress}>
         Edit Profile

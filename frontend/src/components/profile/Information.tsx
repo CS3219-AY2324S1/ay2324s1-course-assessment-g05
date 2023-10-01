@@ -21,11 +21,17 @@ import Preference from "@/types/preference";
 import { useAuthContext } from "@/contexts/auth";
 
 interface InformationProps {
+  user: User;
+  imageUrl: string;
   setIsChangePassword: (isChangePassword: boolean) => void;
 }
 
-export default function Information({ setIsChangePassword }: InformationProps) {
-  const { user, mutate } = useAuthContext();
+export default function Information({
+  user,
+  imageUrl,
+  setIsChangePassword,
+}: InformationProps) {
+  const { mutate } = useAuthContext();
   const [name, setName] = useState<string>(user.name);
   const [bio, setBio] = useState<string>(user.bio ? user.bio : "");
   const [gender, setGender] = useState(user.gender ? user.gender : "OTHER");
@@ -96,12 +102,17 @@ export default function Information({ setIsChangePassword }: InformationProps) {
     console.log("User info: " + JSON.stringify(user));
   };
 
+  useEffect(() => {
+    updatedUser.image = imageUrl;
+  }, [imageUrl]);
+
   let updatedUser: User = {
     name: name,
     email: user.email,
     bio: bio ? bio : undefined,
     role: user.role,
     gender: gender,
+    image: imageUrl ? imageUrl : undefined,
   };
 
   async function saveInformation(
@@ -110,6 +121,8 @@ export default function Information({ setIsChangePassword }: InformationProps) {
     preferences: Preference
   ) {
     e.preventDefault();
+
+    console.log(updatedUser);
 
     try {
       if (!user) {
