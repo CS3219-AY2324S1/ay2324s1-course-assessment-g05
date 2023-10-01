@@ -5,6 +5,7 @@ import {
   registerByEmail,
   logOut,
 } from "../controllers/handlers/post-handler";
+import { verifyUserEmail} from "../controllers/handlers/put-handler"
 import passport from "passport";
 
 const router: Router = Router();
@@ -18,5 +19,6 @@ router
     res.status(200).json(req.user);
   });
 router.route("/auth/logout").post(logOut);
+router.route("/auth/verifyEmail/:email/:token").put(verifyUserEmail)
 
 export default router;

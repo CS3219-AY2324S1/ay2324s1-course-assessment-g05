@@ -45,4 +45,16 @@ const getUserById = async (id: string) => {
   return res;
 };
 
-export { createUser, getUserServiceEndpoint, getUserById, getUserByEmail };
+const verifyEmail = async(email:string, token:string) => {
+  const res = await fetch(`${getUserServiceEndpoint()}/api/users/verifyEmail/${email}/${token}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      bypass: getServiceSecret(),
+    },
+  });
+
+  return res;
+}
+
+export { createUser, getUserServiceEndpoint, getUserById, getUserByEmail, verifyEmail };

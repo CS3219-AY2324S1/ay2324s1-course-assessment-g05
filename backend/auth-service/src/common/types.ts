@@ -24,3 +24,15 @@ export type UserProfile = {
   createdOn?: Date;
   updatedOn?: Date;
 };
+
+export type Source = {
+  user: string;
+  pass: string;
+}
+
+export type Email = {
+  source: Source;
+  recipient: string;
+  subject: string;
+  content: string;
+}

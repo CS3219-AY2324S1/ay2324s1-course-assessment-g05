@@ -12,112 +12,117 @@ const service = SERVICE.AUTH;
 const scope = [SERVICE.AUTH];
 
 const logInByEmail = async (
-  email: string,
-  password: string,
-  cache: RequestCache = "default"
+    email: string,
+    password: string,
+    cache: RequestCache = "default"
 ): Promise<User | undefined> => {
-  // call POST /api/auth/loginByEmail from auth service
-  const response = await api({
-    method: HTTP_METHODS.POST,
-    service: service,
-    path: "loginByEmail",
-    body: { email, password },
-    tags: scope,
-    cache: cache,
-  });
+    // call POST /api/auth/loginByEmail from auth service
+    const response = await api({
+        method: HTTP_METHODS.POST,
+        service: service,
+        path: "loginByEmail",
+        body: { email, password },
+        tags: scope,
+        cache: cache,
+    });
 
-  if (response.status === HttpStatusCode.OK) {
-    const user = (await response.data.user) as User;
-    console.log(user);
+    if (response.status === HttpStatusCode.OK) {
+        const user = (await response.data.user) as User;
+        console.log(user);
 
-    return user;
-  }
+        return user;
+    }
 
-  return throwAndLogError(
-    "logInByEmail",
-    response.message,
-    getError(response.status)
-  );
+    return throwAndLogError("logInByEmail", response.message, getError(response.status));
 };
 
 const registerByEmail = async (user: User, cache: RequestCache = "default") => {
-  // call POST /api/auth/registerbyEmail from auth service
-  console.log(user);
-  const response = await api({
-    method: HTTP_METHODS.POST,
-    service: service,
-    path: "registerByEmail",
-    body: user,
-    tags: scope,
-    cache: cache,
-  });
+    // call POST /api/auth/registerbyEmail from auth service
+    console.log(user);
+    const response = await api({
+        method: HTTP_METHODS.POST,
+        service: service,
+        path: "registerByEmail",
+        body: user,
+        tags: scope,
+        cache: cache,
+    });
 
-  // successful response should return 201 and userid
-  if (response.status === HttpStatusCode.CREATED) {
-    const res = response.data as { id: string; message: string };
-    logger.info(`[registerByEmail] ${res}`);
-    return res;
-  }
+    // successful response should return 201 and userid
+    if (response.status === HttpStatusCode.CREATED) {
+        const res = response.data as { id: string; message: string };
+        logger.info(`[registerByEmail] ${res}`);
+        return res;
+    }
 
-  return throwAndLogError(
-    "registerByEmail",
-    response.message,
-    getError(response.status)
-  );
+    return throwAndLogError("registerByEmail", response.message, getError(response.status));
 };
 
 const validateUser = async (cache: RequestCache = "no-cache") => {
-  // call POST /api/auth/validate from auth service
-  const response = await api({
-    method: HTTP_METHODS.POST,
-    service: service,
-    path: "validate",
-    tags: scope,
-    cache: cache,
-  });
+    // call POST /api/auth/validate from auth service
+    const response = await api({
+        method: HTTP_METHODS.POST,
+        service: service,
+        path: "validate",
+        tags: scope,
+        cache: cache,
+    });
 
-  if (response.status === HttpStatusCode.OK) {
-    const user = response.data as User;
-    return user;
-  }
+    if (response.status === HttpStatusCode.OK) {
+        const user = response.data as User;
+        return user;
+    }
 
-  return throwAndLogError(
-    "validateUser",
-    "User is not authenticated",
-    getError(response.status)
-  );
+    return throwAndLogError("validateUser", "User is not authenticated", getError(response.status));
 };
 
 const logOut = async () => {
-  // call POST /api/auth/logout from auth service, which will also handle the routing
-  const response = await api({
-    method: HTTP_METHODS.POST,
-    service: service,
-    path: "logout",
-    tags: scope,
-    deleteJWTCookie: true,
-  });
-  return response;
+    // call POST /api/auth/logout from auth service, which will also handle the routing
+    const response = await api({
+        method: HTTP_METHODS.POST,
+        service: service,
+        path: "logout",
+        tags: scope,
+        deleteJWTCookie: true,
+    });
+    return response;
 };
 
 function getError(status: HttpStatusCode) {
-  switch (status) {
-    case HttpStatusCode.BAD_REQUEST:
-      return PeerPrepErrors.BadRequestError;
-    case HttpStatusCode.NOT_FOUND:
-      return PeerPrepErrors.NotFoundError;
-    case HttpStatusCode.CONFLICT:
-      return PeerPrepErrors.ConflictError;
-    case HttpStatusCode.UNAUTHORIZED:
-      return PeerPrepErrors.UnauthorisedError;
-    default:
-      return PeerPrepErrors.InternalServerError;
-  }
+    switch (status) {
+        case HttpStatusCode.BAD_REQUEST:
+            return PeerPrepErrors.BadRequestError;
+        case HttpStatusCode.NOT_FOUND:
+            return PeerPrepErrors.NotFoundError;
+        case HttpStatusCode.CONFLICT:
+            return PeerPrepErrors.ConflictError;
+        case HttpStatusCode.UNAUTHORIZED:
+            return PeerPrepErrors.UnauthorisedError;
+        default:
+            return PeerPrepErrors.InternalServerError;
+    }
 }
 
+const verifyEmail = async (email: string, token: string) => {
+    // call PUT /api/auth/verifyEmail/:email/:token from auth service
+    const response = await api({
+        method: HTTP_METHODS.PUT,
+        service: service,
+        path: `verifyEmail/${email}/${token}`,
+        tags: scope,
+    });
+
+    if (response.status === HttpStatusCode.NO_CONTENT) {
+        return true;
+    }
+
+    return throwAndLogError("verifyEmail", response.message, getError(response.status));
+};
+
 export const AuthService = {
-  logInByEmail,
-  registerByEmail,
-  validateUser,
-  logOut,
+    logInByEmail,
+    registerByEmail,
+    validateUser,
+    logOut,
+    verifyEmail,
 };

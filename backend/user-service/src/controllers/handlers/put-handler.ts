@@ -5,6 +5,8 @@ import db from "../../lib/db";
 import { ZodError } from "zod";
 import { UpdateUserPreferencesValidator } from "../../lib/validators/UpdateUserPreferencesValidator";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
+import jwt from "jsonwebtoken";
+
 
 export const updateUserById = async (request: Request, response: Response) => {
   try {
@@ -165,6 +167,64 @@ export const updateUserPreferences = async (
       });
       return;
     }
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "INTERNAL SERVER ERROR",
+      message: "An unexpected error has occurred.",
+    });
+  }
+};
+
+
+export const verifyUserEmail = async (request: Request, response: Response) => {
+  try {
+    const email = request.params.email;
+    const token = request.params.token;
+
+    // query database for user email
+    const user = await db.user.findFirst({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!user) {
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: `User with id ${email} cannot be found.`,
+      });
+      return;
+    }
+
+    // verify if token is valid
+    const secretKey = 'emailverificationkey'; //todo change to env
+
+    const decoded = jwt.verify(token, secretKey) as {email: string};
+
+    if (decoded.email == email) {
+      await db.user.update({
+        where: {
+          email: decoded.email,
+        },
+        data: {isVerified: true, verificationToken: ""},
+      });
+
+      response.status(HttpStatusCode.NO_CONTENT).send();
+    } else {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Email verification failed."
+      })
+    }
+  } catch (error) {
+    if (error instanceof ZodError) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: formatErrorMessage(error),
+      });
+      return;
+    }
+    // log the error
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",

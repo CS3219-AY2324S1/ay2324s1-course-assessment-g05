@@ -4,6 +4,8 @@ import { ZodError } from "zod";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import db from "../../lib/db";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
+import jwt from "jsonwebtoken";
+
 
 export const postUser = async (request: Request, response: Response) => {
   try {
@@ -31,7 +33,7 @@ export const postUser = async (request: Request, response: Response) => {
     // check no duplicate email
     const existingUser = await db.user.findFirst({
       where: {
-        email: createUserBody.email,
+        email: createUserBody.email,  
       },
     });
 
@@ -43,8 +45,14 @@ export const postUser = async (request: Request, response: Response) => {
       return;
     }
 
+    // generate verification token for email verification
+    const secretKey = 'emailverificationkey'; //todo change to env
+    const verificationToken = jwt.sign( {email: createUserBody.email} , secretKey, { expiresIn: '1d' })
+
+    const userData = {...createUserBody, verificationToken: verificationToken}
+
     const user = await db.user.create({
-      data: createUserBody,
+      data: userData,
     });
 
     if (!user) {
@@ -62,7 +70,10 @@ export const postUser = async (request: Request, response: Response) => {
 
     response
       .status(HttpStatusCode.CREATED)
-      .json({ id: user.id, message: "User created." });
+      .json({ id: user.id,
+              email: user.email,
+              verificationToken: user.verificationToken,
+              message: "User created." });
   } catch (error) {
     if (error instanceof ZodError) {
       response.status(HttpStatusCode.BAD_REQUEST).json({

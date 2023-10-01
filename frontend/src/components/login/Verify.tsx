@@ -3,6 +3,9 @@ import { Card, CardHeader, CardBody, Input, Button, Divider, Spacer } from "@nex
 import React, { useState, useEffect } from "react";
 import { CLIENT_ROUTES } from "@/common/constants";
 import { useSearchParams, useRouter } from "next/navigation";
+import { ToastType } from "@/types/enums";
+import displayToast from "@/components/common/Toast";
+import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 
 export default function VerifyComponent() {
     // flags
@@ -11,13 +14,23 @@ export default function VerifyComponent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
+    async function verifyEmail(email: string, token: string) {
+        try {
+            await AuthService.verifyEmail(email, token);
+        } catch (error) {
+            displayToast("Something went wrong. Please refresh and try again.", ToastType.ERROR);
+        }
+    }
+
     useEffect(() => {
         const email = searchParams.get("email");
         const token = searchParams.get("token");
 
         if (email && token) {
             setIsVerificationFromEmailLink(true);
-            // todo call some api to change user to verified
+            verifyEmail(email, token).then(() => {
+                setIsSuccessfulVerification(true);
+            });
         }
     }, []);
     return (

@@ -3,6 +3,7 @@ import HttpStatusCode from "../../common/HttpStatusCode";
 import { createUser, getUserByEmail } from "../../lib/user_api_helpers";
 import { getJWTSecret, issueJWT, validatePassword } from "../../lib/utils";
 import { UserProfile } from "../../common/types";
+import { VerificationMail } from "../../lib/email";
 import jwt from "jsonwebtoken";
 
 const registerByEmail = async (request: Request, response: Response) => {
@@ -17,9 +18,13 @@ const registerByEmail = async (request: Request, response: Response) => {
   }
 
   const user = await res.json();
-  const tokenObject = issueJWT(user);
+
+  const mail = new VerificationMail("tan.xing.jie@u.nus.edu", user.verificationToken); //todo change email
+  await mail.send();
+
+  // const tokenObject = issueJWT(user);
   response
-    .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
+  //   .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
     .status(HttpStatusCode.CREATED)
     .json({
       success: true,
