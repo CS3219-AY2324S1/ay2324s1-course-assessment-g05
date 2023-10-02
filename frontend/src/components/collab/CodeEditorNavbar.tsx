@@ -14,6 +14,7 @@ interface CodeEditorNavbarProps {
   language: string;
   roomId: string;
   handleResetToDefaultCode: () => void;
+  isSocketConnected: boolean;
 }
 
 const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
@@ -21,6 +22,7 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
   language,
   roomId,
   handleResetToDefaultCode,
+  isSocketConnected
 }) => {
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
@@ -74,6 +76,21 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
       </div>
 
       <Spacer />
+
+      { isSocketConnected? (
+            <CodeEditorNavBarTooltip content="Connected">
+              <div>
+                <Icons.MdSignalWifiStatusbar4Bar />
+              </div>
+            </CodeEditorNavBarTooltip>
+          ) : (
+            <CodeEditorNavBarTooltip content="Disconnected">
+              <div>
+                <Icons.MdSignalWifiConnectedNoInternet0 />
+              </div>
+            </CodeEditorNavBarTooltip>
+          )
+        }
 
       <Spacer />
 

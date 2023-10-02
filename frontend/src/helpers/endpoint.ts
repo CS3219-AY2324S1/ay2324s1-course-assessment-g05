@@ -2,6 +2,7 @@
 import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import { getLogger } from "./logger";
 
+
 const logger = getLogger("endpoint");
 
 /**
@@ -42,8 +43,7 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
   let servicePort = getServicePorts(config.service);
 
   // Build the final API endpoint URL.
-  const endpoint = `http://${host}${servicePort}/api/${config.service}/${config.path || ""
-    }`;
+  const endpoint = `http://${host}${servicePort}/api/${config.service}/${config.path || ""}`;
 
   console.log(config.body);
 
@@ -133,6 +133,8 @@ function getServicePorts(service: SERVICE) {
         break;
       case SERVICE.MATCHING:
         servicePort += process.env.ENDPOINT_MATCHING_PORT || "";
+      case SERVICE.COLLABORATION:
+        servicePort += process.env.ENDPOINT_COLLABORATION_PORT || "";
         break;
       default:
         servicePort = "";
@@ -141,3 +143,4 @@ function getServicePorts(service: SERVICE) {
     return servicePort;
   }
 }
+

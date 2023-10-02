@@ -1,19 +1,21 @@
 import { Editor } from "@monaco-editor/react";
-import { FC, useEffect, useState } from "react";
+import { FC, RefObject, useEffect, useState } from "react";
 
 interface CodeEditorProps {
   questionTitle?: string;
   language: string;
-  defaultCode: string;
+  // defaultCode: string;
+  currentCode: string
   handleEditorChange?: (value: any, event: any) => void;
+  handleEditorDidMount?: (editor: any, monaco: any) => void;
 }
 
 const CodeEditor: FC<CodeEditorProps> = ({
   language,
-  defaultCode,
+  currentCode,
   handleEditorChange,
+  handleEditorDidMount,
 }) => {
-  const [currentCode, setCurrentCode] = useState<string>(defaultCode);
 
   return (
     <div className="mt-1 p-2">
@@ -22,9 +24,10 @@ const CodeEditor: FC<CodeEditorProps> = ({
         height="100vh"
         theme="vs-dark"
         defaultLanguage={language}
-        defaultValue={defaultCode}
-        value={defaultCode}
+        // defaultValue={defaultCode}
+        value={currentCode}
         onChange={handleEditorChange}
+        onMount={handleEditorDidMount}
         options={{
           minimap: { enabled: false },
           glyphMargin: false,
