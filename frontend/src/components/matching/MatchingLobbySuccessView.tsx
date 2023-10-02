@@ -1,9 +1,10 @@
 import { ModalBody, Card, CardBody, CardFooter, Button, ModalFooter } from "@nextui-org/react";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Partner from "@/types/partner";
 import { useAuthContext } from "@/providers/auth";
 import { Icons } from "../common/Icons";
+import SocketService from "@/helpers/matching/socket_service";
 
 export type MatchingSuccessState = {
   userReady: boolean,
@@ -14,19 +15,40 @@ export type MatchingSuccessState = {
 }
 
 export default function MatchingLobbySuccessView({
-  state,
-  onUserReady,
+  isOwner,
   onStart,
   onCancel,
   onRematch,
 }: {
-  state: MatchingSuccessState,
-  onUserReady: (ready: boolean) => void,
+  isOwner: boolean,
   onStart: () => void,
   onCancel: () => void,
   onRematch?: () => void,
 }) {
   const { user } = useAuthContext();
+  const [ socketService, setSocketService ] = useState<SocketService | null>(null);
+  const [ userReady, setUserReady ] = useState(false);
+  const [ partnerReady, setPartnerReady ] = useState(false);
+  const [ partnerLeft, setPartnerLeft ] = useState(false);
+  const [ partner, setPartner ] = useState<Partner | null>(null);
+
+  const onUserReady = (ready: boolean) => {
+    setUserReady(ready);
+    socketService?.notifyUserReadyChange(ready);
+  }
+
+  useEffect(() => {
+    async function initializeSocket() {
+      await SocketService.getInstance().then(socket => {
+        setSocketService(socket);
+        setPartner(socket.getRoomPartner());
+        socket.onRoomClosed(() => setPartnerLeft(true));
+        socket.onPartnerReadyChange((ready) => setPartnerReady(ready));
+      })
+
+    }
+    initializeSocket();
+  }, [])
 
   return (
     <>
@@ -37,10 +59,10 @@ export default function MatchingLobbySuccessView({
             <p className="w-24 truncate text-center">{user.name}</p>
           </CardBody>
           <CardFooter className="justify-center p-2">
-            <Button onPress={e => onUserReady(!state.userReady)} color={state.userReady ? "success" : "primary"} className="w-full" startContent={
-              state.userReady ? <Icons.FiThumbsUp /> : <Icons.FiPlay />
-            } isDisabled={state.userReady || state.partnerLeft}>
-              {state.userReady ? "Ready" : "Start"}
+            <Button onPress={e => onUserReady(!userReady)} color={userReady ? "success" : "primary"} className="w-full" startContent={
+              userReady ? <Icons.FiThumbsUp /> : <Icons.FiPlay />
+            } isDisabled={userReady || partnerLeft}>
+              {userReady ? "Ready" : "Start"}
             </Button>
           </CardFooter>
         </Card>
@@ -50,18 +72,18 @@ export default function MatchingLobbySuccessView({
         </div>
         <Card className="flex-1">
           <CardBody className="items-center p-2 py-4">
-            <ProfilePictureAvatar size="20" profileUrl={state.partner.image!} />
-            <p className="w-24 truncate text-center">{state.partner.name}</p>
+            <ProfilePictureAvatar size="20" profileUrl={partner?.image!} />
+            <p className="w-24 truncate text-center">{partner?.name}</p>
           </CardBody>
           <CardFooter className="justify-center p-2">
-            {!state.partnerLeft &&
-              <Button color={state.partnerReady ? "success" : "warning"} className="w-full" isLoading={!state.partnerReady} isDisabled startContent={
-                state.partnerReady ? <Icons.FiThumbsUp /> : <></>
+            {!partnerLeft &&
+              <Button color={partnerReady ? "success" : "warning"} className="w-full" isLoading={!partnerReady} isDisabled startContent={
+                partnerReady ? <Icons.FiThumbsUp /> : <></>
               }>
-                {state.partnerReady ? "Ready" : "Waiting"}
+                {partnerReady ? "Ready" : "Waiting"}
               </Button>
             }
-            {state.partnerLeft &&
+            {partnerLeft &&
               <Button color="danger" className="w-full" isDisabled startContent={
                 <Icons.FiX />
               }>
@@ -72,12 +94,17 @@ export default function MatchingLobbySuccessView({
         </Card>
       </ModalBody>
       <ModalFooter>
-        <Button onPress={onCancel}>Cancel</Button>
-        {state.partnerLeft && 
+        { !userReady && !partnerReady &&
+          <Button onPress={onCancel}>Cancel</Button>
+        }
+        {partnerLeft &&
           <Button onPress={onRematch} color="primary">Rematch</Button>
         }
-        {state.owner && state.userReady && state.partnerReady && !state.partnerLeft && 
+        {isOwner && userReady && partnerReady && !partnerLeft &&
           <Button onPress={onStart} color="primary">Start</Button>
+        }
+        {!isOwner && userReady && partnerReady && !partnerLeft &&
+          <Button color="primary" isLoading>Waiting for owner to start</Button>
         }
       </ModalFooter>
     </>

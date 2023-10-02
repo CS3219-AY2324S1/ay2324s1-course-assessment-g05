@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import React from "react";
+import React, { useMemo } from "react";
 import 'react-quill/dist/quill.snow.css'
 
 const modules = {
@@ -54,7 +54,7 @@ export default function QuestionDescription({
   onValueChange?: (value: string) => void;
   disabled?: boolean;
 }) {
-  const ReactQuill = React.useMemo(() => dynamic(() => import('react-quill'), { ssr: false }),[]);
+  const ReactQuill = useMemo(() => dynamic(() => import('react-quill'), { ssr: false }),[]);
 
   return (
     <>

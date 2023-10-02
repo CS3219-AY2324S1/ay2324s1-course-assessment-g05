@@ -1,26 +1,72 @@
+"use strict"
 import { ModalBody, ModalFooter, Button, CircularProgress } from "@nextui-org/react";
 import { FiWifiOff } from "react-icons/fi";
 import ComplexityChip from "../question/ComplexityChip";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Preference from "@/types/preference";
+import SocketService from "@/helpers/matching/socket_service";
+import Partner from "@/types/partner";
+import { useAuthContext } from "@/providers/auth";
 
 export default function MatchingLobbyMatchingView(
     {
+        onMatched,
+        onNoMatch,
         onClose,
+        onError,
         preference
     }: {
+        onMatched: (
+            isOwner: boolean
+        ) => void
+        onNoMatch: () => void
         onClose: () => void
+        onError: () => void
         preference: Preference
     }
 ) {
-    const [timer, setTimer] = React.useState(0);
+    const { user } = useAuthContext();
+    const [timer, setTimer] = useState(0);
 
-    React.useEffect(() => {
-        const timer = setTimeout(() => {
+    const requestMatch = (socket: SocketService) => {
+        try {
+            socket.requestMatching({
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    image: user.image
+                },
+                preferences: preference
+            });
+        } catch (error) {
+            console.log(error);
+            onError();
+        }
+    }
+
+    useEffect(() => {
+        async function initializeSocket() {
+            await SocketService.getInstance().then(socket => {
+                socket.onMatched(owner => {
+                    onMatched(user.id === owner)
+                });
+                socket.onNoMatched(onNoMatch);
+                requestMatch(socket);
+            })
+        }
+        initializeSocket();
+    }, [])
+
+
+    useEffect(() => {
+        if (timer > 90) {
+            return onNoMatch();
+        }
+        const clock = setTimeout(() => {
             setTimer(prev => prev + 1);
         }, 1000)
 
-        return () => clearTimeout(timer)
+        return () => clearTimeout(clock)
     }, [timer])
 
 

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { ChangeEvent, useState } from "react";
 import {
   Button,
   ButtonGroup,
@@ -28,12 +28,12 @@ const MatchingCard = () => {
   const optionsTopics = StringUtils.convertEnumsToCamelCase(TOPIC);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const [preferences, setPreferences] = React.useState<Preference>(
+  const [preferences, setPreferences] = useState<Preference>(
     currentPreferences || { languages: [], difficulties: [], topics: [] }
   );
 
   const handleOnSelectionChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
+    event: ChangeEvent<HTMLSelectElement>
   ) => {
     if (event.target.value === "") {
       displayToast(`${event.target.name} is required`);

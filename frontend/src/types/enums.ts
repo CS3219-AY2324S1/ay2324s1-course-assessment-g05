@@ -81,7 +81,23 @@ export enum ToastType {
 export enum SocketEvent {
   CONNECT = "connect",
   DISCONNECT = "disconnect",
+  CONNECT_ERROR = "connect_error",
   JOIN_ROOM = "join_room",
+  ROOM_CLOSED = "room_closed",
   CODE_CHANGE = "code_change",
   CODE_UPDATE = "code_update",
+  MATCHING_REQUEST = "request_match",
+  MATCHING_MATCHED = "matched",
+  MATCHING_NO_MATCHED = "no_match",
+  MATCHING_PARTNER_READY_CHANGE = "partner_ready_change",
+  MATCHING_USER_READY_CHANGE = "user_update_ready",
+}
+
+export enum MATCHING_STAGE {
+  INITIAL,  // To establish socket connection
+  MATCHING, // Send request to join queue, wait for update
+  SUCCESS,  // Partner found, waiting to start
+  START,    // Loading view before collab session
+  FAIL,     // Exceed time limit for matching
+  ERROR,    // Error with matching service
 }

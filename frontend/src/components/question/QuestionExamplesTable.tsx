@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function QuestionExamplesTable({
   value,
@@ -22,7 +22,7 @@ export default function QuestionExamplesTable({
   disabled?: boolean;
 }) {
   const emptyExample = { id: value.length, input: "", output: "" };
-  const [examples, setExamples] = React.useState([emptyExample]);
+  const [examples, setExamples] = useState([emptyExample]);
 
   // Apply changes and pass back to parent
   const handleValue = (id: number, key: keyof Example, value: string) => {
@@ -33,7 +33,7 @@ export default function QuestionExamplesTable({
   };
 
   // Handle changes from parent
-  React.useEffect(() => {
+  useEffect(() => {
     if (value.length < 1) {
       return;
     }

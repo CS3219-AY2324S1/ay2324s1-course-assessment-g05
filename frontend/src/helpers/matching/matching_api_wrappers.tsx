@@ -10,7 +10,7 @@ export async function submitMatchPreferences(preferences: {}) {
   console.log(`Submitted for matching: ${JSON.stringify(preferences)}`);
 };
 
-export async function getMatchingSocket() {
+export async function getMatchingSocketConfig() {
   return await getSocketConfig(SERVICE.MATCHING);
 }
 

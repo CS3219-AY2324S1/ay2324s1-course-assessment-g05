@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableHeader,
@@ -58,7 +58,7 @@ export default function QuestionTable({
   ];
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const [toEditQuestion, setToEditQuestion] = React.useState<Question>();
+  const [toEditQuestion, setToEditQuestion] = useState<Question>();
 
   function renderCell(item: any, columnKey: string, readonly: boolean) {
     const cellValue = item[columnKey as keyof Question];
