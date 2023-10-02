@@ -14,7 +14,7 @@ const handleMatching = (socket: Socket, request: {
     preferences: Preferences,
 }) => {
     try {
-        Logger.debug(request, `[${socket.id}][handleMatching] Matching request received`);
+        Logger.debug(`[${socket.id}][handleMatching] Matching request received`);
         setTimeout(() => {
             rm.findMatchElseCreateRoom(
                 request.user,
@@ -41,7 +41,8 @@ const handleMatched = (socket: Socket, room: Room, requester: Partner) => {
     socket.to(room.id).emit("matched", {
         room: room.id,
         partner: requester,
-        owner: room.owner.id
+        owner: room.owner.id,
+        preferences: room.preference
     })
 
     // inform self
@@ -73,7 +74,7 @@ const handleReady = (socket: Socket, ready: boolean) => {
     try {
         socket.rooms.forEach(r => {
             if (r !== socket.id) {
-                socket.to(r).emit("peer_ready_change", ready);
+                socket.to(r).emit("partner_ready_change", ready);
             }
         })
     } catch (error) {
@@ -116,11 +117,10 @@ export const SocketHandler = (socket: Socket) => {
     socket.on("request_match", (data: any) => handleMatching(socket, data));
 
     // Notifies partner of users ready status
-    socket.on("update_ready", (ready: boolean) => handleReady(socket, ready));
+    socket.on("user_update_ready", (ready: boolean) => handleReady(socket, ready));
 
     // Notify matching server that clients should already start collab, close room and 
     socket.on("notify_start", handleStart);
 
     socket.on("disconnecting", (data: any) => handleCancel(socket, data));
-    socket.on("disconnect", (data: any) => { });
 }

@@ -24,8 +24,11 @@ export default class RoomManager {
         roomCreated: (room: Room) => void,
     ) {
         let encoded = this.encodePreferences(preferences)
-        let room = this.rooms.find(r => r.preference.id == encoded && !r.matched)
-
+        let room = this.rooms.find(r => 
+            r.preference.id == encoded && 
+            !r.matched &&
+            r.owner['id'] !== user.id)
+        
         if (room) {
             room.matched = true;
             matched(room);
