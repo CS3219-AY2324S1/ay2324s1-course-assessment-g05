@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 function enumValues<T>(e: any): T[] {
     return Object.keys(e).map((key) => e[key]);
 }
@@ -21,4 +23,11 @@ export function binaryToHex(...input: string[]): string {
     const decimalValue = parseInt(binaryString, 2); 
     const hexString = decimalValue.toString(16); // Convert decimal to hexadecimal
     return hexString;
+}
+
+export function generateRoomId(ownerId: string, partnerId: string, questionId: string, language: string): string {
+  const inputString = ownerId + partnerId + questionId + language;
+  const hash = crypto.createHash('sha256');
+  hash.update(inputString);
+  return hash.digest('hex').slice(0, 20);
 }

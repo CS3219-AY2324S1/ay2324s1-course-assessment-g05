@@ -5,24 +5,29 @@ import Preferences from '../../models/types/preferences';
 import Partner from '../../models/types/partner';
 import Room from '../../models/types/room';
 import Logger from '../../lib/utils/logger'
+import { generateRoomId } from '../../lib/utils/encoder';
 
 const timeout = Number(process.env.MATCHING_TIMEOUT) || 60000;
 const rm: RoomManager = RoomManager.getInstance();
+const activeSockets = new Set();
 
 const handleMatching = (socket: Socket, request: {
     user: Partner,
     preferences: Preferences,
 }) => {
     try {
-        Logger.debug(`[${socket.id}][handleMatching] Matching request received`);
-        setTimeout(() => {
-            rm.findMatchElseCreateRoom(
-                request.user,
-                request.preferences,
-                room => handleMatched(socket, room, request.user),
-                room => handleCreateRoom(socket, room),
-            )
-        }, 2000);
+        if (!activeSockets.has(socket.id)) {
+            Logger.debug(`[${socket.id}][handleMatching] Matching request received.`);
+            setTimeout(() => {
+                rm.findMatchElseCreateRoom(
+                    request.user,
+                    request.preferences,
+                    room => handleMatched(socket, room, request.user),
+                    room => handleCreateRoom(socket, room),
+                )
+            }, 2000);
+            activeSockets.add(socket.id);
+        }
     } catch (error) {
         notifyError(socket, error);
     }
@@ -60,7 +65,9 @@ const handleCreateRoom = (socket: Socket, room: Room) => {
     // Register timeout handler
     setTimeout(() => {
         if (!room.matched) {
-            Logger.debug('[${socket.id}][handleCreateRoom.callback] Timeout');
+            console.log(room);
+            
+            Logger.debug(`[${socket.id}][handleCreateRoom.callback] Timeout`);
 
             socket.emit("no_match");
             rm.closeRoom(room.id);
@@ -82,18 +89,36 @@ const handleReady = (socket: Socket, ready: boolean) => {
     }
 }
 
-const handleStart = (socket: Socket) => {
-    Logger.debug(`[${socket.id}][notifyStart]: both ready, FE should redirect`);
-    // close the room in matching service
+const handleStart = (socket: Socket, problemId: string) => {
+    Logger.debug(`[${socket.id}][notifyStart]: Generating room id for collab session`);
+
     socket.rooms.forEach(r => {
         if (r !== socket.id) {
-            rm.closeRoom(r);
-            io.sockets.in(r).disconnectSockets();
+            const room = rm.getRoomById(r);
+            if (room) {
+                const lang = rm.chooseRandomItem(room.preference.languages) as string;
+                const roomId = generateRoomId(
+                        room.owner.id,
+                        room.partner.id,
+                        problemId,
+                        lang.toLowerCase()
+                    );
+
+                const roomConfig = {
+                    id: roomId,
+                    owner: room.owner.id,
+                    partner: room.partner.id,
+                    questionId: problemId,
+                    language: lang
+                }
+
+                io.sockets.in(r).emit("redirect_collaboration", roomConfig);
+            }
         }
     })
 }
 
-const handleCancel = (socket: Socket, data: any) => {
+const handleCancel = (socket: Socket) => {
     Logger.debug(`[${socket.id}][handleCancel]: Close room and inform partner`);
 
     socket.rooms.forEach(r => {
@@ -114,13 +139,16 @@ export const SocketHandler = (socket: Socket) => {
     Logger.debug("Socket connected: " + socket.id);
 
     // Handles matching request, tries to find a room first before creating one
-    socket.on("request_match", (data: any) => handleMatching(socket, data));
+    socket.on("request_match", (request: any) => handleMatching(socket, request));
 
     // Notifies partner of users ready status
     socket.on("user_update_ready", (ready: boolean) => handleReady(socket, ready));
 
-    // Notify matching server that clients should already start collab, close room and 
-    socket.on("notify_start", handleStart);
+    // Notify matching server that clients should already start collab
+    socket.on("start_collaboration", (problemId: string) => handleStart(socket, problemId));
 
-    socket.on("disconnecting", (data: any) => handleCancel(socket, data));
+    socket.on("disconnecting", (data: any) => handleCancel(socket));
+    socket.on('disconnect', () => {
+        activeSockets.delete(socket.id);
+    });
 }

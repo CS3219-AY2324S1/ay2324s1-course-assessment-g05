@@ -1,6 +1,7 @@
 type Room = {
     id: string;
-    owner: User;
+    owner: Partner;
+    partner?: Partner;
     preference: Preferences;
     matched?: boolean = false;
     createdOn?: Date = new Date();
