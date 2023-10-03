@@ -1,12 +1,11 @@
 "use strict"
 import { ModalBody, ModalFooter, Button, CircularProgress } from "@nextui-org/react";
-import { FiWifiOff } from "react-icons/fi";
 import ComplexityChip from "../question/ComplexityChip";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Preference from "@/types/preference";
 import SocketService from "@/helpers/matching/socket_service";
-import Partner from "@/types/partner";
 import { useAuthContext } from "@/providers/auth";
+import { Icons } from "../common/Icons";
 
 export default function MatchingLobbyMatchingView(
     {
@@ -26,7 +25,8 @@ export default function MatchingLobbyMatchingView(
     }
 ) {
     const { user } = useAuthContext();
-    const [timer, setTimer] = useState(0);
+    const [ timer, setTimer] = useState(0);
+    const [ sent, setSent ] = useState(false);
 
     const requestMatch = (socket: SocketService) => {
         try {
@@ -51,6 +51,8 @@ export default function MatchingLobbyMatchingView(
                     onMatched(user.id === owner)
                 });
                 socket.onNoMatched(onNoMatch);
+                console.log(sent);
+                
                 requestMatch(socket);
             })
         }
@@ -72,13 +74,16 @@ export default function MatchingLobbyMatchingView(
 
     return (
         <>
-            <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center my-5">
+            <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center my-4">
                 <CircularProgress
                     classNames={{
                         svg: "w-24 h-24"
                     }}
-                    label={"Looking for a peer... " + timer}>
+                    aria-label="waiting for a match"
+                    label={timer + "s"}
+                    >
                 </CircularProgress>
+                <span>Waiting for a match...</span>
                 <div className="flex flex-col gap-2 items-center text-small">
                     <span>{preference.languages.join(", ")}</span>
                     <span className="flex gap-2">
@@ -90,7 +95,7 @@ export default function MatchingLobbyMatchingView(
                 </div>
             </ModalBody>
             <ModalFooter>
-                <Button onPress={onClose}>Cancel</Button>
+            <Button onPress={onClose} startContent={<Icons.FiX/>}>Cancel</Button>
             </ModalFooter>
         </>
     )

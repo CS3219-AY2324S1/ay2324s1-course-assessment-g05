@@ -78,19 +78,24 @@ export enum ToastType {
   INFO = "info",
 }
 
+
+
+
 export enum SocketEvent {
-  CONNECT = "connect",
-  DISCONNECT = "disconnect",
-  CONNECT_ERROR = "connect_error",
-  JOIN_ROOM = "join_room",
-  ROOM_CLOSED = "room_closed",
-  CODE_CHANGE = "code_change",
-  CODE_UPDATE = "code_update",
-  MATCHING_REQUEST = "request_match",
-  MATCHING_MATCHED = "matched",
-  MATCHING_NO_MATCHED = "no_match",
-  MATCHING_PARTNER_READY_CHANGE = "partner_ready_change",
-  MATCHING_USER_READY_CHANGE = "user_update_ready",
+    CONNECT = "connect",
+    DISCONNECT = "disconnect",
+    CONNECT_ERROR = "connect_error",
+    JOIN_ROOM = "join_room",
+    ROOM_CLOSED = "room_closed",
+    CODE_CHANGE = "code_change",
+    CODE_UPDATE = "code_update",
+    MATCHING_REQUEST = "request_match",
+    MATCHING_MATCHED = "matched",
+    MATCHING_NO_MATCHED = "no_match",
+    MATCHING_PARTNER_READY_CHANGE = "partner_ready_change",
+    MATCHING_USER_READY_CHANGE = "user_update_ready",
+    MATCHING_START_COLLABORATION = "start_collaboration",
+    MATCHING_REDIRECT_COLLABORATION = "redirect_collaboration"
 }
 
 export enum MATCHING_STAGE {

@@ -15,6 +15,8 @@ import MatchingLobbySuccessView, { MatchingSuccessState } from "./MatchingLobbyS
 import { MATCHING_STAGE } from "@/types/enums";
 import SocketService from "@/helpers/matching/socket_service";
 import MatchingLobbyPrepCollabView from "./MatchingLobbyPrepCollabView";
+import { useRouter } from "next/navigation";
+import { CLIENT_ROUTES } from "@/common/constants";
 
 export default function MatchingLobby({
   isOpen,
@@ -33,6 +35,7 @@ export default function MatchingLobby({
     topics: string[],
   }
 }) {
+  const router = useRouter();
   const logger = getLogger('matching');
   const [stage, setStage] = useState(MATCHING_STAGE.INITIAL);
   const [socketService, setSocketService] = useState<SocketService | null>(null);
@@ -48,6 +51,8 @@ export default function MatchingLobby({
         socket.onConnect(() => setStage(MATCHING_STAGE.MATCHING));
         socket.onDisconnect(() => setStage(MATCHING_STAGE.ERROR));
         socket.onConnectError(() => setStage(MATCHING_STAGE.ERROR));
+        // Handles redirect command from the server
+        socket.onRedirectCollaboration(room => handleRedirect(socket, room));
       })
     } catch (error) {
       logger.error(error);
@@ -64,6 +69,13 @@ export default function MatchingLobby({
     setIsRoomOwner(isOwner);
     setStage(MATCHING_STAGE.SUCCESS);
   }
+
+  const handleRedirect = (socket: SocketService, room: any) => {
+    const partnerId = socket.getRoomPartner()!.id;
+    const path = `${CLIENT_ROUTES.COLLABORATION}/${room.id}?partnerId=${partnerId}&questionId=${room.questionId}&language=${room.language}`
+    console.log(path);
+    router.push(path);
+}
 
   /////////////////////////////////////////////
   // User fired events

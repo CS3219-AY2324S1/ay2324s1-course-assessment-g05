@@ -18,8 +18,8 @@ export default function MatchingLobbyNoMatchView(
                 <p>Please try again later.</p>
             </ModalBody>
             <ModalFooter>
-                <Button onPress={onClose}>Cancel</Button>
-                <Button onPress={onRetry} color="primary">Retry</Button>
+                <Button onPress={onClose} startContent={<Icons.FiX/>}>Cancel</Button>
+                <Button onPress={onRetry} startContent={<Icons.RxReset/>} color="primary">Retry</Button>
             </ModalFooter>
         </>
     )

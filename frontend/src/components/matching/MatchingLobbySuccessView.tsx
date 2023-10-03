@@ -94,14 +94,14 @@ export default function MatchingLobbySuccessView({
         </Card>
       </ModalBody>
       <ModalFooter>
-        { !userReady && !partnerReady &&
-          <Button onPress={onCancel}>Cancel</Button>
+        { (!userReady || !partnerReady) &&
+          <Button onPress={onCancel} startContent={<Icons.FiX/>}>Cancel</Button>
         }
         {partnerLeft &&
-          <Button onPress={onRematch} color="primary">Rematch</Button>
+          <Button onPress={onRematch} color="primary" startContent={<Icons.RxReset/>}>Rematch</Button>
         }
         {isOwner && userReady && partnerReady && !partnerLeft &&
-          <Button onPress={onStart} color="primary">Start</Button>
+          <Button onPress={onStart} color="primary" startContent={<Icons.FiPlay/>}>Start Peerprep</Button>
         }
         {!isOwner && userReady && partnerReady && !partnerLeft &&
           <Button color="primary" isLoading>Waiting for owner to start</Button>

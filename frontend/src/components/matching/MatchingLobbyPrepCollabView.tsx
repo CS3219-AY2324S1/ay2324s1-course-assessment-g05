@@ -1,14 +1,20 @@
 import SocketService from "@/helpers/matching/socket_service";
+import { getQuestionByPreference } from "@/helpers/question/question_api_wrappers";
+import { useAuthContext } from "@/providers/auth";
 import { CircularProgress, ModalBody } from "@nextui-org/react";
 import { useEffect } from "react";
 
 export default function MatchingLobbyPrepCollabView() {
+    const user = useAuthContext();
 
     useEffect(() => {
         async function initializeSocket() {
-            await SocketService.getInstance().then(socket => {
-                console.log(socket.getRoomPreference());
+            await SocketService.getInstance().then(async socket => {
                 // contact question service
+                const preference = socket.getRoomPreference() ?? user.user.preferences;
+                await getQuestionByPreference(preference).then(questionId => {
+                    socket.requestStartCollaboration(questionId);
+                })
             })
 
         }
@@ -21,7 +27,7 @@ export default function MatchingLobbyPrepCollabView() {
                 <CircularProgress
                     classNames={{
                         svg: "w-24 h-24"
-                    }}>
+                    }} aria-label="Setting up collaboration session">
                 </CircularProgress>
             </ModalBody>
         </>

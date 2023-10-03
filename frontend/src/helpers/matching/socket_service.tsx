@@ -58,6 +58,10 @@ class SocketService {
         this.socket.on(SocketEvent.MATCHING_PARTNER_READY_CHANGE, listener);
     }
 
+    onRedirectCollaboration(listener: (...args: any[]) => void) {
+        this.socket.on(SocketEvent.MATCHING_REDIRECT_COLLABORATION, listener);
+    }
+
     requestMatching(request: any) {
         // Reset room info for new matching request.
         this.partner = undefined;
@@ -67,6 +71,11 @@ class SocketService {
 
     notifyUserReadyChange(ready: boolean) {
         this.socket.emit(SocketEvent.MATCHING_USER_READY_CHANGE, ready);
+    }
+
+    requestStartCollaboration(questionId: string) {
+        console.log("requestStartCollaboration");
+        this.socket.emit(SocketEvent.MATCHING_START_COLLABORATION, questionId);
     }
 
     disconnect() {
