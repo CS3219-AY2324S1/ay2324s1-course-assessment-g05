@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function QuestionConstrainsTable({
   value,
