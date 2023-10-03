@@ -3,7 +3,7 @@ import createServer from "../utils/server";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import questionDb from "../../models/database/schema/question";
 import * as TestPayload from "../utils/payloads";
-import { nanoid } from "nanoid";
+import Topic from "../../lib/enums/Topic";
 
 const app = createServer();
 const dbMock = questionDb as jest.Mocked<typeof questionDb>;
@@ -12,18 +12,18 @@ describe("GET /questions", () => {
   describe("Given an authorized API call", () => {
     it("should return 200 with questions", async () => {
       // Arrange
-      const questions = [
-        TestPayload.getQuestionPayload(nanoid()),
-        TestPayload.getQuestionPayload(nanoid()),
-      ];
-      dbMock.find = jest.fn().mockResolvedValue(questions);
+      const questions = TestPayload.getQuestionsPayload();
+
+      dbMock.find = jest.fn().mockImplementationOnce(() => ({
+        select: jest.fn().mockResolvedValue(questions),
+      }));
 
       // Act
       const { body, statusCode } = await supertest(app).get("/api/questions");
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.OK);
-      expect(body).toEqual({ count: 2, data: questions });
+      expect(body).toEqual({ count: 3, data: questions });
     });
   });
 
@@ -93,5 +93,19 @@ describe("GET /questions/:questionId", () => {
         message: "An unexpected error has occurred.",
       });
     });
+  });
+});
+
+describe("GET /topics", () => {
+  it("should return 200 with all topics", async () => {
+    // Arrange
+    const topics = Object.values(Topic);
+
+    // Act
+    const { body, statusCode } = await supertest(app).get("/api/topics");
+
+    // Assert
+    expect(statusCode).toEqual(HttpStatusCode.OK);
+    expect(body).toEqual({ topics });
   });
 });
