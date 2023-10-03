@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import 'react-quill/dist/quill.snow.css'
 
 const modules = {

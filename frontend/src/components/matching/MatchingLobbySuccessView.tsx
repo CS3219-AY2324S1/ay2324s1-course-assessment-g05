@@ -1,6 +1,6 @@
 import { ModalBody, Card, CardBody, CardFooter, Button, ModalFooter } from "@nextui-org/react";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Partner from "@/types/partner";
 import { useAuthContext } from "@/providers/auth";
 import { Icons } from "../common/Icons";

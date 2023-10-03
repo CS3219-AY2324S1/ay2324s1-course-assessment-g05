@@ -7,7 +7,7 @@ import {
   Modal,
   ModalContent
 } from "@nextui-org/react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import MatchingLobbyErrorView from "./MatchingLobbyErrorView";
 import MatchingLobbyMatchingView from "./MatchingLobbyMatchingView";
 import MatchingLobbyNoMatchView from "./MatchingLobbyNoMatchView";

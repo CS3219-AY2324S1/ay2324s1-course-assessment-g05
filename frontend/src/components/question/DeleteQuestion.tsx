@@ -1,6 +1,6 @@
 import { deleteQuestion } from "@/helpers/question/question_api_wrappers";
 import { CircularProgress } from "@nextui-org/react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { FiTrash, FiX } from "react-icons/fi";
 import { Icons } from "../common/Icons";
 
