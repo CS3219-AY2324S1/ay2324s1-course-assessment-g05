@@ -20,7 +20,7 @@ const CodeEditor: FC<CodeEditorProps> = ({
     <div className="mt-1 p-2">
       <Editor
         width="100%"
-        height="100vh"
+        height="84vh"
         theme="vs-dark"
         defaultLanguage={language}
         value={currentCode}

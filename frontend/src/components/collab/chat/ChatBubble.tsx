@@ -14,7 +14,9 @@ const ChatBubble = ({ message, isSelf }: ChatBubbleProps) => {
       <p
         key={message.uuid}
         className={`${
-          isSelf ? "bg-yellow text-black" : "bg-zinc-800 text-white text-sm"
+          isSelf
+            ? "bg-yellow text-black text-sm"
+            : "bg-zinc-800 text-white text-sm"
         } p-2 rounded-md`}
       >
         {message.content}

@@ -1,10 +1,8 @@
-import Question from "@/types/question";
 import ProblemDescription from "./ProblemDescription";
-import { useCollabContext } from "@/contexts/collab";
 
 const ProblemPanel = () => {
   return (
-    <div className="h-screen">
+    <div className="h-[calc(100vh-60px)]">
       <ProblemDescription />
     </div>
   );

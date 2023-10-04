@@ -39,7 +39,7 @@ const CodeEditorPanel: FC = ({}) => {
   };
 
   return (
-    <div>
+    <div className="h-[calc(100vh-60px)]">
       <CodeEditorNavbar handleResetToDefaultCode={handleResetToDefaultCode} />
       <Divider className="space-y-2" />
       <CodeEditor
