@@ -3,6 +3,7 @@ import {
   deleteQuestion,
   getHealth,
   getQuestionById,
+  getQuestionTopics,
   getQuestions,
   postQuestion,
   updateQuestion,
@@ -12,6 +13,9 @@ const router = express.Router();
 
 // check API health
 router.route("/health").get(getHealth);
+
+// Get all topics
+router.route("/topics").get(getQuestionTopics);
 
 // Get all questions
 router.route("/questions").get(getQuestions);

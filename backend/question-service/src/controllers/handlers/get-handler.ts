@@ -5,6 +5,7 @@ import questionDb from "../../models/database/schema/question";
 import mongoose from "mongoose";
 import { ZodError } from "zod";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
+import Topic from "../../lib/enums/Topic";
 
 // Check if database connection is successful
 export const getHealth = async (_: Request, response: Response) => {
@@ -31,7 +32,12 @@ export const getQuestions = async (request: Request, response: Response) => {
       ...(author && { author: author }),
     };
 
-    const questions = await questionDb.find(filters);
+    const questions = await questionDb.find(filters).select({
+      _id: 1,
+      title: 1,
+      topics: 1,
+      complexity: 1,
+    });
 
     if (!questions) {
       response
@@ -74,6 +80,20 @@ export const getQuestionById = async (request: Request, response: Response) => {
     }
 
     response.status(HttpStatusCode.OK).json(question);
+  } catch (error) {
+    // log the error
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "INTERNAL SERVER ERROR",
+      message: "An unexpected error has occurred.",
+    });
+  }
+};
+
+export const getQuestionTopics = (_: Request, response: Response) => {
+  try {
+    const topics = Object.values(Topic);
+    response.status(HttpStatusCode.OK).json({ topics });
   } catch (error) {
     // log the error
     console.log(error);
