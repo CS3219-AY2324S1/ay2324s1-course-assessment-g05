@@ -1,4 +1,3 @@
-import { Question } from "../../models/question";
 import Topic from "../../lib/enums/Topic";
 import Complexity from "../../lib/enums/Complexity";
 

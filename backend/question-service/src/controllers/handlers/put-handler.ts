@@ -5,7 +5,6 @@ import {
   UpdateQuestionValidator,
 } from "../../lib/validators/UpdateQuestionValidator";
 import { ZodError } from "zod";
-import questionDb from "../../models/database/schema/question";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
 import db from "../../models/db";
 
