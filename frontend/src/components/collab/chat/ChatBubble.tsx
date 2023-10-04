@@ -1,21 +1,23 @@
+import ChatMessage from "@/types/chat_message";
+
 interface ChatBubbleProps {
-  id: number;
-  message: string;
+  message: ChatMessage;
   isSelf: boolean;
 }
 
-const ChatBubble = ({ id, message, isSelf }: ChatBubbleProps) => {
+const ChatBubble = ({ message, isSelf }: ChatBubbleProps) => {
   return (
     <li
-      key={id}
+      key={message.uuid}
       className={`flex items-center ${isSelf ? "ml-10 justify-end" : "mr-10"}`}
     >
       <p
+        key={message.uuid}
         className={`${
           isSelf ? "bg-yellow text-black" : "bg-zinc-800 text-white text-sm"
         } p-2 rounded-md`}
       >
-        {message}
+        {message.content}
       </p>
     </li>
   );

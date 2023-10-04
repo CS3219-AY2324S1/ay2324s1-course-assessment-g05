@@ -2,7 +2,6 @@ import { Button, Modal, ModalContent, useDisclosure } from "@nextui-org/react";
 import { BsChatSquareDotsFill } from "react-icons/bs";
 import ChatSpace from "./ChatSpace";
 import { useState } from "react";
-import { useCollabContext } from "@/contexts/collab";
 
 const ChatSpaceToggle = () => {
   const [isOpen, setIsOpen] = useState(false);

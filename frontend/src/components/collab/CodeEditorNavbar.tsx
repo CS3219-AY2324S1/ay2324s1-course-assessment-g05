@@ -1,6 +1,5 @@
 "use client";
 
-import User from "@/types/user";
 import { FC, useEffect, useState } from "react";
 import { Icons } from "../common/Icons";
 import { Button, Code, Spacer, useDisclosure } from "@nextui-org/react";

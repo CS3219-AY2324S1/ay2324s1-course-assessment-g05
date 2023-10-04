@@ -7,14 +7,8 @@ import { getCodeTemplate } from "@/utils/defaultCodeUtils";
 import { useCollabContext } from "@/contexts/collab";
 
 const CodeEditorPanel: FC = ({}) => {
-  const {
-    partner,
-    matchedLanguage,
-    question,
-    roomId,
-    socketService,
-    isSocketConnected,
-  } = useCollabContext();
+  const { matchedLanguage, question, socketService } = useCollabContext();
+  if (!socketService) return null;
 
   const questionTitle = question?.title || "";
   const editorRef = useRef(null);
@@ -24,13 +18,13 @@ const CodeEditorPanel: FC = ({}) => {
   );
 
   useEffect(() => {
-    socketService && socketService.receiveCodeUpdate(setCurrentCode);
+    socketService.receiveCodeUpdate(setCurrentCode);
   }, [socketService]);
 
   const handleEditorChange = (currentContent: string | undefined) => {
     if (!currentContent) return;
     setCurrentCode(currentContent!);
-    socketService && socketService.sendCodeChange(currentContent!);
+    socketService.sendCodeChange(currentContent!);
   };
 
   const handleEditorDidMount = async (editor: any, monaco: any) => {
@@ -39,10 +33,9 @@ const CodeEditorPanel: FC = ({}) => {
 
   const handleResetToDefaultCode = () => {
     setCurrentCode(getCodeTemplate(matchedLanguage, questionTitle));
-    socketService &&
-      socketService.sendCodeChange(
-        getCodeTemplate(matchedLanguage, questionTitle)
-      );
+    socketService.sendCodeChange(
+      getCodeTemplate(matchedLanguage, questionTitle)
+    );
   };
 
   return (

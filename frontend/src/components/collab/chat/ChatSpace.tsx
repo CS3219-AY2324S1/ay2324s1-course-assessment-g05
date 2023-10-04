@@ -1,46 +1,74 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ChatBubble from "./ChatBubble";
 import { BsSendFill } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
 import { Button, Divider } from "@nextui-org/react";
 import ProfilePictureAvatar from "@/components/common/ProfilePictureAvatar";
 import { useCollabContext } from "@/contexts/collab";
+import ChatMessage from "@/types/chat_message";
+import { v4 as uuid } from "uuid";
 
 interface IChatSpaceProps {
   onClose: () => void;
 }
 
 const ChatSpace = ({ onClose }: IChatSpaceProps) => {
-  const { partner } = useCollabContext();
+  const { partner, user, socketService } = useCollabContext();
+
+  if (!socketService || !partner || !user) return null;
+
   const scrollTargetRef = useRef<HTMLDivElement>(null);
-  const intialMesages = [
-    {
-      role: "user",
-      content: "Hello!!!",
-    },
-    {
-      role: "other",
-      content: "Hi..?",
-    },
-  ];
-  const [messages, setMessages] = useState(intialMesages);
 
-  const handleSubmitMessage = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const message = e.currentTarget.message.value;
-    if (!message) {
-      return;
-    }
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
-    setMessages([...messages, { role: "user", content: message }]);
-    e.currentTarget.message.value = "";
+  const [newMessage, setNewMessages] = useState<ChatMessage>({
+    uuid: "",
+    content: "",
+    senderId: "",
+  });
+
+  const scrollToNewestMessage = () => {
     setTimeout(() => {
       scrollTargetRef!.current!.scrollIntoView({ behavior: "smooth" });
     }, 100);
   };
 
-  if (!partner) return null;
+  useEffect(() => {
+    socketService.updateChatMessages(setNewMessages);
+  }, []);
+
+  useEffect(() => {
+    if (
+      newMessage.content !== "" &&
+      newMessage.uuid != messages[messages.length - 1]?.uuid
+    ) {
+      setMessages([...messages, newMessage]);
+      setNewMessages({ uuid: "", content: "", senderId: "" });
+      scrollToNewestMessage();
+    }
+  }, [newMessage]);
+
+  const handleSubmitMessage = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const messageContent = e.currentTarget.message.value;
+    if (!messageContent) {
+      return;
+    }
+
+    const message = {
+      uuid: uuid(),
+      content: messageContent,
+      senderId: user.id!,
+    };
+
+    setMessages([...messages, message]);
+    socketService.sendChatMessage(message);
+
+    e.currentTarget.message.value = "";
+    scrollToNewestMessage();
+  };
   return (
     <div className={`bg-black rounded-xl w-[400px] p-2`}>
       <div className="flex w-full justify-between mb-2">
@@ -54,16 +82,20 @@ const ChatSpace = ({ onClose }: IChatSpaceProps) => {
         </Button>
       </div>
       <Divider />
-      <div className=" py-8 text-base leading-7 text-gray-600 h-[400px] overflow-y-auto">
-        <ul className="space-y-3 px-4">
-          {messages.map((item, idx) => (
-            <ChatBubble
-              id={idx}
-              message={item.content}
-              isSelf={item.role === "user"}
-            />
-          ))}
-        </ul>
+
+      <div className="py-8 text-base leading-7 text-gray-600 h-[400px] overflow-y-auto">
+        <div style={{ display: messages.length === 0 ? "block" : "none" }}>
+          <div className="text-center text-gray-400 text-sm">
+            No messages yet, send one now!
+          </div>
+        </div>
+        {
+          <ul className="space-y-3 px-4">
+            {messages.map((item) => (
+              <ChatBubble message={item} isSelf={item.senderId === user.id!} />
+            ))}
+          </ul>
+        }
         <div ref={scrollTargetRef}></div>
       </div>
       <form

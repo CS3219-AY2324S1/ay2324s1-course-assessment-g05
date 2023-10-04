@@ -18,6 +18,7 @@ interface ICollabContext {
   isSocketConnected: boolean;
   roomId: string;
   partner: User | undefined;
+  user: User | undefined;
   question: Question | undefined;
   matchedLanguage: string;
 }
@@ -35,6 +36,7 @@ const CollabContext = createContext<ICollabContext>({
   isSocketConnected: false,
   roomId: "",
   partner: undefined,
+  user: undefined,
   question: undefined,
   matchedLanguage: "",
 });
@@ -66,7 +68,6 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     intervalRef.current = setInterval(() => {
       const isConnected = newSocket.getConnectionStatus();
       setIsSocketConnected(isConnected);
-      console.log("Socket connected: ", isConnected);
       if (!isConnected) {
         newSocket.joinRoom(); // Ensures that socket attempts to rejoin the room if it disconnects
       }
@@ -127,7 +128,6 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     // Clear interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
-      console.log("Interval cleared");
     }
   };
 
@@ -140,6 +140,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     isSocketConnected,
     roomId,
     partner,
+    user,
     question,
     matchedLanguage,
   };
