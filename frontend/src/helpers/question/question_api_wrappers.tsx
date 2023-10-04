@@ -81,8 +81,6 @@ export async function getQuestionById(
 export async function postQuestion(
   question: Question
 ): Promise<ServiceResponse> {
-  console.log("POST question body:", question);
-
   const res = await api({
     method: HTTP_METHODS.POST,
     service: service,
@@ -116,7 +114,6 @@ export async function updateQuestion(
   id: string,
   question: Question
 ): Promise<ServiceResponse> {
-  console.log("Update question body:", question);
   const res = await api({
     method: HTTP_METHODS.PUT,
     service: service,
