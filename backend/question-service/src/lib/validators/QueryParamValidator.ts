@@ -15,6 +15,20 @@ export const QueryParamValidator = z.object({
       .optional(),
     z.string().transform(convertStringToTopic).optional(),
   ]),
-  complexity: z.string().transform(convertStringToComplexity).optional(),
+  difficulties: z.union([
+    z
+      .array(z.string().transform(convertStringToComplexity))
+      .refine(
+        (difficulties) => difficulties.length > 0,
+        "At least one difficulty is required."
+      )
+      .refine(
+        (difficulties) => new Set(difficulties).size === difficulties.length,
+        "Duplicated difficulties detected"
+      )
+      .optional(),
+    z.string().transform(convertStringToComplexity).optional(),
+  ]),
+
   author: z.string().min(5).max(50).optional(),
 });

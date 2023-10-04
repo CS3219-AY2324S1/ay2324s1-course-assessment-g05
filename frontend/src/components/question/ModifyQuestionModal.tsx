@@ -57,10 +57,10 @@ export default function ModifyQuestionModal({
   React.useEffect(() => {
     if (isOpen && editMode) {
       console.log(
-        "[ModifyQuestionModal]: prefill form with qid:" + question?._id,
+        "[ModifyQuestionModal]: prefill form with qid:" + question?.id
       );
 
-      setId(question!._id!);
+      setId(question!.id!);
       setTitle(question!.title);
       setComplexity(question!.complexity);
       setTopics(question!.topics);
@@ -103,7 +103,7 @@ export default function ModifyQuestionModal({
         : {};
       examples.length > 0
         ? (question.examples = examples.filter(
-            (x) => x.input !== "" && x.output !== "",
+            (x) => x.input !== "" && x.output !== ""
           ))
         : {};
 

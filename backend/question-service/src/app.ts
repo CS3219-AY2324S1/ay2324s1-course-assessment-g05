@@ -17,7 +17,7 @@ app.use(cors);
 app.use(bodyParser.json());
 
 // connect to MongoDB
-connectToMongoDb();
+// connectToMongoDb();
 
 // implement routes for API endpoints
 app.use("/api", router);

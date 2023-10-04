@@ -5,7 +5,7 @@ export type Example = {
 };
 
 type Question = {
-  _id?: string;
+  id?: string;
   title: string;
   complexity: string;
   topics: string[];

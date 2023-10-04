@@ -39,18 +39,31 @@ export function getQuestionPayload(questionId = "testquestionid123") {
     complexity: Complexity.EASY,
     description: "Test question description",
     url: "https://test-question.com/problems/test-question",
-    examples: [
-      {
-        input: "test input",
-        output: "test output",
-        explanation: "test explanation",
-      },
-    ],
     constraints: ["test constraint"],
     author: "test author",
     createdOn: new Date().getTime(),
     updatedOn: new Date().getTime(),
   };
+}
+
+export function getQuestionExamplesPayload(
+  questionId: string = "testquestionid123"
+) {
+  return [
+    {
+      id: "testexampleid123",
+      questionId: questionId,
+      input: "test input 1",
+      output: "test output 1",
+      explanation: "test explanation 1",
+    },
+    {
+      id: "testexampleid456",
+      questionId: questionId,
+      input: "test input 2",
+      output: "test output 2",
+    },
+  ];
 }
 
 export function getCreateQuestionRequestBody() {
