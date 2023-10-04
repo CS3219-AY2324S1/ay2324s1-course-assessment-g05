@@ -6,6 +6,7 @@ import { ZodError } from "zod";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
 import Topic from "../../lib/enums/Topic";
 import Complexity from "../../lib/enums/Complexity";
+import { Example } from "../../models/question";
 
 // Check if database connection is successful
 export const getHealth = async (_: Request, response: Response) => {
@@ -101,10 +102,22 @@ export const getQuestionById = async (request: Request, response: Response) => {
     }
 
     // get examples if any
-    const examples = await db.example.findMany({
+    const examples = (await db.example.findMany({
       where: {
         questionId: questionId,
       },
+      select: {
+        input: true,
+        output: true,
+        explanation: true,
+      },
+    })) as Example[];
+
+    // exclude explanation field if it is null
+    examples.forEach((example) => {
+      if (!example.explanation) {
+        delete example.explanation;
+      }
     });
 
     response.status(HttpStatusCode.OK).json({ ...question, examples });

@@ -140,7 +140,7 @@ export default function QuestionTable({
       <ModifyQuestionModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        question={toEditQuestion}
+        questionId={toEditQuestion?.id}
         closeCallback={onClose}
       ></ModifyQuestionModal>
       <Table
