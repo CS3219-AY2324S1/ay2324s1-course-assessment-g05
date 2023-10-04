@@ -4,16 +4,15 @@ import ChatBubble from "./ChatBubble";
 import { BsSendFill } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
 import { Button, Divider } from "@nextui-org/react";
-import User from "@/types/user";
-import CodeEditorNavBarTooltip from "../CodeEditorNavBarTooltip";
 import ProfilePictureAvatar from "@/components/common/ProfilePictureAvatar";
+import { useCollabContext } from "@/contexts/collab";
 
 interface IChatSpaceProps {
   onClose: () => void;
-  partner: User;
 }
 
-const ChatSpace = ({ onClose, partner }: IChatSpaceProps) => {
+const ChatSpace = ({ onClose }: IChatSpaceProps) => {
+  const { partner } = useCollabContext();
   const scrollTargetRef = useRef<HTMLDivElement>(null);
   const intialMesages = [
     {
@@ -41,6 +40,7 @@ const ChatSpace = ({ onClose, partner }: IChatSpaceProps) => {
     }, 100);
   };
 
+  if (!partner) return null;
   return (
     <div className={`bg-black rounded-xl w-[400px] p-2`}>
       <div className="flex w-full justify-between mb-2">

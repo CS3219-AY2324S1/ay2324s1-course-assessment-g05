@@ -3,7 +3,7 @@ import { Button } from "@nextui-org/react";
 import ProfilePictureAvatar from "@/components/common/ProfilePictureAvatar";
 import { useRouter } from "next/navigation";
 import { CLIENT_ROUTES } from "@/common/constants";
-import { useAuthContext } from "@/providers/auth";
+import { useAuthContext } from "@/contexts/auth";
 
 const ProfileDashboardCard = () => {
   const router = useRouter();

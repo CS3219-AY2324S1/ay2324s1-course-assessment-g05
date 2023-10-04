@@ -8,22 +8,18 @@ import CodeEditorNavBarTooltip from "./CodeEditorNavBarTooltip";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
 import Timer from "./Timer";
 import EndSessionModal from "./EndSessionModal";
+import { useCollabContext } from "@/contexts/collab";
 
 interface CodeEditorNavbarProps {
-  partner: User;
-  language: string;
-  roomId: string;
   handleResetToDefaultCode: () => void;
-  isSocketConnected: boolean;
 }
 
 const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
-  partner,
-  language,
-  roomId,
   handleResetToDefaultCode,
-  isSocketConnected
 }) => {
+  const { partner, matchedLanguage, roomId, socketService, isSocketConnected } =
+    useCollabContext();
+  const language = matchedLanguage || "";
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
 
@@ -77,20 +73,19 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
 
       <Spacer />
 
-      { isSocketConnected? (
-            <CodeEditorNavBarTooltip content="Connected">
-              <div>
-                <Icons.MdSignalWifiStatusbar4Bar />
-              </div>
-            </CodeEditorNavBarTooltip>
-          ) : (
-            <CodeEditorNavBarTooltip content="Disconnected">
-              <div>
-                <Icons.MdSignalWifiConnectedNoInternet0 />
-              </div>
-            </CodeEditorNavBarTooltip>
-          )
-        }
+      {isSocketConnected ? (
+        <CodeEditorNavBarTooltip content="Connected">
+          <div>
+            <Icons.MdSignalWifiStatusbar4Bar />
+          </div>
+        </CodeEditorNavBarTooltip>
+      ) : (
+        <CodeEditorNavBarTooltip content="Disconnected">
+          <div>
+            <Icons.MdSignalWifiConnectedNoInternet0 />
+          </div>
+        </CodeEditorNavBarTooltip>
+      )}
 
       <Spacer />
 

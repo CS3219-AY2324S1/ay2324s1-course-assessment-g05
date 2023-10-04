@@ -1,14 +1,11 @@
 import Question from "@/types/question";
 import ProblemDescription from "./ProblemDescription";
+import { useCollabContext } from "@/contexts/collab";
 
-interface ProblemPanelProps {
-  question: Question;
-}
-
-const ProblemPanel = ({ question }: ProblemPanelProps) => {
+const ProblemPanel = () => {
   return (
     <div className="h-screen">
-      <ProblemDescription question={question!} />
+      <ProblemDescription />
     </div>
   );
 };

@@ -2,9 +2,9 @@ import { Button, Modal, ModalContent, useDisclosure } from "@nextui-org/react";
 import { BsChatSquareDotsFill } from "react-icons/bs";
 import ChatSpace from "./ChatSpace";
 import { useState } from "react";
-import User from "@/types/user";
+import { useCollabContext } from "@/contexts/collab";
 
-const ChatSpaceToggle = ({ partner }: { partner: User }) => {
+const ChatSpaceToggle = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const onToggle = () => setIsOpen(!isOpen);
@@ -14,7 +14,7 @@ const ChatSpaceToggle = ({ partner }: { partner: User }) => {
   return (
     <div className="absolute right-6 bottom-6">
       <div style={{ display: isOpen ? "block" : "none" }}>
-        <ChatSpace onClose={onClose} partner={partner} />
+        <ChatSpace onClose={onClose} />
       </div>
       <div className="flex w-full justify-end mt-3">
         <Button

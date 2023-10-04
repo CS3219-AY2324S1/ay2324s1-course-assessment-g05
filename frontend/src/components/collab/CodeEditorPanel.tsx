@@ -1,33 +1,26 @@
-import { FC, SetStateAction, useEffect, useRef, useState } from "react";
-import User from "@/types/user";
+import { FC, useEffect, useRef, useState } from "react";
 import CodeEditorNavbar from "./CodeEditorNavbar";
 import { Divider } from "@nextui-org/react";
 import CodeEditor from "./CodeEditor";
 import { getCodeTemplate } from "@/utils/defaultCodeUtils";
-import SocketService from "@/helpers/collaboration/socket_service";
-import { getCollaborationSocketConfig } from "@/helpers/collaboration/collaboration_api_wrappers";
 
-interface CodeEditorPanelProps {
-  partner: User;
-  language: string;
-  questionTitle: string;
-  roomId: string;
-  socketService?: SocketService;
-  isSocketConnected: boolean;
-}
+import { useCollabContext } from "@/contexts/collab";
 
-const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
-  partner,
-  language,
-  questionTitle,
-  roomId,
-  socketService,
-  isSocketConnected,
-}) => {
+const CodeEditorPanel: FC = ({}) => {
+  const {
+    partner,
+    matchedLanguage,
+    question,
+    roomId,
+    socketService,
+    isSocketConnected,
+  } = useCollabContext();
+
+  const questionTitle = question?.title || "";
   const editorRef = useRef(null);
 
   const [currentCode, setCurrentCode] = useState<string>(
-    getCodeTemplate(language, questionTitle)
+    getCodeTemplate(matchedLanguage, questionTitle)
   );
 
   useEffect(() => {
@@ -45,23 +38,18 @@ const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
   };
 
   const handleResetToDefaultCode = () => {
-    setCurrentCode(getCodeTemplate(language, questionTitle));
+    setCurrentCode(getCodeTemplate(matchedLanguage, questionTitle));
     socketService &&
-      socketService.sendCodeChange(getCodeTemplate(language, questionTitle));
+      socketService.sendCodeChange(
+        getCodeTemplate(matchedLanguage, questionTitle)
+      );
   };
 
   return (
     <div>
-      <CodeEditorNavbar
-        partner={partner!}
-        language={language}
-        roomId={roomId}
-        handleResetToDefaultCode={handleResetToDefaultCode}
-        isSocketConnected={isSocketConnected}
-      />
+      <CodeEditorNavbar handleResetToDefaultCode={handleResetToDefaultCode} />
       <Divider className="space-y-2" />
       <CodeEditor
-        language={language}
         currentCode={currentCode}
         handleEditorChange={handleEditorChange}
         handleEditorDidMount={handleEditorDidMount}

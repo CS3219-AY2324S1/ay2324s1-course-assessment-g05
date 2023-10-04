@@ -14,7 +14,7 @@ import { UserService } from "@/helpers/user/user_api_wrappers";
 import { COMPLEXITY, LANGUAGE, TOPIC } from "@/types/enums";
 import { StringUtils } from "@/utils/stringUtils";
 import MatchingLobby from "./MatchingLobby";
-import { useAuthContext } from "@/providers/auth";
+import { useAuthContext } from "@/contexts/auth";
 import { useEffect, useState } from "react";
 import Preference from "@/types/preference";
 

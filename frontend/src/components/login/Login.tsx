@@ -22,7 +22,7 @@ import { Role } from "@/types/enums";
 import { toast } from "react-toastify";
 import displayToast from "@/components/common/Toast";
 import { ToastType } from "@/types/enums";
-import { useAuthContext } from "@/providers/auth";
+import { useAuthContext } from "@/contexts/auth";
 import bcrypt from "bcryptjs-react";
 
 export function LoginComponent() {
@@ -80,7 +80,10 @@ export function LoginComponent() {
     e.preventDefault();
 
     if (errorMsg !== "") {
-      displayToast("Sign up failed. Please address the errors before submitting.", ToastType.ERROR);
+      displayToast(
+        "Sign up failed. Please address the errors before submitting.",
+        ToastType.ERROR
+      );
       return;
     }
 

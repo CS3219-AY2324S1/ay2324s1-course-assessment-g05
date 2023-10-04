@@ -5,12 +5,13 @@ import { FC } from "react";
 import ComplexityChip from "../question/ComplexityChip";
 import { Divider } from "@nextui-org/react";
 import parse from "html-react-parser";
+import { useCollabContext } from "@/contexts/collab";
 
-interface ProblemDescriptionProps {
-  question: Question;
-}
+const ProblemDescription: FC = () => {
+  const { question } = useCollabContext();
 
-const ProblemDescription: FC<ProblemDescriptionProps> = ({ question }) => {
+  if (!question) return;
+
   return (
     <div className="flex px-0 py-4 h-[calc(100vh-94px)] overflow-y-auto">
       <div className="w-full px-5">

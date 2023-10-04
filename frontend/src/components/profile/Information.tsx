@@ -18,7 +18,7 @@ import { ToastType } from "@/types/enums";
 import displayToast from "@/components/common/Toast";
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import Preference from "@/types/preference";
-import { useAuthContext } from "@/providers/auth";
+import { useAuthContext } from "@/contexts/auth";
 
 interface InformationProps {
   user: User;
