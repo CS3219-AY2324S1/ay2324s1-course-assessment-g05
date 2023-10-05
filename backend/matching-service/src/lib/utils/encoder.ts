@@ -1,4 +1,8 @@
 import crypto from 'crypto';
+import Preferences from '../../models/types/preferences';
+import Complexity from '../enums/Complexity';
+import Language from '../enums/Language';
+import Topic from '../enums/Topic';
 
 function enumValues<T>(e: any): T[] {
     return Object.keys(e).map((key) => e[key]);
@@ -23,6 +27,14 @@ export function binaryToHex(...input: string[]): string {
     const decimalValue = parseInt(binaryString, 2); 
     const hexString = decimalValue.toString(16); // Convert decimal to hexadecimal
     return hexString;
+}
+
+
+export function encodePreferences(preference: Preferences): string {
+    return binaryToHex(
+        encodeEnum(Language, preference.languages),
+        encodeEnum(Complexity, preference.difficulties),
+        encodeEnum(Topic, preference.topics));
 }
 
 export function generateRoomId(ownerId: string, partnerId: string, questionId: string, language: string): string {

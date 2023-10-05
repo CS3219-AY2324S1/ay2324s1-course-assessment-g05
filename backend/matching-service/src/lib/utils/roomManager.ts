@@ -3,7 +3,7 @@ import Room from "../../models/types/room";
 import Complexity from "../enums/Complexity";
 import Language from "../enums/Language";
 import Topic from "../enums/Topic";
-import { binaryToHex, encodeEnum } from "./encoder";
+import { binaryToHex, encodeEnum, encodePreferences } from "./encoder";
 import Partner from "../../models/types/partner";
 
 export default class RoomManager {
@@ -23,7 +23,7 @@ export default class RoomManager {
         matched: (room: Room) => void,
         roomCreated: (room: Room) => void,
     ) {
-        let encoded = this.encodePreferences(preferences)
+        let encoded = encodePreferences(preferences)
         let room = this.rooms.find(r =>
             r.preference.id == encoded &&
             !r.matched &&
@@ -84,12 +84,4 @@ export default class RoomManager {
         const randomIndex = Math.floor(Math.random() * list.length);
         return list[randomIndex];
     }
-
-    private encodePreferences(preference: Preferences): string {
-        return binaryToHex(
-            encodeEnum(Language, preference.languages),
-            encodeEnum(Complexity, preference.difficulties),
-            encodeEnum(Topic, preference.topics));
-    }
-
 }

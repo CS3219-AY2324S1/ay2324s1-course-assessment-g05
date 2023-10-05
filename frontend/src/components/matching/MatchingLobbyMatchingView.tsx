@@ -1,4 +1,3 @@
-"use strict"
 import { ModalBody, ModalFooter, Button, CircularProgress } from "@nextui-org/react";
 import ComplexityChip from "../question/ComplexityChip";
 import { useEffect, useState } from "react";
@@ -26,7 +25,6 @@ export default function MatchingLobbyMatchingView(
 ) {
     const { user } = useAuthContext();
     const [ timer, setTimer] = useState(0);
-    const [ sent, setSent ] = useState(false);
 
     const requestMatch = (socket: SocketService) => {
         try {
@@ -51,8 +49,6 @@ export default function MatchingLobbyMatchingView(
                     onMatched(user.id === owner)
                 });
                 socket.onNoMatched(onNoMatch);
-                console.log(sent);
-                
                 requestMatch(socket);
             })
         }
