@@ -87,7 +87,7 @@ export default function MatchingLobbyMatchingView(
                             <ComplexityChip key={item} complexity={item} size="sm"></ComplexityChip>
                         ))}
                     </span>
-                    <span className="truncate">{preference.topics.join(", ")}</span>
+                    <span>{preference.topics.join(", ")}</span>
                 </div>
             </ModalBody>
             <ModalFooter>

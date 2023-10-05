@@ -1,9 +1,6 @@
 import Preferences from "../../models/types/preferences";
 import Room from "../../models/types/room";
-import Complexity from "../enums/Complexity";
-import Language from "../enums/Language";
-import Topic from "../enums/Topic";
-import { binaryToHex, encodeEnum, encodePreferences } from "./encoder";
+import { encodePreferences } from "./encoder";
 import Partner from "../../models/types/partner";
 
 export default class RoomManager {

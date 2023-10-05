@@ -16,9 +16,10 @@ const handleMatching = (socket: Socket, request: {
     preferences: Preferences,
 }) => {
     try {
-        if (!activeSockets.has(request.user.id)) {
+        if (!activeSockets.has(socket.id)) {
             Logger.debug(`[${socket.id}][handleMatching] Matching request received.`);
             setTimeout(() => {
+                request.user.socketId = socket.id;
                 rm.findMatchElseCreateRoom(
                     request.user,
                     request.preferences,
@@ -26,7 +27,7 @@ const handleMatching = (socket: Socket, request: {
                     room => handleCreateRoom(socket, room),
                 )
             }, 2000);
-            activeSockets.add(request.user.id);
+            activeSockets.add(socket.id);
         }
     } catch (error) {
         notifyError(socket, error);
@@ -118,19 +119,19 @@ const handleStart = (socket: Socket, problemId: string) => {
 
 const handleCancel = (socket: Socket) => {
     Logger.debug(`[${socket.id}][handleCancel]: Close room and inform partner`);
-
-    if (!socket.rooms) {
-        return;
-    }
-
+    console.log(socket.rooms);
+    
     socket.rooms.forEach(r => {
         if (r !== socket.id) {
             Logger.debug(`[NotifyClosed]: room ${r}`);
+
+            const room = rm.getRoomById(r);
+            if (room) {
+                room.owner ? activeSockets.delete((room.owner as Partner).socketId): {} ;
+                room.partner ? activeSockets.delete((room.partner as Partner).socketId): {};
+            }
+
             io.to(r).emit("room_closed");
-
-            activeSockets.delete((rm.getRoomById(r)?.owner as Partner).id);
-            activeSockets.delete((rm.getRoomById(r)?.partner as Partner).id);
-
             rm.closeRoom(r);
         }
     })
