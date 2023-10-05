@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import React from "react";
+import { useState, useEffect } from "react";
 
 export default function QuestionExamplesTable({
   value,
@@ -22,22 +22,30 @@ export default function QuestionExamplesTable({
   disabled?: boolean;
 }) {
   const emptyExample = { id: value.length, input: "", output: "" };
-  const [examples, setExamples] = React.useState([emptyExample]);
+  const [examples, setExamples] = useState([emptyExample]);
 
   // Apply changes and pass back to parent
-  const handleValue = (id: number, key: keyof Example, value: string) => {
-    examples[examples.findIndex((x) => x.id === id)][key] = value;
-    onValueChange!(
-      examples.map((x) => ({ input: x.input, output: x.output }) as Example),
-    );
+  const handleValue = <K extends keyof Example>(id: number, key: K, value: Example[K]) => {
+    let index = examples.findIndex((x) => x.id === id);
+    if (index >= 0) {
+      examples[index] = {
+        ...examples[index],
+        [key]: value
+      }
+
+      onValueChange!(
+        examples.map((x) => ({ input: x.input, output: x.output }) as Example),
+      );
+    }
   };
 
   // Handle changes from parent
-  React.useEffect(() => {
+  useEffect(() => {
     if (value.length < 1) {
       return;
     }
-
+    
+    // console.log();
     if (value[value.length - 1].input + value[value.length - 1].output !== "") {
       setExamples([
         ...value.map((v, idx) => ({

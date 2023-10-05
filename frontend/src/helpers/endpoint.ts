@@ -2,7 +2,6 @@
 import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import { getLogger } from "./logger";
 
-
 const logger = getLogger("endpoint");
 
 /**
@@ -43,7 +42,9 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
   let servicePort = getServicePorts(config.service);
 
   // Build the final API endpoint URL.
-  const endpoint = `http://${host}${servicePort}/api/${config.service}/${config.path || ""}`;
+  const endpoint = `http://${host}${servicePort}/api/${config.service}/${
+    config.path || ""
+  }`;
 
   console.log(config.body);
 
@@ -95,8 +96,8 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
 
 /**
  * Builds the corresponding Socket IO
- * @param service 
- * @returns 
+ * @param service
+ * @returns
  */
 export async function getSocketConfig(service: SERVICE) {
   // Configure gateway host based on the environment (production or development).
@@ -110,7 +111,7 @@ export async function getSocketConfig(service: SERVICE) {
 
   // Build the final API endpoint URL.
   const endpoint = `http://${host}${servicePort}`;
-  const path = `/socket/${service}/`
+  const path = `/socket/${service}/`;
   logger.info(`[endpoint] socket: ${endpoint}`);
 
   return { endpoint, path };
@@ -131,6 +132,9 @@ function getServicePorts(service: SERVICE) {
       case SERVICE.USER:
         servicePort += process.env.ENDPOINT_USER_PORT || "";
         break;
+      case SERVICE.MATCHING:
+        servicePort += process.env.ENDPOINT_MATCHING_PORT || "";
+        break;
       case SERVICE.COLLABORATION:
         servicePort += process.env.ENDPOINT_COLLABORATION_PORT || "";
         break;
@@ -140,6 +144,4 @@ function getServicePorts(service: SERVICE) {
     }
     return servicePort;
   }
-  return "";
 }
-
