@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import React from "react";
+import { useEffect, useState } from "react";
 
 export default function QuestionConstrainsTable({
   value,
@@ -21,7 +21,7 @@ export default function QuestionConstrainsTable({
   disabled?: boolean;
 }) {
   const emptyConstrain = { id: value.length, value: "" };
-  const [constrains, setConstrains] = React.useState([emptyConstrain]);
+  const [constrains, setConstrains] = useState([emptyConstrain]);
 
   // Apply changes and pass back to parent
   const handleValue = (id: number, value: string) => {
@@ -30,7 +30,7 @@ export default function QuestionConstrainsTable({
   };
 
   // Handle changes from parent
-  React.useEffect(() => {
+  useEffect(() => {
     if (value[value.length - 1] !== "") {
       setConstrains([
         ...value.map((v, idx) => ({ id: idx, value: v })),

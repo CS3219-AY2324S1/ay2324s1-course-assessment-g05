@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import { useState } from "react";
 import {
   Table,
   TableHeader,
@@ -17,10 +17,10 @@ import parse from "html-react-parser";
 import Question from "@/types/question";
 import ModifyQuestionModal from "./ModifyQuestionModal";
 import ComplexityChip from "./ComplexityChip";
-import { FiEdit, FiEye } from "react-icons/fi";
 import DeleteQuestion from "./DeleteQuestion";
 import { StringUtils } from "@/utils/stringUtils";
 import { CLIENT_ROUTES } from "@/common/constants";
+import { Icons } from "@/components/common/Icons";
 
 export default function QuestionTable({
   questions,
@@ -58,7 +58,7 @@ export default function QuestionTable({
   ];
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const [toEditQuestion, setToEditQuestion] = React.useState<Question>();
+  const [toEditQuestion, setToEditQuestion] = useState<Question>();
 
   function renderCell(item: any, columnKey: string, readonly: boolean) {
     const cellValue = item[columnKey as keyof Question];
@@ -107,7 +107,7 @@ export default function QuestionTable({
           <div className="relative flex items-center gap-2">
             <Tooltip content={<>{parse(item.title)}</>} delay={1000}>
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50 w-8 h-8 p-1.5">
-                <FiEye />
+                <Icons.FiEye />
               </span>
             </Tooltip>
             <Tooltip content="Edit question" delay={1000}>
@@ -115,7 +115,7 @@ export default function QuestionTable({
                 className="text-lg text-default-400 cursor-pointer active:opacity-50 w-8 h-8 p-1.5"
                 onClick={(e) => openModal(item)}
               >
-                <FiEdit />
+                <Icons.FiEdit />
               </span>
             </Tooltip>
             <DeleteQuestion id={item["id"]}></DeleteQuestion>

@@ -131,6 +131,8 @@ function getServicePorts(service: SERVICE) {
       case SERVICE.USER:
         servicePort += process.env.ENDPOINT_USER_PORT || "";
         break;
+      case SERVICE.MATCHING:
+        servicePort += process.env.ENDPOINT_MATCHING_PORT || "";
       case SERVICE.COLLABORATION:
         servicePort += process.env.ENDPOINT_COLLABORATION_PORT || "";
         break;
@@ -140,6 +142,5 @@ function getServicePorts(service: SERVICE) {
     }
     return servicePort;
   }
-  return "";
 }
 

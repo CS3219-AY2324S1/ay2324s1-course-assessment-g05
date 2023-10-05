@@ -5,4 +5,5 @@ export const CLIENT_ROUTES = {
     PROFILE: '/profile',
     QUESTIONS: '/questions',
     LOGOUT: '/logout',
+    COLLABORATION: '/collaboration/room'
 };

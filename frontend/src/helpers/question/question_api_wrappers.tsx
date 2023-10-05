@@ -5,6 +5,7 @@ import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import Question from "@/types/question";
 import { revalidateTag } from "next/cache";
 import { ServiceError, ServiceResponse, formatFieldError } from "../service";
+import Preference from "@/types/preference";
 
 const logger = getLogger("wrapper");
 const service = SERVICE.QUESTION;
@@ -70,6 +71,21 @@ export async function getQuestionById(
       message: res.data ? (res.data as ServiceError).message : res.message,
     };
   }
+}
+
+/**
+ * Get a question base on a set of preference
+ * @param preference given preference | surprise me
+ */
+export async function getQuestionByPreference(
+  preference: Preference | undefined
+): Promise<string> {
+  logger.error(preference, `[getQuestionByPreference]:`);
+  
+  // TODO: Implement in question branch instead
+  return new Promise(resolve => {
+    resolve("650a5979bf32dcb1ae15bf11");
+  })
 }
 
 /**

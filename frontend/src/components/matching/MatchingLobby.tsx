@@ -1,31 +1,22 @@
 "use client"
-import React from "react";
+import { getLogger } from "@/helpers/logger";
+import { getMatchingSocketConfig } from "@/helpers/matching/matching_api_wrappers";
+import { useAuthContext } from "@/providers/auth";
+import Partner from "@/types/partner";
 import {
   Modal,
-  ModalContent, ModalBody,
-  ModalFooter,
-  Button, useDisclosure, CircularProgress, CardBody, CardFooter, Card
+  ModalContent
 } from "@nextui-org/react";
-import { FiUserX, FiWifiOff } from "react-icons/fi";
-import ComplexityChip from "../question/ComplexityChip";
-import MatchingLobbySuccessView from "./MatchingLobbySuccessView";
-
-/**
- * Service flow:
- * Initial -> Matching -> Success -> Ready (both) -> redirect(collab)
- *                     -> Success -> Peer left -> Matching/exit
- *                     -> Fail  -> Matching
- *                     -> Error -> exit
- */
-enum MATCHING_STAGE {
-  INITIAL,
-  MATCHING, // Send request to join queue, wait for update
-  SUCCESS,  // Ready to start collab
-  FAIL,     // Exceed time limit for matching
-  READY,    // User confirm to start, waiting for peer (skip if peer already in ready stage)
-  CANCEL,   // User request to cancel
-  ERROR,    // Error with matching service
-}
+import { useEffect, useState } from "react";
+import MatchingLobbyErrorView from "./MatchingLobbyErrorView";
+import MatchingLobbyMatchingView from "./MatchingLobbyMatchingView";
+import MatchingLobbyNoMatchView from "./MatchingLobbyNoMatchView";
+import MatchingLobbySuccessView, { MatchingSuccessState } from "./MatchingLobbySuccessView";
+import { MATCHING_STAGE } from "@/types/enums";
+import SocketService from "@/helpers/matching/socket_service";
+import MatchingLobbyPrepCollabView from "./MatchingLobbyPrepCollabView";
+import { useRouter } from "next/navigation";
+import { CLIENT_ROUTES } from "@/common/constants";
 
 export default function MatchingLobby({
   isOpen,
@@ -44,143 +35,110 @@ export default function MatchingLobby({
     topics: string[],
   }
 }) {
-  const [stage, setStage] = React.useState(MATCHING_STAGE.INITIAL);
-  const { onOpenChange } = useDisclosure();
+  const router = useRouter();
+  const logger = getLogger('matching');
+  const [stage, setStage] = useState(MATCHING_STAGE.INITIAL);
+  const [socketService, setSocketService] = useState<SocketService | null>(null);
+  const [isRoomOwner, setIsRoomOwner] = useState(false);
 
-  const debugStage = () => {
-    let opts = Object.keys(MATCHING_STAGE);
-    let next = opts.findIndex(x => x === stage.toString()) + 1 % opts.length;
-    setStage(next)
-  }
-
-  // Trigger matching process on modal open
-  React.useEffect(() => {
-    if (isOpen) {
-      setStage(MATCHING_STAGE.MATCHING)
-    } else {
-      setStage(MATCHING_STAGE.INITIAL)
-    }
-  }, [isOpen])
-
-  // Response to stage events
-  React.useEffect(() => {
-    switch (stage) {
-      case MATCHING_STAGE.MATCHING:
-        onMatchingStage();
-        break;
-      default:
-        break;
-    }
-  }, [stage])
-
-  // Handle view switching
-  const renderView = (stage: MATCHING_STAGE) => {
-    switch (stage) {
-      case MATCHING_STAGE.MATCHING:
-        return initialView;
-      case MATCHING_STAGE.SUCCESS:
-        return successView;
-      case MATCHING_STAGE.FAIL:
-        return failureView;
-      default:
-        return errorView;
-    }
-  }
-
-  // Handles matching event
-  const onMatchingStage = () => {
+  /////////////////////////////////////////////
+  // Stage fired events
+  /////////////////////////////////////////////
+  const initializeSocket = async () => {
     try {
-      console.log("matching process triggered");
-
-      // Request to join matching queue
-      setTimeout(() => {
-        setStage(MATCHING_STAGE.SUCCESS)
-      }, 60 * 1000)
+      await SocketService.getInstance().then(socket => {
+        setSocketService(socket);
+        socket.onConnect(() => setStage(MATCHING_STAGE.MATCHING));
+        socket.onDisconnect(() => setStage(MATCHING_STAGE.ERROR));
+        socket.onConnectError(() => setStage(MATCHING_STAGE.ERROR));
+        // Handles redirect command from the server
+        socket.onRedirectCollaboration(room => handleRedirect(socket, room));
+      })
     } catch (error) {
+      logger.error(error);
       setStage(MATCHING_STAGE.ERROR)
     }
   }
 
-  // Handles retry action
-  const handleRetry = () => {
-    setStage(MATCHING_STAGE.MATCHING);
+  /////////////////////////////////////////////
+  // Server fired events
+  /////////////////////////////////////////////
+  const handleMatched = (
+    isOwner: boolean
+  ) => {
+    setIsRoomOwner(isOwner);
+    setStage(MATCHING_STAGE.SUCCESS);
   }
 
-  // Handles user ready action
-  const handleReady = () => {
-    console.log("User ready to start collab.");
-    // Send update to backend indicating user ready to start.
-    // Backend return with status:
-    //  - wait for peer
-    //  - start collab session
-    //  - peer exit
+  const handleRedirect = (socket: SocketService, room: any) => {
+    const partnerId = socket.getRoomPartner()!.id;
+    const path = `${CLIENT_ROUTES.COLLABORATION}/${room.id}?partnerId=${partnerId}&questionId=${room.questionId}&language=${room.language}`
+    console.log(path);
+    router.push(path);
+}
 
-    // redirect to collab session
+  /////////////////////////////////////////////
+  // User fired events
+  /////////////////////////////////////////////
+  const handleClose = () => {
+    logger.info("Cancel matching")
+    socketService?.disconnect();
     onClose();
   }
 
-  const initialView = <>
-    <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center">
-      <CircularProgress
-        classNames={{
-          svg: "w-24 h-24",
-          value: "text-lg"
-        }}
-        label="Looking for a peer...">
-      </CircularProgress>
-      <div className="flex flex-col gap-2 items-center text-small">
-        {/* <span>{options.languages.join(", ")}</span> */}
-        <span className="flex gap-2">
-          {options.difficulties.map(item => (
-            <ComplexityChip key={item} complexity={item} size="sm"></ComplexityChip>
-          ))}
-        </span>
-        <span className="truncate">{options.topics.join(", ")}</span>
-      </div>
-    </ModalBody>
-    <ModalFooter>
-      <Button onPress={onClose}>Cancel</Button>
-    </ModalFooter>
-  </>
+  /////////////////////////////////////////////
+  // Modal views
+  /////////////////////////////////////////////
 
-  const successView = <MatchingLobbySuccessView
-    peer=""
-    cancel={onClose}
-    rematch={() => setStage(MATCHING_STAGE.MATCHING)} />
+  const renderView = (stage: MATCHING_STAGE) => {
+    switch (stage) {
+      case MATCHING_STAGE.INITIAL:
+        return <></>
+      case MATCHING_STAGE.MATCHING:
+        return <MatchingLobbyMatchingView
+          onMatched={handleMatched}
+          onNoMatch={() => setStage(MATCHING_STAGE.FAIL)}
+          onClose={handleClose}
+          onError={() => setStage(MATCHING_STAGE.ERROR)}
+          preference={options} />;
+      case MATCHING_STAGE.SUCCESS:
+        return <MatchingLobbySuccessView
+          isOwner={isRoomOwner}
+          onStart={() => setStage(MATCHING_STAGE.START)}
+          onCancel={handleClose}
+          onRematch={() => setStage(MATCHING_STAGE.MATCHING)} />;
+      case MATCHING_STAGE.START:
+        return <MatchingLobbyPrepCollabView />
+      case MATCHING_STAGE.FAIL:
+        return <MatchingLobbyNoMatchView onClose={handleClose} onRetry={() => setStage(MATCHING_STAGE.MATCHING)} />;
+      default:
+        return <MatchingLobbyErrorView onClose={handleClose} />;
+    }
+  }
 
-  const failureView = <>
-    <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center">
-      <FiUserX className="w-24 h-24  text-danger" />
-      <p>Unable to find a match.</p>
-      <p>Please try again later.</p>
-    </ModalBody>
-    <ModalFooter>
-      <Button onPress={onClose}>Cancel</Button>
-      <Button onPress={handleRetry} color="primary">Retry</Button>
-    </ModalFooter>
-  </>
-
-  const errorView = <>
-    <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center">
-      <FiWifiOff className="w-24 h-24  text-danger" />
-      <p>Connection lost!</p>
-      <p>Please try again later.</p>
-    </ModalBody>
-    <ModalFooter>
-      <Button onPress={onClose}>Ok</Button>
-    </ModalFooter>
-  </>
+  /////////////////////////////////////////////
+  // React hooks
+  /////////////////////////////////////////////
+  useEffect(() => {
+    if (isOpen) {
+      if (stage === MATCHING_STAGE.INITIAL) {
+        console.log("start init");
+        initializeSocket();
+      }
+    } else {
+      setStage(MATCHING_STAGE.INITIAL);
+    }
+  }, [isOpen, stage])
 
   return (
     <>
       <Modal
         isOpen={isOpen}
-        onOpenChange={onOpenChange}
         isDismissable={false}
         hideCloseButton
         size="md"
         classNames={{
-          base: "h-1/2",
+          base: "h-fit",
           body: "p-4",
           footer: "p-4"
         }}
@@ -189,7 +147,6 @@ export default function MatchingLobby({
           {() => (
             <>
               {renderView(stage)}
-              <Button onPress={debugStage} className="absolute bottom-0" size="sm">debug</Button>
             </>
           )}
         </ModalContent>

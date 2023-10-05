@@ -1,4 +1,4 @@
-import React, { FormEvent } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -41,18 +41,18 @@ export default function ModifyQuestionModal({
   }));
 
   // component states
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [error, setError] = React.useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState("");
 
   // form arguments
-  const [id, setId] = React.useState("");
-  const [title, setTitle] = React.useState("");
-  const [complexity, setComplexity] = React.useState("EASY");
-  const [topics, setTopics] = React.useState<string[]>([]);
-  const [description, setDescription] = React.useState("");
-  const [constraints, setConstraints] = React.useState<string[]>([]);
-  const [examples, setExamples] = React.useState<Example[]>([]);
-  const [url, setUrl] = React.useState("");
+  const [id, setId] = useState("");
+  const [title, setTitle] = useState("");
+  const [complexity, setComplexity] = useState("EASY");
+  const [topics, setTopics] = useState<string[]>([]);
+  const [description, setDescription] = useState("");
+  const [constraints, setConstraints] = useState<string[]>([]);
+  const [examples, setExamples] = useState<Example[]>([]);
+  const [url, setUrl] = useState("");
 
   const retrieveQuestionDetail = async (questionId: string) => {
     try {
@@ -75,7 +75,7 @@ export default function ModifyQuestionModal({
   };
 
   // prefill form base on mode
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen && editMode) {
       console.log("[ModifyQuestionModal]: prefill form with qid:" + questionId);
       retrieveQuestionDetail(questionId);

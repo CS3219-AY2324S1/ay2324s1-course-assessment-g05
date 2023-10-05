@@ -1,99 +1,91 @@
 import { ModalBody, Card, CardBody, CardFooter, Button, ModalFooter } from "@nextui-org/react";
-import { FiCodepen, FiPlay, FiThumbsUp, FiX } from "react-icons/fi";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
-import React from "react";
+import { useEffect, useState } from "react";
+import Partner from "@/types/partner";
+import { useAuthContext } from "@/providers/auth";
+import { Icons } from "../common/Icons";
+import SocketService from "@/helpers/matching/socket_service";
+
+export type MatchingSuccessState = {
+  userReady: boolean,
+  partner: Partner,
+  partnerReady: boolean,
+  partnerLeft: boolean,
+  owner: boolean,
+}
 
 export default function MatchingLobbySuccessView({
-  peer,
-  cancel,
-  rematch,
+  isOwner,
+  onStart,
+  onCancel,
+  onRematch,
 }: {
-  peer: any, // Change to User,
-  cancel: () => void,    // Anyone left the lobby
-  rematch?: () => void, // User request to rematch
+  isOwner: boolean,
+  onStart: () => void,
+  onCancel: () => void,
+  onRematch?: () => void,
 }) {
-  const [userReady, setUserReady] = React.useState(false);
-  const [peerReady, setPeerReady] = React.useState(false);
-  const [peerLeft, setPeerLeft] = React.useState(false);
+  const { user } = useAuthContext();
+  const [ socketService, setSocketService ] = useState<SocketService | null>(null);
+  const [ userReady, setUserReady ] = useState(false);
+  const [ partnerReady, setPartnerReady ] = useState(false);
+  const [ partnerLeft, setPartnerLeft ] = useState(false);
+  const [ partner, setPartner ] = useState<Partner | null>(null);
 
-  const toggleUserReady = async () => {
-    setUserReady(!userReady);
-    if (userReady) {
-      // Inform backend user is ready to start
-      // Backend return with status:
-      //  - wait for peer
-      //  - start collab session
-      //  - peer exit
-      console.log("I'm ready");
-    } else {
-      // Inform backend user not ready
-      console.log("I'm not ready")
+  const onUserReady = (ready: boolean) => {
+    setUserReady(ready);
+    socketService?.notifyUserReadyChange(ready);
+  }
+
+  useEffect(() => {
+    async function initializeSocket() {
+      await SocketService.getInstance().then(socket => {
+        setSocketService(socket);
+        setPartner(socket.getRoomPartner());
+        socket.onRoomClosed(() => setPartnerLeft(true));
+        socket.onPartnerReadyChange((ready) => setPartnerReady(ready));
+      })
+
     }
-  }
-
-  const debugLeave = async () => {
-    setPeerLeft(!peerLeft)
-  }
-
-  const cancelMatch = () => {
-    // Inform backend user wishes to terminate the match
-    console.log("I quit");
-    setUserReady(false);
-    cancel();
-  }
-
-  const debug = () => {
-    setPeerReady(!peerReady);
-  }
-
-  React.useEffect(() => {
-    if (userReady && peerReady && !peerLeft) {
-      console.log("We are ready to start!");
-
-      // Redirect to collab service
-    }
-
-    // websock to backend: listen to peer status
-    // readyStateChange -> update peer ready status
-    // peerLeft -> set peerLeft
-  }, [userReady, peerReady])
+    initializeSocket();
+  }, [])
 
   return (
     <>
-      <ModalBody className="flex flex-row gap-2 items-center justify-center">
-        <Card className="flex-1 m-4">
-          <CardBody className="items-center p-2">
-            <ProfilePictureAvatar size="16" />
-            <p className="w-24 truncate text-center">Me</p>
+      <ModalBody className="flex flex-row gap-2 items-center justify-center mt-5">
+        <Card className="flex-1">
+          <CardBody className="items-center p-2 py-4">
+            <ProfilePictureAvatar size="20" profileUrl={user.image!} />
+            <p className="w-24 truncate text-center">{user.name}</p>
           </CardBody>
           <CardFooter className="justify-center p-2">
-            <Button onPress={toggleUserReady} color={userReady ? "success" : "primary"} className="w-full" startContent={
-                userReady ? <FiThumbsUp/> : <FiPlay/>
-              }>
+            <Button onPress={e => onUserReady(!userReady)} color={userReady ? "success" : "primary"} className="w-full" startContent={
+              userReady ? <Icons.FiThumbsUp /> : <Icons.FiPlay />
+            } isDisabled={userReady || partnerLeft}>
               {userReady ? "Ready" : "Start"}
             </Button>
           </CardFooter>
         </Card>
         <div className="text-center">
           <p>Matched!</p>
-          <FiCodepen className="m-4 w-12 h-12" />
+          <Icons.FiCodepen className="m-4 w-12 h-12" />
         </div>
-        <Card className="flex-1 m-4">
-          <CardBody className="items-center p-2">
-            <ProfilePictureAvatar size="16" />
-            <p className="w-24 truncate text-center">Peer</p>
+        <Card className="flex-1">
+          <CardBody className="items-center p-2 py-4">
+            <ProfilePictureAvatar size="20" profileUrl={partner?.image!} />
+            <p className="w-24 truncate text-center">{partner?.name}</p>
           </CardBody>
           <CardFooter className="justify-center p-2">
-            {!peerLeft &&
-              <Button color={peerReady ? "success" : "warning"} className="w-full" isLoading={!peerReady} disabled startContent={
-                peerReady ? <FiThumbsUp/> : <></>
+            {!partnerLeft &&
+              <Button color={partnerReady ? "success" : "warning"} className="w-full" isLoading={!partnerReady} isDisabled startContent={
+                partnerReady ? <Icons.FiThumbsUp /> : <></>
               }>
-                {peerReady ? "Ready" : "Waiting"}
+                {partnerReady ? "Ready" : "Waiting"}
               </Button>
             }
-            {peerLeft &&
-              <Button color="danger" className="w-full" disabled startContent={
-                <FiX/>
+            {partnerLeft &&
+              <Button color="danger" className="w-full" isDisabled startContent={
+                <Icons.FiX />
               }>
                 Left
               </Button>
@@ -102,10 +94,18 @@ export default function MatchingLobbySuccessView({
         </Card>
       </ModalBody>
       <ModalFooter>
-        <Button onPress={debug}>Debug: peerReady</Button>
-        <Button onPress={debugLeave}>Debug: peerLeft</Button>
-        {!peerLeft && <Button onPress={cancelMatch}>Cancel</Button>}
-        {peerLeft && <Button onPress={rematch}>Rematch</Button>}
+        { (!userReady || !partnerReady) &&
+          <Button onPress={onCancel} startContent={<Icons.FiX/>}>Cancel</Button>
+        }
+        {partnerLeft &&
+          <Button onPress={onRematch} color="primary" startContent={<Icons.RxReset/>}>Rematch</Button>
+        }
+        {isOwner && userReady && partnerReady && !partnerLeft &&
+          <Button onPress={onStart} color="primary" startContent={<Icons.FiPlay/>}>Start Peerprep</Button>
+        }
+        {!isOwner && userReady && partnerReady && !partnerLeft &&
+          <Button color="primary" isLoading>Waiting for owner to start</Button>
+        }
       </ModalFooter>
     </>
   )
