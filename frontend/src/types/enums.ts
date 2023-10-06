@@ -78,6 +78,9 @@ export enum ToastType {
   INFO = "info",
 }
 
+
+
+
 export enum SocketEvent {
   CONNECT = "connect",
   DISCONNECT = "disconnect",

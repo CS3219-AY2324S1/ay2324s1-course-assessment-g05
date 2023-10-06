@@ -2,23 +2,25 @@
 import { ChangeEvent, useState } from "react";
 import {
   Button,
-  ButtonGroup,
   Card,
   CardBody,
   CardHeader,
   Select,
   SelectItem,
+  Tooltip,
   useDisclosure,
 } from "@nextui-org/react";
-import { UserService } from "@/helpers/user/user_api_wrappers";
 import { COMPLEXITY, LANGUAGE, TOPIC, ToastType } from "@/types/enums";
 import { StringUtils } from "@/utils/stringUtils";
 import MatchingLobby from "./MatchingLobby";
 import { useAuthContext } from "@/contexts/auth";
 import Preference from "@/types/preference";
 import displayToast from "../common/Toast";
+import { Icons } from "../common/Icons";
 
 const MatchingCard = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const {
     user: { preferences: currentPreferences },
   } = useAuthContext();
@@ -26,13 +28,14 @@ const MatchingCard = () => {
   const optionsLanguages = StringUtils.convertEnumsToCamelCase(LANGUAGE);
   const optionsDifficulties = StringUtils.convertEnumsToCamelCase(COMPLEXITY);
   const optionsTopics = StringUtils.convertEnumsToCamelCase(TOPIC);
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [preferences, setPreferences] = useState<Preference>(
     currentPreferences || { languages: [], difficulties: [], topics: [] }
   );
 
-  const handleOnSelectionChange = (event: ChangeEvent<HTMLSelectElement>) => {
+  const handleOnSelectionChange = (
+    event: ChangeEvent<HTMLSelectElement>
+  ) => {
     if (event.target.value === "") {
       displayToast(`${event.target.name} is required`);
       return;
@@ -52,16 +55,26 @@ const MatchingCard = () => {
     onOpen();
   };
 
-  const handleQuickMatch = () => {
-    setPreferences(preferences);
-    handleGetMatched();
+  const handleReset = () => {
+    if (currentPreferences) {
+      setPreferences(currentPreferences);
+    }
   };
 
   return (
     <>
       {preferences && (
         <Card className="flex flex-col h-full bg-black rounded-lg text-sm overflow-hidden p-2">
-          <CardHeader className="p-2">Find a pair programmer</CardHeader>
+          <CardHeader className="p-2">
+            <div className="flex items-center justify-between w-full">
+              <span>Find a pair programmer</span>
+              <span>
+                <Tooltip content="Reset preferences">
+                <Button isIconOnly size="sm" variant="light" onPress={handleReset}><Icons.RxReset/></Button>
+                </Tooltip>
+              </span>
+            </div>
+          </CardHeader>
           <CardBody className="flex flex-col  gap-4 p-2">
             <Select
               isRequired
@@ -73,13 +86,11 @@ const MatchingCard = () => {
               selectedKeys={preferences.languages}
               onChange={handleOnSelectionChange}
               errorMessage={
-                preferences.languages.length == 0 && (
-                  <span>Language is required</span>
-                )
+                preferences.languages.length == 0 && <span>Language is required</span>
               }
             >
               {optionsLanguages.map((value) => (
-                <SelectItem key={value} value={value}>
+                <SelectItem className="capitalize" key={value} value={value}>
                   {value}
                 </SelectItem>
               ))}
@@ -95,13 +106,11 @@ const MatchingCard = () => {
               selectedKeys={preferences.difficulties}
               onChange={handleOnSelectionChange}
               errorMessage={
-                preferences.difficulties.length == 0 && (
-                  <span>Difficulty is required</span>
-                )
+                preferences.difficulties.length == 0 && <span>Difficulty is required</span>
               }
             >
               {optionsDifficulties.map((value) => (
-                <SelectItem key={value} value={value}>
+                <SelectItem className="capitalize" key={value} value={value}>
                   {value}
                 </SelectItem>
               ))}
@@ -117,33 +126,22 @@ const MatchingCard = () => {
               selectedKeys={preferences.topics}
               onChange={handleOnSelectionChange}
               errorMessage={
-                preferences.topics.length == 0 && (
-                  <span>Topics is required</span>
-                )
+                preferences.topics.length == 0 && <span>Topics is required</span>
               }
             >
               {optionsTopics.map((value) => (
-                <SelectItem key={value} value={value}>
+                <SelectItem className="capitalize" key={value} value={value}>
                   {value}
                 </SelectItem>
               ))}
             </Select>
 
-            <ButtonGroup>
-              <Button
-                color="success"
-                className="text-black"
-                onPress={handleQuickMatch}
-              >
-                Quick Match
-              </Button>
-              <Button
+            <Button
                 className="bg-yellow text-black"
                 onPress={handleGetMatched}
               >
                 Get Matched
               </Button>
-            </ButtonGroup>
             <MatchingLobby
               isOpen={isOpen}
               onClose={onClose}

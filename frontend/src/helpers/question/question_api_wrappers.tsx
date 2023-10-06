@@ -6,6 +6,9 @@ import Question from "@/types/question";
 import { revalidateTag } from "next/cache";
 import { ServiceError, ServiceResponse, formatFieldError } from "../service";
 import Preference from "@/types/preference";
+import HttpStatusCode from "@/types/HttpStatusCode";
+import { throwAndLogError } from "@/utils/errorUtils";
+import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 
 const logger = getLogger("wrapper");
 const service = SERVICE.QUESTION;
@@ -77,14 +80,35 @@ export async function getQuestionById(
  * @param preference given preference | surprise me
  */
 export async function getQuestionByPreference(
-  preference: Preference | undefined
-): Promise<string> {
-  logger.error(preference, `[getQuestionByPreference]:`);
-  
-  // TODO: Implement in question branch instead
-  return new Promise(resolve => {
-    resolve("650a5979bf32dcb1ae15bf11");
-  })
+  preference: Preference | undefined,
+  cache: RequestCache = "no-cache"
+) {
+  let questions = [];
+
+  const complexityFilter = preference?.difficulties.map(d => `complexity=${d}`).join(`&`);
+  const topicFilter = preference?.topics.map(d => `topics=${d}`).join(`&`);
+  const queryPath = `?${topicFilter}&${complexityFilter}`
+
+  const response = await api({
+    method: HTTP_METHODS.GET,
+    service: service,
+    path: queryPath,
+    tags: scope,
+    cache: cache,
+  });
+
+  if (response.status === HttpStatusCode.OK) { 
+    const mongoRes = response.data as MongoQuestionList;
+    questions = mongoRes.data;
+    logger.info(`[getQuestionByPreference] Got ${mongoRes.count} items.`);
+    return questions;
+  }
+
+  return throwAndLogError(
+    "getQuestionByPreference",
+    response.message,
+    PeerPrepErrors.InternalServerError
+  );
 }
 
 /**
