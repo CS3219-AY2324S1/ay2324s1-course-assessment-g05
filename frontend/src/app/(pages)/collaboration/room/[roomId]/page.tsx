@@ -5,7 +5,7 @@ import { FC, useEffect, useState } from "react";
 import { useCollabContext } from "@/contexts/collab";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import ChatSpaceToggle from "@/components/collab/chat/ChatSpaceToggle";
-import { useSearchParams } from "next/navigation";
+import { notFound, useSearchParams } from "next/navigation";
 
 interface pageProps {
   params: {
@@ -19,8 +19,12 @@ const page: FC<pageProps> = ({ params: { roomId } }) => {
   const questionId = searchParams.get("questionId")!;
   const language = searchParams.get("language")!;
 
-  const { handleConnectToRoom, handleDisconnectFromRoom, isLoading } =
-    useCollabContext();
+  const {
+    handleConnectToRoom,
+    handleDisconnectFromRoom,
+    isLoading,
+    isNotFoundError,
+  } = useCollabContext();
 
   useEffect(() => {
     handleConnectToRoom(roomId, questionId, partnerId, language);
@@ -30,6 +34,10 @@ const page: FC<pageProps> = ({ params: { roomId } }) => {
       handleDisconnectFromRoom();
     };
   }, []);
+
+  if (isNotFoundError) {
+    return notFound();
+  }
 
   return (
     <div>

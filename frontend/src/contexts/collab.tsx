@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import { createContext, useContext, useRef, useState } from "react";
 import { useAuthContext } from "./auth";
 import { verifyRoomParamsIntegrity } from "@/utils/hashUtils";
+import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 
 interface ICollabContext {
   handleConnectToRoom: (
@@ -26,6 +27,7 @@ interface ICollabContext {
   user: User | undefined;
   question: Question | undefined;
   matchedLanguage: string;
+  isNotFoundError: boolean;
 }
 
 interface ICollabProvider {
@@ -44,6 +46,7 @@ const CollabContext = createContext<ICollabContext>({
   user: undefined,
   question: undefined,
   matchedLanguage: "",
+  isNotFoundError: false,
 });
 
 const useCollabContext = () => useContext(CollabContext);
@@ -58,6 +61,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
   const [partner, setPartner] = useState<User>();
   const [question, setQuestion] = useState<Question>();
   const [matchedLanguage, setMatchedLanguage] = useState<string>("");
+  const [isNotFoundError, setIsNotFoundError] = useState<boolean>(false);
 
   const initializeSocket = async (roomId: string) => {
     setRoomId(roomId);
@@ -89,8 +93,8 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     try {
       // check if we have an authenticated user, a not-null partnerId, questionId, matchedLanguage, and roomId
       if (!user || !partnerId || !questionId || !matchedLanguage || !roomId) {
-        console.log("Missing required parameter values");
-        return notFound();
+        setIsNotFoundError(true);
+        return;
       }
 
       // verify parameters integrity
@@ -103,8 +107,8 @@ const CollabProvider = ({ children }: ICollabProvider) => {
       );
 
       if (!isValidParams) {
-        console.log("Invalid room parameters");
-        return notFound();
+        setIsNotFoundError(true);
+        return;
       }
 
       setMatchedLanguage(matchedLanguage.toLowerCase());
@@ -113,8 +117,8 @@ const CollabProvider = ({ children }: ICollabProvider) => {
       const partner = await UserService.getUserById(partnerId);
 
       if (!partner) {
-        console.log("Invalid partner id");
-        return notFound();
+        setIsNotFoundError(true);
+        return;
       }
 
       setPartner(partner);
@@ -122,8 +126,8 @@ const CollabProvider = ({ children }: ICollabProvider) => {
       const question = (await getQuestionById(questionId)) as Question;
 
       if (!question) {
-        console.log("Invalid question id");
-        return notFound();
+        setIsNotFoundError(true);
+        return;
       }
 
       setQuestion(question);
@@ -159,6 +163,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     user,
     question,
     matchedLanguage,
+    isNotFoundError,
   };
 
   return (
