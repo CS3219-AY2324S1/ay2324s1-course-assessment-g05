@@ -37,11 +37,11 @@ type Filter = {
 export const getQuestions = async (request: Request, response: Response) => {
   try {
     // check if there are any query params provided and the provided values are valid
-    const { topics, difficulties, author } = QueryParamValidator.parse(
+    const { topic, complexity, author } = QueryParamValidator.parse(
       request.query
     );
 
-    const filter: Filter = constructRequestFilter(topics, difficulties, author);
+    const filter: Filter = constructRequestFilter(topic, complexity, author);
 
     const questions = await db.question.findMany({
       where: {
