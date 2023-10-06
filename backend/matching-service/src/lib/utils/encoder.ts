@@ -91,10 +91,7 @@ export function decodePreferences(preferenceCode: string) {
         languages: decodedLanguage,
         difficulties: decodedDifficulty,
         topics:decodedTopics,
-        code: preferenceCode,
-        // languageCode: languageCode,
-        // difficultyCode: difficultyCode,
-        // topicCode: topicCode
+        code: preferenceCode
     }
 }
 

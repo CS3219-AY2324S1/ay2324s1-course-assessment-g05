@@ -11,7 +11,6 @@ import {
   Tooltip,
   useDisclosure,
 } from "@nextui-org/react";
-import { UserService } from "@/helpers/user/user_api_wrappers";
 import { COMPLEXITY, LANGUAGE, TOPIC, ToastType } from "@/types/enums";
 import { StringUtils } from "@/utils/stringUtils";
 import MatchingLobby from "./MatchingLobby";
@@ -21,6 +20,8 @@ import displayToast from "../common/Toast";
 import { Icons } from "../common/Icons";
 
 const MatchingCard = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const {
     user: { preferences: currentPreferences },
   } = useAuthContext();
@@ -28,7 +29,6 @@ const MatchingCard = () => {
   const optionsLanguages = StringUtils.convertEnumsToCamelCase(LANGUAGE);
   const optionsDifficulties = StringUtils.convertEnumsToCamelCase(COMPLEXITY);
   const optionsTopics = StringUtils.convertEnumsToCamelCase(TOPIC);
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [preferences, setPreferences] = useState<Preference>(
     currentPreferences || { languages: [], difficulties: [], topics: [] }
@@ -91,7 +91,7 @@ const MatchingCard = () => {
               }
             >
               {optionsLanguages.map((value) => (
-                <SelectItem key={value} value={value}>
+                <SelectItem className="capitalize" key={value} value={value}>
                   {value}
                 </SelectItem>
               ))}
@@ -111,7 +111,7 @@ const MatchingCard = () => {
               }
             >
               {optionsDifficulties.map((value) => (
-                <SelectItem key={value} value={value}>
+                <SelectItem className="capitalize" key={value} value={value}>
                   {value}
                 </SelectItem>
               ))}
@@ -131,7 +131,7 @@ const MatchingCard = () => {
               }
             >
               {optionsTopics.map((value) => (
-                <SelectItem key={value} value={value}>
+                <SelectItem className="capitalize" key={value} value={value}>
                   {value}
                 </SelectItem>
               ))}

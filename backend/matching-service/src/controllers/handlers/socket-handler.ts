@@ -121,8 +121,7 @@ const handleStart = (socket: Socket, problemId: string) => {
 
 const handleCancel = (socket: Socket) => {
     Logger.debug(`[${socket.id}][handleCancel]: Close room and inform partner`);
-    console.log(socket.rooms);
-    
+
     socket.rooms.forEach(r => {
         if (r !== socket.id) {
             Logger.debug(`[NotifyClosed]: room ${r}`);

@@ -103,7 +103,7 @@ export default function MatchingLobbySuccessView({
         </div>
         <div className="flex flex-col items-center gap-1 border-1 border-slate-600 rounded-md p-2 w-2/3">
           <div className="flex flex-row gap-2 text-sm">
-            <span>Question will be selected from:</span>
+            <span>Questions will be selected from:</span>
           </div>
           <div className="flex flex-row gap-2 items-center">
             <div>

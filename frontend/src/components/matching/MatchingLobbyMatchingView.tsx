@@ -24,7 +24,7 @@ export default function MatchingLobbyMatchingView(
     }
 ) {
     const { user } = useAuthContext();
-    const [timer, setTimer] = useState(0);
+    const [ timer, setTimer ] = useState(0);
 
     const requestMatch = (socket: SocketService) => {
         try {

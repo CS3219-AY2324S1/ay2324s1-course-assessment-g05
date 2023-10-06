@@ -1,8 +1,5 @@
 "use client"
 import { getLogger } from "@/helpers/logger";
-import { getMatchingSocketConfig } from "@/helpers/matching/matching_api_wrappers";
-import { useAuthContext } from "@/providers/auth";
-import Partner from "@/types/partner";
 import {
   Modal,
   ModalContent
@@ -11,7 +8,7 @@ import { useEffect, useState } from "react";
 import MatchingLobbyErrorView from "./MatchingLobbyErrorView";
 import MatchingLobbyMatchingView from "./MatchingLobbyMatchingView";
 import MatchingLobbyNoMatchView from "./MatchingLobbyNoMatchView";
-import MatchingLobbySuccessView, { MatchingSuccessState } from "./MatchingLobbySuccessView";
+import MatchingLobbySuccessView from "./MatchingLobbySuccessView";
 import { MATCHING_STAGE } from "@/types/enums";
 import SocketService from "@/helpers/matching/socket_service";
 import MatchingLobbyPrepCollabView from "./MatchingLobbyPrepCollabView";
@@ -37,9 +34,9 @@ export default function MatchingLobby({
 }) {
   const router = useRouter();
   const logger = getLogger('matching');
-  const [stage, setStage] = useState(MATCHING_STAGE.INITIAL);
-  const [socketService, setSocketService] = useState<SocketService | null>(null);
-  const [isRoomOwner, setIsRoomOwner] = useState(false);
+  const [ stage, setStage ] = useState(MATCHING_STAGE.INITIAL);
+  const [ socketService, setSocketService ] = useState<SocketService | null>(null);
+  const [ isRoomOwner, setIsRoomOwner ] = useState(false);
 
   /////////////////////////////////////////////
   // Stage fired events
@@ -108,7 +105,9 @@ export default function MatchingLobby({
           onCancel={handleClose}
           onRematch={() => setStage(MATCHING_STAGE.MATCHING)} />;
       case MATCHING_STAGE.START:
-        return <MatchingLobbyPrepCollabView />
+        return <MatchingLobbyPrepCollabView
+          onClose={handleClose}
+          onError={() => setStage(MATCHING_STAGE.ERROR)}/>
       case MATCHING_STAGE.FAIL:
         return <MatchingLobbyNoMatchView onClose={handleClose} onRetry={() => setStage(MATCHING_STAGE.MATCHING)} />;
       default:

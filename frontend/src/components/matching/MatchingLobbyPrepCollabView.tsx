@@ -1,20 +1,58 @@
 import SocketService from "@/helpers/matching/socket_service";
 import { getQuestionByPreference } from "@/helpers/question/question_api_wrappers";
 import { useAuthContext } from "@/providers/auth";
-import { CircularProgress, ModalBody } from "@nextui-org/react";
-import { useEffect } from "react";
+import Question from "@/types/question";
+import { Button, Chip, CircularProgress, ModalBody, ModalFooter, ModalHeader, Select, SelectItem } from "@nextui-org/react";
+import { useEffect, useState } from "react";
+import { Icons } from "../common/Icons";
+import ComplexityChip from "../question/ComplexityChip";
 
-export default function MatchingLobbyPrepCollabView() {
+export default function MatchingLobbyPrepCollabView({
+    onClose,
+    onError
+}: {
+    onClose: () => void;
+    onError: () => void;
+}) {
     const user = useAuthContext();
+    const [ socketService, setSocketService ] = useState<SocketService | null>(null);
+    const [ questionOptions, setQuestionOptions ] = useState<Question[]>([]);
+    const [ question, setQuestion]  = useState<string[]>([]);
+    const [ isLoading, setIsloading ] = useState(true);
+    const [ noQuestion, setNoQuestion ] = useState(false);
+
+
+    const handleStart = () => {
+        try {
+            socketService?.requestStartCollaboration(Array.from(question)[0] || "");
+            setIsloading(true);
+        } catch (error) {
+            onError();
+        }
+    }
 
     useEffect(() => {
         async function initializeSocket() {
             await SocketService.getInstance().then(async socket => {
+                setSocketService(socket);
                 // contact question service
                 const preference = socket.getRoomPreference() ?? user.user.preferences;
-                await getQuestionByPreference(preference).then(questionId => {
-                    socket.requestStartCollaboration(questionId);
+                await getQuestionByPreference(preference).then(questions => {
+                    if (questions.length > 1) {
+                        // let user choose if options available
+                        setQuestionOptions(questions);
+                        setIsloading(false);
+                    } else if (questions.length === 1) {
+                        // redirect if no selection available
+                        socket.requestStartCollaboration(questions[0]._id!);
+                    } else {
+                        setNoQuestion(true);
+                    }
+                }).catch(err => {
+                    onError()
                 })
+            }).catch(err => {
+                onError()
             })
 
         }
@@ -23,12 +61,53 @@ export default function MatchingLobbyPrepCollabView() {
 
     return (
         <>
-            <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center my-5">
-                <CircularProgress
-                    classNames={{
-                        svg: "w-24 h-24"
-                    }} aria-label="Setting up collaboration session">
-                </CircularProgress>
+            <ModalHeader>
+                Setting up Peerprep
+            </ModalHeader>
+            <ModalBody className="p-4 px-6">
+                <div className="flex flex-col gap-2 items-center justify-center">
+                { !isLoading && questionOptions.length > 0 &&
+                    <div className="flex flex-row items-end gap-2 w-full">
+                    <Select
+                        label="Select a question for Peerprep"
+                        labelPlacement="outside"
+                        selectedKeys={question}
+                        onChange={e => setQuestion([e.target.value])}
+                    >
+                        {questionOptions.map(question => <SelectItem key={question._id || "-1"} textValue={question.title || "-1"}>
+                            <div className="flex flex-col gap-1">
+                            <div>
+                                {question.title}
+                            </div>
+                            <div className="flex flex-row gap-1 overflow-x-hidden text-sm">
+                                <ComplexityChip complexity={question.complexity} size="sm"></ComplexityChip>
+                                { question.topics.map(t => (
+                                    <Chip className="capitalize" size="sm">{t.toLowerCase()}</Chip>
+                                ))}
+                            </div>
+                            </div>
+                        </SelectItem>)}
+                    </Select>
+                    <Button onPress={handleStart} color="primary" startContent={<Icons.FiPlay/>}>Confirm</Button>
+                </div>
+                }
+                { isLoading && 
+                    <CircularProgress
+                        classNames={{
+                            svg: "w-24 h-24"
+                        }} aria-label="Setting up collaboration session">
+                    </CircularProgress>
+                }
+                {
+                    noQuestion && 
+                    <div className="flex flex-col items-center gap-2 text-center">
+                        <Icons.FiX className="w-24 h-24  text-danger" />
+                        <p>No questions available!</p>
+                        <p>Sorry, unable to find suitable questions, please change your preference.</p>
+                        <Button onPress={onClose}>Ok</Button>
+                    </div>
+                }
+                </div>
             </ModalBody>
         </>
     )
