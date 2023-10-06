@@ -30,7 +30,7 @@ describe("GET /questions", () => {
       // Act
       const { body, statusCode } = await supertest(app)
         .get("/api/questions")
-        .query({ topics: "invalidtopic" });
+        .query({ topic: "invalidtopic" });
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.BAD_REQUEST);
