@@ -113,24 +113,24 @@ const CollabProvider = ({ children }: ICollabProvider) => {
 
       setMatchedLanguage(matchedLanguage.toLowerCase());
 
-      // TODO: refactor this to Promise.all
-      const partner = await UserService.getUserById(partnerId);
+      const promises = [
+        UserService.getUserById(partnerId),
+        getQuestionById(questionId),
+      ];
 
-      if (!partner) {
-        setIsNotFoundError(true);
-        return;
-      }
+      Promise.all(promises).then((responses) => {
+        const partner = responses[0] as User;
+        const question = responses[1] as Question;
 
-      setPartner(partner);
+        if (!partner || !question) {
+          setIsNotFoundError(true);
+          return;
+        }
 
-      const question = (await getQuestionById(questionId)) as Question;
+        setPartner(partner);
+        setQuestion(question);
+      });
 
-      if (!question) {
-        setIsNotFoundError(true);
-        return;
-      }
-
-      setQuestion(question);
       await initializeSocket(roomId);
     } catch (error) {
       console.log(error);
