@@ -6,6 +6,7 @@ import Partner from '../../models/types/partner';
 import Room from '../../models/types/room';
 import Logger from '../../lib/utils/logger'
 import { generateRoomId } from '../../lib/utils/encoder';
+import SocketEvent from '../../lib/enums/SocketEvent';
 
 const timeout = Number(process.env.MATCHING_TIMEOUT) || 60000;
 const rm: RoomManager = RoomManager.getInstance();
@@ -40,7 +41,7 @@ const handleMatched = (socket: Socket, room: Room, requester: Partner) => {
         return;
     }
 
-    Logger.debug(`[${socket.id}][handleMatched] Matched with room_${room.id}, ${socket.id} to join`);
+    Logger.debug(`[${socket.id}][handleMatched] Matched room(${room.id}), socket(${socket.id}) joined`);
     socket.join(room.id)
 
     // inform owner 
@@ -55,18 +56,19 @@ const handleMatched = (socket: Socket, room: Room, requester: Partner) => {
     socket.emit("matched", {
         room: room.id,
         partner: room.owner,
-        owner: room.owner.id
+        owner: room.owner.id,
+        preferences: room.preference
     })
 }
 
 const handleCreateRoom = (socket: Socket, room: Room) => {
-    Logger.debug(`[${socket.id}][handleCreateRoom] Created room_${room.id}, ${socket.id} to join`);
+    Logger.debug(`[${socket.id}][handleCreateRoom] Created Room(${room.id}), socket(${socket.id}) joined`);
     socket.join(room.id);
 
     // Register timeout handler
     setTimeout(() => {
         if (!room.matched) {
-            Logger.debug(`[${socket.id}][handleCreateRoom.callback] Timeout`);
+            Logger.debug(`[${socket.id}][handleCreateRoom.callback] Timeout, no match found, close Room(${room.id})`);
 
             socket.emit("no_match");
             rm.closeRoom(room.id);
@@ -146,16 +148,16 @@ export const SocketHandler = (socket: Socket) => {
     Logger.debug("Socket connected: " + socket.id);
 
     // Handles matching request, tries to find a room first before creating one
-    socket.on("request_match", (request: any) => handleMatching(socket, request));
+    socket.on(SocketEvent.REQUEST_MATCH, (request: any) => handleMatching(socket, request));
 
     // Notifies partner of users ready status
-    socket.on("user_update_ready", (ready: boolean) => handleReady(socket, ready));
+    socket.on(SocketEvent.USER_UPDATE_READY, (ready: boolean) => handleReady(socket, ready));
 
     // Notify matching server that clients should already start collab
-    socket.on("start_collaboration", (problemId: string) => handleStart(socket, problemId));
+    socket.on(SocketEvent.START_COLLABORATION, (problemId: string) => handleStart(socket, problemId));
 
-    socket.on("disconnecting", (data: any) => handleCancel(socket));
-    socket.on('disconnect', () => {
+    socket.on(SocketEvent.DISCONNECTING, (data: any) => handleCancel(socket));
+    socket.on(SocketEvent.DISCONNECT, () => {
         activeSockets.delete(socket.id);
     });
 }

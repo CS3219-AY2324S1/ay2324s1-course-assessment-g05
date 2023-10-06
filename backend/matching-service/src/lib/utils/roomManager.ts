@@ -1,6 +1,6 @@
 import Preferences from "../../models/types/preferences";
 import Room from "../../models/types/room";
-import { encodePreferences } from "./encoder";
+import { encodePreferences, getOverlappedPreferences, ifPreferenceOverlapped } from "./encoder";
 import Partner from "../../models/types/partner";
 
 export default class RoomManager {
@@ -24,33 +24,45 @@ export default class RoomManager {
         let room = this.rooms.find(r =>
             r.preference.id == encoded &&
             !r.matched &&
-            r.owner['id'] !== user.id)
+            (r.owner as Partner).id !== user.id)
 
         if (room) {
             room.matched = true;
             room.partner = user;
             matched(room);
-        } else {
-            preferences.id = encoded;
-            const roomId = `${encoded}-${user.id}`
-
-            // Ensure no duplicate room created under the same socket id
-            let room = this.getRoomById(roomId);
-
-            if (!room) {
-                const newRoom: Room = {
-                    id: roomId,
-                    owner: user,
-                    preference: preferences,
-                }
-
-                room = newRoom;
-                this.rooms.push(room);
-            }
-
-            roomCreated(room);
+            return;
         }
 
+        // No exact match, relax criteria
+        preferences.code = encoded.preferenceId;
+        preferences.languageCode = encoded.languageCode;
+        preferences.difficultyCode = encoded.difficultyCode;
+        preferences.topicCode = encoded.topicCode;
+
+        room = this.rooms.find(r => ifPreferenceOverlapped(r.preference, preferences));
+        
+        if (room) {
+            room.matched = true;
+            room.partner = user;
+            room.preference = getOverlappedPreferences(room.preference.code, preferences.code);
+            matched(room);
+            return;
+        }
+
+        // No room found, create room
+        const roomId = `${encoded.preferenceId}-${user.id}`
+        // Ensure no duplicate room created under the same socket id
+        room = this.getRoomById(roomId);
+        if (!room) {
+            const newRoom: Room = {
+                id: roomId,
+                owner: user,
+                preference: preferences,
+            }
+            room = newRoom;
+            this.rooms.push(room);
+        }
+        roomCreated(room);
     }
 
     getRoomById(id: string) {
@@ -72,7 +84,7 @@ export default class RoomManager {
     list() {
         return this.rooms;
     }
-    
+
     chooseRandomItem(list: string[]): string | null {
         if (list.length === 0) {
             return null;
