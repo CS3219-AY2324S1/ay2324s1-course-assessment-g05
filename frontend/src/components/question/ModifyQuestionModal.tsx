@@ -17,6 +17,7 @@ import QuestionExamplesTable from "./QuestionExamplesTable";
 import QuestionConstrainsTable from "./QuestionConstrainsTable";
 import {
   getQuestionById,
+  getTopics,
   postQuestion,
   updateQuestion,
 } from "@/helpers/question/question_api_wrappers";
@@ -35,10 +36,9 @@ export default function ModifyQuestionModal({
 }) {
   // component mode and const
   const editMode = questionId != null;
-  const topicSelections = Object.values(TOPIC).map((k) => ({ value: k }));
-  const complexitySelections = Object.values(COMPLEXITY).map((k) => ({
-    value: k,
-  }));
+  const complexitySelections = Object.values(COMPLEXITY).map((k) => ({value: k}));
+
+  const [topicOptions, setTopicOptions] = useState<string[]>([]);
 
   // component states
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -73,6 +73,20 @@ export default function ModifyQuestionModal({
       console.error(error);
     }
   };
+  // Setup external resources
+  useEffect(() => {
+    async function setUpTopics() {
+      getTopics().then(topics => {
+        console.log(topics);
+        
+        setTopicOptions(topics);
+      })
+    }
+
+    if(topicOptions.length === 0) {
+      setUpTopics();
+    }
+  }, [])
 
   // prefill form base on mode
   useEffect(() => {
@@ -80,7 +94,6 @@ export default function ModifyQuestionModal({
       console.log("[ModifyQuestionModal]: prefill form with qid:" + questionId);
       retrieveQuestionDetail(questionId);
     } else {
-      console.log("[ModifyQuestionModal]: close or open with empty form");
       setId("");
       setTitle("");
       setComplexity("EASY");
@@ -157,6 +170,7 @@ export default function ModifyQuestionModal({
                 <ModalBody>
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-row gap-2">
+                      {/* Title fields */}
                       <Input
                         name="title"
                         type="text"
@@ -177,14 +191,17 @@ export default function ModifyQuestionModal({
                         labelPlacement="outside"
                         placeholder="Choose a complexity level"
                         className="flex-none w-36"
+                        classNames={{
+                          value: "capitalize"
+                        }}
                         selectedKeys={[complexity]}
                         items={complexitySelections}
                         onChange={(e) => setComplexity(e.target.value)}
                         disabled={isLoading}
                       >
                         {(level) => (
-                          <SelectItem key={level.value}>
-                            {level.value}
+                          <SelectItem className="capitalize" key={level.value}>
+                            {level.value.toLowerCase()}
                           </SelectItem>
                         )}
                       </Select>
@@ -196,17 +213,20 @@ export default function ModifyQuestionModal({
                         placeholder="Select question topics"
                         selectionMode="multiple"
                         description="Allow multiple selections"
+                        classNames={{
+                          value: "capitalize"
+                        }}
                         isMultiline={true}
-                        items={topicSelections}
+                        items={topicOptions}
                         selectedKeys={topics}
                         onChange={(e) => setTopics(e.target.value.split(","))}
                         disabled={isLoading}
                       >
-                        {(topic) => (
-                          <SelectItem key={topic.value}>
-                            {topic.value}
+                        {topicOptions.map(topic => (
+                          <SelectItem className="capitalize" key={topic}>
+                            {topic.toLowerCase()}
                           </SelectItem>
-                        )}
+                        ))}
                       </Select>
                     </div>
 

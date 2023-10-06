@@ -1,6 +1,6 @@
 import SocketService from "@/helpers/matching/socket_service";
 import { getQuestionByPreference } from "@/helpers/question/question_api_wrappers";
-import { useAuthContext } from "@/providers/auth";
+import { useAuthContext } from "@/contexts/auth";
 import Question from "@/types/question";
 import { Button, Chip, CircularProgress, ModalBody, ModalFooter, ModalHeader, Select, SelectItem } from "@nextui-org/react";
 import { useEffect, useState } from "react";

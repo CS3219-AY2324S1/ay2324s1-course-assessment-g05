@@ -1,7 +1,7 @@
 "use server";
 import api from "@/helpers/endpoint";
 import { getLogger } from "@/helpers/logger";
-import { HTTP_METHODS, SERVICE } from "@/types/enums";
+import { HTTP_METHODS, SERVICE, TOPIC } from "@/types/enums";
 import Question from "@/types/question";
 import { revalidateTag } from "next/cache";
 import { ServiceError, ServiceResponse, formatFieldError } from "../service";
@@ -27,19 +27,19 @@ type MongoQuestionList = {
 export async function getQuestionList(): Promise<Question[]> {
   let questions: Question[] = [];
 
-  const res = await api({
+  const response = await api({
     method: HTTP_METHODS.GET,
     service: service,
     tags: scope,
     cache: "no-cache",
   });
 
-  if (res.status === 200) {
-    let mongoRes = res.data as MongoQuestionList;
+  if (response.status === 200) {
+    let mongoRes = response.data as MongoQuestionList;
     questions = mongoRes.data;
     logger.info(`[getQuestionList] Got ${mongoRes.count} items.`);
   } else {
-    logger.error(res, `[getQuestionList] Error:`);
+    logger.error(response, `[getQuestionList] Error:`);
   }
 
   return questions;
@@ -55,7 +55,7 @@ export async function getQuestionById(
   id: string,
   cache: RequestCache = "no-cache"
 ): Promise<Question | ServiceResponse> {
-  const res = await api({
+  const response = await api({
     method: HTTP_METHODS.GET,
     service: service,
     path: id,
@@ -63,15 +63,15 @@ export async function getQuestionById(
     cache: cache,
   });
 
-  if (res.status === 200) {
-    let question = res.data as Question;
+  if (response.status === 200) {
+    let question = response.data as Question;
     logger.info(`[getQuestionById(${id})] Got question: ${question.title}`);
     return question;
   } else {
-    logger.error(res, `[getQuestionById(${id})] Error:`);
+    logger.error(response, `[getQuestionById(${id})] Error:`);
     return {
       ok: false,
-      message: res.data ? (res.data as ServiceError).message : res.message,
+      message: response.data ? (response.data as ServiceError).message : response.message,
     };
   }
 }
@@ -112,6 +112,26 @@ export async function getQuestionByPreference(
   );
 }
 
+export async function getTopics() {
+  const response = await api({
+    method: HTTP_METHODS.GET,
+    service: SERVICE.TOPICS,
+    tags: [SERVICE.TOPICS],
+  });
+
+  if (response.status === HttpStatusCode.OK) { 
+    const topics = response.data['topics'] as string[]
+    logger.info(`[getTopics] Got ${topics.length} items.`);
+    return topics;
+  }
+
+  return throwAndLogError(
+    "getTopics",
+    response.message,
+    PeerPrepErrors.InternalServerError
+  );
+}
+
 /**
  * post: /api/questions
  * Posts a new question to the API.
@@ -121,24 +141,24 @@ export async function getQuestionByPreference(
 export async function postQuestion(
   question: Question
 ): Promise<ServiceResponse> {
-  const res = await api({
+  const response = await api({
     method: HTTP_METHODS.POST,
     service: service,
     body: question,
     tags: scope,
   });
 
-  if (res.status == 201) {
+  if (response.status == 201) {
     revalidateTag(SERVICE.QUESTION);
     return {
       ok: true,
-      message: res.data,
+      message: response.data,
     };
   } else {
-    logger.error(res, `[postQuestion] Error:`);
+    logger.error(response, `[postQuestion] Error:`);
     return {
       ok: false,
-      message: res.data ? (res.data as ServiceError).message : res.message,
+      message: response.data ? (response.data as ServiceError).message : response.message,
     };
   }
 }
@@ -154,7 +174,7 @@ export async function updateQuestion(
   id: string,
   question: Question
 ): Promise<ServiceResponse> {
-  const res = await api({
+  const response = await api({
     method: HTTP_METHODS.PUT,
     service: service,
     path: id,
@@ -162,19 +182,19 @@ export async function updateQuestion(
     tags: scope,
   });
 
-  if (res.status == 204) {
+  if (response.status == 204) {
     revalidateTag(SERVICE.QUESTION);
     return {
       ok: true,
-      message: res.data,
+      message: response.data,
     };
   } else {
-    logger.error(res, `[updateQuestion] Error:`);
+    logger.error(response, `[updateQuestion] Error:`);
     return {
       ok: false,
-      message: res.data
-        ? formatFieldError(JSON.parse((res.data as ServiceError).message))
-        : res.message,
+      message: response.data
+        ? formatFieldError(JSON.parse((response.data as ServiceError).message))
+        : response.message,
     };
   }
 }
@@ -186,24 +206,24 @@ export async function updateQuestion(
  * @returns {Promise<ServiceResponse>} - A success indicator and a message.
  */
 export async function deleteQuestion(id: string): Promise<ServiceResponse> {
-  const res = await api({
+  const response = await api({
     method: HTTP_METHODS.DELETE,
     service: service,
     path: id,
     tags: scope,
   });
 
-  if (res.status == 204) {
+  if (response.status == 204) {
     revalidateTag(SERVICE.QUESTION);
     return {
       ok: true,
-      message: res.data,
+      message: response.data,
     };
   } else {
-    logger.error(res, `[deleteQuestion] Error:`);
+    logger.error(response, `[deleteQuestion] Error:`);
     return {
       ok: false,
-      message: res.message,
+      message: response.message,
     };
   }
 }

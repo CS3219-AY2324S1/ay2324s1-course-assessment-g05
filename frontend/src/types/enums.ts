@@ -4,6 +4,7 @@ export enum SERVICE {
   QUESTION = "questions",
   MATCHING = "matching",
   COLLABORATION = "collaboration",
+  TOPICS = "topics"
 }
 
 export enum HTTP_METHODS {

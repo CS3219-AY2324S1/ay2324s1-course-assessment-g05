@@ -2,7 +2,7 @@ import { ModalBody, Card, CardBody, CardFooter, Button, ModalFooter, Tooltip, Mo
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
 import { useEffect, useState } from "react";
 import Partner from "@/types/partner";
-import { useAuthContext } from "@/providers/auth";
+import { useAuthContext } from "@/contexts/auth";
 import { Icons } from "../common/Icons";
 import SocketService from "@/helpers/matching/socket_service";
 import Preference from "@/types/preference";
