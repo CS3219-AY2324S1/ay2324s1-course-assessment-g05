@@ -1,4 +1,4 @@
-import { ModalBody, ModalFooter, Button, CircularProgress } from "@nextui-org/react";
+import { ModalBody, ModalFooter, Button, CircularProgress, Tooltip } from "@nextui-org/react";
 import ComplexityChip from "../question/ComplexityChip";
 import { useEffect, useState } from "react";
 import Preference from "@/types/preference";
@@ -24,7 +24,7 @@ export default function MatchingLobbyMatchingView(
     }
 ) {
     const { user } = useAuthContext();
-    const [ timer, setTimer] = useState(0);
+    const [timer, setTimer] = useState(0);
 
     const requestMatch = (socket: SocketService) => {
         try {
@@ -70,28 +70,30 @@ export default function MatchingLobbyMatchingView(
 
     return (
         <>
-            <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center my-4">
+            <ModalBody className="flex flex-col gap-2 p-2 h-full items-center justify-center my-4">
                 <CircularProgress
                     classNames={{
                         svg: "w-24 h-24"
                     }}
                     aria-label="waiting for a match"
                     label={timer + "s"}
-                    >
+                >
                 </CircularProgress>
                 <span>Waiting for a match...</span>
-                <div className="flex flex-col gap-2 items-center text-small">
+                <div className="flex flex-col gap-2 items-center justify-center text-small w-2/3">
                     <span>{preference.languages.join(", ")}</span>
                     <span className="flex gap-2">
                         {preference.difficulties.map(item => (
                             <ComplexityChip key={item} complexity={item} size="sm"></ComplexityChip>
                         ))}
                     </span>
-                    <span>{preference.topics.join(", ")}</span>
+                    <Tooltip className="capitalize" content={preference?.topics.join(", ").toLowerCase()}>
+                        <span className="capitalize text-ellipsis line-clamp-1">{preference?.topics.join(", ").toLowerCase()}</span>
+                    </Tooltip>
                 </div>
             </ModalBody>
             <ModalFooter>
-            <Button onPress={onClose} startContent={<Icons.FiX/>}>Cancel</Button>
+                <Button onPress={onClose} startContent={<Icons.FiX />}>Cancel</Button>
             </ModalFooter>
         </>
     )
