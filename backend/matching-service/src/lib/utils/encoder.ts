@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import Preferences from '../../models/types/preferences';
+import Preference from '../../models/types/preference';
 import Complexity from '../enums/Complexity';
 import Language from '../enums/Language';
 import Topic from '../enums/Topic';
@@ -98,10 +98,10 @@ export function decodePreferences(preferenceCode: string) {
     }
 }
 
-export function encodePreferences(preference: Preferences) {
-    const encodedLanguage = encodeEnum(Language, preference.languages)
-    const encodedDifficulty = encodeEnum(Complexity, preference.difficulties)
-    const encodedTopics = encodeEnum(Topic, preference.topics)
+export function encodePreferences(preference: Preference) {
+    const encodedLanguage = encodeEnum(Language, preference.languages);
+    const encodedDifficulty = encodeEnum(Complexity, preference.difficulties);
+    const encodedTopics = encodeEnum(Topic, preference.topics);
     return {
         languageCode: encodedLanguage,
         difficultyCode: encodedDifficulty,
@@ -110,7 +110,7 @@ export function encodePreferences(preference: Preferences) {
     };
 }
 
-export function ifPreferenceOverlapped(source: Preferences, matching: Preferences) {
+export function ifPreferenceOverlapped(source: Preference, matching: Preference) {
     // Find overlapping languages
     if (source.languageCode && matching.languageCode) {
         var commonLanguage = matchBinary(source.languageCode, matching.languageCode);

@@ -1,4 +1,4 @@
-import Preferences from "../../models/types/preferences";
+import Preference from "../../models/types/preference";
 import Room from "../../models/types/room";
 import { encodePreferences, getOverlappedPreferences, ifPreferenceOverlapped } from "./encoder";
 import Partner from "../../models/types/partner";
@@ -16,13 +16,13 @@ export default class RoomManager {
 
     findMatchElseCreateRoom(
         user: Partner,
-        preferences: Preferences,
+        preferences: Preference,
         matched: (room: Room) => void,
         roomCreated: (room: Room) => void,
     ) {
         let encoded = encodePreferences(preferences)
         let room = this.rooms.find(r =>
-            r.preference.id == encoded &&
+            r.preferences.id == encoded &&
             !r.matched &&
             (r.owner as Partner).id !== user.id)
 
@@ -39,12 +39,12 @@ export default class RoomManager {
         preferences.difficultyCode = encoded.difficultyCode;
         preferences.topicCode = encoded.topicCode;
 
-        room = this.rooms.find(r => ifPreferenceOverlapped(r.preference, preferences));
+        room = this.rooms.find(r => ifPreferenceOverlapped(r.preferences, preferences));
         
         if (room) {
             room.matched = true;
             room.partner = user;
-            room.preference = getOverlappedPreferences(room.preference.code, preferences.code);
+            room.preferences = getOverlappedPreferences(room.preferences.code, preferences.code);
             matched(room);
             return;
         }
@@ -57,7 +57,7 @@ export default class RoomManager {
             const newRoom: Room = {
                 id: roomId,
                 owner: user,
-                preference: preferences,
+                preferences: preferences,
             }
             room = newRoom;
             this.rooms.push(room);

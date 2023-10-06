@@ -1,4 +1,4 @@
-type Preferences = {
+type Preference = {
   code?: string,
   languages: Language[];
   languageCode?: string;
@@ -8,4 +8,4 @@ type Preferences = {
   topicCode?: string;
 };
 
-export default Preferences;
+export default Preference;

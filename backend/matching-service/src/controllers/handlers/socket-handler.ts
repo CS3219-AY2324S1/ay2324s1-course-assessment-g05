@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io';
 import { io } from '../../app';
 import RoomManager from '../../lib/utils/roomManager';
-import Preferences from '../../models/types/preferences';
+import Preference from '../../models/types/preference';
 import Partner from '../../models/types/partner';
 import Room from '../../models/types/room';
 import Logger from '../../lib/utils/logger'
@@ -14,7 +14,7 @@ const activeSockets = new Set();
 
 const handleMatching = (socket: Socket, request: {
     user: Partner,
-    preferences: Preferences,
+    preferences: Preference,
 }) => {
     try {
         if (!activeSockets.has(socket.id)) {
@@ -49,7 +49,7 @@ const handleMatched = (socket: Socket, room: Room, requester: Partner) => {
         room: room.id,
         partner: requester,
         owner: room.owner.id,
-        preferences: room.preference
+        preferences: room.preferences
     })
 
     // inform self
@@ -57,7 +57,7 @@ const handleMatched = (socket: Socket, room: Room, requester: Partner) => {
         room: room.id,
         partner: room.owner,
         owner: room.owner.id,
-        preferences: room.preference
+        preferences: room.preferences
     })
 }
 
@@ -97,7 +97,7 @@ const handleStart = (socket: Socket, problemId: string) => {
         if (r !== socket.id) {
             const room = rm.getRoomById(r);
             if (room) {
-                const lang = rm.chooseRandomItem(room.preference.languages) as string;
+                const lang = rm.chooseRandomItem(room.preferences.languages) as string;
                 const roomId = generateRoomId(
                         room.owner.id,
                         room.partner.id,

@@ -1,6 +1,6 @@
-import Preferences from "../../models/types/preferences";
+import Preference from "../../models/types/preference";
 
-export const testPreferences: Preferences[] = [
+export const testPreferences: Preference[] = [
     {
         languages: [
             "Python"
