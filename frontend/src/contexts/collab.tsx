@@ -7,9 +7,15 @@ import User from "@/types/user";
 import { notFound } from "next/navigation";
 import { createContext, useContext, useRef, useState } from "react";
 import { useAuthContext } from "./auth";
+import { verifyRoomParamsIntegrity } from "@/utils/hashUtils";
 
 interface ICollabContext {
-  handleConnectToRoom: (roomId: string) => Promise<void>;
+  handleConnectToRoom: (
+    roomId: string,
+    questionId: string,
+    partnerId: string,
+    matchedLanguage: string
+  ) => Promise<void>;
   initializeSocket: (roomId: string) => Promise<void>;
   handleDisconnectFromRoom: () => void;
   isLoading: boolean;
@@ -73,31 +79,41 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     }, 500);
   };
 
-  const handleConnectToRoom = async (roomId: string) => {
-    if (isLoading) return;
+  const handleConnectToRoom = async (
+    roomId: string,
+    questionId: string,
+    partnerId: string,
+    matchedLanguage: string
+  ) => {
     setIsLoading(true);
     try {
-      // TODO: update this when matching service is available
-      // check if a match is established => at least a partner, a question, and a room id is returned
-      const { secondUserId, questionId, matchedLanguage } =
-        MatchingService.getMatchedRecord({
-          firstUserId: user.id ?? "cln1l7jer0000t2ykbb11njys",
-          secondUserId: "cln1arksi00007k9wxqsyxpzv",
-          questionId: "650a5979bf32dcb1ae15bf11",
-          matchedLanguage: "javascript",
-        });
-
-      if (!matchedLanguage) {
+      // check if we have an authenticated user, a not-null partnerId, questionId, matchedLanguage, and roomId
+      if (!user || !partnerId || !questionId || !matchedLanguage || !roomId) {
+        console.log("Missing required parameter values");
         return notFound();
       }
 
-      setMatchedLanguage(matchedLanguage);
+      // verify parameters integrity
+      const isValidParams = verifyRoomParamsIntegrity(
+        roomId,
+        user.id!,
+        partnerId,
+        questionId,
+        matchedLanguage
+      );
+
+      if (!isValidParams) {
+        console.log("Invalid room parameters");
+        return notFound();
+      }
+
+      setMatchedLanguage(matchedLanguage.toLowerCase());
 
       // TODO: refactor this to Promise.all
-
-      const partner = await UserService.getUserById(secondUserId);
+      const partner = await UserService.getUserById(partnerId);
 
       if (!partner) {
+        console.log("Invalid partner id");
         return notFound();
       }
 
@@ -106,6 +122,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
       const question = (await getQuestionById(questionId)) as Question;
 
       if (!question) {
+        console.log("Invalid question id");
         return notFound();
       }
 
