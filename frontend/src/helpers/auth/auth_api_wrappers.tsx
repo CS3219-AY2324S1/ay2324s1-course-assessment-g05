@@ -119,10 +119,27 @@ const verifyEmail = async (email: string, token: string) => {
     return throwAndLogError("verifyEmail", response.message, getError(response.status));
 };
 
+const sendPasswordResetEmail = async (email: string) => {
+    // call PUT /api/auth/sendPasswordResetEmail from auth service
+    const response = await api({
+        method: HTTP_METHODS.PUT,
+        service: service,
+        path: `sendPasswordResetEmail/${email}`,
+        tags: scope,
+    });
+
+    if (response.status === HttpStatusCode.NO_CONTENT) {
+        return true;
+    }
+
+    return throwAndLogError("sendPasswordResetEmail", response.message, getError(response.status));
+};
+
 export const AuthService = {
     logInByEmail,
     registerByEmail,
     validateUser,
     logOut,
     verifyEmail,
+    sendPasswordResetEmail,
 };

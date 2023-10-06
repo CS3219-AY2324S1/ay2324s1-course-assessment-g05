@@ -272,7 +272,7 @@ export function LoginComponent() {
                             </div>
                             <Spacer y={5} />
                             <div className="flex justify-between">
-                                <Link size="sm" href="#">
+                                <Link size="sm" href="/forgotpassword">
                                     Forgot password?
                                 </Link>
                                 <Link

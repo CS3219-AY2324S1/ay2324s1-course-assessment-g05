@@ -7,7 +7,7 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
   const baseUrl = "http://localhost:3000";
-  const publicContent = ["/_next", "/assets", "/logout", "/verify"];
+  const publicContent = ["/_next", "/assets", "/logout", "/verify", "/forgotpassword"];
   if (publicContent.some((path) => request.nextUrl.pathname.startsWith(path))) {
     return NextResponse.next();
   }

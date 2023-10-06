@@ -3,7 +3,7 @@ import HttpStatusCode from "../../common/HttpStatusCode";
 import { createUser, getUserByEmail } from "../../lib/user_api_helpers";
 import { getJWTSecret, issueJWT, validatePassword } from "../../lib/utils";
 import { UserProfile } from "../../common/types";
-import { VerificationMail } from "../../lib/email";
+import { VerificationMail } from "../../lib/email/verificationMail";
 import jwt from "jsonwebtoken";
 
 const registerByEmail = async (request: Request, response: Response) => {
@@ -19,7 +19,7 @@ const registerByEmail = async (request: Request, response: Response) => {
 
   const user = await res.json();
 
-  const mail = new VerificationMail("tan.xing.jie@u.nus.edu", user.verificationToken); //todo change email
+  const mail = new VerificationMail(user.email, user.verificationToken);
   await mail.send();
 
   // const tokenObject = issueJWT(user);

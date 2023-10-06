@@ -19,4 +19,6 @@ type UserProfile = {
 
   isVerified: Boolean;
   verificationToken?: String;
+
+  passwordResetToken?: String;
 };

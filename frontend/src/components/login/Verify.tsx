@@ -83,17 +83,6 @@ export default function VerifyComponent() {
                                 Please retry the link from your email. If this problem persists,
                                 please contact admin.
                             </p>
-
-                            {/* <form className="flex flex-col space-y-10">
-                                <Button
-                                    color="primary"
-                                    onClick={() => {
-                                        router.push(CLIENT_ROUTES.LOGIN);
-                                    }}
-                                >
-                                    Back to login
-                                </Button>
-                            </form> */}
                         </CardBody>
                     </>
                 )}

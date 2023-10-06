@@ -8,7 +8,8 @@ import {
   postUser,
   updateUserById,
   updateUserPreferences,
-  verifyUserEmail
+  verifyUserEmail,
+  generatePasswordResetToken
 } from "../controllers";
 
 const router: Router = Router();
@@ -28,6 +29,8 @@ router.route("/users").post(postUser);
 router.route("/users/:userId").put(updateUserById);
 
 router.route("/users/verifyEmail/:email/:token").put(verifyUserEmail)
+
+router.route("/users/generatePasswordResetToken/:email").put(generatePasswordResetToken)
 
 router.route("/users/:userId").delete(deleteUserById);
 

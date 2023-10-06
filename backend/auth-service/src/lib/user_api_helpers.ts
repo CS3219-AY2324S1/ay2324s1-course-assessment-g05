@@ -57,4 +57,15 @@ const verifyEmail = async(email:string, token:string) => {
   return res;
 }
 
-export { createUser, getUserServiceEndpoint, getUserById, getUserByEmail, verifyEmail };
+const generatePasswordResetToken = async(email:string) => {
+  const res = await fetch(`${getUserServiceEndpoint()}/api/users/generatePasswordResetToken/${email}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      bypass: getServiceSecret(),
+    },
+  });
+  return res;
+}
+
+export { createUser, getUserServiceEndpoint, getUserById, getUserByEmail, verifyEmail, generatePasswordResetToken };

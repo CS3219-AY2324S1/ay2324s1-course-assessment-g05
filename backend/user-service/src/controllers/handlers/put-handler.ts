@@ -232,3 +232,59 @@ export const verifyUserEmail = async (request: Request, response: Response) => {
     });
   }
 };
+
+export const generatePasswordResetToken = async (request: Request, response: Response) => {
+  try{
+    const email = request.params.email;
+    console.log(email)
+
+  // query database for user email
+  const user = await db.user.findFirst({
+    where: {
+      email: email,
+    },
+  });
+
+  if (!user) {
+    response.status(HttpStatusCode.NOT_FOUND).json({
+      error: "NOT FOUND",
+      message: `User with id ${email} cannot be found.`,
+    });
+    return;
+  }
+
+  // generate verification token for email verification
+  const secretKey = 'resetpasswordkey'; //todo change to env
+  const passwordResetToken = jwt.sign( {email: email} , secretKey, { expiresIn: '1d' })
+
+  await db.user.update({
+    where: {
+      email: email,
+    },
+    data: {passwordResetToken: passwordResetToken},
+  });
+
+  
+  response.status(HttpStatusCode.OK).json({ id: user.id,
+    email: email,
+    passwordResetToken: passwordResetToken,
+    message: "Password token added" })
+
+    console.log("USER RES")
+
+  }catch (error) {
+  if (error instanceof ZodError) {
+    response.status(HttpStatusCode.BAD_REQUEST).json({
+      error: "BAD REQUEST",
+      message: formatErrorMessage(error),
+    });
+    return;
+  }
+  // log the error
+  console.log(error);
+  response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+    error: "INTERNAL SERVER ERROR",
+    message: "An unexpected error has occurred.",
+  });
+}
+}

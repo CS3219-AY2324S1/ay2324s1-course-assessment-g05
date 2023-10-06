@@ -1,34 +1,25 @@
 
-import { Source, Email } from "../common/types";
+import { Source, Email } from "../../common/types";
 const nodemailer = require("nodemailer");
 
-const webURL = "http://localhost:3000/verify?"     // todo change the link in env
 
-class VerificationMail {
+class Mail {
     source: Source;
     recipient: string;
-    link: string;
+    subject: string;
+    content: string;
 
-    constructor(recipient:string, link:string, ) {
+
+    constructor(recipient:string, subject:string, content:string) {
         this.source = {
             user: process.env.NM_MAIL!,
             pass: process.env.NM_PASS!
         };
         this.recipient = recipient;
-        this.link = link;
+        this.subject = subject;
+        this.content = content;
     };
 
-    subject() {
-        return (
-            `Peer Prep Verification Email`
-        )
-    }
-
-    body() {
-        return (
-            `<p>Click <a href="${webURL}email=${this.recipient}&token=${this.link}">here</a> to verify your email.</p>`
-        )
-    }
     footer() {
         return (
             `<br><strong>Note:</strong> This is an auto-generated email. Please do not reply to this email.`
@@ -55,8 +46,8 @@ class VerificationMail {
             await transporter.sendMail({
                 from: this.source.user, 
                 to: this.recipient,
-                subject: this.subject(),
-                html: this.body() + this.footer(),
+                subject: this.subject,
+                html: this.content + this.footer(),
             });
             
         }
@@ -66,4 +57,4 @@ class VerificationMail {
     };
 };
 
-export { VerificationMail };
+export { Mail };
