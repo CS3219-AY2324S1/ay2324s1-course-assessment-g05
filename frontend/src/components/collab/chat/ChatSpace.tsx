@@ -23,7 +23,6 @@ const ChatSpace = ({ onClose }: IChatSpaceProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const [newMessage, setNewMessages] = useState<ChatMessage>({
-    uuid: "",
     content: "",
     senderId: "",
   });
@@ -39,12 +38,9 @@ const ChatSpace = ({ onClose }: IChatSpaceProps) => {
   }, []);
 
   useEffect(() => {
-    if (
-      newMessage.content !== "" &&
-      newMessage.uuid != messages[messages.length - 1]?.uuid
-    ) {
+    if (newMessage.content !== "") {
       setMessages([...messages, newMessage]);
-      setNewMessages({ uuid: "", content: "", senderId: "" });
+      setNewMessages({ content: "", senderId: "" });
       scrollToNewestMessage();
     }
   }, [newMessage]);
@@ -92,7 +88,11 @@ const ChatSpace = ({ onClose }: IChatSpaceProps) => {
         {
           <ul className="space-y-3 px-4">
             {messages.map((item) => (
-              <ChatBubble message={item} isSelf={item.senderId === user.id!} />
+              <ChatBubble
+                key={crypto.randomUUID()}
+                message={item}
+                isSelf={item.senderId === user.id!}
+              />
             ))}
           </ul>
         }
