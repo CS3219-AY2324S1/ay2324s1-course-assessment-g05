@@ -1,5 +1,5 @@
 "use client";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -17,6 +17,7 @@ import { useAuthContext } from "@/contexts/auth";
 import Preference from "@/types/preference";
 import displayToast from "../common/Toast";
 import { Icons } from "../common/Icons";
+import { getTopics } from "@/helpers/question/question_api_wrappers";
 
 const MatchingCard = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -27,7 +28,7 @@ const MatchingCard = () => {
 
   const optionsLanguages = StringUtils.convertEnumsToCamelCase(LANGUAGE);
   const optionsDifficulties = StringUtils.convertEnumsToCamelCase(COMPLEXITY);
-  const optionsTopics = StringUtils.convertEnumsToCamelCase(TOPIC);
+  const [topicOptions, setTopicOptions] = useState<string[]>([]);
 
   const [preferences, setPreferences] = useState<Preference>(
     currentPreferences || { languages: [], difficulties: [], topics: [] }
@@ -61,6 +62,15 @@ const MatchingCard = () => {
     }
   };
 
+  useEffect(() => {
+    async function setUpTopics() {
+      await getTopics().then(topics => {
+        setTopicOptions(topics)
+      })
+    }
+    setUpTopics();
+  }, [])
+
   return (
     <>
       {preferences && (
@@ -83,6 +93,9 @@ const MatchingCard = () => {
               label="Programming languages"
               selectionMode="multiple"
               placeholder="Select a language"
+              classNames={{
+                value: "capitalize"
+              }}
               selectedKeys={preferences.languages}
               onChange={handleOnSelectionChange}
               errorMessage={
@@ -103,6 +116,9 @@ const MatchingCard = () => {
               label="Complexity"
               selectionMode="multiple"
               placeholder="Select a complexity level"
+              classNames={{
+                value: "capitalize"
+              }}
               selectedKeys={preferences.difficulties}
               onChange={handleOnSelectionChange}
               errorMessage={
@@ -123,15 +139,18 @@ const MatchingCard = () => {
               label="Topics"
               selectionMode="multiple"
               placeholder="Select a topic"
+              classNames={{
+                value: "capitalize"
+              }}
               selectedKeys={preferences.topics}
               onChange={handleOnSelectionChange}
               errorMessage={
                 preferences.topics.length == 0 && <span>Topics is required</span>
               }
             >
-              {optionsTopics.map((value) => (
+              {topicOptions.map((value) => (
                 <SelectItem className="capitalize" key={value} value={value}>
-                  {value}
+                  {value.toLowerCase()}
                 </SelectItem>
               ))}
             </Select>

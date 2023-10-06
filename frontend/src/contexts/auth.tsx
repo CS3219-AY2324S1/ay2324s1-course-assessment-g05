@@ -80,7 +80,7 @@ const AuthProvider = ({ children }: IAuthProvider) => {
       difficulties: StringUtils.convertEnumsToCamelCase(
         rawUser.preferences?.difficulties
       ),
-      topics: StringUtils.convertEnumsToCamelCase(rawUser.preferences?.topics),
+      topics: rawUser.preferences?.topics || [],
     };
   };
 

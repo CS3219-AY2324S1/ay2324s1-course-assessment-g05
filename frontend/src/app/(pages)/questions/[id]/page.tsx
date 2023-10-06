@@ -25,7 +25,7 @@ export default async function QuestionDetailPage({
 
   return (
     <Suspense fallback={<LogoLoadingComponent />}>
-      <ProblemDescription question={question} />
+      {/* <ProblemDescription question={question} /> */}
     </Suspense>
   );
 }

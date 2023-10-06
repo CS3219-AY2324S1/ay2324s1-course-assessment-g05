@@ -63,17 +63,17 @@ export async function getQuestionById(
     cache: cache,
   });
 
-  if (response.status === 200) {
+  if (response.status === HttpStatusCode.OK) {
     let question = response.data as Question;
     logger.info(`[getQuestionById(${id})] Got question: ${question.title}`);
     return question;
-  } else {
-    logger.error(response, `[getQuestionById(${id})] Error:`);
-    return {
-      ok: false,
-      message: response.data ? (response.data as ServiceError).message : response.message,
-    };
   }
+
+  return throwAndLogError(
+    "getQuestionById",
+    response.message,
+    PeerPrepErrors.InternalServerError
+  );
 }
 
 /**
@@ -87,7 +87,7 @@ export async function getQuestionByPreference(
   let questions = [];
 
   const complexityFilter = preference?.difficulties.map(d => `complexity=${d}`).join(`&`);
-  const topicFilter = preference?.topics.map(d => `topics=${d}`).join(`&`);
+  const topicFilter = preference?.topics.map(d => `topic=${d}`).join(`&`);
   const queryPath = `?${topicFilter}&${complexityFilter}`
 
   const response = await api({
@@ -98,7 +98,7 @@ export async function getQuestionByPreference(
     cache: cache,
   });
 
-  if (response.status === HttpStatusCode.OK) { 
+  if (response.status === HttpStatusCode.OK) {
     const mongoRes = response.data as MongoQuestionList;
     questions = mongoRes.data;
     logger.info(`[getQuestionByPreference] Got ${mongoRes.count} items.`);
@@ -119,7 +119,7 @@ export async function getTopics() {
     tags: [SERVICE.TOPICS],
   });
 
-  if (response.status === HttpStatusCode.OK) { 
+  if (response.status === HttpStatusCode.OK) {
     const topics = response.data['topics'] as string[]
     logger.info(`[getTopics] Got ${topics.length} items.`);
     return topics;
@@ -148,19 +148,20 @@ export async function postQuestion(
     tags: scope,
   });
 
-  if (response.status == 201) {
+  if (response.status === HttpStatusCode.CREATED) {
     revalidateTag(SERVICE.QUESTION);
     return {
       ok: true,
       message: response.data,
     };
-  } else {
-    logger.error(response, `[postQuestion] Error:`);
-    return {
-      ok: false,
-      message: response.data ? (response.data as ServiceError).message : response.message,
-    };
   }
+
+  logger.error(response, `[postQuestion] Error:`);
+  return throwAndLogError(
+    "postQuestion",
+    response.message,
+    PeerPrepErrors.InternalServerError
+  );
 }
 
 /**
@@ -182,21 +183,20 @@ export async function updateQuestion(
     tags: scope,
   });
 
-  if (response.status == 204) {
+  if (response.status === HttpStatusCode.NO_CONTENT) {
     revalidateTag(SERVICE.QUESTION);
     return {
       ok: true,
       message: response.data,
     };
-  } else {
-    logger.error(response, `[updateQuestion] Error:`);
-    return {
-      ok: false,
-      message: response.data
-        ? formatFieldError(JSON.parse((response.data as ServiceError).message))
-        : response.message,
-    };
   }
+
+  logger.error(response, `[updateQuestion] Error:`);
+  return throwAndLogError(
+    "updateQuestion",
+    response.message,
+    PeerPrepErrors.InternalServerError
+  );
 }
 
 /**
@@ -213,17 +213,17 @@ export async function deleteQuestion(id: string): Promise<ServiceResponse> {
     tags: scope,
   });
 
-  if (response.status == 204) {
+  if (response.status === HttpStatusCode.NO_CONTENT) {
     revalidateTag(SERVICE.QUESTION);
     return {
       ok: true,
       message: response.data,
     };
-  } else {
-    logger.error(response, `[deleteQuestion] Error:`);
-    return {
-      ok: false,
-      message: response.message,
-    };
   }
+
+  logger.error(response, `[deleteQuestion] Error:`);
+  return {
+    ok: false,
+    message: response.message,
+  };
 }
