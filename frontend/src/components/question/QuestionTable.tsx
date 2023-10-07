@@ -21,14 +21,16 @@ import { FiEdit, FiEye } from "react-icons/fi";
 import DeleteQuestion from "./DeleteQuestion";
 import { StringUtils } from "@/utils/stringUtils";
 import { CLIENT_ROUTES } from "@/common/constants";
+import { useAuthContext } from "@/contexts/auth";
 
 export default function QuestionTable({
   questions,
-  readonly = false,
 }: {
   questions: Question[];
-  readonly?: Boolean;
 }) {
+  const { user } = useAuthContext();
+  const readonly = user.role != "ADMIN";
+
   const columns = [
     {
       key: "_id",
@@ -50,12 +52,15 @@ export default function QuestionTable({
       label: "TOPIC",
       class: "w-2/6",
     },
-    {
+  ];
+
+  if (!readonly) {
+    columns.push({
       key: "actions",
       label: "ACTIONS",
       class: "",
-    },
-  ];
+    });
+  }
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [toEditQuestion, setToEditQuestion] = React.useState<Question>();
@@ -143,10 +148,13 @@ export default function QuestionTable({
         question={toEditQuestion}
         closeCallback={onClose}
       ></ModifyQuestionModal>
+
       <Table
         aria-label="table of questions"
         topContent={
-          <Button onPress={(e) => openModal()}>Create Question</Button>
+          !readonly && (
+            <Button onPress={(e) => openModal()}>Create Question</Button>
+          )
         }
       >
         <TableHeader columns={columns}>
@@ -165,7 +173,7 @@ export default function QuestionTable({
             <TableRow key={row._id}>
               {(columnKey) => (
                 <TableCell>
-                  {renderCell(row, columnKey as string, false)}
+                  {renderCell(row, columnKey as string, readonly)}
                 </TableCell>
               )}
             </TableRow>
