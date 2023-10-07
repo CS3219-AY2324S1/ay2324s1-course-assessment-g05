@@ -69,7 +69,7 @@ const handleCreateRoom = (socket: Socket, room: Room) => {
     setTimeout(() => {
         if (!room.matched) {
             Logger.debug(`[${socket.id}][handleCreateRoom.callback] Timeout, no match found, close Room(${room.id})`);
-
+            activeSockets.delete(socket.id);
             socket.emit("no_match");
             rm.closeRoom(room.id);
         }

@@ -52,7 +52,7 @@ export function binaryToHex(...input: string[]): string {
 export function hexToBinary(input: string): string {
     const decimalValue = parseInt(input, 16);
     const binaryString = decimalValue.toString(2); // Convert decimal to binary
-    return binaryString.padStart(languageLength + difficultyLength + topicLength - binaryString.length, '0');
+    return binaryString.padStart(languageLength + difficultyLength + topicLength, '0');
 }
 
 export function matchBinary(source: string, matching: string): string {
