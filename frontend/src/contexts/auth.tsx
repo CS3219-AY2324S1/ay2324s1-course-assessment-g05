@@ -85,7 +85,7 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   };
 
   const logIn = async (email: string, password: string) => {
-    const rawUser = await AuthService.logInByEmail(email, password);
+    await AuthService.logInByEmail(email, password);
     await fetchUser(true);
     console.log("logged in!");
   };

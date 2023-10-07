@@ -98,9 +98,7 @@ export function LoginComponent() {
     };
 
     try {
-      let res = await AuthService.registerByEmail(user);
-
-      // await logIn(email, password);
+      await AuthService.registerByEmail(user);
       displayToast("Sign up success!", ToastType.SUCCESS);
       router.push(CLIENT_ROUTES.VERIFY); //TODO: Update with verifying OTP/Email address when auth
       sessionStorage.setItem("email", email.toString());
@@ -265,31 +263,15 @@ export function LoginComponent() {
           ) : (
             <>
               <Spacer y={3} />
-              <div className="flex justify-between">
-                <Checkbox
-                  size="sm"
-                  onClick={() => {
-                    setIsRemembered(true);
-                  }}
-                >
-                  Remember me
-                </Checkbox>
+              <div className="flex flex-col items-center pt-2">
                 <Button
-                  className="focus:outline-none p-1"
+                  className="w-1/2"
                   type="submit"
                   isLoading={isSubmitted}
-                  isIconOnly
                   aria-label="Submit"
-                  size="sm"
                   color="primary"
-                  // onClick={() => {
-                  //   setIsSubmitted(true);
-                  // }}
-                  // href="/verify"
                 >
-                  {!isSubmitted ? (
-                    <Image src="/assets/submit_button.svg" />
-                  ) : null}
+                  {isSubmitted ? null : <>Log In</>}
                 </Button>
               </div>
               <Spacer y={5} />
@@ -308,19 +290,6 @@ export function LoginComponent() {
                 </Link>
               </div>
               <Spacer y={5} />
-              <Divider />
-              <Spacer y={5} />
-              <div className="flex items-center justify-between h-10 w-100%">
-                <header className="text-xs">Sign in with:</header>
-                <div className="flex justify-between space-x-5 p-x-5">
-                  <Button className="p-2" isIconOnly variant="faded">
-                    <Image src="/assets/github.svg" />
-                  </Button>
-                  <Button className="p-2" isIconOnly variant="faded">
-                    <Image src="/assets/google.svg" />
-                  </Button>
-                </div>
-              </div>
             </>
           )}
         </form>
