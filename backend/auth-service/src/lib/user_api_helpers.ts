@@ -37,6 +37,7 @@ const getUserByEmail = async (email: string) => {
 
 const getUserById = async (id: string) => {
   const res = await fetch(`${getUserServiceEndpoint()}/api/users/${id}`, {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
       bypass: getServiceSecret(),
@@ -68,4 +69,17 @@ const generatePasswordResetToken = async(email:string) => {
   return res;
 }
 
-export { createUser, getUserServiceEndpoint, getUserById, getUserByEmail, verifyEmail, generatePasswordResetToken };
+const updatePassword = async (id: string, updateBody: {}) => {
+  const res = await fetch(`${getUserServiceEndpoint()}/api/users/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(updateBody),
+    headers: {
+      "Content-Type": "application/json",
+      bypass: getServiceSecret(),
+    },
+  });
+  return res;
+};
+
+
+export { createUser, getUserServiceEndpoint, getUserById, getUserByEmail, verifyEmail, generatePasswordResetToken, updatePassword };

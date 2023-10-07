@@ -5,7 +5,7 @@ import {
   registerByEmail,
   logOut,
 } from "../controllers/handlers/post-handler";
-import { verifyUserEmail, sendPasswordResetEmail} from "../controllers/handlers/put-handler"
+import { verifyUserEmail, sendPasswordResetEmail, changePassword} from "../controllers/handlers/put-handler"
 import passport from "passport";
 
 const router: Router = Router();
@@ -21,5 +21,6 @@ router
 router.route("/auth/logout").post(logOut);
 router.route("/auth/verifyEmail/:email/:token").put(verifyUserEmail)
 router.route("/auth/sendPasswordResetEmail/:email").put(sendPasswordResetEmail)
+router.route("/auth/changePassword/:id").put(changePassword)
 
 export default router;

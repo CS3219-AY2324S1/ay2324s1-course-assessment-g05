@@ -12,6 +12,7 @@ export const updateUserById = async (request: Request, response: Response) => {
   try {
     const userId = request.params.userId;
 
+
     if (!request.body || Object.keys(request.body).length === 0) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
@@ -21,9 +22,9 @@ export const updateUserById = async (request: Request, response: Response) => {
     }
 
     const updateUserBody = UpdateUserValidator.parse(request.body);
-
     const inputBodyKeys = Object.keys(request.body).sort();
     const parsedBodyKeys = Object.keys(updateUserBody).sort();
+
 
     if (JSON.stringify(inputBodyKeys) !== JSON.stringify(parsedBodyKeys)) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
@@ -49,7 +50,6 @@ export const updateUserById = async (request: Request, response: Response) => {
     }
 
     if (updateUserBody.email) {
-      console.log(updateUserBody.email);
       const existingUserWithSameEmail = await db.user.findFirst({
         where: {
           id: { not: userId },
@@ -236,7 +236,6 @@ export const verifyUserEmail = async (request: Request, response: Response) => {
 export const generatePasswordResetToken = async (request: Request, response: Response) => {
   try{
     const email = request.params.email;
-    console.log(email)
 
   // query database for user email
   const user = await db.user.findFirst({
@@ -265,12 +264,11 @@ export const generatePasswordResetToken = async (request: Request, response: Res
   });
 
   
-  response.status(HttpStatusCode.OK).json({ id: user.id,
+  response.status(HttpStatusCode.OK)
+  .json({ id: user.id,
     email: email,
     passwordResetToken: passwordResetToken,
     message: "Password token added" })
-
-    console.log("USER RES")
 
   }catch (error) {
   if (error instanceof ZodError) {

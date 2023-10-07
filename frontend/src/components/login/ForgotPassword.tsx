@@ -5,43 +5,78 @@ import {
     Spacer,
     Button,
     Input,
-    Checkbox,
-    Link,
     Divider,
     CardHeader,
     Image,
 } from "@nextui-org/react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, FormEvent } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 import { ToastType } from "@/types/enums";
+import bcrypt from "bcryptjs-react";
 import displayToast from "@/components/common/Toast";
+import { CLIENT_ROUTES } from "@/common/constants";
 
 export default function ForgotPasswordComponent() {
-    const [isSubmitted, setIsSubmitted] = useState(false);
-    const [isChangePassword, setIsChangePassword] = useState(false); // redirected from email
+    // States
+    const [userId, setUserId] = useState("");
+    const [token, setToken] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [checkPassword, setCheckPassword] = useState("");
     const [arePasswordsEqual, setArePasswordsEqual] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 
+    // Flags
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isChangePassword, setIsChangePassword] = useState(false); // redirected from email
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isCheckPasswordVisible, setIsCheckPasswordVisible] = useState(false);
+
+    // Toggles
     const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
     const toggleCheckPasswordVisibility = () => setIsCheckPasswordVisible(!isCheckPasswordVisible);
 
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    async function sendPasswordResetEmail() {
+    async function sendPasswordResetEmail(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+
+        if (email == "") {
+            displayToast("Please enter an email to reset your password.", ToastType.ERROR);
+            return;
+        }
+
         try {
-            console.log(email);
             const res = await AuthService.sendPasswordResetEmail(email);
             if (res) {
                 setIsSubmitted(true);
             }
         } catch (error) {
+            displayToast("Something went wrong. Please refresh and try again.", ToastType.ERROR);
+        }
+    }
+
+    async function changeNewPassword(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+
+        if (errorMsg !== "") {
+            displayToast(
+                "Sign up failed. Please address the errors before submitting.",
+                ToastType.ERROR
+            );
+            return;
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        try {
+            let res = await AuthService.changePassword(userId, token, hashedPassword);
+            if (res) {
+                setIsSubmitted(true);
+            }
+        } catch {
             displayToast("Something went wrong. Please refresh and try again.", ToastType.ERROR);
         }
     }
@@ -61,11 +96,13 @@ export default function ForgotPasswordComponent() {
     }, [password, checkPassword, setPassword, setCheckPassword, arePasswordsEqual]);
 
     useEffect(() => {
-        const email = searchParams.get("email");
+        const userId = searchParams.get("id");
         const token = searchParams.get("token");
 
-        if (email && token) {
+        if (userId && token) {
             setIsChangePassword(true);
+            setUserId(userId);
+            setToken(token);
         }
     }, []);
 
@@ -86,19 +123,19 @@ export default function ForgotPasswordComponent() {
                             <Divider />
                             <Spacer y={5} />
                             <p>Enter your email address below:</p>
-                            <form className="flex flex-col space-y-10">
+                            <form
+                                className="flex flex-col space-y-10"
+                                onSubmit={(e) => {
+                                    sendPasswordResetEmail(e);
+                                }}
+                            >
                                 <Input
                                     placeholder="Email address"
                                     onInput={(e) => {
                                         setEmail(e.currentTarget.value);
                                     }}
                                 />
-                                <Button
-                                    color="primary"
-                                    onClick={() => {
-                                        sendPasswordResetEmail();
-                                    }}
-                                >
+                                <Button color="primary" type="submit">
                                     Send reset password link
                                 </Button>
                             </form>
@@ -111,7 +148,12 @@ export default function ForgotPasswordComponent() {
                     </>
                 ) : (
                     <>
-                        <form className="w-1/2" onSubmit={() => {}}>
+                        <form
+                            className="w-1/2"
+                            onSubmit={(e) => {
+                                changeNewPassword(e);
+                            }}
+                        >
                             <CardHeader className="lg font-bold justify-center">
                                 PeerPrep
                             </CardHeader>
@@ -172,16 +214,33 @@ export default function ForgotPasswordComponent() {
                                 <div className="text-red-500 text-center text-xs font-bold">
                                     {errorMsg}
                                 </div>
+                                <div className="flex flex-col items-center pt-5 space-y-5">
+                                    {isSubmitted ? (
+                                        <Button
+                                            color="primary"
+                                            className="w-1/2"
+                                            onClick={() => {
+                                                router.push(CLIENT_ROUTES.LOGIN);
+                                            }}
+                                        >
+                                            Back to login
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            // isLoading={isSubmitted}
+                                            type="submit"
+                                            color="primary"
+                                            className="w-1/2"
+                                        >
+                                            Change
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
-                            <Button
-                                isLoading={isSubmitted}
-                                type="submit"
-                                color="primary"
-                                className="w-1/2"
-                            >
-                                {isSubmitted ? null : <>Change</>}
-                            </Button>
                         </form>
+                        {isSubmitted ? (
+                            <p className="text-success-500">Successfully changed</p>
+                        ) : null}
                     </>
                 )}
             </Card>

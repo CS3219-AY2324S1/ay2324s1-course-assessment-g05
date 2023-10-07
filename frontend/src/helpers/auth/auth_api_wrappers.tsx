@@ -127,6 +127,22 @@ const sendPasswordResetEmail = async (email: string) => {
         path: `sendPasswordResetEmail/${email}`,
         tags: scope,
     });
+    if (response.status === HttpStatusCode.NO_CONTENT) {
+        return true;
+    }
+
+    return throwAndLogError("sendPasswordResetEmail", response.message, getError(response.status));
+};
+
+const changePassword = async (id: string, token: string, hashedPassword: string) => {
+    // call PUT /api/auth/changePassword/:id from auth service
+    const response = await api({
+        method: HTTP_METHODS.PUT,
+        service: service,
+        path: `changePassword/${id}`,
+        body: { token: token, hashedPassword: hashedPassword },
+        tags: scope,
+    });
 
     if (response.status === HttpStatusCode.NO_CONTENT) {
         return true;
@@ -142,4 +158,5 @@ export const AuthService = {
     logOut,
     verifyEmail,
     sendPasswordResetEmail,
+    changePassword,
 };
