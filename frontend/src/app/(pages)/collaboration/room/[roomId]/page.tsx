@@ -29,15 +29,15 @@ const page: FC<pageProps> = ({ params: { roomId } }) => {
   useEffect(() => {
     handleConnectToRoom(roomId, questionId, partnerId, language);
 
+    if (isNotFoundError) {
+      return notFound();
+    }
+
     return () => {
       console.log("disconnecting from room");
       handleDisconnectFromRoom();
     };
   }, []);
-
-  if (isNotFoundError) {
-    return notFound();
-  }
 
   return (
     <div>

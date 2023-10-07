@@ -57,7 +57,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
   const [isSocketConnected, setIsSocketConnected] = useState<boolean>(false);
   const [roomId, setRoomId] = useState<string>("");
   const intervalRef = useRef<NodeJS.Timeout>();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [partner, setPartner] = useState<User>();
   const [question, setQuestion] = useState<Question>();
   const [matchedLanguage, setMatchedLanguage] = useState<string>("");
@@ -91,6 +91,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
   ) => {
     setIsLoading(true);
     try {
+      console.log("Enter handleConnectToRoom");
       // check if we have an authenticated user, a not-null partnerId, questionId, matchedLanguage, and roomId
       if (!user || !partnerId || !questionId || !matchedLanguage || !roomId) {
         setIsNotFoundError(true);
@@ -118,18 +119,26 @@ const CollabProvider = ({ children }: ICollabProvider) => {
         getQuestionById(questionId),
       ];
 
-      Promise.all(promises).then((responses) => {
-        const partner = responses[0] as User;
-        const question = responses[1] as Question;
+      Promise.all(promises)
+        .then((responses) => {
+          const partner = responses[0] as User;
+          const question = responses[1] as Question;
 
-        if (!partner || !question) {
+          if (!partner || !question) {
+            setIsNotFoundError(true);
+            return;
+          }
+
+          setPartner(partner);
+          setQuestion(question);
+        })
+        .catch((error) => {
           setIsNotFoundError(true);
-          return;
-        }
+        });
 
-        setPartner(partner);
-        setQuestion(question);
-      });
+      if (isNotFoundError) {
+        return;
+      }
 
       await initializeSocket(roomId);
     } catch (error) {

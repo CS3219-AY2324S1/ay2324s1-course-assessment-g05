@@ -1,5 +1,3 @@
-"use client";
-
 import Question from "@/types/question";
 import { FC } from "react";
 import ComplexityChip from "../question/ComplexityChip";
