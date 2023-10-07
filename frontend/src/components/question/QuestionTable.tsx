@@ -13,7 +13,6 @@ import {
   Chip,
   Link,
 } from "@nextui-org/react";
-import parse from "html-react-parser";
 import Question from "@/types/question";
 import ModifyQuestionModal from "./ModifyQuestionModal";
 import ComplexityChip from "./ComplexityChip";

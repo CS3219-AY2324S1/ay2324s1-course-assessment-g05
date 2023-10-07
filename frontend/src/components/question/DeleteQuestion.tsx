@@ -1,37 +1,61 @@
 import { deleteQuestion } from "@/helpers/question/question_api_wrappers";
-import { CircularProgress } from "@nextui-org/react";
-import { useState } from "react";
-import { FiTrash, FiX } from "react-icons/fi";
+import { CircularProgress, Tooltip } from "@nextui-org/react";
+import { useEffect, useState } from "react";
 import { Icons } from "../common/Icons";
+import displayToast from "../common/Toast";
+import { ToastType } from "@/types/enums";
 
 export default function DeleteQuestion({ id }: { id: string }) {
+  const [isConfirm, setIsConfirm] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
 
   async function handleDelete(id: string) {
     setIsLoading(true);
-
-    let res = await deleteQuestion(id);
-
-    if (res.ok) {
-      console.log(`Question[${id}] deleted.`);
-    } else {
-      setIsLoading(false);
+    try {
+      let res = await deleteQuestion(id);
+      
+      if (res) {
+        displayToast("Question deleted.", ToastType.SUCCESS);
+      }
+    } catch (error) {
       setError(true);
+      displayToast("Fail to delete question.", ToastType.ERROR);
     }
+    setIsLoading(false);
   }
+
+  useEffect(() => {
+    if (isConfirm) {
+      setTimeout(() => {
+        setIsConfirm(false);
+      }, 3000)
+    }
+  }, [isConfirm])
 
   return (
     <>
-      {isLoading && <CircularProgress size="sm" aria-label="Loading..." />}
-      {!isLoading && (
+      {isConfirm && !isLoading && (
+        <Tooltip content="Confirm delete?">
+          <span
+          className="text-lg text-warning cursor-pointer active:opacity-50 w-8 h-8 p-1.5"
+          onClick={(e) => handleDelete(id)}
+        >
+          <Icons.FiCheck />
+        </span>
+        </Tooltip>
+      )}
+      {isLoading && <CircularProgress size="sm" aria-label="Loading..." color="primary"/>}
+      {!isLoading && !isConfirm && (
+        <Tooltip content="Delete question">
         <span
           className="text-lg text-danger cursor-pointer active:opacity-50 w-8 h-8 p-1.5"
-          onClick={(e) => handleDelete(id)}
+          onClick={(e) => setIsConfirm(true)}
         >
           {!error && <Icons.FiTrash />}
           {error && <Icons.FiX />}
         </span>
+        </Tooltip>
       )}
     </>
   );

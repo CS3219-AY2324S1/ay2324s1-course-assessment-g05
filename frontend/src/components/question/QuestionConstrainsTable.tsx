@@ -1,5 +1,4 @@
 import {
-  Button,
   Input,
   Table,
   TableBody,
@@ -7,10 +6,8 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  Tooltip,
 } from "@nextui-org/react";
 import { useEffect, useState } from "react";
-import { Icons } from "../common/Icons";
 
 export default function QuestionConstrainsTable({
   value,
