@@ -15,6 +15,7 @@ export type UserProfile = {
   email: string;
   password: string;
   role: Role; //enum
+  isVerified: boolean;
 
   //optional attributes
   gender?: Gender;
@@ -28,11 +29,11 @@ export type UserProfile = {
 export type Source = {
   user: string;
   pass: string;
-}
+};
 
 export type Email = {
   source: Source;
   recipient: string;
   subject: string;
   content: string;
-}
+};

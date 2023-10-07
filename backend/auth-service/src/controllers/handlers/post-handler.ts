@@ -4,7 +4,6 @@ import { createUser, getUserByEmail } from "../../lib/user_api_helpers";
 import { getJWTSecret, issueJWT, validatePassword } from "../../lib/utils";
 import { UserProfile } from "../../common/types";
 import { VerificationMail } from "../../lib/email/verificationMail";
-import jwt from "jsonwebtoken";
 
 const registerByEmail = async (request: Request, response: Response) => {
   const res = await createUser(request.body);
@@ -24,7 +23,7 @@ const registerByEmail = async (request: Request, response: Response) => {
 
   // const tokenObject = issueJWT(user);
   response
-  //   .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
+    //   .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
     .status(HttpStatusCode.CREATED)
     .json({
       success: true,
@@ -45,24 +44,36 @@ const logInByEmail = async (request: Request, response: Response) => {
     });
     return;
   }
-  //if user exists, check if password is correct
+
   const user = (await res.json()) as UserProfile;
-  if (await validatePassword(password, user.password)) {
-    //if password is correct, attach cookie and return user
-    const tokenObject = issueJWT(user);
-    response
-      .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
-      .status(HttpStatusCode.OK)
-      .json({
-        success: true,
-        user: user,
-      });
+
+  //if user exists, check if password is correct
+  if (!(await validatePassword(password, user.password))) {
+    response.status(HttpStatusCode.UNAUTHORIZED).json({
+      error: "UNAUTHORIZED",
+      message: `Incorrect password.`,
+    });
     return;
   }
-  response.status(HttpStatusCode.UNAUTHORIZED).json({
-    error: "UNAUTHORIZED",
-    message: `Incorrect password.`,
-  });
+
+  //if password is correct, check if user is verified
+  if (!user.isVerified) {
+    response.status(HttpStatusCode.FORBIDDEN).json({
+      error: "FORBIDDEN",
+      message: `User is not verified.`,
+    });
+    return;
+  }
+
+  //user exists + pw is correct + user is verified -> attach cookie and return user
+  const tokenObject = issueJWT(user);
+  response
+    .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
+    .status(HttpStatusCode.OK)
+    .json({
+      success: true,
+      user: user,
+    });
 };
 
 const logOut = async (request: Request, response: Response) => {

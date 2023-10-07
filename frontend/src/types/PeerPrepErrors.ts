@@ -29,7 +29,14 @@ class InternalServerError extends Error {
 class UnauthorisedError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "Unauthorised";
+    this.name = "UnauthorisedError";
+  }
+}
+
+class ForbiddenError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ForbiddenError";
   }
 }
 
@@ -39,4 +46,5 @@ export const PeerPrepErrors = {
   ConflictError,
   InternalServerError,
   UnauthorisedError,
+  ForbiddenError,
 };
