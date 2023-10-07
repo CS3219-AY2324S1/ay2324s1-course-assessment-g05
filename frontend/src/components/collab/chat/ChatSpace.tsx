@@ -7,7 +7,6 @@ import { Button, Divider } from "@nextui-org/react";
 import ProfilePictureAvatar from "@/components/common/ProfilePictureAvatar";
 import { useCollabContext } from "@/contexts/collab";
 import ChatMessage from "@/types/chat_message";
-import { v4 as uuid } from "uuid";
 
 interface IChatSpaceProps {
   onClose: () => void;
@@ -38,7 +37,7 @@ const ChatSpace = ({ onClose }: IChatSpaceProps) => {
   }, []);
 
   useEffect(() => {
-    if (newMessage.content !== "") {
+    if (newMessage.content !== "" && newMessage.senderId !== user.id) {
       setMessages([...messages, newMessage]);
       setNewMessages({ content: "", senderId: "" });
       scrollToNewestMessage();
@@ -54,7 +53,6 @@ const ChatSpace = ({ onClose }: IChatSpaceProps) => {
     }
 
     const message = {
-      uuid: uuid(),
       content: messageContent,
       senderId: user.id!,
     };
