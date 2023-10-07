@@ -20,8 +20,13 @@ export const authMiddleware = async (
     return;
   }
 
+  // Only allow GET requests to /api/questions to pass through with just user rights
   const authEndpoint =
-    process.env.AUTH_ENDPOINT || "http://localhost:5050/api/auth/validate";
+    req.method === "GET"
+      ? process.env.AUTH_ENDPOINT || "http://localhost:5050/api/auth/validate"
+      : process.env.AUTH_ADMIN_ENDPOINT ||
+        "http://localhost:5050/api/auth/validateAdmin";
+
   const authRes = await fetch(authEndpoint, {
     method: "POST",
     headers: {
@@ -30,7 +35,11 @@ export const authMiddleware = async (
     },
   });
 
-  if (authRes.status !== HttpStatusCode.OK) {
+  if (authRes.status === HttpStatusCode.OK) {
+    next();
+  }
+
+  if (authRes.status === HttpStatusCode.UNAUTHORIZED) {
     const message = await authRes.text();
     res.status(authRes.status).json({
       error: message,
@@ -39,5 +48,9 @@ export const authMiddleware = async (
     return;
   }
 
-  next();
+  if (authRes.status === HttpStatusCode.FORBIDDEN) {
+    const message = await authRes.json();
+    res.status(authRes.status).json(message);
+    return;
+  }
 };
