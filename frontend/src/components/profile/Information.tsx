@@ -50,8 +50,8 @@ export default function Information({
     user.preferences?.topics
   );
 
-  const languageArray = StringUtils.convertEnumsToCamelCase(LANGUAGE);
-  const difficultiesArray = StringUtils.convertEnumsToCamelCase(COMPLEXITY);
+  const languageArray = Object.values(LANGUAGE);
+  const difficultiesArray = Object.values(COMPLEXITY);
   // const topicArray = StringUtils.convertEnumsToCamelCase(TOPIC);
   const [topicArray, setTopicArray] = useState<string[]>([]);
 
@@ -218,12 +218,15 @@ export default function Information({
             label="Progamming languages"
             selectionMode="multiple"
             placeholder="Select a language"
+            classNames={{
+              value: "capitalize"
+            }}
             selectedKeys={preferences.languages}
             onChange={handleOnLanguageChange}
           >
             {languageArray.map((value) => (
-              <SelectItem key={value} value={value}>
-                {value}
+              <SelectItem className="capitalize" key={value} value={value}>
+                {value.toLowerCase()}
               </SelectItem>
             ))}
           </Select>
@@ -232,12 +235,15 @@ export default function Information({
             label="Complexity"
             selectionMode="multiple"
             placeholder="Select a complexity level"
+            classNames={{
+              value: "capitalize"
+            }}
             selectedKeys={preferences.difficulties}
             onChange={handleOnDifficultyChange}
           >
             {difficultiesArray.map((value) => (
-              <SelectItem key={value} value={value}>
-                {value}
+              <SelectItem className="capitalize" key={value} value={value}>
+                {value.toLowerCase()}
               </SelectItem>
             ))}
           </Select>

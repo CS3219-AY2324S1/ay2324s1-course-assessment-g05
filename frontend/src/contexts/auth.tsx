@@ -74,12 +74,8 @@ const AuthProvider = ({ children }: IAuthProvider) => {
 
   const formatPreferences = (rawUser: User) => {
     rawUser.preferences = {
-      languages: StringUtils.convertEnumsToCamelCase(
-        rawUser.preferences?.languages
-      ),
-      difficulties: StringUtils.convertEnumsToCamelCase(
-        rawUser.preferences?.difficulties
-      ),
+      languages: rawUser.preferences?.languages || [],
+      difficulties: rawUser.preferences?.difficulties || [],
       topics: rawUser.preferences?.topics || [],
     };
   };

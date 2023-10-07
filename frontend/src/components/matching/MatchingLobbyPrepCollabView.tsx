@@ -83,7 +83,7 @@ export default function MatchingLobbyPrepCollabView({
                             <div className="flex flex-row gap-1 overflow-x-hidden text-sm">
                                 <ComplexityChip complexity={question.complexity} size="sm"></ComplexityChip>
                                 { question.topics.map(t => (
-                                    <Chip className="capitalize" size="sm">{t.toLowerCase()}</Chip>
+                                    <Chip key={t} className="capitalize" size="sm">{t.toLowerCase()}</Chip>
                                 ))}
                             </div>
                             </div>

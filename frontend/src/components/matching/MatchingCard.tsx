@@ -26,13 +26,11 @@ const MatchingCard = () => {
     user: { preferences: currentPreferences },
   } = useAuthContext();
 
-  const optionsLanguages = StringUtils.convertEnumsToCamelCase(LANGUAGE);
-  const optionsDifficulties = StringUtils.convertEnumsToCamelCase(COMPLEXITY);
-  const [topicOptions, setTopicOptions] = useState<string[]>([]);
+  const optionsLanguages = Object.values(LANGUAGE);
+  const optionsDifficulties = Object.values(COMPLEXITY);
+  const [optionsTopics, setOptionsTopics] = useState<string[]>([]);
 
-  const [preferences, setPreferences] = useState<Preference>(
-    currentPreferences || { languages: [], difficulties: [], topics: [] }
-  );
+  const [preferences, setPreferences] = useState<Preference>({ languages: [], difficulties: [], topics: [] });
 
   const handleOnSelectionChange = (
     event: ChangeEvent<HTMLSelectElement>
@@ -47,7 +45,6 @@ const MatchingCard = () => {
     });
   };
 
-  //for now, get matched button will print to console keys selected
   const handleGetMatched = () => {
     if (Object.values(preferences).some((x) => x.length == 0)) {
       displayToast(`Invalid matching options.`, ToastType.ERROR);
@@ -65,7 +62,11 @@ const MatchingCard = () => {
   useEffect(() => {
     async function setUpTopics() {
       await getTopics().then(topics => {
-        setTopicOptions(topics)
+        if (currentPreferences) {
+          setPreferences(currentPreferences);
+        }
+
+        setOptionsTopics(topics)
       })
     }
     setUpTopics();
@@ -80,7 +81,7 @@ const MatchingCard = () => {
               <span>Find a pair programmer</span>
               <span>
                 <Tooltip content="Reset preferences">
-                <Button isIconOnly size="sm" variant="light" onPress={handleReset}><Icons.RxReset/></Button>
+                  <Button isIconOnly size="sm" variant="light" onPress={handleReset}><Icons.RxReset /></Button>
                 </Tooltip>
               </span>
             </div>
@@ -104,7 +105,7 @@ const MatchingCard = () => {
             >
               {optionsLanguages.map((value) => (
                 <SelectItem className="capitalize" key={value} value={value}>
-                  {value}
+                  {value.toLowerCase()}
                 </SelectItem>
               ))}
             </Select>
@@ -127,7 +128,7 @@ const MatchingCard = () => {
             >
               {optionsDifficulties.map((value) => (
                 <SelectItem className="capitalize" key={value} value={value}>
-                  {value}
+                  {value.toLowerCase()}
                 </SelectItem>
               ))}
             </Select>
@@ -148,7 +149,7 @@ const MatchingCard = () => {
                 preferences.topics.length == 0 && <span>Topics is required</span>
               }
             >
-              {topicOptions.map((value) => (
+              {optionsTopics.map((value) => (
                 <SelectItem className="capitalize" key={value} value={value}>
                   {value.toLowerCase()}
                 </SelectItem>
@@ -156,11 +157,11 @@ const MatchingCard = () => {
             </Select>
 
             <Button
-                className="bg-yellow text-black"
-                onPress={handleGetMatched}
-              >
-                Get Matched
-              </Button>
+              className="bg-yellow text-black"
+              onPress={handleGetMatched}
+            >
+              Get Matched
+            </Button>
             <MatchingLobby
               isOpen={isOpen}
               onClose={onClose}
