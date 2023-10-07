@@ -44,9 +44,10 @@ export default function MatchingLobbyPrepCollabView({
                         setIsloading(false);
                     } else if (questions.length === 1) {
                         // redirect if no selection available
-                        socket.requestStartCollaboration(questions[0]._id!);
+                        socket.requestStartCollaboration(questions[0].id!);
                     } else {
                         setNoQuestion(true);
+                        setIsloading(false);
                     }
                 }).catch(err => {
                     onError()
@@ -74,7 +75,7 @@ export default function MatchingLobbyPrepCollabView({
                         selectedKeys={question}
                         onChange={e => setQuestion([e.target.value])}
                     >
-                        {questionOptions.map(question => <SelectItem key={question._id || "-1"} textValue={question.title || "-1"}>
+                        {questionOptions.map(question => <SelectItem key={question.id || "-1"} textValue={question.title || "-1"}>
                             <div className="flex flex-col gap-1">
                             <div>
                                 {question.title}
@@ -98,9 +99,8 @@ export default function MatchingLobbyPrepCollabView({
                         }} aria-label="Setting up collaboration session">
                     </CircularProgress>
                 }
-                {
-                    noQuestion && 
-                    <div className="flex flex-col items-center gap-2 text-center">
+                { noQuestion && 
+                    <div className="flex flex-col items-center gap-2 text-center pb-4">
                         <Icons.FiX className="w-24 h-24  text-danger" />
                         <p>No questions available!</p>
                         <p>Sorry, unable to find suitable questions, please change your preference.</p>

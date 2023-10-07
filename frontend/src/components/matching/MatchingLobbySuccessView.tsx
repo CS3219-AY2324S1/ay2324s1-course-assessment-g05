@@ -125,7 +125,7 @@ export default function MatchingLobbySuccessView({
         </div>
       </ModalBody>
       <ModalFooter>
-        {(!userReady || !partnerReady) &&
+        {(!userReady || !partnerReady || partnerLeft) &&
           <Button onPress={onCancel} startContent={<Icons.FiX />}>Cancel</Button>
         }
         {partnerLeft &&
