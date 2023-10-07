@@ -73,12 +73,11 @@ export default function ModifyQuestionModal({
       console.error(error);
     }
   };
+
   // Setup external resources
   useEffect(() => {
     async function setUpTopics() {
       getTopics().then(topics => {
-        console.log(topics);
-        
         setTopicOptions(topics);
       })
     }
@@ -266,7 +265,6 @@ export default function ModifyQuestionModal({
                         <QuestionExamplesTable
                           value={examples}
                           onValueChange={(v) => setExamples(v)}
-                          disabled={isLoading}
                         ></QuestionExamplesTable>
                       </div>
                     </div>
