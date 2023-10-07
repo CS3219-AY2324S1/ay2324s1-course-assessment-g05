@@ -5,7 +5,7 @@ import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import { MatchingService } from "@/helpers/matching/matching_api_wrappers";
 import { getQuestionById } from "@/helpers/question/question_api_wrappers";
 import { UserService } from "@/helpers/user/user_api_wrappers";
-import { useAuthContext } from "@/providers/auth";
+import { useAuthContext } from "@/contexts/auth";
 import Question from "@/types/question";
 import User from "@/types/user";
 import { notFound } from "next/navigation";
