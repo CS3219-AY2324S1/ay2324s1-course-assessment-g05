@@ -40,7 +40,6 @@ export default function ModifyQuestionModal({
   // component mode and const
   const editMode = questionId != null;
   const complexitySelections = Object.values(COMPLEXITY).map((k) => ({value: k}));
-
   const [topicOptions, setTopicOptions] = useState<string[]>([]);
 
   // component states
@@ -72,6 +71,7 @@ export default function ModifyQuestionModal({
         setExamples(question.examples);
       }
       setUrl(question.url);
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
     }
@@ -93,6 +93,7 @@ export default function ModifyQuestionModal({
   // prefill form base on mode
   useEffect(() => {
     if (isOpen && editMode) {
+      setIsLoading(true);
       console.log("[ModifyQuestionModal]: prefill form with qid:" + questionId);
       retrieveQuestionDetail(questionId);
     } else {
