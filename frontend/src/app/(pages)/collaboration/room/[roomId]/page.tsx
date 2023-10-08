@@ -39,10 +39,6 @@ const page: FC<pageProps> = ({ params: { roomId } }) => {
     };
   }, []);
 
-  if (isNotFoundError) {
-    return notFound();
-  }
-
   return (
     <div>
       {isLoading ? (

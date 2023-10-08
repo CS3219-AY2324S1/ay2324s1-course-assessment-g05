@@ -5,9 +5,9 @@ import ProblemDescription from "../common/ProblemDescription";
 import { notFound } from "next/navigation";
 
 const ProblemPanel = () => {
-  const { question, isNotFoundError } = useCollabContext();
+  const { question } = useCollabContext();
 
-  if (!question || isNotFoundError) {
+  if (!question) {
     return notFound();
   }
 
