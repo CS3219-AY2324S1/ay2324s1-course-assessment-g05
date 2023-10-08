@@ -81,7 +81,7 @@ export default function MatchingLobbyMatchingView(
                 </CircularProgress>
                 <span>Waiting for a match...</span>
                 <div className="flex flex-col gap-2 items-center justify-center text-small w-2/3">
-                    <span>{preference.languages.join(", ")}</span>
+                    <span className="capitalize">{preference.languages.join(", ").toLowerCase()}</span>
                     <span className="flex gap-2">
                         {preference.difficulties.map(item => (
                             <ComplexityChip key={item} complexity={item} size="sm"></ComplexityChip>
