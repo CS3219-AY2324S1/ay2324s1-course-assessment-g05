@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import HttpStatusCode from "../../common/HttpStatusCode";
 import {
-  verifyEmail,
+  updateVerfication,
   generatePasswordResetToken,
   updatePassword,
   getUserById,
@@ -13,7 +13,20 @@ const verifyUserEmail = async (request: Request, response: Response) => {
   const email = request.params.email;
   const token = request.params.token;
 
-  const res = await verifyEmail(email, token);
+  // verify if token is valid
+  const secretKey = 'emailverificationkey'; //todo change to env
+
+  const decoded = jwt.verify(token, secretKey) as {email: string};
+
+  if (decoded.email != email) {
+    response.status(HttpStatusCode.BAD_REQUEST).json({
+      error: "BAD REQUEST",
+      message: "Email verification failed."
+    })
+    return;
+  }
+
+  const res = await updateVerfication(email, token);
 
   if (res.status !== HttpStatusCode.NO_CONTENT) {
     const data = await res.json();

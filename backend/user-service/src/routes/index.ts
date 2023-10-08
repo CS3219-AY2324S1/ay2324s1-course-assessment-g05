@@ -8,7 +8,7 @@ import {
   postUser,
   updateUserById,
   updateUserPreferences,
-  verifyUserEmail,
+  updateVerification,
   generatePasswordResetToken
 } from "../controllers";
 
@@ -28,7 +28,7 @@ router.route("/users").post(postUser);
 
 router.route("/users/:userId").put(updateUserById);
 
-router.route("/users/verifyEmail/:email/:token").put(verifyUserEmail)
+router.route("/users/updateVerification/:email").put(updateVerification)
 
 router.route("/users/generatePasswordResetToken/:email").put(generatePasswordResetToken)
 

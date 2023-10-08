@@ -176,10 +176,9 @@ export const updateUserPreferences = async (
 };
 
 
-export const verifyUserEmail = async (request: Request, response: Response) => {
+export const updateVerification = async (request: Request, response: Response) => {
   try {
     const email = request.params.email;
-    const token = request.params.token;
 
     // query database for user email
     const user = await db.user.findFirst({
@@ -187,7 +186,7 @@ export const verifyUserEmail = async (request: Request, response: Response) => {
         email: email,
       },
     });
-
+    
     if (!user) {
       response.status(HttpStatusCode.NOT_FOUND).json({
         error: "NOT FOUND",
@@ -196,26 +195,15 @@ export const verifyUserEmail = async (request: Request, response: Response) => {
       return;
     }
 
-    // verify if token is valid
-    const secretKey = 'emailverificationkey'; //todo change to env
+    await db.user.update({
+      where: {
+        email: email,
+      },
+      data: {isVerified: true, verificationToken: ""},
+    });
 
-    const decoded = jwt.verify(token, secretKey) as {email: string};
-
-    if (decoded.email == email) {
-      await db.user.update({
-        where: {
-          email: decoded.email,
-        },
-        data: {isVerified: true, verificationToken: ""},
-      });
-
-      response.status(HttpStatusCode.NO_CONTENT).send();
-    } else {
-      response.status(HttpStatusCode.BAD_REQUEST).json({
-        error: "BAD REQUEST",
-        message: "Email verification failed."
-      })
-    }
+    response.status(HttpStatusCode.NO_CONTENT).send();
+    
   } catch (error) {
     if (error instanceof ZodError) {
       response.status(HttpStatusCode.BAD_REQUEST).json({

@@ -46,8 +46,8 @@ const getUserById = async (id: string) => {
   return res;
 };
 
-const verifyEmail = async(email:string, token:string) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/api/users/verifyEmail/${email}/${token}`, {
+const updateVerfication = async(email:string, token:string) => {
+  const res = await fetch(`${getUserServiceEndpoint()}/api/users/updateVerification/${email}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -82,4 +82,4 @@ const updatePassword = async (id: string, updateBody: {}) => {
 };
 
 
-export { createUser, getUserServiceEndpoint, getUserById, getUserByEmail, verifyEmail, generatePasswordResetToken, updatePassword };
+export { createUser, getUserServiceEndpoint, getUserById, getUserByEmail, updateVerfication, generatePasswordResetToken, updatePassword };
