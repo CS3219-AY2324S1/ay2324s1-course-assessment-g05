@@ -58,9 +58,10 @@ const updateVerfication = async(email:string, token:string) => {
   return res;
 }
 
-const generatePasswordResetToken = async(email:string) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/api/users/generatePasswordResetToken/${email}`, {
+const updatePasswordResetToken = async(email:string, updateBody: {}) => {
+  const res = await fetch(`${getUserServiceEndpoint()}/api/users/updatePasswordResetToken/${email}`, {
     method: "PUT",
+    body: JSON.stringify(updateBody),
     headers: {
       "Content-Type": "application/json",
       bypass: getServiceSecret(),
@@ -82,4 +83,4 @@ const updatePassword = async (id: string, updateBody: {}) => {
 };
 
 
-export { createUser, getUserServiceEndpoint, getUserById, getUserByEmail, updateVerfication, generatePasswordResetToken, updatePassword };
+export { createUser, getUserServiceEndpoint, getUserById, getUserByEmail, updateVerfication, updatePasswordResetToken, updatePassword };

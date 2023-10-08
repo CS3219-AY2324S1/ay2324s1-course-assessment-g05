@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import HttpStatusCode from "../../common/HttpStatusCode";
 import {
   updateVerfication,
-  generatePasswordResetToken,
+  updatePasswordResetToken,
   updatePassword,
   getUserById,
 } from "../../lib/user_api_helpers";
@@ -14,7 +14,7 @@ const verifyUserEmail = async (request: Request, response: Response) => {
   const token = request.params.token;
 
   // verify if token is valid
-  const secretKey = 'emailverificationkey'; //todo change to env
+  const secretKey = "process.env.EMAIL_VERIFICATION_SECRET"
 
   const decoded = jwt.verify(token, secretKey) as {email: string};
 
@@ -43,7 +43,12 @@ const verifyUserEmail = async (request: Request, response: Response) => {
 
 const sendPasswordResetEmail = async (request: Request, response: Response) => {
   const email = request.params.email;
-  const res = await generatePasswordResetToken(email);
+  // generate verification token for email verification
+  const secretKey = "process.env.EMAIL_RESET_SECRET"
+
+  const passwordResetToken = jwt.sign( {email: email} , secretKey, { expiresIn: '1d' })
+
+  const res = await updatePasswordResetToken(email, {passwordResetToken : passwordResetToken});
 
   if (res.status !== HttpStatusCode.OK) {
     const data = await res.json();
@@ -75,7 +80,8 @@ const changePassword = async (request: Request, response: Response) => {
   const user = await (await getUserById(userId)).json();
 
   // verify if token is valid
-  const secretKey = "resetpasswordkey"; //todo change to env
+  const secretKey = "process.env.EMAIL_RESET_SECRET"
+
 
   const decoded = jwt.verify(token, secretKey) as { email: string };
 

@@ -221,9 +221,10 @@ export const updateVerification = async (request: Request, response: Response) =
   }
 };
 
-export const generatePasswordResetToken = async (request: Request, response: Response) => {
+export const updatePasswordResetToken = async (request: Request, response: Response) => {
   try{
     const email = request.params.email;
+    const passwordResetToken = request.body.passwordResetToken
 
   // query database for user email
   const user = await db.user.findFirst({
@@ -239,11 +240,7 @@ export const generatePasswordResetToken = async (request: Request, response: Res
     });
     return;
   }
-
-  // generate verification token for email verification
-  const secretKey = 'resetpasswordkey'; //todo change to env
-  const passwordResetToken = jwt.sign( {email: email} , secretKey, { expiresIn: '1d' })
-
+  
   await db.user.update({
     where: {
       email: email,

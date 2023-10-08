@@ -9,7 +9,7 @@ import {
   updateUserById,
   updateUserPreferences,
   updateVerification,
-  generatePasswordResetToken
+  updatePasswordResetToken
 } from "../controllers";
 
 const router: Router = Router();
@@ -30,7 +30,7 @@ router.route("/users/:userId").put(updateUserById);
 
 router.route("/users/updateVerification/:email").put(updateVerification)
 
-router.route("/users/generatePasswordResetToken/:email").put(generatePasswordResetToken)
+router.route("/users/updatePasswordResetToken/:email").put(updatePasswordResetToken)
 
 router.route("/users/:userId").delete(deleteUserById);
 
