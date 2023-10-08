@@ -1,3 +1,5 @@
+"use client"; // Question Detail Page requires this to be a client component
+
 import Question from "@/types/question";
 import { FC } from "react";
 import ComplexityChip from "../question/ComplexityChip";

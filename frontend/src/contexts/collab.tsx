@@ -120,7 +120,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
       ];
 
       Promise.all(promises)
-        .then((responses) => {
+        .then(async (responses) => {
           const partner = responses[0] as User;
           const question = responses[1] as Question;
 
@@ -131,16 +131,12 @@ const CollabProvider = ({ children }: ICollabProvider) => {
 
           setPartner(partner);
           setQuestion(question);
+
+          await initializeSocket(roomId);
         })
         .catch((error) => {
           setIsNotFoundError(true);
         });
-
-      if (isNotFoundError) {
-        return;
-      }
-
-      await initializeSocket(roomId);
     } catch (error) {
       console.log(error);
     } finally {
