@@ -6,6 +6,7 @@ import Question from "@/types/question";
 import { revalidateTag } from "next/cache";
 import { ServiceError, ServiceResponse, formatFieldError } from "../service";
 import Preference from "@/types/preference";
+import { getError, throwAndLogError } from "@/utils/errorUtils";
 
 const logger = getLogger("wrapper");
 const service = SERVICE.QUESTION;
@@ -52,7 +53,7 @@ export async function getQuestionById(
   id: string,
   cache: RequestCache = "no-cache"
 ): Promise<Question | ServiceResponse> {
-  const res = await api({
+  const response = await api({
     method: HTTP_METHODS.GET,
     service: service,
     path: id,
@@ -60,17 +61,14 @@ export async function getQuestionById(
     cache: cache,
   });
 
-  if (res.status === 200) {
-    let question = res.data as Question;
-    logger.info(`[getQuestionById(${id})] Got question: ${question.title}`);
-    return question;
-  } else {
-    logger.error(res, `[getQuestionById(${id})] Error:`);
-    return {
-      ok: false,
-      message: res.data ? (res.data as ServiceError).message : res.message,
-    };
+  if (response.status === 200) {
+    return response.data as Question;
   }
+  return throwAndLogError(
+    "getQuestionById",
+    response.message,
+    getError(response.status)
+  );
 }
 
 /**
@@ -81,11 +79,11 @@ export async function getQuestionByPreference(
   preference: Preference | undefined
 ): Promise<string> {
   logger.error(preference, `[getQuestionByPreference]:`);
-  
+
   // TODO: Implement in question branch instead
-  return new Promise(resolve => {
-    resolve("650a5979bf32dcb1ae15bf11");
-  })
+  return new Promise((resolve) => {
+    resolve("clnbb0610000e7kzkxo6gx7c4");
+  });
 }
 
 /**
