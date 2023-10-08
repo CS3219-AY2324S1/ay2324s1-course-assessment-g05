@@ -11,7 +11,7 @@ import {
   SelectItem,
 } from "@nextui-org/react";
 import QuestionDescription from "./QuestionDescription";
-import { TOPIC, COMPLEXITY } from "@/types/enums";
+import { COMPLEXITY, ToastType } from "@/types/enums";
 import Question, { Example } from "@/types/question";
 import QuestionExamplesTable from "./QuestionExamplesTable";
 import QuestionConstrainsTable from "./QuestionConstrainsTable";
@@ -22,6 +22,9 @@ import {
   updateQuestion,
 } from "@/helpers/question/question_api_wrappers";
 import { FiCornerDownLeft } from "react-icons/fi";
+import displayToast from "../common/Toast";
+import { PeerPrepErrors } from "@/types/PeerPrepErrors";
+import HttpStatusCode from "@/types/HttpStatusCode";
 
 export default function ModifyQuestionModal({
   isOpen,
@@ -132,15 +135,19 @@ export default function ModifyQuestionModal({
         ? await updateQuestion(id, question)
         : await postQuestion(question);
 
-      let data = response.message;
-
-      if (response.ok) {
+      if (response.status === HttpStatusCode.CREATED) {
+        displayToast("Question created.", ToastType.SUCCESS);
         closeCallback();
+      } else if (response.status === HttpStatusCode.NO_CONTENT) {
+        displayToast("Question updated.", ToastType.SUCCESS);
+        closeCallback();
+      } else if (response.status === HttpStatusCode.BAD_REQUEST) {
+        displayToast(response.data.message, ToastType.ERROR);
       } else {
-        setError(data as string);
+        displayToast(response.message, ToastType.ERROR);
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     } finally {
       setIsLoading(false);
     }
@@ -177,6 +184,7 @@ export default function ModifyQuestionModal({
                         labelPlacement="outside"
                         placeholder="Enter question title"
                         className="flex-initial"
+                        description="Require 3 or more characters"
                         value={title}
                         isRequired
                         onValueChange={setTitle}

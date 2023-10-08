@@ -1,14 +1,11 @@
 "use server";
 import api from "@/helpers/endpoint";
 import { getLogger } from "@/helpers/logger";
-import { HTTP_METHODS, SERVICE, TOPIC } from "@/types/enums";
+import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import Question from "@/types/question";
 import { revalidateTag } from "next/cache";
-import { ServiceError, ServiceResponse, formatFieldError } from "../service";
 import Preference from "@/types/preference";
 import HttpStatusCode from "@/types/HttpStatusCode";
-import { throwAndLogError } from "@/utils/errorUtils";
-import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 
 const logger = getLogger("wrapper");
 const service = SERVICE.QUESTION;
@@ -30,19 +27,17 @@ export async function getQuestionList(): Promise<Question[]> {
   const response = await api({
     method: HTTP_METHODS.GET,
     service: service,
-    tags: scope,
-    cache: "no-cache",
+    tags: scope
   });
 
-  if (response.status === 200) {
+  if (response.status === HttpStatusCode.OK) {
     let mongoRes = response.data as MongoQuestionList;
     questions = mongoRes.data;
-    logger.info(`[getQuestionList] Got ${mongoRes.count} items.`);
-  } else {
-    logger.error(response, `[getQuestionList] Error:`);
+    logger.info(`[getQuestionList] Got question: ${mongoRes.count}`);
+    return questions;
   }
 
-  return questions;
+  return [];
 }
 
 /**
@@ -54,7 +49,7 @@ export async function getQuestionList(): Promise<Question[]> {
 export async function getQuestionById(
   id: string,
   cache: RequestCache = "no-cache"
-): Promise<Question | ServiceResponse> {
+) {
   const response = await api({
     method: HTTP_METHODS.GET,
     service: service,
@@ -69,11 +64,7 @@ export async function getQuestionById(
     return question;
   }
 
-  return throwAndLogError(
-    "getQuestionById",
-    response.message,
-    PeerPrepErrors.InternalServerError
-  );
+  return response;
 }
 
 /**
@@ -105,11 +96,7 @@ export async function getQuestionByPreference(
     return questions;
   }
 
-  return throwAndLogError(
-    "getQuestionByPreference",
-    response.message,
-    PeerPrepErrors.InternalServerError
-  );
+  return [];
 }
 
 export async function getTopics() {
@@ -125,22 +112,17 @@ export async function getTopics() {
     return topics;
   }
 
-  return throwAndLogError(
-    "getTopics",
-    response.message,
-    PeerPrepErrors.InternalServerError
-  );
+  return [];
 }
 
 /**
  * post: /api/questions
  * Posts a new question to the API.
  * @param {Question} question - The question object to post.
- * @returns {Promise<{ ok: boolean, message: string }>} - A success indicator and a message.
  */
 export async function postQuestion(
   question: Question
-): Promise<ServiceResponse> {
+) {
   const response = await api({
     method: HTTP_METHODS.POST,
     service: service,
@@ -148,20 +130,12 @@ export async function postQuestion(
     tags: scope,
   });
 
+  logger.debug(response, `[postQuestion]`);
   if (response.status === HttpStatusCode.CREATED) {
     revalidateTag(SERVICE.QUESTION);
-    return {
-      ok: true,
-      message: response.data,
-    };
   }
 
-  logger.error(response, `[postQuestion] Error:`);
-  return throwAndLogError(
-    "postQuestion",
-    response.message,
-    PeerPrepErrors.InternalServerError
-  );
+  return response;
 }
 
 /**
@@ -169,12 +143,11 @@ export async function postQuestion(
  * Updates an existing question on the API.
  * @param {string} id - The ID of the question to update.
  * @param {Question} question - The updated question object.
- * @returns {Promise<ServiceResponse>} - A success indicator and a message.
  */
 export async function updateQuestion(
   id: string,
   question: Question
-): Promise<ServiceResponse> {
+) {
   const response = await api({
     method: HTTP_METHODS.PUT,
     service: service,
@@ -183,29 +156,20 @@ export async function updateQuestion(
     tags: scope,
   });
 
+  logger.debug(response, `[updateQuestion]`);
   if (response.status === HttpStatusCode.NO_CONTENT) {
     revalidateTag(SERVICE.QUESTION);
-    return {
-      ok: true,
-      message: response.data,
-    };
   }
 
-  logger.error(response, `[updateQuestion] Error:`);
-  return throwAndLogError(
-    "updateQuestion",
-    response.message,
-    PeerPrepErrors.InternalServerError
-  );
+  return response;
 }
 
 /**
  * delete: /api/questions/[id]
  * Deletes a question from the API by its ID.
  * @param {string} id - The ID of the question to delete.
- * @returns {Promise<ServiceResponse>} - A success indicator and a message.
  */
-export async function deleteQuestion(id: string): Promise<ServiceResponse> {
+export async function deleteQuestion(id: string) {
   const response = await api({
     method: HTTP_METHODS.DELETE,
     service: service,
@@ -213,17 +177,10 @@ export async function deleteQuestion(id: string): Promise<ServiceResponse> {
     tags: scope,
   });
 
+  logger.debug(response, `[deleteQuestion]`);
   if (response.status === HttpStatusCode.NO_CONTENT) {
     revalidateTag(SERVICE.QUESTION);
-    return {
-      ok: true,
-      message: response.data,
-    };
   }
 
-  logger.error(response, `[deleteQuestion] Error:`);
-  return {
-    ok: false,
-    message: response.message,
-  };
+  return response;
 }

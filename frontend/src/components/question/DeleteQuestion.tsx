@@ -3,7 +3,8 @@ import { CircularProgress, Tooltip } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { Icons } from "../common/Icons";
 import displayToast from "../common/Toast";
-import { ToastType } from "@/types/enums";
+import { HTTP_METHODS, ToastType } from "@/types/enums";
+import HttpStatusCode from "@/types/HttpStatusCode";
 
 export default function DeleteQuestion({ id }: { id: string }) {
   const [isConfirm, setIsConfirm] = useState<boolean>(false);
@@ -13,14 +14,16 @@ export default function DeleteQuestion({ id }: { id: string }) {
   async function handleDelete(id: string) {
     setIsLoading(true);
     try {
-      let res = await deleteQuestion(id);
+      let response = await deleteQuestion(id);
       
-      if (res) {
+      if (response.status === HttpStatusCode.NO_CONTENT) {
         displayToast("Question deleted.", ToastType.SUCCESS);
+      } else {
+        setError(true);
+        displayToast("Fail to delete question.", ToastType.ERROR);
       }
     } catch (error) {
-      setError(true);
-      displayToast("Fail to delete question.", ToastType.ERROR);
+      console.log(error);
     }
     setIsLoading(false);
   }
