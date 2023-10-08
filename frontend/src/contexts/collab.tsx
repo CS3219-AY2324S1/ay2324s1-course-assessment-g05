@@ -4,11 +4,9 @@ import { getQuestionById } from "@/helpers/question/question_api_wrappers";
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import Question from "@/types/question";
 import User from "@/types/user";
-import { notFound } from "next/navigation";
 import { createContext, useContext, useRef, useState } from "react";
 import { useAuthContext } from "./auth";
 import { verifyRoomParamsIntegrity } from "@/utils/hashUtils";
-import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 
 interface ICollabContext {
   handleConnectToRoom: (
@@ -67,6 +65,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     setRoomId(roomId);
 
     const config = await getCollaborationSocketConfig();
+
     const newSocket = new SocketService(roomId, config.endpoint, config.path);
     setSocketService(newSocket);
 
@@ -91,7 +90,6 @@ const CollabProvider = ({ children }: ICollabProvider) => {
   ) => {
     setIsLoading(true);
     try {
-      console.log("Enter handleConnectToRoom");
       // check if we have an authenticated user, a not-null partnerId, questionId, matchedLanguage, and roomId
       if (!user || !partnerId || !questionId || !matchedLanguage || !roomId) {
         setIsNotFoundError(true);
@@ -119,26 +117,23 @@ const CollabProvider = ({ children }: ICollabProvider) => {
         getQuestionById(questionId),
       ];
 
-      Promise.all(promises)
-        .then(async (responses) => {
-          const partner = responses[0] as User;
-          const question = responses[1] as Question;
+      const responses = await Promise.all(promises);
 
-          if (!partner || !question) {
-            setIsNotFoundError(true);
-            return;
-          }
+      const partner = responses[0] as User;
+      const question = responses[1] as Question;
 
-          setPartner(partner);
-          setQuestion(question);
+      if (!partner || !question) {
+        setIsNotFoundError(true);
+        return;
+      }
 
-          await initializeSocket(roomId);
-        })
-        .catch((error) => {
-          setIsNotFoundError(true);
-        });
+      setPartner(partner);
+      setQuestion(question);
+
+      await initializeSocket(roomId);
     } catch (error) {
       console.log(error);
+      setIsNotFoundError(true);
     } finally {
       setIsLoading(false);
     }
