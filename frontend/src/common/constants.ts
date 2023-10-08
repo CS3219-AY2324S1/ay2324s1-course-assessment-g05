@@ -1,8 +1,9 @@
 export const CLIENT_ROUTES = {
   HOME: "/",
   LOGIN: "/login",
+  VERIFY: "/verify",
   PROFILE: "/profile",
   QUESTIONS: "/questions",
   LOGOUT: "/logout",
-  VERIFY: "/verify"
+  COLLABORATION: "/collaboration/room",
 };

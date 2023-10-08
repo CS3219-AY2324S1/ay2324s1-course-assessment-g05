@@ -1,48 +1,51 @@
-import { FC, SetStateAction, useState } from "react";
-import User from "@/types/user";
+import { FC, useEffect, useRef, useState } from "react";
 import CodeEditorNavbar from "./CodeEditorNavbar";
 import { Divider } from "@nextui-org/react";
 import CodeEditor from "./CodeEditor";
 import { getCodeTemplate } from "@/utils/defaultCodeUtils";
 
-interface CodeEditorPanelProps {
-  partner: User;
-  language: string;
-  questionTitle: string;
-  roomId: string;
-}
+import { useCollabContext } from "@/contexts/collab";
 
-const CodeEditorPanel: FC<CodeEditorPanelProps> = ({
-  partner,
-  language,
-  questionTitle,
-  roomId,
-}) => {
-  const [defaultCode, setDefaultCode] = useState<string>(
-    getCodeTemplate(language, questionTitle)
+const CodeEditorPanel: FC = ({}) => {
+  const { matchedLanguage, question, socketService } = useCollabContext();
+  if (!socketService) return null;
+
+  const questionTitle = question?.title || "";
+  const editorRef = useRef(null);
+
+  const [currentCode, setCurrentCode] = useState<string>(
+    getCodeTemplate(matchedLanguage, questionTitle)
   );
 
-  const handleResetToDefaultCode = () => {
-    setDefaultCode(getCodeTemplate(language, questionTitle));
+  useEffect(() => {
+    socketService.receiveCodeUpdate(setCurrentCode);
+  }, [socketService]);
+
+  const handleEditorChange = (currentContent: string | undefined) => {
+    if (!currentContent) return;
+    setCurrentCode(currentContent!);
+    socketService.sendCodeChange(currentContent!);
   };
 
-  const handleEditorChange = (value: SetStateAction<string>, event: any) => {
-    setDefaultCode(value);
+  const handleEditorDidMount = async (editor: any, monaco: any) => {
+    editorRef.current = editor;
+  };
+
+  const handleResetToDefaultCode = () => {
+    setCurrentCode(getCodeTemplate(matchedLanguage, questionTitle));
+    socketService.sendCodeChange(
+      getCodeTemplate(matchedLanguage, questionTitle)
+    );
   };
 
   return (
-    <div>
-      <CodeEditorNavbar
-        partner={partner!}
-        language={language}
-        roomId={roomId}
-        handleResetToDefaultCode={handleResetToDefaultCode}
-      />
+    <div className="h-[calc(100vh-60px)]">
+      <CodeEditorNavbar handleResetToDefaultCode={handleResetToDefaultCode} />
       <Divider className="space-y-2" />
       <CodeEditor
-        language={language}
-        defaultCode={defaultCode}
+        currentCode={currentCode}
         handleEditorChange={handleEditorChange}
+        handleEditorDidMount={handleEditorDidMount}
       />
     </div>
   );

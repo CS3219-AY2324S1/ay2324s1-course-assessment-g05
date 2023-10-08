@@ -1,14 +1,19 @@
-import Question from "@/types/question";
-import ProblemDescription from "./ProblemDescription";
+"use client";
 
-interface ProblemPanelProps {
-  question: Question;
-}
+import { useCollabContext } from "@/contexts/collab";
+import ProblemDescription from "../common/ProblemDescription";
+import { notFound } from "next/navigation";
 
-const ProblemPanel = ({ question }: ProblemPanelProps) => {
+const ProblemPanel = () => {
+  const { question } = useCollabContext();
+
+  if (!question) {
+    return notFound();
+  }
+
   return (
-    <div className="h-screen">
-      <ProblemDescription question={question!} />
+    <div className="h-[calc(100vh-60px)]">
+      <ProblemDescription question={question} />
     </div>
   );
 };

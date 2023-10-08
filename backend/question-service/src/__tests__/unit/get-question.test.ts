@@ -1,29 +1,27 @@
 import supertest from "supertest";
 import createServer from "../utils/server";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
-import questionDb from "../../models/database/schema/question";
 import * as TestPayload from "../utils/payloads";
-import { nanoid } from "nanoid";
+import Topic from "../../lib/enums/Topic";
+import db from "../../models/db";
 
 const app = createServer();
-const dbMock = questionDb as jest.Mocked<typeof questionDb>;
+const dbMock = db as jest.Mocked<typeof db>;
 
 describe("GET /questions", () => {
   describe("Given an authorized API call", () => {
     it("should return 200 with questions", async () => {
       // Arrange
-      const questions = [
-        TestPayload.getQuestionPayload(nanoid()),
-        TestPayload.getQuestionPayload(nanoid()),
-      ];
-      dbMock.find = jest.fn().mockResolvedValue(questions);
+      const questions = TestPayload.getQuestionsPayload();
+
+      dbMock.question.findMany = jest.fn().mockResolvedValue(questions);
 
       // Act
       const { body, statusCode } = await supertest(app).get("/api/questions");
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.OK);
-      expect(body).toEqual({ count: 2, data: questions });
+      expect(body).toEqual({ count: 3, data: questions });
     });
   });
 
@@ -32,7 +30,7 @@ describe("GET /questions", () => {
       // Act
       const { body, statusCode } = await supertest(app)
         .get("/api/questions")
-        .query({ topics: "invalidtopic" });
+        .query({ topic: "invalidtopic" });
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.BAD_REQUEST);
@@ -46,7 +44,9 @@ describe("GET /questions/:questionId", () => {
       // Arrange
       const questionId = "existingquestionid123";
       const question = TestPayload.getQuestionPayload(questionId);
-      dbMock.findById = jest.fn().mockResolvedValue(question);
+      const examples = TestPayload.getQuestionExamplesPayload(questionId);
+      dbMock.question.findUnique = jest.fn().mockResolvedValue(question);
+      dbMock.example.findMany = jest.fn().mockResolvedValue(examples);
 
       // Act
       const { body, statusCode } = await supertest(app).get(
@@ -55,14 +55,14 @@ describe("GET /questions/:questionId", () => {
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.OK);
-      expect(body).toEqual({ ...question, id: questionId });
+      expect(body).toEqual({ ...question, examples, id: questionId });
     });
   });
 
   describe("Given a non-existing question id in the database", () => {
     it("should return 404 with an error message", async () => {
       const questionId = "nonexistingquestionid123";
-      dbMock.findById = jest.fn().mockResolvedValue(null);
+      dbMock.question.findUnique = jest.fn().mockResolvedValue(null);
 
       const { body, statusCode } = await supertest(app).get(
         `/api/questions/${questionId}`
@@ -79,7 +79,7 @@ describe("GET /questions/:questionId", () => {
   describe("Given an unexpected error has occurred", () => {
     it("should return 500 with an error message", async () => {
       const questionId = "existingquestionid123";
-      dbMock.findById = jest
+      dbMock.question.findUnique = jest
         .fn()
         .mockRejectedValue(new Error("Unexpected error"));
 
@@ -93,5 +93,19 @@ describe("GET /questions/:questionId", () => {
         message: "An unexpected error has occurred.",
       });
     });
+  });
+});
+
+describe("GET /topics", () => {
+  it("should return 200 with all topics", async () => {
+    // Arrange
+    const topics = Object.values(Topic);
+
+    // Act
+    const { body, statusCode } = await supertest(app).get("/api/topics");
+
+    // Assert
+    expect(statusCode).toEqual(HttpStatusCode.OK);
+    expect(body).toEqual({ topics });
   });
 });

@@ -1,11 +1,9 @@
 "use client";
-import { CLIENT_ROUTES } from "@/common/constants";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 import { Role } from "@/types/enums";
 import User from "@/types/user";
 import { StringUtils } from "@/utils/stringUtils";
-import { Spinner } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -48,7 +46,6 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("here");
     fetchUser();
   }, []);
 
