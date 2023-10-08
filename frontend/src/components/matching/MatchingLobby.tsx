@@ -1,9 +1,6 @@
 "use client"
 import { getLogger } from "@/helpers/logger";
-import {
-  Modal,
-  ModalContent
-} from "@nextui-org/react";
+import { Modal, ModalContent } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import MatchingLobbyErrorView from "./MatchingLobbyErrorView";
 import MatchingLobbyMatchingView from "./MatchingLobbyMatchingView";
@@ -69,8 +66,7 @@ export default function MatchingLobby({
 
   const handleRedirect = (socket: SocketService, room: any) => {
     const partnerId = socket.getRoomPartner()!.id;
-    const path = `${CLIENT_ROUTES.COLLABORATION}/${room.id}?partnerId=${partnerId}&questionId=${room.questionId}&language=${room.language}`
-    console.log(path);
+    const path = `${CLIENT_ROUTES.COLLABORATION}/${room.id}?partnerId=${partnerId}&questionId=${room.questionId}&language=${room.language}`;
     router.push(path);
 }
 

@@ -9,21 +9,23 @@ const difficultyLength = Object.keys(Complexity).length;
 const topicLength = Object.keys(Topic).length;
 
 function enumValues<T>(e: any): T[] {
-    return Object.keys(e).map((key) => e[key]);
+  return Object.keys(e).map((key) => e[key]);
 }
 
 export function encodeEnum<E extends object>(enumObj: E, values: E[]): string {
-    if (values.length === 0) {
-        return '0'.repeat(Object.keys(enumObj).length / 2);
-    }
+  if (values.length === 0) {
+    return "0".repeat(Object.keys(enumObj).length / 2);
+  }
 
-    let stringValues = values.map(x => (x as String).toUpperCase())
+  let stringValues = values.map((x) => (x as String).toUpperCase());
 
-    const binaryCode = enumValues(enumObj)
-        .map((enumValue) => (stringValues.includes(enumValue as string) ? '1' : '0'))
-        .join('');
+  const binaryCode = enumValues(enumObj)
+    .map((enumValue) =>
+      stringValues.includes(enumValue as string) ? "1" : "0"
+    )
+    .join("");
 
-    return binaryCode;
+  return binaryCode;
 }
 
 export function decodeEnum<E extends object>(enumObj: E, code: string): E[] {
