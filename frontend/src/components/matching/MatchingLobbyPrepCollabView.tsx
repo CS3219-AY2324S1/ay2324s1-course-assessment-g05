@@ -26,7 +26,7 @@ export default function MatchingLobbyPrepCollabView({
 
     const handleStart = () => {
         try {
-            if (question.length == 0) {
+            if (question[0] === "") {
                 displayToast("Please select a question.", ToastType.WARNING);
                 return;
             }

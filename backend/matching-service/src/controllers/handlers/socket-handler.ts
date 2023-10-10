@@ -7,6 +7,7 @@ import Room from '../../models/types/room';
 import Logger from '../../lib/utils/logger'
 import { generateRoomId } from '../../lib/utils/encoder';
 import SocketEvent from '../../lib/enums/SocketEvent';
+import logger from '../../lib/utils/logger';
 
 const timeout = Number(process.env.MATCHING_TIMEOUT) || 60000;
 const rm: RoomManager = RoomManager.getInstance();
@@ -165,6 +166,7 @@ export const SocketHandler = (socket: Socket) => {
 
   socket.on(SocketEvent.DISCONNECTING, (data: any) => handleCancel(socket));
   socket.on(SocketEvent.DISCONNECT, () => {
+    logger.debug(`[${socket.id}][Disconnect]`)
     activeSockets.delete(socket.id);
   });
 }
