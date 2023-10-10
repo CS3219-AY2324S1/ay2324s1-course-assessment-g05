@@ -67,6 +67,10 @@ export default function MatchingLobby({
   const handleRedirect = (socket: SocketService, room: any) => {
     const partnerId = socket.getRoomPartner()!.id;
     const path = `${CLIENT_ROUTES.COLLABORATION}/${room.id}?partnerId=${partnerId}&questionId=${room.questionId}&language=${room.language}`;
+    
+    // Disable error view to disconnect matching service while waiting for collab
+    socket.off("disconnect");
+    socket.disconnect();
     router.push(path);
 }
 
@@ -117,7 +121,6 @@ export default function MatchingLobby({
   useEffect(() => {
     if (isOpen) {
       if (stage === MATCHING_STAGE.INITIAL) {
-        console.log("start init");
         initializeSocket();
       }
     } else {

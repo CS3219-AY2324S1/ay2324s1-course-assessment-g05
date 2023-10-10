@@ -57,13 +57,27 @@ export default function MatchingLobbySuccessView({
     initializeSocket();
   }, [])
 
+  // useEffect(() => {
+  //   if (userReady && partnerReady && isOwner) {
+  //     // start countdown
+  //     setTimer(timer - 1);
+  //   }
+  // }, [userReady, partnerReady])
+
   useEffect(() => {
-    if (userReady && partnerReady) {
-      console.log("Auto start peerprep in 10s");
-      setInterval(() => {setTimer(timer - 1)}, 1000);
-      setTimeout(onStart, 10000);
+    if (timer === 0) {
+        onStart();
     }
-  }, [userReady, partnerReady])
+
+    const clock = setTimeout(() => {
+      if (userReady && partnerReady && isOwner) {
+        setTimer(prev => prev - 1);
+      }
+    }, 1000)
+
+    return () => clearTimeout(clock)
+}, [userReady, partnerReady, isOwner, timer])
+
 
   return (
     <>
