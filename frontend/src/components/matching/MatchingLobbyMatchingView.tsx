@@ -5,6 +5,7 @@ import Preference from "@/types/preference";
 import SocketService from "@/helpers/matching/socket_service";
 import { useAuthContext } from "@/contexts/auth";
 import { Icons } from "../common/Icons";
+import MatchingPreferenceList from "./MatchingPreferenceList";
 
 export default function MatchingLobbyMatchingView(
     {
@@ -80,17 +81,10 @@ export default function MatchingLobbyMatchingView(
                 >
                 </CircularProgress>
                 <span>Waiting for a match...</span>
-                <div className="flex flex-col gap-2 items-center justify-center text-small w-2/3">
-                    <span className="capitalize">{preference.languages.join(", ").toLowerCase()}</span>
-                    <span className="flex gap-2">
-                        {preference.difficulties.map(item => (
-                            <ComplexityChip key={item} complexity={item} size="sm"></ComplexityChip>
-                        ))}
-                    </span>
-                    <Tooltip className="capitalize" content={preference?.topics.join(", ").toLowerCase()}>
-                        <span className="capitalize text-ellipsis line-clamp-1">{preference?.topics.join(", ").toLowerCase()}</span>
-                    </Tooltip>
-                </div>
+                <MatchingPreferenceList 
+                    languages={preference?.languages || []} 
+                    topics={preference?.topics || []} 
+                    difficulties={preference?.difficulties || []}></MatchingPreferenceList>
             </ModalBody>
             <ModalFooter>
                 <Button onPress={onClose} startContent={<Icons.FiX />}>Cancel</Button>

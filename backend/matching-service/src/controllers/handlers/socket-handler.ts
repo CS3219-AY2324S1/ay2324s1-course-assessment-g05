@@ -29,6 +29,8 @@ const handleMatching = (socket: Socket, request: {
         )
       }, 2000);
       activeSockets.add(socket.id);
+    } else {
+      Logger.debug(`[${socket.id}][handleMatching] Socket is active, discard duplicate request.`);
     }
   } catch (error) {
     notifyError(socket, error);

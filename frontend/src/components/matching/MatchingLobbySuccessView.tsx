@@ -7,6 +7,7 @@ import { Icons } from "../common/Icons";
 import SocketService from "@/helpers/matching/socket_service";
 import Preference from "@/types/preference";
 import ComplexityChip from "../question/ComplexityChip";
+import MatchingPreferenceList from "./MatchingPreferenceList";
 
 export type MatchingSuccessState = {
   userReady: boolean,
@@ -34,6 +35,7 @@ export default function MatchingLobbySuccessView({
   const [partnerLeft, setPartnerLeft] = useState(false);
   const [partner, setPartner] = useState<Partner | null>(null);
   const [preference, setPreference] = useState<Preference | null>(null);
+  const [timer, setTimer] = useState<number>(10);
 
   const onUserReady = (ready: boolean) => {
     setUserReady(ready);
@@ -54,6 +56,14 @@ export default function MatchingLobbySuccessView({
     }
     initializeSocket();
   }, [])
+
+  useEffect(() => {
+    if (userReady && partnerReady) {
+      console.log("Auto start peerprep in 10s");
+      setInterval(() => {setTimer(timer - 1)}, 1000);
+      setTimeout(onStart, 10000);
+    }
+  }, [userReady, partnerReady])
 
   return (
     <>
@@ -101,28 +111,10 @@ export default function MatchingLobbySuccessView({
             </CardFooter>
           </Card>
         </div>
-        <div className="flex flex-col items-center gap-1 border-1 border-slate-600 rounded-md p-2 w-2/3">
-          <div className="flex flex-row gap-2 text-sm">
-            <span>Questions will be selected from:</span>
-          </div>
-          <div className="flex flex-row gap-2 items-center">
-            <div>
-              <Tooltip className="capitalize" content={preference?.languages.join(", ").toLowerCase()}>
-                <span className="capitalize text-ellipsis line-clamp-1">{preference?.languages.join(", ").toLowerCase()}</span>
-              </Tooltip>
-            </div>
-            <div className=" flex flex-col items-center gap-1">
-              {preference?.difficulties.map(item => (
-                <ComplexityChip key={item} complexity={item}></ComplexityChip>
-              ))}
-            </div>
-            <div>
-              <Tooltip className="capitalize" content={preference?.topics.join(", ").toLowerCase()}>
-                <span className="capitalize text-ellipsis line-clamp-1">{preference?.topics.join(", ").toLowerCase()}</span>
-              </Tooltip>
-            </div>
-          </div>
-        </div>
+        <MatchingPreferenceList 
+          languages={preference?.languages || []} 
+          topics={preference?.topics || []} 
+          difficulties={preference?.difficulties || []}></MatchingPreferenceList>
       </ModalBody>
       <ModalFooter>
         {(!userReady || !partnerReady || partnerLeft) &&
@@ -132,7 +124,7 @@ export default function MatchingLobbySuccessView({
           <Button onPress={onRematch} color="warning" startContent={<Icons.RxReset />}>Rematch</Button>
         }
         {isOwner && userReady && partnerReady && !partnerLeft &&
-          <Button onPress={onStart} color="primary" startContent={<Icons.FiPlay />}>Start Peerprep</Button>
+          <Button onPress={onStart} color="primary" startContent={<Icons.FiPlay />}>Start Peerprep ({timer})</Button>
         }
         {!isOwner && userReady && partnerReady && !partnerLeft &&
           <Button color="primary" isLoading>Waiting for {isOwner ? user.name : partner?.name} to start</Button>

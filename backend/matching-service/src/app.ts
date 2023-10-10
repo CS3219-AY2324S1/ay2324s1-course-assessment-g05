@@ -49,7 +49,7 @@ io.on(SocketEvent.CONNECTION_ERROR, (error) => {
 });
 
 httpServer.listen(process.env.SERVICE_PORT, () => {
-  logger.info(`Server running on port ${process.env.SERVICE_PORT}`);
+  logger.info(`Matching server running on port ${process.env.SERVICE_PORT}`);
 });
 
 export { io };
