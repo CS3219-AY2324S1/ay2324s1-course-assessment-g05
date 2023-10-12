@@ -109,7 +109,7 @@ export default function Information({
   let updatedUser: User = {
     name: name,
     email: user.email,
-    bio: bio ? bio : undefined,
+    bio: bio,
     role: user.role,
     gender: gender,
     image: imageUrl ? imageUrl : undefined,
@@ -121,9 +121,6 @@ export default function Information({
     preferences: Preference
   ) {
     e.preventDefault();
-
-    console.log(updatedUser);
-
     try {
       if (!user) {
         throw new Error("User not retrieved");
@@ -162,8 +159,14 @@ export default function Information({
           label="Name"
           isClearable
           minLength={2}
+          maxLength={20}
           defaultValue={user.name}
           onValueChange={setName}
+          errorMessage={
+            (name.length < 2 && "Name must be at least 2 characters long") ||
+            (name.length == 20 &&
+              "Max length of 20 characters has been reached")
+          }
         />
         <Input
           label="Bio"
@@ -171,6 +174,10 @@ export default function Information({
           maxLength={50}
           defaultValue={user.bio}
           onValueChange={setBio}
+          onClear={() => setBio("")}
+          errorMessage={
+            bio.length == 50 && "Max length of 50 characters has been reached"
+          }
         />
         <div className="flex flex-row space-x-5 items-center">
           <p>Gender:</p>

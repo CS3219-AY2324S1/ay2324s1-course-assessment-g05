@@ -63,6 +63,8 @@ export function LoginComponent() {
       setErrorMsg("Passwords do not match. Please try again.");
     } else if (name !== "" && name.length < 2) {
       setErrorMsg("Name has to contain at least 2 characters");
+    } else if (name.length > 20) {
+      setErrorMsg("Name can only be at most 20 characters");
     } else {
       setErrorMsg("");
     }

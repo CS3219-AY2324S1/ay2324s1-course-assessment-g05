@@ -61,7 +61,7 @@ const NavBar = () => {
                 key="profile"
                 onClick={handleEditProfileButtonPress}
               >
-                View Profile
+                Edit Profile
               </DropdownItem>
             </DropdownSection>
             <DropdownSection>

@@ -6,13 +6,8 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
   const baseUrl = "http://localhost:3000";
-  const publicContent = [
-    "/_next",
-    "/assets",
-    "/logout",
-    "/verify",
-    "/forgotpassword",
-  ];
+  const publicContent = ["/_next", "/assets", "/logout", "/forgotpassword"];
+
   if (publicContent.some((path) => request.nextUrl.pathname.startsWith(path))) {
     return NextResponse.next();
   }
@@ -29,7 +24,8 @@ export async function middleware(request: NextRequest) {
   if (res.status === 200) {
     if (
       request.nextUrl.pathname === "/login" ||
-      request.nextUrl.pathname === "/"
+      request.nextUrl.pathname === "/" ||
+      request.nextUrl.pathname === "/verify"
     ) {
       return NextResponse.redirect(new URL("/dashboard", baseUrl));
     }
@@ -39,7 +35,8 @@ export async function middleware(request: NextRequest) {
   //not authenticated
   if (
     request.nextUrl.pathname === "/login" ||
-    request.nextUrl.pathname === "/"
+    request.nextUrl.pathname === "/" ||
+    request.nextUrl.pathname === "/verify"
   ) {
     return NextResponse.next();
   }
