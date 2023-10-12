@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import HttpStatusCode from "../../common/HttpStatusCode";
 import { createUser, getUserByEmail } from "../../lib/user_api_helpers";
-import { getJWTSecret, issueJWT, validatePassword } from "../../lib/utils";
+import { issueJWT, validatePassword } from "../../lib/utils";
 import { UserProfile } from "../../common/types";
 import { VerificationMail } from "../../lib/email/verificationMail";
 
@@ -21,14 +21,10 @@ const registerByEmail = async (request: Request, response: Response) => {
   const mail = new VerificationMail(user.email, user.verificationToken);
   await mail.send();
 
-  // const tokenObject = issueJWT(user);
-  response
-    //   .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
-    .status(HttpStatusCode.CREATED)
-    .json({
-      success: true,
-      userId: user.id,
-    });
+  response.status(HttpStatusCode.CREATED).json({
+    success: true,
+    userId: user.id,
+  });
 };
 
 const logInByEmail = async (request: Request, response: Response) => {
