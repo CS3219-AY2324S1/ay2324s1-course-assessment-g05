@@ -13,6 +13,7 @@ import React, { useState, useEffect, FormEvent } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 import { ToastType } from "@/types/enums";
+import PeerPrepLogo from "@/components/common/PeerPrepLogo";
 import bcrypt from "bcryptjs-react";
 import displayToast from "@/components/common/Toast";
 import { CLIENT_ROUTES } from "@/common/constants";
@@ -114,29 +115,32 @@ export default function ForgotPasswordComponent() {
     return (
         <div className="flex items-center justify-center h-screen">
             <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
-                {!isChangePassword ? (
-                    <>
+                {isChangePassword ? (
+                    <div className="w-1/2">
+                        <PeerPrepLogo />
                         <CardHeader className="justify-center font-bold">
-                            Forgot your password?
+                            Forgot Password
                         </CardHeader>
-                        <CardBody className="flex flex-col space-y-10">
+                        <CardBody className="flex flex-col">
                             <Divider />
                             <Spacer y={5} />
-                            <p>Enter your email address below:</p>
+                            <p className="flex text-center">Enter your email address below:</p>
                             <form
-                                className="flex flex-col space-y-10"
+                                className="flex flex-col "
                                 onSubmit={(e) => {
                                     sendPasswordResetEmail(e);
                                 }}
                             >
+                                <Spacer y={5} />
                                 <Input
                                     placeholder="Email address"
                                     onInput={(e) => {
                                         setEmail(e.currentTarget.value);
                                     }}
                                 />
+                                <Spacer y={5} />
                                 <Button color="primary" type="submit">
-                                    Send reset password link
+                                    Reset Password
                                 </Button>
                             </form>
                             {isSubmitted ? (
@@ -145,7 +149,7 @@ export default function ForgotPasswordComponent() {
                                 </p>
                             ) : null}
                         </CardBody>
-                    </>
+                    </div>
                 ) : (
                     <>
                         <form
@@ -154,6 +158,7 @@ export default function ForgotPasswordComponent() {
                                 changeNewPassword(e);
                             }}
                         >
+                            <PeerPrepLogo />
                             <CardHeader className="lg font-bold justify-center">
                                 PeerPrep
                             </CardHeader>
