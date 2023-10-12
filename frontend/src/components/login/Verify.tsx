@@ -1,6 +1,8 @@
 "use client";
 import { Card, CardHeader, CardBody, Input, Button, Divider, Spacer } from "@nextui-org/react";
 import React, { useState, useEffect } from "react";
+import PeerPrepLogo from "@/components/common/PeerPrepLogo";
+import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import { CLIENT_ROUTES } from "@/common/constants";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ToastType } from "@/types/enums";
@@ -10,7 +12,10 @@ import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 export default function VerifyComponent() {
     // flags
     const [isVerificationFromEmailLink, setIsVerificationFromEmailLink] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [isSuccessfulVerification, setIsSuccessfulVerification] = useState(false);
+    const [isVerifiedLoading, setIsVerifiedLoading] = useState(true);
+
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -22,6 +27,8 @@ export default function VerifyComponent() {
             }
         } catch (error) {
             displayToast("Something went wrong. Please refresh and try again.", ToastType.ERROR);
+        } finally {
+            setIsVerifiedLoading(false);
         }
     }
 
@@ -33,60 +40,101 @@ export default function VerifyComponent() {
             setIsVerificationFromEmailLink(true);
             verifyEmail(email, token);
         }
+
+        setIsLoading(false);
     }, []);
 
     return (
         <div className="flex items-center justify-center h-screen">
-            <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
-                {!isVerificationFromEmailLink && (
-                    <>
+            {!isLoading && !isVerificationFromEmailLink && (
+                <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
+                    <div className="w-1/2">
+                        <PeerPrepLogo />
                         <CardHeader className="justify-center font-bold">
-                            Please check your email for verification.
+                            Sign Up Success
                         </CardHeader>
-                        <CardBody className="flex flex-col space-y-10">
+                        <CardBody className="flex flex-col ">
                             <Divider />
                             <Spacer y={5} />
-                            <p>You may now close this tab.</p>
-                        </CardBody>
-                    </>
-                )}
-                {isVerificationFromEmailLink && isSuccessfulVerification && (
-                    <>
-                        <CardHeader className="justify-center font-bold">
-                            Verification success.
-                        </CardHeader>
-                        <CardBody className="flex flex-col space-y-10">
-                            <Divider />
-                            <Spacer y={5} />
-                            <form className="flex flex-col space-y-10">
-                                <Button
-                                    color="primary"
-                                    onClick={() => {
-                                        router.push(CLIENT_ROUTES.LOGIN);
-                                    }}
-                                >
-                                    Login now
-                                </Button>
-                            </form>
-                        </CardBody>
-                    </>
-                )}
-                {isVerificationFromEmailLink && !isSuccessfulVerification && (
-                    <>
-                        <CardHeader className="justify-center font-bold">
-                            Verification failed.
-                        </CardHeader>
-                        <CardBody className="flex flex-col space-y-10">
-                            <Divider />
-                            <Spacer y={5} />
-                            <p>
-                                Please retry the link from your email. If this problem persists,
-                                please contact admin.
+                            <p className="flex text-center">
+                                Please check your email for verification.
                             </p>
+                            <Spacer y={5} />
+                            <Button
+                                color="primary"
+                                onClick={() => {
+                                    router.push(CLIENT_ROUTES.LOGIN);
+                                }}
+                            >
+                                Back to login
+                            </Button>
                         </CardBody>
-                    </>
-                )}
-            </Card>
+                    </div>
+                </Card>
+            )}
+            {isVerificationFromEmailLink && (
+                <>
+                    {isVerifiedLoading ? (
+                        <LogoLoadingComponent />
+                    ) : (
+                        <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
+                            {isSuccessfulVerification && (
+                                <div className="w-1/2">
+                                    <PeerPrepLogo />
+                                    <CardHeader className="justify-center font-bold">
+                                        Verification Success
+                                    </CardHeader>
+                                    <CardBody className="flex flex-col">
+                                        <Divider />
+                                        <Spacer y={5} />
+                                        <p className="flex text-center">
+                                            You can now login to access our services.
+                                        </p>
+                                        <Spacer y={5} />
+                                        <Button
+                                            color="primary"
+                                            onClick={() => {
+                                                router.push(CLIENT_ROUTES.LOGIN);
+                                            }}
+                                        >
+                                            Login now
+                                        </Button>
+                                    </CardBody>
+                                </div>
+                            )}
+                            {!isSuccessfulVerification && (
+                                <div className="w-1/2">
+                                    <PeerPrepLogo />
+                                    <CardHeader className="justify-center font-bold">
+                                        Verification Failed
+                                    </CardHeader>
+                                    <CardBody className="flex flex-col">
+                                        <Divider />
+                                        <Spacer y={5} />
+                                        <p className="flex text-center">
+                                            Please retry the link from your email.
+                                        </p>
+                                        <Spacer y={5} />
+                                        <p className="flex text-center text-xs text-red-500">
+                                            If this problem persists, please contact admin.
+                                        </p>
+                                        <Spacer y={5} />
+
+                                        <Button
+                                            color="primary"
+                                            onClick={() => {
+                                                router.push(CLIENT_ROUTES.LOGIN);
+                                            }}
+                                        >
+                                            Back to login
+                                        </Button>
+                                    </CardBody>
+                                </div>
+                            )}
+                        </Card>
+                    )}
+                </>
+            )}
         </div>
     );
 }
