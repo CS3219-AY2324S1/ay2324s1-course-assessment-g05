@@ -115,7 +115,7 @@ export default function ForgotPasswordComponent() {
     return (
         <div className="flex items-center justify-center h-screen">
             <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
-                {isChangePassword ? (
+                {!isChangePassword ? (
                     <div className="w-1/2">
                         <PeerPrepLogo />
                         <CardHeader className="justify-center font-bold">
