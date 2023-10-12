@@ -5,13 +5,10 @@ import db from "../../lib/db";
 import { ZodError } from "zod";
 import { UpdateUserPreferencesValidator } from "../../lib/validators/UpdateUserPreferencesValidator";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
-import jwt from "jsonwebtoken";
-
 
 export const updateUserById = async (request: Request, response: Response) => {
   try {
     const userId = request.params.userId;
-
 
     if (!request.body || Object.keys(request.body).length === 0) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
@@ -24,7 +21,6 @@ export const updateUserById = async (request: Request, response: Response) => {
     const updateUserBody = UpdateUserValidator.parse(request.body);
     const inputBodyKeys = Object.keys(request.body).sort();
     const parsedBodyKeys = Object.keys(updateUserBody).sort();
-
 
     if (JSON.stringify(inputBodyKeys) !== JSON.stringify(parsedBodyKeys)) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
@@ -175,8 +171,10 @@ export const updateUserPreferences = async (
   }
 };
 
-
-export const updateVerification = async (request: Request, response: Response) => {
+export const updateVerification = async (
+  request: Request,
+  response: Response
+) => {
   try {
     const email = request.params.email;
 
@@ -186,7 +184,7 @@ export const updateVerification = async (request: Request, response: Response) =
         email: email,
       },
     });
-    
+
     if (!user) {
       response.status(HttpStatusCode.NOT_FOUND).json({
         error: "NOT FOUND",
@@ -199,11 +197,10 @@ export const updateVerification = async (request: Request, response: Response) =
       where: {
         email: email,
       },
-      data: {isVerified: true, verificationToken: ""},
+      data: { isVerified: true, verificationToken: "" },
     });
 
     response.status(HttpStatusCode.NO_CONTENT).send();
-    
   } catch (error) {
     if (error instanceof ZodError) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
@@ -221,53 +218,57 @@ export const updateVerification = async (request: Request, response: Response) =
   }
 };
 
-export const updatePasswordResetToken = async (request: Request, response: Response) => {
-  try{
+export const updatePasswordResetToken = async (
+  request: Request,
+  response: Response
+) => {
+  try {
     const email = request.params.email;
-    const passwordResetToken = request.body.passwordResetToken
+    const passwordResetToken = request.body.passwordResetToken;
 
-  // query database for user email
-  const user = await db.user.findFirst({
-    where: {
-      email: email,
-    },
-  });
-
-  if (!user) {
-    response.status(HttpStatusCode.NOT_FOUND).json({
-      error: "NOT FOUND",
-      message: `User with id ${email} cannot be found.`,
+    // query database for user email
+    const user = await db.user.findFirst({
+      where: {
+        email: email,
+      },
     });
-    return;
-  }
-  
-  await db.user.update({
-    where: {
-      email: email,
-    },
-    data: {passwordResetToken: passwordResetToken},
-  });
 
-  
-  response.status(HttpStatusCode.OK)
-  .json({ id: user.id,
-    email: email,
-    passwordResetToken: passwordResetToken,
-    message: "Password token added" })
+    if (!user) {
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: `User with id ${email} cannot be found.`,
+      });
+      return;
+    }
 
-  }catch (error) {
-  if (error instanceof ZodError) {
-    response.status(HttpStatusCode.BAD_REQUEST).json({
-      error: "BAD REQUEST",
-      message: formatErrorMessage(error),
+    await db.user.update({
+      where: {
+        email: email,
+      },
+      data: { passwordResetToken: passwordResetToken },
     });
-    return;
+
+    response
+      .status(HttpStatusCode.OK)
+      .json({
+        id: user.id,
+        email: email,
+        passwordResetToken: passwordResetToken,
+        message: "Password token added",
+      });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: formatErrorMessage(error),
+      });
+      return;
+    }
+    // log the error
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "INTERNAL SERVER ERROR",
+      message: "An unexpected error has occurred.",
+    });
   }
-  // log the error
-  console.log(error);
-  response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-    error: "INTERNAL SERVER ERROR",
-    message: "An unexpected error has occurred.",
-  });
-}
-}
+};
