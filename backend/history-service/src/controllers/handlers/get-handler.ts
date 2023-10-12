@@ -34,6 +34,7 @@ export async function getHistory(request: Request, response: Response) {
         error: "BAD REQUEST",
         message: "At least one of userId and questionId is required",
       });
+      return;
     }
 
     const userList = userId
@@ -67,9 +68,9 @@ export async function getHistory(request: Request, response: Response) {
       return;
     }
 
-    response
-      .status(HttpStatusCode.OK)
-      .json({ count: history.length, data: history });
+    const result = { count: history.length, data: history };
+
+    response.status(HttpStatusCode.OK).json(result);
   } catch (error) {
     if (error instanceof ZodError) {
       response

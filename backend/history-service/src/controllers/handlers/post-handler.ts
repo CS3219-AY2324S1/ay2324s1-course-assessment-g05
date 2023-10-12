@@ -7,11 +7,12 @@ import db from "../../lib/db";
 
 export async function postHistory(request: Request, response: Response) {
   try {
-    if (!request.body) {
+    if (!request.body || Object.keys(request.body).length === 0) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
         message: "Request body is required",
       });
+      return;
     }
     // check request body correctness
     const createHistoryBody = CreateHistoryBodyValidator.parse(request.body);
@@ -23,7 +24,7 @@ export async function postHistory(request: Request, response: Response) {
     if (JSON.stringify(inputBodyKeys) !== JSON.stringify(parsedBodyKeys)) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
-        message: "Invalid properties in request body.",
+        message: "Invalid properties in request body",
       });
       return;
     }
@@ -32,11 +33,13 @@ export async function postHistory(request: Request, response: Response) {
     const userList = Array.isArray(createHistoryBody.userId)
       ? createHistoryBody.userId
       : [createHistoryBody.userId];
+
     let userExists = true;
-    userList.forEach(async (userId) => {
+
+    for (const id in userList) {
       const user = await db.user.findFirst({
         where: {
-          id: userId,
+          id: id,
         },
         select: {
           id: true,
@@ -45,14 +48,14 @@ export async function postHistory(request: Request, response: Response) {
 
       if (!user) {
         userExists = false;
-        return;
+        break;
       }
-    });
+    }
 
     if (!userExists) {
-      response.status(HttpStatusCode.BAD_REQUEST).json({
-        error: "BAD REQUEST",
-        message: "User id does not exist",
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: "User id cannot be found",
       });
       return;
     }
@@ -68,28 +71,31 @@ export async function postHistory(request: Request, response: Response) {
     });
 
     if (!question) {
-      response.status(HttpStatusCode.BAD_REQUEST).json({
-        error: "BAD REQUEST",
-        message: "Question id does not exist",
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: "Question id cannot be found",
       });
       return;
     }
 
     // check if history already exists
     let historyExists = false;
-    userList.forEach(async (userId) => {
+    for (const id in userList) {
       const history = await db.history.findFirst({
         where: {
-          userId: userId,
+          userId: id,
           questionId: createHistoryBody.questionId,
+        },
+        select: {
+          id: true,
         },
       });
 
       if (history) {
         historyExists = true;
-        return;
+        break;
       }
-    });
+    }
 
     if (historyExists) {
       response.status(HttpStatusCode.CONFLICT).json({
@@ -116,12 +122,13 @@ export async function postHistory(request: Request, response: Response) {
         error: "BAD REQUEST",
         message: formatErrorMessage(error),
       });
+      return;
     }
 
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",
-      message: "An unexpected error occurred",
+      message: "An unexpected error has occurred",
     });
   }
 }

@@ -17,13 +17,13 @@ export const HistoryQueryParamsValidator = z.object({
   questionId: z
     .union([
       z
-        .array(z.string().refine((id) => isCuid(id), "Invalid user id"))
+        .array(z.string().refine((id) => isCuid(id), "Invalid question id"))
         .max(10)
         .refine(
           (ids) => new Set(ids).size === ids.length,
           "Duplicate user ids"
         ),
-      z.string().refine((id) => isCuid(id), "Invalid user id"),
+      z.string().refine((id) => isCuid(id), "Invalid question id"),
     ])
     .optional(),
 });

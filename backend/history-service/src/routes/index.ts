@@ -14,6 +14,8 @@ router.route("/history").get(getHistory);
 
 router.route("/history").post(postHistory);
 
-router.route("/history/:id").delete(deleteHistory);
+router
+  .route("/history/user/:userId/question/:questionId")
+  .delete(deleteHistory);
 
 export default router;
