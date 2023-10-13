@@ -90,6 +90,11 @@ model History {
   questionId String
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
+  title      String
+  topics     String[]
+  complexity String
+  language   String
+
   @@unique([userId, questionId])
   @@schema("history")
 }

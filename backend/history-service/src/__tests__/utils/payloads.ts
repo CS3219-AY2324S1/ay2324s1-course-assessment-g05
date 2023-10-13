@@ -25,6 +25,10 @@ export const getHistoryPayload = ({
       {
         userId: userId,
         questionId: questionId,
+        title: "title",
+        topics: ["ARRAY", "STRING"],
+        complexity: "EASY",
+        language: "C++",
         createdAt: new Date().toISOString(),
       },
     ];
@@ -33,16 +37,28 @@ export const getHistoryPayload = ({
     {
       userId: userId ? userId : generateCUID(),
       questionId: questionId ? questionId : generateCUID(),
+      title: "title 1",
+      topics: ["ARRAY", "STRING"],
+      complexity: "EASY",
+      language: "C++",
       createdAt: new Date().toISOString(),
     },
     {
       userId: userId ? userId : generateCUID(),
       questionId: questionId ? questionId : generateCUID(),
+      title: "title 2",
+      topics: ["TWO POINTERS", "SORTING"],
+      complexity: "MEDIUM",
+      language: "JAVA",
       createdAt: new Date().toISOString(),
     },
     {
       userId: userId ? userId : generateCUID(),
       questionId: questionId ? questionId : generateCUID(),
+      title: "title 3",
+      topics: ["BREADTH-FIRST SEARCH", "DEPTH-FIRST SEARCH", "GRAPH"],
+      complexity: "HARD",
+      language: "PYTHON",
       createdAt: new Date().toISOString(),
     },
   ];
@@ -58,6 +74,10 @@ export const getCreateHistoryBodyPayload = ({
   return {
     userId,
     questionId,
+    title: "title",
+    topics: ["ARRAY", "STRING"],
+    complexity: "EASY",
+    language: "C++",
   };
 };
 

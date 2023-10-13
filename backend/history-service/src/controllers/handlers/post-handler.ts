@@ -110,6 +110,10 @@ export async function postHistory(request: Request, response: Response) {
       data: userList.map((userId) => ({
         userId: userId,
         questionId: createHistoryBody.questionId,
+        title: createHistoryBody.title,
+        topics: createHistoryBody.topics,
+        complexity: createHistoryBody.complexity,
+        language: createHistoryBody.language,
       })),
     });
 

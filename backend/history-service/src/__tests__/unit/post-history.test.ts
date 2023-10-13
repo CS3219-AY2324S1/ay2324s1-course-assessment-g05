@@ -170,6 +170,158 @@ describe("POST /api/history", () => {
     });
   });
 
+  describe("Given a title less than 3 characters", () => {
+    it("should return 400 and an error message", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const createHistoryBody = HistoryPayload.getCreateHistoryBodyPayload({
+        userId: userId,
+        questionId: questionId,
+      });
+      createHistoryBody.title = "2c";
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post("/api/history")
+        .send(createHistoryBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
+      expect(body).toEqual({
+        error: "BAD REQUEST",
+        message: "Invalid title. String must contain at least 3 character(s)",
+      });
+    });
+  });
+
+  describe("Given a topics with an empty array", () => {
+    it("should return 400 and an error message", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const createHistoryBody = HistoryPayload.getCreateHistoryBodyPayload({
+        userId: userId,
+        questionId: questionId,
+      });
+      createHistoryBody.topics = [];
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post("/api/history")
+        .send(createHistoryBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
+      expect(body).toEqual({
+        error: "BAD REQUEST",
+        message: "At least one topic is required",
+      });
+    });
+  });
+
+  describe("Given a topics with duplicated topics", () => {
+    it("should return 400 and an error message", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const createHistoryBody = HistoryPayload.getCreateHistoryBodyPayload({
+        userId: userId,
+        questionId: questionId,
+      });
+      createHistoryBody.topics = ["ARRAY", "ARRAY"];
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post("/api/history")
+        .send(createHistoryBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
+      expect(body).toEqual({
+        error: "BAD REQUEST",
+        message: "Each topic must be unique",
+      });
+    });
+  });
+
+  describe("Given a topics with an invalid topic", () => {
+    it("should return 400 and an error message", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const createHistoryBody = HistoryPayload.getCreateHistoryBodyPayload({
+        userId: userId,
+        questionId: questionId,
+      });
+      createHistoryBody.topics = ["INVALID"];
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post("/api/history")
+        .send(createHistoryBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
+      expect(body).toEqual({
+        error: "BAD REQUEST",
+        message: "Invalid topic",
+      });
+    });
+  });
+
+  describe("Given a complexity with an invalid complexity", () => {
+    it("should return 400 and an error message", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const createHistoryRequestBody =
+        HistoryPayload.getCreateHistoryBodyPayload({
+          userId: userId,
+          questionId: questionId,
+        });
+      createHistoryRequestBody.complexity = "INVALID";
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post("/api/history")
+        .send(createHistoryRequestBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
+      expect(body).toEqual({
+        error: "BAD REQUEST",
+        message: "Invalid complexity",
+      });
+    });
+  });
+
+  describe("Given a language with an invalid language", () => {
+    it("should return 400 and an error message", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const createHistoryRequestBody =
+        HistoryPayload.getCreateHistoryBodyPayload({
+          userId: userId,
+          questionId: questionId,
+        });
+      createHistoryRequestBody.language = "INVALID";
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post("/api/history")
+        .send(createHistoryRequestBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
+      expect(body).toEqual({
+        error: "BAD REQUEST",
+        message: "Invalid language",
+      });
+    });
+  });
+
   describe("Given no request body", () => {
     it("should return 400 and an error message", async () => {
       // Act
