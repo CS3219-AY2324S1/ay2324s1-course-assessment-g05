@@ -27,8 +27,8 @@ export default function EndSessionModal({
 }: EndSessionModalProps) {
   const router = useRouter();
 
-  const { handleDisconnectFromRoom, socketService } = useCollabContext();
-
+  const { socketService } = useCollabContext();
+  
   const [isSaving, setIsSaving] = useState(false);
   const [endSessionState, setEndSessionState] = useState(
     { 
@@ -59,7 +59,6 @@ export default function EndSessionModal({
     setIsSaving(true);
     try {
       await postToHistoryService();
-      // handleDisconnectFromRoom();
       onClose();
       router.push(CLIENT_ROUTES.HOME);
     } catch (error) {
@@ -96,7 +95,7 @@ export default function EndSessionModal({
                 <Divider className="mb-1" />
                 <ModalBody>
                   <p>
-                    Are you sure you want to exit the current sesion? THis action
+                    Are you sure you want to exit the current sesion? This action
                     is irreversible.
                   </p>
                 </ModalBody>

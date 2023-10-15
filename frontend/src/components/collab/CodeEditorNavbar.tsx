@@ -8,6 +8,8 @@ import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
 import Timer from "./Timer";
 import EndSessionModal from "./EndSessionModal";
 import { useCollabContext } from "@/contexts/collab";
+import displayToast from "../common/Toast";
+import { ToastType } from "@/types/enums";
 
 interface CodeEditorNavbarProps {
   handleResetToDefaultCode: () => void;
@@ -88,6 +90,17 @@ const CodeEditorNavbar = ({
       setIsReady(true);
     }
   }, [partner, receivedSessionEndTime]);
+
+  useEffect(() => {
+    if (!isReady) return;
+
+    if (isPartnerConnected) {
+      displayToast("Your partner has connected.", ToastType.SUCCESS);
+    } else {
+      displayToast("Your partner has disconnected.", ToastType.WARNING);
+    }
+
+  }, [isPartnerConnected])
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 

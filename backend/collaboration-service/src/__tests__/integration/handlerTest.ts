@@ -17,8 +17,6 @@ let sessionEndTime: string = "SAMPLE_SESSION_END_TIME";
 
 let prevEnv = process.env.NODE_ENV;
 
-
-
 describe("Handlers Test", () => {
 
     let httpServer: http.Server;
