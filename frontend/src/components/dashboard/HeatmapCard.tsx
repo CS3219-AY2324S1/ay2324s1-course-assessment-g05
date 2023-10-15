@@ -1,7 +1,9 @@
+import ActivityHeatMap from "./heatmap/ActivityHeatMap";
+
 const HeatmapCard = () => {
   return (
-    <div className="flex flex-col h-full justify-center gap-4 items-center bg-black rounded-lg p-8 overflow-hidden">
-      <p> Heatmap to be implemented </p>
+    <div className="flex flex-col h-full p-4 py-2 bg-black rounded-lg">
+      <ActivityHeatMap />
     </div>
   );
 };
