@@ -5,7 +5,18 @@ export const config = {
 };
 
 export async function middleware(request: NextRequest) {
-  const baseUrl = "http://localhost:3000";
+  const host =
+    process.env.NODE_ENV == "production"
+      ? process.env.ENDPOINT_PROD
+      : process.env.ENDPOINT_DEV;
+
+  const baseUrl =
+    process.env.NODE_ENV == "production"
+      ? `http://${host}`
+      : `http://${process.env.ENDPOINT_DEV}:${process.env.ENDPOINT_FRONTEND_PORT}`;
+
+  const authValidateEndpoint = `http://${host}:${process.env.ENDPOINT_AUTH_PORT}/api/auth/validate`;
+
   const publicContent = ["/_next", "/assets", "/logout", "/forgotpassword"];
 
   if (publicContent.some((path) => request.nextUrl.pathname.startsWith(path))) {
@@ -13,7 +24,8 @@ export async function middleware(request: NextRequest) {
   }
 
   const jwtCookieString = request.cookies.get("jwt")?.value as string;
-  const res = await fetch(`http://localhost:5050/api/auth/validate`, {
+
+  const res = await fetch(authValidateEndpoint, {
     method: "POST",
     headers: {
       Cookie: `jwt=${jwtCookieString}`,

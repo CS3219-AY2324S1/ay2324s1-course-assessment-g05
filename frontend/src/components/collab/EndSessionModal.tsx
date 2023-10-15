@@ -33,7 +33,7 @@ export default function EndSessionModal({
 
     onClose();
 
-    router.push(CLIENT_ROUTES.LANDING);
+    router.push(CLIENT_ROUTES.HOME);
   };
 
   return (
