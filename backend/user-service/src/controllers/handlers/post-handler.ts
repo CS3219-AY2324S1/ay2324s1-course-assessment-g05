@@ -46,9 +46,9 @@ export const postUser = async (request: Request, response: Response) => {
     }
 
     // generate verification token for email verification
-    const secretKey = "process.env.EMAIL_VERIFICATION_SECRET"
+    const secretKey = process.env.EMAIL_VERIFICATION_SECRET!
 
-    const verificationToken = jwt.sign( {email: createUserBody.email} , secretKey, { expiresIn: '1d' })
+    const verificationToken = jwt.sign( {email: createUserBody.email} , secretKey)
 
     const userData = {...createUserBody, verificationToken: verificationToken}
 

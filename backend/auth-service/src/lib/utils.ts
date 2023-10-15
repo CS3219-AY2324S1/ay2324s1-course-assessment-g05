@@ -24,9 +24,7 @@ const issueJWT = (user: UserProfile) => {
     role: user.role,
   };
 
-  const signedToken = jwt.sign(payload, getJWTSecret(), {
-    expiresIn: process.env.JWT_EXPIRES_IN || "1d",
-  });
+  const signedToken = jwt.sign(payload, getJWTSecret(), );
 
   return signedToken;
 };

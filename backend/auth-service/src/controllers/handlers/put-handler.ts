@@ -10,43 +10,53 @@ import { ResetPasswordMail } from "../../lib/email/resetPasswordMail";
 import jwt from "jsonwebtoken";
 
 const verifyUserEmail = async (request: Request, response: Response) => {
-  const email = request.params.email;
-  const token = request.params.token;
+  try {
+    const email = request.params.email;
+    const token = request.params.token;
 
-  // verify if token is valid
-  const secretKey = "process.env.EMAIL_VERIFICATION_SECRET"
+    // verify if token is valid
+    const secretKey = process.env.EMAIL_VERIFICATION_SECRET!
 
-  const decoded = jwt.verify(token, secretKey) as {email: string};
+    const decoded = jwt.verify(token, secretKey) as {email: string};
 
-  if (decoded.email != email) {
-    response.status(HttpStatusCode.BAD_REQUEST).json({
-      error: "BAD REQUEST",
-      message: "Email verification failed."
-    })
-    return;
-  }
+    console.log(decoded)
 
-  const res = await updateVerfication(email, token);
+    if (decoded.email != email) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Email verification failed."
+      })
+      return;
+    }
 
-  if (res.status !== HttpStatusCode.NO_CONTENT) {
-    const data = await res.json();
-    response.status(res.status).json({
-      error: data.error,
-      message: data.message,
+    const res = await updateVerfication(email, token);
+
+    if (res.status !== HttpStatusCode.NO_CONTENT) {
+      const data = await res.json();
+      response.status(res.status).json({
+        error: data.error,
+        message: data.message,
+      });
+      return;
+    }
+    response.status(HttpStatusCode.NO_CONTENT).json({
+      success: true,
     });
-    return;
+  } catch(error) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Email verification failed."
+      })
   }
-  response.status(HttpStatusCode.NO_CONTENT).json({
-    success: true,
-  });
 };
 
 const sendPasswordResetEmail = async (request: Request, response: Response) => {
-  const email = request.params.email;
+  try {
+    const email = request.params.email;
   // generate verification token for email verification
-  const secretKey = "process.env.EMAIL_RESET_SECRET"
+  const secretKey = process.env.EMAIL_RESET_SECRET!
 
-  const passwordResetToken = jwt.sign( {email: email} , secretKey, { expiresIn: '1d' })
+  const passwordResetToken = jwt.sign( {email: email} , secretKey)
 
   const res = await updatePasswordResetToken(email, {passwordResetToken : passwordResetToken});
 
@@ -71,16 +81,25 @@ const sendPasswordResetEmail = async (request: Request, response: Response) => {
   response.status(HttpStatusCode.NO_CONTENT).json({
     success: true,
   });
+  }
+  catch(error) {
+    response.status(HttpStatusCode.BAD_REQUEST).json({
+      error: "BAD REQUEST",
+      message: "Send reset password failed."
+    })
+  }
+  
 };
 
 const changePassword = async (request: Request, response: Response) => {
-  const userId = request.params.id;
+  try{
+    const userId = request.params.id;
   const token = request.body.token;
 
   const user = await (await getUserById(userId)).json();
 
   // verify if token is valid
-  const secretKey = "process.env.EMAIL_RESET_SECRET"
+  const secretKey = process.env.EMAIL_RESET_SECRET!
 
 
   const decoded = jwt.verify(token, secretKey) as { email: string };
@@ -112,6 +131,15 @@ const changePassword = async (request: Request, response: Response) => {
   response.status(HttpStatusCode.NO_CONTENT).json({
     success: true,
   });
+  }
+  catch(error) { 
+    response.status(HttpStatusCode.BAD_REQUEST).json({
+      error: "BAD REQUEST",
+      message: "Change password failed."
+    })
+  }
+
+  
 };
 
 export { verifyUserEmail, sendPasswordResetEmail, changePassword };
