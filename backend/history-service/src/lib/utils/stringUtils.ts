@@ -1,3 +1,3 @@
-export function isCuid(id: string) {
-  return /^[cdefghij][a-zA-Z0-9]{25}$/.test(id);
+export function isPrismaCuid(id: string) {
+  return /^cln[0-9a-z]{22}$/.test(id);
 }

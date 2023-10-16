@@ -1,12 +1,11 @@
 export function generateCUID() {
-  const characters =
-    "cdefghijabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const characters = "0123456789abcdefghijklmnopqrstuvwxyz";
 
   // Start with one of the characters from 'cdefghij'
-  let cuid = characters.charAt(Math.floor(Math.random() * 7));
+  let cuid = "cln";
 
   // Generate the remaining 25 characters
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < 22; i++) {
     cuid += characters.charAt(Math.floor(Math.random() * characters.length));
   }
 

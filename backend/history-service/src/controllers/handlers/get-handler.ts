@@ -55,6 +55,18 @@ export async function getHistory(request: Request, response: Response) {
       },
       select: {
         id: false,
+        code: false,
+        userId: true,
+        questionId: true,
+        title: true,
+        topics: true,
+        complexity: true,
+        language: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        updatedAt: "desc",
       },
     });
 
@@ -77,6 +89,41 @@ export async function getHistory(request: Request, response: Response) {
       return;
     }
 
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "INTERNAL SERVER ERROR",
+      message: "An unexpected error has occurred",
+    });
+  }
+}
+
+export async function getQuestionCodeHistory(
+  request: Request,
+  response: Response
+) {
+  try {
+    const { userId, questionId } = request.params;
+
+    const codeSubmission = await db.history.findFirst({
+      where: {
+        userId: userId,
+        questionId: questionId,
+      },
+      select: {
+        code: true,
+      },
+    });
+
+    if (!codeSubmission || !codeSubmission.code) {
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: "No code submission found",
+      });
+      return;
+    }
+
+    response.status(HttpStatusCode.OK).json({ code: codeSubmission.code });
+  } catch (error) {
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",

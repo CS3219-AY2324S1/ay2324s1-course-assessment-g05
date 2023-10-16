@@ -3,8 +3,10 @@ import {
   deleteHistory,
   getHealth,
   getHistory,
+  getQuestionCodeHistory,
   postHistory,
 } from "../controllers";
+import { updateQuestionCodeSubmission } from "../controllers/handlers/put-handler";
 
 const router: Router = Router();
 
@@ -17,5 +19,13 @@ router.route("/history").post(postHistory);
 router
   .route("/history/user/:userId/question/:questionId")
   .delete(deleteHistory);
+
+router
+  .route("/history/user/:userId/question/:questionId/code")
+  .get(getQuestionCodeHistory);
+
+router
+  .route("/history/user/:userId/question/:questionId/code")
+  .put(updateQuestionCodeSubmission);
 
 export default router;

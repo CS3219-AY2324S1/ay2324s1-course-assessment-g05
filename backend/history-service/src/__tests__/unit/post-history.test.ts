@@ -369,7 +369,7 @@ describe("POST /api/history", () => {
         userId: userId,
         questionId: questionId,
       });
-      dbMock.user.findFirst = jest.fn().mockResolvedValueOnce(null);
+      dbMock.user.findFirst = jest.fn().mockResolvedValue(null);
 
       // Act
       const { body, statusCode } = await supertest(app)
@@ -454,7 +454,7 @@ describe("POST /api/history", () => {
         questionId: questionId,
       });
 
-      dbMock.user.findFirst = jest.fn().mockResolvedValueOnce({
+      dbMock.user.findFirst = jest.fn().mockResolvedValue({
         id: userId,
       });
       dbMock.question.findFirst = jest.fn().mockResolvedValueOnce({

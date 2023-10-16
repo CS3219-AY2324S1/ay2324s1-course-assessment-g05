@@ -1,5 +1,5 @@
 import z from "zod";
-import { isCuid } from "../utils/stringUtils";
+import { isPrismaCuid } from "../utils/stringUtils";
 import { convertStringToComplexity } from "../enums/Complexity";
 import { convertStringToLanguage } from "../enums/Language";
 import { convertStringToTopic } from "../enums/Topic";
@@ -7,12 +7,14 @@ import { convertStringToTopic } from "../enums/Topic";
 export const CreateHistoryBodyValidator = z.object({
   userId: z.union([
     z
-      .array(z.string().refine((id) => isCuid(id), "Invalid user id"))
+      .array(z.string().refine((id) => isPrismaCuid(id), "Invalid user id"))
       .length(2)
       .refine((ids) => new Set(ids).size === 2, "Duplicate user ids"),
-    z.string().refine((id) => isCuid(id), "Invalid user id"),
+    z.string().refine((id) => isPrismaCuid(id), "Invalid user id"),
   ]),
-  questionId: z.string().refine((id) => isCuid(id), "Invalid question id"),
+  questionId: z
+    .string()
+    .refine((id) => isPrismaCuid(id), "Invalid question id"),
   title: z.string().min(3).max(100),
   topics: z
     .array(z.string().transform(convertStringToTopic))
@@ -23,6 +25,7 @@ export const CreateHistoryBodyValidator = z.object({
     ),
   complexity: z.string().transform(convertStringToComplexity),
   language: z.string().transform(convertStringToLanguage),
+  code: z.string().max(10000).optional(),
 });
 
 export type CreateHistoryBody = z.infer<typeof CreateHistoryBodyValidator>;

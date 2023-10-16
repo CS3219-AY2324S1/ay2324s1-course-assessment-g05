@@ -14,6 +14,7 @@ export async function postHistory(request: Request, response: Response) {
       });
       return;
     }
+
     // check request body correctness
     const createHistoryBody = CreateHistoryBodyValidator.parse(request.body);
 
@@ -30,16 +31,16 @@ export async function postHistory(request: Request, response: Response) {
     }
 
     // verify the user id exists
-    const userList = Array.isArray(createHistoryBody.userId)
+    let userList = Array.isArray(createHistoryBody.userId)
       ? createHistoryBody.userId
       : [createHistoryBody.userId];
 
     let userExists = true;
 
-    for (const id in userList) {
+    for (let i = 0; i < userList.length; i++) {
       const user = await db.user.findFirst({
         where: {
-          id: id,
+          id: userList[i],
         },
         select: {
           id: true,
@@ -79,11 +80,10 @@ export async function postHistory(request: Request, response: Response) {
     }
 
     // check if history already exists
-    let historyExists = false;
-    for (const id in userList) {
+    for (let i = 0; i < userList.length; i++) {
       const history = await db.history.findFirst({
         where: {
-          userId: id,
+          userId: userList[i],
           questionId: createHistoryBody.questionId,
         },
         select: {
@@ -92,12 +92,12 @@ export async function postHistory(request: Request, response: Response) {
       });
 
       if (history) {
-        historyExists = true;
-        break;
+        userList.splice(i, 1);
+        i--;
       }
     }
 
-    if (historyExists) {
+    if (userList.length === 0) {
       response.status(HttpStatusCode.CONFLICT).json({
         error: "CONFLICT",
         message: "History already exists",
@@ -107,13 +107,14 @@ export async function postHistory(request: Request, response: Response) {
 
     // create history
     await db.history.createMany({
-      data: userList.map((userId) => ({
-        userId: userId,
+      data: userList.map((id) => ({
+        userId: id,
         questionId: createHistoryBody.questionId,
         title: createHistoryBody.title,
         topics: createHistoryBody.topics,
         complexity: createHistoryBody.complexity,
         language: createHistoryBody.language,
+        ...(createHistoryBody.code && { code: createHistoryBody.code }),
       })),
     });
 
