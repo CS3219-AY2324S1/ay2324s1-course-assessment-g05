@@ -5,8 +5,8 @@ import {
   getHistory,
   getQuestionCodeHistory,
   postHistory,
+  updateQuestionCodeSubmission,
 } from "../controllers";
-import { updateQuestionCodeSubmission } from "../controllers/handlers/put-handler";
 
 const router: Router = Router();
 

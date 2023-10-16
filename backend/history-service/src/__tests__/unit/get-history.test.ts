@@ -271,3 +271,71 @@ describe("GET /api/history", () => {
     });
   });
 });
+
+describe("GET /api/history/user/:userId/question/:questionId/code", () => {
+  describe("Given a valid user id and question id", () => {
+    it("should return 200 with a code", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const code = "console.log('Hello World!');";
+
+      dbMock.history.findFirst = jest.fn().mockResolvedValueOnce({
+        code,
+      });
+
+      // Act
+      const { body, statusCode } = await supertest(app).get(
+        `/api/history/user/${userId}/question/${questionId}/code`
+      );
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.OK);
+      expect(body).toEqual({ code });
+    });
+  });
+
+  describe("Given a user id and a question id with no code submission", () => {
+    it("should return 404 and an error message", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      dbMock.history.findFirst = jest.fn().mockResolvedValueOnce(null);
+
+      // Act
+      const { body, statusCode } = await supertest(app).get(
+        `/api/history/user/${userId}/question/${questionId}/code`
+      );
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.NOT_FOUND);
+      expect(body).toEqual({
+        error: "NOT FOUND",
+        message: "No code submission found",
+      });
+    });
+  });
+
+  describe("Given database is down", () => {
+    it("should return 500 and an error message", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      dbMock.history.findFirst = jest
+        .fn()
+        .mockRejectedValueOnce(new Error("Database is down"));
+
+      // Act
+      const { body, statusCode } = await supertest(app).get(
+        `/api/history/user/${userId}/question/${questionId}/code`
+      );
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.INTERNAL_SERVER_ERROR);
+      expect(body).toEqual({
+        error: "INTERNAL SERVER ERROR",
+        message: "An unexpected error has occurred",
+      });
+    });
+  });
+});
