@@ -13,7 +13,6 @@ import {
   Chip,
   Link,
 } from "@nextui-org/react";
-import parse from "html-react-parser";
 import Question from "@/types/question";
 import ModifyQuestionModal from "./ModifyQuestionModal";
 import ComplexityChip from "./ComplexityChip";
@@ -21,14 +20,16 @@ import DeleteQuestion from "./DeleteQuestion";
 import { StringUtils } from "@/utils/stringUtils";
 import { CLIENT_ROUTES } from "@/common/constants";
 import { Icons } from "@/components/common/Icons";
+import { useAuthContext } from "@/contexts/auth";
 
 export default function QuestionTable({
   questions,
-  readonly = false,
 }: {
   questions: Question[];
-  readonly?: Boolean;
 }) {
+  const { user } = useAuthContext();
+  const readonly = user.role != "ADMIN";
+
   const columns = [
     {
       key: "id",
@@ -50,12 +51,15 @@ export default function QuestionTable({
       label: "TOPIC",
       class: "w-2/6",
     },
-    {
+  ];
+
+  if (!readonly) {
+    columns.push({
       key: "actions",
       label: "ACTIONS",
       class: "",
-    },
-  ];
+    });
+  }
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [toEditQuestion, setToEditQuestion] = useState<Question>();
@@ -105,11 +109,6 @@ export default function QuestionTable({
         }
         return (
           <div className="relative flex items-center gap-2">
-            <Tooltip content={<>{parse(item.title)}</>} delay={1000}>
-              <span className="text-lg text-default-400 cursor-pointer active:opacity-50 w-8 h-8 p-1.5">
-                <Icons.FiEye />
-              </span>
-            </Tooltip>
             <Tooltip content="Edit question" delay={1000}>
               <span
                 className="text-lg text-default-400 cursor-pointer active:opacity-50 w-8 h-8 p-1.5"
@@ -143,10 +142,13 @@ export default function QuestionTable({
         questionId={toEditQuestion?.id}
         closeCallback={onClose}
       ></ModifyQuestionModal>
+
       <Table
         aria-label="table of questions"
         topContent={
-          <Button onPress={(e) => openModal()}>Create Question</Button>
+          !readonly && (
+            <Button onPress={(e) => openModal()}>Create Question</Button>
+          )
         }
       >
         <TableHeader columns={columns}>
@@ -165,7 +167,7 @@ export default function QuestionTable({
             <TableRow key={row.id}>
               {(columnKey) => (
                 <TableCell>
-                  {renderCell(row, columnKey as string, false)}
+                  {renderCell(row, columnKey as string, readonly)}
                 </TableCell>
               )}
             </TableRow>

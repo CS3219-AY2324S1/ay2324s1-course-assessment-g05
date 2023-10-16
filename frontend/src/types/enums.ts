@@ -2,8 +2,10 @@
 export enum SERVICE {
   USER = "users",
   QUESTION = "questions",
+  AUTH = "auth",
   MATCHING = "matching",
   COLLABORATION = "collaboration",
+  TOPICS = "topics"
 }
 
 export enum HTTP_METHODS {
@@ -77,6 +79,9 @@ export enum ToastType {
   WARNING = "warning",
   INFO = "info",
 }
+
+
+
 
 export enum SocketEvent {
   CONNECT = "connect",
