@@ -20,6 +20,9 @@ model User {
   role       String
   isVerified Boolean @default(false)
 
+  verificationToken  String?
+  passwordResetToken String?
+
   image  String?
   bio    String?
   gender String?
