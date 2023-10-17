@@ -8,6 +8,9 @@ import { getLogger } from "../logger";
 import HttpStatusCode from "@/types/HttpStatusCode";
 import History, { DataItem } from "@/types/history";
 import { getError, throwAndLogError } from "@/utils/errorUtils";
+import ComplexityChip from "@/components/question/ComplexityChip";
+import { formatDistanceToNow } from "date-fns";
+import { StringUtils } from "../../utils/stringUtils";
 
 const logger = getLogger("history_api_wrappers");
 
@@ -20,10 +23,23 @@ const getAttemptedQuestionsHistory = async (userId: string) => {
       userId: "currentUserId",
       questionId: "questionId1",
       title: "Question 1",
-      topics: ["Array", "String"],
+      topics: [
+        "DEPTH-FIRST SEARCH",
+        "BINARY SEARCH",
+        "BREADTH-FIRST SEARCH",
+        "HASH TABLE",
+        "BIT MANIPULATION",
+        "SLIDING WINDOW",
+        "DIVIDE AND CONQUER",
+        "TWO POINTERS",
+        "STACK",
+        "STRING",
+        "GREEDY",
+      ],
       language: "Python",
       complexity: "Easy",
       createdAt: "2023-08-01T00:00:00.000Z",
+      updatedAt: "2023-08-01T00:00:00.000Z",
     },
     {
       userId: "currentUserId",
@@ -33,6 +49,7 @@ const getAttemptedQuestionsHistory = async (userId: string) => {
       language: "C++",
       complexity: "Medium",
       createdAt: "2023-10-01T00:00:00.000Z",
+      updatedAt: "2023-10-01T00:00:00.000Z",
     },
     {
       userId: "currentUserId",
@@ -42,6 +59,7 @@ const getAttemptedQuestionsHistory = async (userId: string) => {
       language: "Java",
       complexity: "Hard",
       createdAt: "2023-09-01T00:00:00.000Z",
+      updatedAt: "2023-09-01T00:00:00.000Z",
     },
     {
       userId: "currentUserId",
@@ -51,6 +69,7 @@ const getAttemptedQuestionsHistory = async (userId: string) => {
       language: "Javascript",
       complexity: "Hard",
       createdAt: "2023-09-24T00:00:00.000Z",
+      updatedAt: "2023-09-24T00:00:00.000Z",
     },
     {
       userId: "currentUserId",
@@ -60,6 +79,7 @@ const getAttemptedQuestionsHistory = async (userId: string) => {
       language: "Javascript",
       complexity: "Hard",
       createdAt: "2023-07-24T23:40:11.289Z",
+      updatedAt: "2023-07-24T23:40:11.289Z",
     },
   ];
 
@@ -126,7 +146,9 @@ const getNumberOfAttemptedQuestionsByTopic = (
   const topicCountMap = new Map<string, number>();
 
   history.forEach((question) => {
-    const topics = question.topics;
+    const topics = question.topics.map((topic) =>
+      StringUtils.convertStringToTitleCase(topic)
+    );
     topics.forEach((topic) => {
       if (topicCountMap.has(topic)) {
         const count = topicCountMap.get(topic)!;
@@ -140,6 +162,10 @@ const getNumberOfAttemptedQuestionsByTopic = (
   const data: DataItem[] = [];
   topicCountMap.forEach((value, key) => {
     data.push({ name: key, value: value });
+  });
+
+  data.sort((a, b) => {
+    return b.value - a.value;
   });
 
   return data;
@@ -167,13 +193,30 @@ const getNumberOfAttemptedQuestionsByLanguage = (
   return data;
 };
 
-const getNumQuestionsForEachComplexity = () => {
-  const data: DataItem[] = [
-    { name: "Easy", value: 5 },
-    { name: "Medium", value: 8 },
-    { name: "Hard", value: 20 },
-  ];
-  return data;
+const getSortedAttemptedQuestions = (history: History[]) => {
+  const sortedHistory = history.sort((a, b) => {
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+  });
+
+  const attemptedQuestions = sortedHistory.map((record) => {
+    return {
+      title: record.title,
+      complexity: <ComplexityChip complexity={record.complexity} size="sm" />,
+      submissionDate: formatDistanceToNow(new Date(record.updatedAt), {
+        addSuffix: true,
+      }),
+      // submissionDate: new Date(record.createdAt).toLocaleDateString("en-US", {
+      //   timeZone: "Asia/Singapore",
+      //   year: "numeric",
+      //   month: "short",
+      //   day: "numeric",
+      //   hour: "2-digit",
+      //   minute: "2-digit",
+      // }),
+    };
+  });
+
+  return attemptedQuestions;
 };
 
 const createHistory = async (userId: string | string[], questionId: string) => {
@@ -221,7 +264,7 @@ export const HistoryService = {
   getNumberOfAttemptedQuestionsByComplexity,
   getNumberOfAttemptedQuestionsByTopic,
   getNumberOfAttemptedQuestionsByLanguage,
-  getNumQuestionsForEachComplexity,
+  getSortedAttemptedQuestions,
   createHistory,
   deleteHistory,
 };

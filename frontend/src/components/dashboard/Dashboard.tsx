@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect } from "react";
 import ProfileDashboardCard from "./ProfileDashboardCard";
 import HeatmapCard from "./HeatmapCard";

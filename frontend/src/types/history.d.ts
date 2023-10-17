@@ -6,6 +6,7 @@ type History = {
   complexity: string;
   language: string;
   createdAt: string;
+  updatedAt: string;
 };
 
 export type DataItem = {
