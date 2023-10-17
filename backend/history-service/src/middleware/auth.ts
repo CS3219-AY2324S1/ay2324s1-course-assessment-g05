@@ -40,21 +40,29 @@ export const authMiddleware = async (
   const authEndpoint =
     process.env.AUTH_ENDPOINT || "http://localhost:5050/api/auth/validate";
 
-  const authRes = await fetch(authEndpoint, {
-    method: "POST",
-    headers: {
-      Cookie: `jwt=${jwtCookieString}`,
-    },
-  });
+  try {
+    const authRes = await fetch(authEndpoint, {
+      method: "POST",
+      headers: {
+        Cookie: `jwt=${jwtCookieString}`,
+      },
+    });
 
-  if (authRes.status !== HttpStatusCode.OK) {
-    const message = await authRes.text();
-    res.status(authRes.status).json({
-      error: message,
-      message,
+    if (authRes.status !== HttpStatusCode.OK) {
+      const message = await authRes.text();
+      res.status(authRes.status).json({
+        error: message,
+        message,
+      });
+      return;
+    }
+
+    next();
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "INTERNAL SERVER ERROR",
+      message: "Authorization service is unreachable",
     });
     return;
   }
-
-  next();
 };
