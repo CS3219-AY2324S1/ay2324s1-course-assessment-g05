@@ -8,7 +8,7 @@ import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 const app = createUnitTestServer();
 const dbMock = db as jest.Mocked<typeof db>;
 const NODE_ENV = process.env.NODE_ENV || "test";
-const BASE_URL = `${NODE_ENV}/history/api`;
+const API_PREFIX = `${NODE_ENV}/history/api`;
 
 describe("GET /api/history", () => {
   describe("Given a valid user id", () => {
@@ -22,7 +22,7 @@ describe("GET /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history?userId=${userId}`
+        `/${API_PREFIX}/history?userId=${userId}`
       );
 
       // Assert
@@ -45,7 +45,7 @@ describe("GET /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history?questionId=${questionId}`
+        `/${API_PREFIX}/history?questionId=${questionId}`
       );
 
       // Assert
@@ -70,7 +70,7 @@ describe("GET /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history?userId=${userId}&questionId=${questionId}`
+        `/${API_PREFIX}/history?userId=${userId}&questionId=${questionId}`
       );
 
       // Assert
@@ -95,7 +95,7 @@ describe("GET /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history?userId=${userIdList[0]}&userId=${userIdList[1]}&userId=${userIdList[2]}`
+        `/${API_PREFIX}/history?userId=${userIdList[0]}&userId=${userIdList[1]}&userId=${userIdList[2]}`
       );
 
       // Assert
@@ -121,7 +121,7 @@ describe("GET /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history?questionId=${questionIdList[0]}&questionId=${questionIdList[1]}&questionId=${questionIdList[2]}`
+        `/${API_PREFIX}/history?questionId=${questionIdList[0]}&questionId=${questionIdList[1]}&questionId=${questionIdList[2]}`
       );
 
       // Assert
@@ -144,7 +144,7 @@ describe("GET /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history?userId=${userId}&extraParam=${generateCUID()}`
+        `/${API_PREFIX}/history?userId=${userId}&extraParam=${generateCUID()}`
       );
 
       // Assert
@@ -163,7 +163,7 @@ describe("GET /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history?userId=${userId}`
+        `/${API_PREFIX}/history?userId=${userId}`
       );
 
       // Assert
@@ -182,7 +182,7 @@ describe("GET /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history?userId=${userId}&userId=${userId}`
+        `/${API_PREFIX}/history?userId=${userId}&userId=${userId}`
       );
 
       // Assert
@@ -204,7 +204,7 @@ describe("GET /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history?questionId=${questionIdList.join("&questionId=")}`
+        `/${API_PREFIX}/history?questionId=${questionIdList.join("&questionId=")}`
       );
 
       // Assert
@@ -220,7 +220,7 @@ describe("GET /api/history", () => {
     it("should return 400 and an error message", async () => {
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history`
+        `/${API_PREFIX}/history`
       );
 
       // Assert
@@ -241,7 +241,7 @@ describe("GET /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history?userId=${userId}&questionId=${questionId}`
+        `/${API_PREFIX}/history?userId=${userId}&questionId=${questionId}`
       );
 
       // Assert
@@ -263,7 +263,7 @@ describe("GET /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history?userId=${userId}`
+        `/${API_PREFIX}/history?userId=${userId}`
       );
 
       // Assert
@@ -290,7 +290,7 @@ describe("GET /api/history/user/:userId/question/:questionId/code", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history/user/${userId}/question/${questionId}/code`
+        `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
       );
 
       // Assert
@@ -308,7 +308,7 @@ describe("GET /api/history/user/:userId/question/:questionId/code", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history/user/${userId}/question/${questionId}/code`
+        `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
       );
 
       // Assert
@@ -331,7 +331,7 @@ describe("GET /api/history/user/:userId/question/:questionId/code", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${BASE_URL}/history/user/${userId}/question/${questionId}/code`
+        `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
       );
 
       // Assert
