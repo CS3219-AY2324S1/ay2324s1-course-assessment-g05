@@ -1,11 +1,13 @@
 import supertest from "supertest";
-import createServer from "../utils/server";
+import createUnitTestServer from "../utils/server";
 import { HistoryPayload, generateCUID } from "../utils/payloads";
 import db from "../../lib/db";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
-const app = createServer();
+const app = createUnitTestServer();
 const dbMock = db as jest.Mocked<typeof db>;
+const NODE_ENV = process.env.NODE_ENV || "test";
+const API_PREFIX = `${NODE_ENV}/history/api`;
 
 describe("POST /api/history", () => {
   describe("Given a valid user id and question id", () => {
@@ -28,7 +30,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(createHistoryBody);
 
       // Assert
@@ -58,7 +60,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(
           HistoryPayload.getCreateHistoryBodyPayload({
             userId: userIds,
@@ -84,7 +86,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(createHistoryBody);
 
       // Assert
@@ -104,7 +106,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(
           HistoryPayload.getCreateHistoryBodyPayload({
             userId: userIds,
@@ -129,7 +131,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(
           HistoryPayload.getCreateHistoryBodyPayload({
             userId: [userId, userId],
@@ -158,7 +160,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(createHistoryBody);
 
       // Assert
@@ -183,7 +185,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(createHistoryBody);
 
       // Assert
@@ -208,7 +210,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(createHistoryBody);
 
       // Assert
@@ -233,7 +235,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(createHistoryBody);
 
       // Assert
@@ -258,7 +260,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(createHistoryBody);
 
       // Assert
@@ -284,7 +286,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(createHistoryRequestBody);
 
       // Assert
@@ -310,7 +312,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(createHistoryRequestBody);
 
       // Assert
@@ -325,7 +327,9 @@ describe("POST /api/history", () => {
   describe("Given no request body", () => {
     it("should return 400 and an error message", async () => {
       // Act
-      const { body, statusCode } = await supertest(app).post("/api/history");
+      const { body, statusCode } = await supertest(app).post(
+        `/${API_PREFIX}/history`
+      );
 
       // Assert
       expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
@@ -348,7 +352,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send({ ...createHistoryBody, extra: "extra" });
 
       // Assert
@@ -373,7 +377,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(createHistoryBody);
 
       // Assert
@@ -399,7 +403,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(
           HistoryPayload.getCreateHistoryBodyPayload({
             userId: userIds,
@@ -432,7 +436,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(createHistoryBody);
 
       // Assert
@@ -467,7 +471,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(createHistoryBody);
 
       // Assert
@@ -500,7 +504,7 @@ describe("POST /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/history")
+        .post(`/${API_PREFIX}/history`)
         .send(createHistoryBody);
 
       // Assert

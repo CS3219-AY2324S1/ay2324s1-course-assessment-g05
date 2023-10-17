@@ -2,10 +2,12 @@ import supertest from "supertest";
 import { generateCUID } from "../utils/payloads";
 import db from "../../lib/db";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
-import createServer from "../utils/server";
+import createUnitTestServer from "../utils/server";
 
-const app = createServer();
+const app = createUnitTestServer();
 const dbMock = db as jest.Mocked<typeof db>;
+const NODE_ENV = process.env.NODE_ENV || "test";
+const API_PREFIX = `${NODE_ENV}/history/api`;
 
 describe("DELETE /api/history/user/:userId/question/:questionId", () => {
   describe("Given a valid user id and question id", () => {
@@ -20,7 +22,7 @@ describe("DELETE /api/history/user/:userId/question/:questionId", () => {
 
       // Act
       const { statusCode } = await supertest(app).delete(
-        `/api/history/user/${userId}/question/${questionId}`
+        `/${API_PREFIX}/history/user/${userId}/question/${questionId}`
       );
 
       // Assert
@@ -37,7 +39,7 @@ describe("DELETE /api/history/user/:userId/question/:questionId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).delete(
-        `/api/history/user/${userId}/question/${questionId}`
+        `/${API_PREFIX}/history/user/${userId}/question/${questionId}`
       );
 
       // Assert
@@ -63,7 +65,7 @@ describe("DELETE /api/history/user/:userId/question/:questionId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).delete(
-        `/api/history/user/${userId}/question/${questionId}`
+        `/${API_PREFIX}/history/user/${userId}/question/${questionId}`
       );
 
       // Assert

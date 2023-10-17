@@ -17,7 +17,8 @@ app.use(cors);
 app.use(bodyParser.json());
 
 // implement routes for API endpoints
-app.use("/api", authMiddleware, router);
+const NODE_ENV = process.env.NODE_ENV || "development";
+app.use(`/${NODE_ENV}/history/api`, authMiddleware, router);
 
 app.all("*", (_: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({
@@ -27,5 +28,7 @@ app.all("*", (_: Request, res: Response) => {
 });
 
 app.listen(process.env.SERVICE_PORT, () => {
-  console.log(`Server listens on port ${process.env.SERVICE_PORT}`);
+  console.log(
+    `Server listens on port ${process.env.SERVICE_PORT} running in ${NODE_ENV} environment`
+  );
 });

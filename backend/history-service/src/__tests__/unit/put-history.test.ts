@@ -1,11 +1,13 @@
 import supertest from "supertest";
-import createServer from "../utils/server";
+import createUnitTestServer from "../utils/server";
 import db from "../../lib/db";
 import { generateCUID } from "../utils/payloads";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
-const app = createServer();
+const app = createUnitTestServer();
 const dbMock = db as jest.Mocked<typeof db>;
+const NODE_ENV = process.env.NODE_ENV || "test";
+const API_PREFIX = `${NODE_ENV}/history/api`;
 
 describe("PUT /history/user/:userId/question/:questionId/code", () => {
   describe("Given a valid user id and question id with a valid code request body", () => {
@@ -27,7 +29,9 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
 
       // Act
       const { statusCode } = await supertest(app)
-        .put(`/api/history/user/${userId}/question/${questionId}/code`)
+        .put(
+          `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
+        )
         .send({ code });
 
       // Assert
@@ -46,7 +50,9 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
 
       // Act
       const { statusCode, body } = await supertest(app)
-        .put(`/api/history/user/${userId}/question/${questionId}/code`)
+        .put(
+          `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
+        )
         .send({ code });
 
       // Assert
@@ -71,7 +77,9 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
 
       // Act
       const { statusCode, body } = await supertest(app)
-        .put(`/api/history/user/${userId}/question/${questionId}/code`)
+        .put(
+          `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
+        )
         .send({ code });
 
       // Assert
@@ -97,7 +105,7 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
 
       // Act
       const { statusCode, body } = await supertest(app).put(
-        `/api/history/user/${userId}/question/${questionId}/code`
+        `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
       );
 
       // Assert
@@ -124,7 +132,9 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
 
       // Act
       const { statusCode, body } = await supertest(app)
-        .put(`/api/history/user/${userId}/question/${questionId}/code`)
+        .put(
+          `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
+        )
         .send({ code, extra: "field" });
 
       // Assert
@@ -151,7 +161,9 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
 
       // Act
       const { statusCode, body } = await supertest(app)
-        .put(`/api/history/user/${userId}/question/${questionId}/code`)
+        .put(
+          `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
+        )
         .send({ code });
 
       // Assert
@@ -179,7 +191,9 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
 
       // Act
       const { statusCode, body } = await supertest(app)
-        .put(`/api/history/user/${userId}/question/${questionId}/code`)
+        .put(
+          `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
+        )
         .send({ code });
 
       // Assert
@@ -201,7 +215,9 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
 
       // Act
       const { statusCode, body } = await supertest(app)
-        .put(`/api/history/user/${userId}/question/${questionId}/code`)
+        .put(
+          `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
+        )
         .send({ code });
 
       // Assert
