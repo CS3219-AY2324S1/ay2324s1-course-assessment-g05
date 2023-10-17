@@ -1,7 +1,7 @@
 "use client";
 
 import Workspace from "@/components/collab/Workspace";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import { useCollabContext } from "@/contexts/collab";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import ChatSpaceToggle from "@/components/collab/chat/ChatSpaceToggle";
@@ -30,6 +30,7 @@ const page: FC<pageProps> = ({ params: { roomId } }) => {
     handleConnectToRoom(roomId, questionId, partnerId, language);
 
     if (isNotFoundError) {
+      console.log("EROR");
       return notFound();
     }
 

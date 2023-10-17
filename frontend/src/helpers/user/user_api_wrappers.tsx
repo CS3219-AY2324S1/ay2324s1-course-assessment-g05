@@ -159,6 +159,7 @@ const updateUserPreference = async (
   userPreference: Preference,
   cache: RequestCache = "no-cache"
 ) => {
+  console.log(userPreference);
   // call PUT /api/users/:id/preferences from user service
   const response = await api({
     method: HTTP_METHODS.PUT,
