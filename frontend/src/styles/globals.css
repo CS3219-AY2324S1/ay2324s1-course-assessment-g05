@@ -63,32 +63,11 @@
   color: rgba(255, 255, 255, 0.315);
 }
 
-/* Define your custom colors for different counts */
-.react-calendar-heatmap rect {
-  width: 10px;
-  height: 10px;
+.ch-domain-bg {
+  background-color: #27272a !important;
+  fill: #1e1e21 !important;
 }
 
-.color-scale-0 {
-  fill: #ebedf0; /* Faint color for zero counts */
-}
-
-.color-scale-1 {
-  fill: #9be9a8; /* A color for low counts */
-}
-
-.color-scale-2 {
-  fill: #40c463; /* A color for medium counts */
-}
-
-.color-scale-3 {
-  fill: #30a14e; /* A color for high counts */
-}
-
-.color-scale-4 {
-  fill: #216e39; /* A color for very high counts */
-}
-
-.color-scale-7 {
-  fill: #163f23; /* A color for very high counts */
+.bg-cal-heatmap {
+  background-color: #1e1e21 !important;
 }

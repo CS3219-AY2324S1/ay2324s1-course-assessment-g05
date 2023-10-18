@@ -219,6 +219,27 @@ const getSortedAttemptedQuestions = (history: History[]) => {
   return attemptedQuestions;
 };
 
+const getNumberOfAttemptedQuestionsByDate = (history: History[]) => {
+  const dateCountMap = new Map<number, number>();
+
+  history.forEach((question) => {
+    const date: number = new Date(question.updatedAt).getTime();
+
+    if (dateCountMap.has(date)) {
+      const count = dateCountMap.get(date)!;
+      dateCountMap.set(date, count + 1);
+    } else {
+      dateCountMap.set(date, 1);
+    }
+  });
+
+  const data: { date: number; value: number }[] = [];
+  dateCountMap.forEach((value, key) => {
+    data.push({ date: key, value: value });
+  });
+  return data;
+};
+
 const createHistory = async (userId: string | string[], questionId: string) => {
   const response = await api({
     method: HTTP_METHODS.POST,
@@ -264,6 +285,7 @@ export const HistoryService = {
   getNumberOfAttemptedQuestionsByComplexity,
   getNumberOfAttemptedQuestionsByTopic,
   getNumberOfAttemptedQuestionsByLanguage,
+  getNumberOfAttemptedQuestionsByDate,
   getSortedAttemptedQuestions,
   createHistory,
   deleteHistory,
