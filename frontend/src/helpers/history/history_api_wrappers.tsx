@@ -240,6 +240,39 @@ const getNumberOfAttemptedQuestionsByDate = (history: History[]) => {
   return data;
 };
 
+const getQuestionCodeSubmission = async (
+  userId: string,
+  questionId: string
+) => {
+  const temporaryCodeData = {
+    code: `class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        for i in range(len(nums)):
+            for j in range(i+1, len(nums)):
+                if nums[i]+nums[j] == target:
+                    return [i, j]
+        return [-1, -1]`,
+  };
+
+  return temporaryCodeData;
+  // const response = await api({
+  //   method: HTTP_METHODS.GET,
+  //   service: historyService,
+  //   path: `/user/${userId}/questionId/${questionId}/code`,
+  // });
+
+  // if (response.status === HttpStatusCode.OK) {
+  //   const data = response.data as { code: string };
+  //   return data;
+  // }
+
+  // return throwAndLogError(
+  //   "getQuestionCodeSubmission",
+  //   response.message,
+  //   getError(response.status)
+  // );
+};
+
 const createHistory = async (userId: string | string[], questionId: string) => {
   const response = await api({
     method: HTTP_METHODS.POST,
@@ -287,6 +320,7 @@ export const HistoryService = {
   getNumberOfAttemptedQuestionsByLanguage,
   getNumberOfAttemptedQuestionsByDate,
   getSortedAttemptedQuestions,
+  getQuestionCodeSubmission,
   createHistory,
   deleteHistory,
 };
