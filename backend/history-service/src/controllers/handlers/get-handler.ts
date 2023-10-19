@@ -112,8 +112,6 @@ export async function getQuestionCodeHistory(
   try {
     const { userId: uid, questionId: qid } = request.params;
 
-    console.log(request.query.language);
-
     // query params validation
     const { userId, questionId, language } =
       GetQuestionCodeHistoryParamsValidator.parse({
