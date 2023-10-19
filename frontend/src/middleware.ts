@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-
 export const config = {
   matcher: "/:path*",
 };
@@ -25,19 +24,30 @@ export async function middleware(request: NextRequest) {
 
   const jwtCookieString = request.cookies.get("jwt")?.value as string;
 
-  const res = await fetch(authValidateEndpoint, {
-    method: "POST",
-    headers: {
-      Cookie: `jwt=${jwtCookieString}`,
-    },
-  });
+  let isAuthenticated = false;
 
+  if (jwtCookieString) {
+    try {
+      const res = await fetch(authValidateEndpoint, {
+        method: "POST",
+        headers: {
+          Cookie: `jwt=${jwtCookieString}`,
+        },
+      });
+      if (res.status === 200) {
+        isAuthenticated = true;
+      }
+    } catch (err) {
+      return NextResponse.redirect(new URL("/500", baseUrl));
+    }
+  }
   //authenticated
-  if (res.status === 200) {
+  if (isAuthenticated) {
     if (
       request.nextUrl.pathname === "/login" ||
       request.nextUrl.pathname === "/" ||
-      request.nextUrl.pathname === "/verify"
+      request.nextUrl.pathname === "/verify" ||
+      request.nextUrl.pathname === "/500"
     ) {
       return NextResponse.redirect(new URL("/dashboard", baseUrl));
     }
