@@ -138,10 +138,10 @@ const ActivityHeatMap = () => {
       // heatmap domain
       domain: {
         type: "month",
-        gutter: 15,
+        gutter: 10,
       },
       // cell domain
-      subDomain: { type: "day", width: 17, height: 17, radius: 2 },
+      subDomain: { type: "day", width: 18, height: 18, radius: 2 },
       itemSelector: "#cal-heatmap",
     },
     [
@@ -181,11 +181,11 @@ const ActivityHeatMap = () => {
   );
 
   return (
-    <div className="flex flex-col h-full gap-2 rounded-lg p-4 overflow-auto">
-      Submission from past 6 months:
-      <div className="flex justify-center items-center mt-4">
+    <div className="flex flex-col h-full gap-2 rounded-lg overflow-hidden">
+      <p className="font-semibold py-4 px-2">Submission from past 6 months:</p>
+      <div className="flex justify-center items-center p-4 bg-cal-heatmap rounded">
         {/* Heatmap */}
-        <div id="cal-heatmap" className="bg-cal-heatmap p-4 pb-1 rounded"></div>
+        <div id="cal-heatmap" className="bg-cal-heatmap"></div>
       </div>
       {/* Heatmap legend */}
       <div id="cal-heatmap-legend" className="flex justify-end" />
