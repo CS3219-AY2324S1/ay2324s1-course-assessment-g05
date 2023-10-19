@@ -66,21 +66,67 @@ export const getHistoryPayload = ({
 export const getCreateHistoryBodyPayload = ({
   userId,
   questionId,
+  language = "C++",
+  hasCode = false,
 }: {
   userId?: string | string[];
   questionId?: string;
+  language?: string;
+  hasCode?: boolean;
 }) => {
   return {
-    userId,
-    questionId,
-    title: "title",
-    topics: ["ARRAY", "STRING"],
-    complexity: "EASY",
-    language: "C++",
+    userId: userId,
+    questionId: questionId,
+    language: language,
+    code: hasCode
+      ? language === "C++"
+        ? '#include <iostream>\n\nint main() {\n\tstd::cout << "Hello World!";\n\treturn 0;\n}'
+        : language === "JAVA"
+        ? 'public class Main {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println("Hello World!");\n\t}\n}'
+        : language === "PYTHON"
+        ? 'print("Hello World!")'
+        : language === "JAVASCRIPT"
+        ? 'console.log("Hello World!")'
+        : ""
+      : undefined,
   };
+};
+
+const getUpdateCodeHistoryBodyPayload = ({
+  language = "C++",
+  code,
+}: {
+  language?: string;
+  code?: string;
+}) => {
+  if (code) {
+    return {
+      language: language,
+      code: code,
+    };
+  }
+  switch (language.toUpperCase()) {
+    case "C++":
+      return {
+        language: language,
+        code: '#include <iostream>\n\nint main() {\n\tstd::cout << "Hello World!";\n\treturn 0;\n}',
+      };
+    case "JAVA":
+      return {
+        language: language,
+        code: 'public class Main {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println("Hello World!");\n\t}\n}',
+      };
+    case "PYTHON":
+      return { language: language, code: 'print("Hello World!")' };
+    case "JAVASCRIPT":
+      return { language: language, code: 'console.log("Hello World!")' };
+    default:
+      return { language: language, code: "" };
+  }
 };
 
 export const HistoryPayload = {
   getHistoryPayload,
   getCreateHistoryBodyPayload,
+  getUpdateCodeHistoryBodyPayload,
 };

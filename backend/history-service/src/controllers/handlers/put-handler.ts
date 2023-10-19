@@ -22,6 +22,23 @@ export async function updateQuestionCodeSubmission(
       return;
     }
 
+    // check request body correctness
+    const updateQuestionCodeSubmissionBody = CodeSubmissionBodyValidator.parse(
+      request.body
+    );
+
+    // check if request body contains extra fields
+    const inputBodyKeys = Object.keys(request.body).sort();
+    const parsedBodyKeys = Object.keys(updateQuestionCodeSubmissionBody).sort();
+
+    if (JSON.stringify(inputBodyKeys) !== JSON.stringify(parsedBodyKeys)) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Invalid properties in request body",
+      });
+      return;
+    }
+
     // verify the user id exists
     const user = await db.user.findFirst({
       where: {
@@ -58,23 +75,6 @@ export async function updateQuestionCodeSubmission(
       return;
     }
 
-    // check request body correctness
-    const updateQuestionCodeSubmissionBody = CodeSubmissionBodyValidator.parse(
-      request.body
-    );
-
-    // check if request body contains extra fields
-    const inputBodyKeys = Object.keys(request.body).sort();
-    const parsedBodyKeys = Object.keys(updateQuestionCodeSubmissionBody).sort();
-
-    if (JSON.stringify(inputBodyKeys) !== JSON.stringify(parsedBodyKeys)) {
-      response.status(HttpStatusCode.BAD_REQUEST).json({
-        error: "BAD REQUEST",
-        message: "Invalid properties in request body",
-      });
-      return;
-    }
-
     // check if the history exists
     const history = await db.history.findFirst({
       where: {
@@ -83,6 +83,7 @@ export async function updateQuestionCodeSubmission(
       },
       select: {
         id: true,
+        languages: true,
       },
     });
 
@@ -92,21 +93,27 @@ export async function updateQuestionCodeSubmission(
         message: "History does not exist",
       });
       return;
+    } else if (
+      !history.languages.includes(updateQuestionCodeSubmissionBody.language)
+    ) {
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message:
+          "Code submission does not exist, use the POST endpoint instead",
+      });
+      return;
     }
 
     // update the code submission
-    await db.history.update({
+    await db.codeSubmission.update({
       where: {
-        userId_questionId: {
-          userId: userId,
-          questionId: questionId,
+        historyId_language: {
+          historyId: history.id,
+          language: updateQuestionCodeSubmissionBody.language,
         },
       },
       data: {
         code: updateQuestionCodeSubmissionBody.code,
-      },
-      select: {
-        id: true,
       },
     });
 

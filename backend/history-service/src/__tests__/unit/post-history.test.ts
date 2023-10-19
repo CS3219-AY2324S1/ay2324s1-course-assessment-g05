@@ -19,14 +19,21 @@ describe("POST /api/history", () => {
         userId: userId,
         questionId: questionId,
       });
-      dbMock.user.findFirst = jest.fn().mockResolvedValueOnce({
+
+      // ensure the user id exists
+      dbMock.user.findFirst = jest.fn().mockResolvedValue({
         id: userId,
       });
-      dbMock.question.findFirst = jest.fn().mockResolvedValueOnce({
+      // ensure the question id exists
+      dbMock.question.findFirst = jest.fn().mockResolvedValue({
         id: questionId,
       });
+      // ensure the history does not exist
       dbMock.history.findFirst = jest.fn().mockResolvedValueOnce(null);
-      dbMock.history.createMany = jest.fn().mockResolvedValueOnce(null);
+      dbMock.history.create = jest.fn().mockResolvedValueOnce(null);
+      // mock functions that will never be called
+      dbMock.history.update = jest.fn().mockResolvedValueOnce(null);
+      dbMock.codeSubmission.create = jest.fn().mockResolvedValueOnce(null);
 
       // Act
       const { body, statusCode } = await supertest(app)
@@ -36,14 +43,20 @@ describe("POST /api/history", () => {
       // Assert
       expect(statusCode).toBe(HttpStatusCode.CREATED);
       expect(body).toEqual({ message: "History created successfully" });
+      expect(dbMock.history.create).toBeCalledTimes(1);
+      expect(dbMock.user.findFirst).toBeCalledTimes(1);
+      expect(dbMock.question.findFirst).toBeCalledTimes(1);
+      expect(dbMock.history.update).toBeCalledTimes(0);
+      expect(dbMock.codeSubmission.create).toBeCalledTimes(0);
     });
   });
 
-  describe("Given 2 user ids and a question id", () => {
+  describe("Given 2 user ids that have no history record yet and a question id", () => {
     it("should return 201", async () => {
       // Arrange
       const userIds = [generateCUID(), generateCUID()];
       const questionId = generateCUID();
+
       dbMock.user.findFirst = jest
         .fn()
         .mockResolvedValueOnce({
@@ -55,8 +68,11 @@ describe("POST /api/history", () => {
       dbMock.question.findFirst = jest.fn().mockResolvedValueOnce({
         id: questionId,
       });
-      dbMock.history.findFirst = jest.fn().mockResolvedValueOnce(null);
-      dbMock.history.createMany = jest.fn().mockResolvedValueOnce(null);
+      dbMock.history.findFirst = jest.fn().mockResolvedValue(null);
+      dbMock.history.create = jest.fn().mockResolvedValue(null);
+      // mock functions that will never be called
+      dbMock.history.update = jest.fn().mockResolvedValueOnce(null);
+      dbMock.codeSubmission.create = jest.fn().mockResolvedValueOnce(null);
 
       // Act
       const { body, statusCode } = await supertest(app)
@@ -71,6 +87,211 @@ describe("POST /api/history", () => {
       // Assert
       expect(statusCode).toBe(HttpStatusCode.CREATED);
       expect(body).toEqual({ message: "History created successfully" });
+      expect(dbMock.history.create).toBeCalledTimes(2);
+      expect(dbMock.history.update).toBeCalledTimes(0);
+      expect(dbMock.codeSubmission.create).toBeCalledTimes(0);
+    });
+  });
+
+  describe("Given a valid user id, question id, language, and code", () => {
+    it("should return 201", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const createHistoryBody = HistoryPayload.getCreateHistoryBodyPayload({
+        userId: userId,
+        questionId: questionId,
+        language: "C++",
+        hasCode: true,
+      });
+
+      // ensure the user id exists
+      dbMock.user.findFirst = jest.fn().mockResolvedValue({
+        id: userId,
+      });
+      // ensure the question id exists
+      dbMock.question.findFirst = jest.fn().mockResolvedValue({
+        id: questionId,
+      });
+      // ensure the history does not exist
+      dbMock.history.findFirst = jest.fn().mockResolvedValueOnce(null);
+      dbMock.history.create = jest.fn().mockResolvedValueOnce({
+        id: generateCUID(),
+      });
+      dbMock.codeSubmission.create = jest.fn().mockResolvedValueOnce(null);
+      // mock functions that will never be called
+      dbMock.history.update = jest.fn().mockResolvedValueOnce(null);
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post(`/${API_PREFIX}/history`)
+        .send(createHistoryBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.CREATED);
+      expect(body).toEqual({ message: "History created successfully" });
+      expect(dbMock.history.create).toBeCalledTimes(1);
+      expect(dbMock.user.findFirst).toBeCalledTimes(1);
+      expect(dbMock.question.findFirst).toBeCalledTimes(1);
+      expect(dbMock.codeSubmission.create).toBeCalledTimes(1);
+      expect(dbMock.history.update).toBeCalledTimes(0);
+    });
+  });
+
+  describe("Given a valid user id, question id, language, and code such that the history exists but not the language", () => {
+    it("should return 201", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const createHistoryBody = HistoryPayload.getCreateHistoryBodyPayload({
+        userId: userId,
+        questionId: questionId,
+        language: "JAVA",
+        hasCode: true,
+      });
+
+      // ensure the user id exists
+      dbMock.user.findFirst = jest.fn().mockResolvedValue({
+        id: userId,
+      });
+      // ensure the question id exists
+      dbMock.question.findFirst = jest.fn().mockResolvedValue({
+        id: questionId,
+      });
+      dbMock.history.findFirst = jest.fn().mockResolvedValueOnce({
+        id: generateCUID(),
+        languages: ["C++"],
+      });
+
+      dbMock.history.update = jest.fn().mockResolvedValueOnce(null);
+      dbMock.codeSubmission.create = jest.fn().mockResolvedValueOnce(null);
+      // mock functions that will never be called
+      dbMock.history.create = jest.fn().mockResolvedValueOnce(null);
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post(`/${API_PREFIX}/history`)
+        .send(createHistoryBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.CREATED);
+      expect(body).toEqual({ message: "History created successfully" });
+      expect(dbMock.history.update).toBeCalledTimes(1);
+      expect(dbMock.codeSubmission.create).toBeCalledTimes(1);
+      expect(dbMock.history.create).toBeCalledTimes(0);
+    });
+  });
+
+  describe("Given 2 user ids, with code, with 1 that already has a history record", () => {
+    it("should return 201", async () => {
+      // Arrange
+      const userIds = [generateCUID(), generateCUID()];
+      const questionId = generateCUID();
+      const createHistoryBody = HistoryPayload.getCreateHistoryBodyPayload({
+        userId: userIds,
+        questionId: questionId,
+        language: "PYTHON",
+        hasCode: true,
+      });
+
+      dbMock.user.findFirst = jest
+        .fn()
+        .mockResolvedValueOnce({
+          id: userIds[0],
+        })
+        .mockResolvedValueOnce({
+          id: userIds[1],
+        });
+
+      dbMock.question.findFirst = jest.fn().mockResolvedValueOnce({
+        id: questionId,
+      });
+
+      dbMock.history.findFirst = jest
+        .fn()
+        .mockResolvedValueOnce({
+          id: generateCUID(),
+          languages: ["C++"],
+        })
+        .mockResolvedValueOnce(null);
+
+      dbMock.history.update = jest.fn().mockResolvedValueOnce(null);
+      dbMock.codeSubmission.create = jest.fn().mockResolvedValue(null);
+      dbMock.history.create = jest.fn().mockResolvedValue({
+        id: generateCUID(),
+      });
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post(`/${API_PREFIX}/history`)
+        .send(createHistoryBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.CREATED);
+      expect(body).toEqual({ message: "History created successfully" });
+      expect(dbMock.history.update).toBeCalledTimes(1);
+      expect(dbMock.history.create).toBeCalledTimes(1);
+      expect(dbMock.history.create).toBeCalledWith({
+        data: {
+          userId: userIds[1],
+          questionId: questionId,
+          languages: ["PYTHON"],
+        },
+      });
+      expect(dbMock.codeSubmission.create).toBeCalledTimes(2);
+    });
+  });
+
+  describe("Given 2 user ids who already have history records, but they now have a new language", () => {
+    it("should return 201", async () => {
+      // Arrange
+      const userIds = [generateCUID(), generateCUID()];
+      const questionId = generateCUID();
+      const createHistoryBody = HistoryPayload.getCreateHistoryBodyPayload({
+        userId: userIds,
+        questionId: questionId,
+        language: "JAVASCRIPT",
+        hasCode: true,
+      });
+
+      dbMock.user.findFirst = jest
+        .fn()
+        .mockResolvedValueOnce({
+          id: userIds[0],
+        })
+        .mockResolvedValueOnce({
+          id: userIds[1],
+        });
+      dbMock.question.findFirst = jest.fn().mockResolvedValueOnce({
+        id: questionId,
+      });
+      dbMock.history.findFirst = jest
+        .fn()
+        .mockResolvedValueOnce({
+          id: generateCUID(),
+          languages: ["C++"],
+        })
+        .mockResolvedValueOnce({
+          id: generateCUID(),
+          languages: ["JAVA"],
+        });
+
+      dbMock.history.update = jest.fn().mockResolvedValueOnce(null);
+      dbMock.codeSubmission.create = jest.fn().mockResolvedValue(null);
+      // mock functions that will never be called
+      dbMock.history.create = jest.fn().mockResolvedValue(null);
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post(`/${API_PREFIX}/history`)
+        .send(createHistoryBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.CREATED);
+      expect(body).toEqual({ message: "History created successfully" });
+      expect(dbMock.history.update).toBeCalledTimes(2);
+      expect(dbMock.codeSubmission.create).toBeCalledTimes(2);
+      expect(dbMock.history.create).toBeCalledTimes(0);
     });
   });
 
@@ -172,132 +393,6 @@ describe("POST /api/history", () => {
     });
   });
 
-  describe("Given a title less than 3 characters", () => {
-    it("should return 400 and an error message", async () => {
-      // Arrange
-      const userId = generateCUID();
-      const questionId = generateCUID();
-      const createHistoryBody = HistoryPayload.getCreateHistoryBodyPayload({
-        userId: userId,
-        questionId: questionId,
-      });
-      createHistoryBody.title = "2c";
-
-      // Act
-      const { body, statusCode } = await supertest(app)
-        .post(`/${API_PREFIX}/history`)
-        .send(createHistoryBody);
-
-      // Assert
-      expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
-      expect(body).toEqual({
-        error: "BAD REQUEST",
-        message: "Invalid title. String must contain at least 3 character(s)",
-      });
-    });
-  });
-
-  describe("Given a topics with an empty array", () => {
-    it("should return 400 and an error message", async () => {
-      // Arrange
-      const userId = generateCUID();
-      const questionId = generateCUID();
-      const createHistoryBody = HistoryPayload.getCreateHistoryBodyPayload({
-        userId: userId,
-        questionId: questionId,
-      });
-      createHistoryBody.topics = [];
-
-      // Act
-      const { body, statusCode } = await supertest(app)
-        .post(`/${API_PREFIX}/history`)
-        .send(createHistoryBody);
-
-      // Assert
-      expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
-      expect(body).toEqual({
-        error: "BAD REQUEST",
-        message: "At least one topic is required",
-      });
-    });
-  });
-
-  describe("Given a topics with duplicated topics", () => {
-    it("should return 400 and an error message", async () => {
-      // Arrange
-      const userId = generateCUID();
-      const questionId = generateCUID();
-      const createHistoryBody = HistoryPayload.getCreateHistoryBodyPayload({
-        userId: userId,
-        questionId: questionId,
-      });
-      createHistoryBody.topics = ["ARRAY", "ARRAY"];
-
-      // Act
-      const { body, statusCode } = await supertest(app)
-        .post(`/${API_PREFIX}/history`)
-        .send(createHistoryBody);
-
-      // Assert
-      expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
-      expect(body).toEqual({
-        error: "BAD REQUEST",
-        message: "Each topic must be unique",
-      });
-    });
-  });
-
-  describe("Given a topics with an invalid topic", () => {
-    it("should return 400 and an error message", async () => {
-      // Arrange
-      const userId = generateCUID();
-      const questionId = generateCUID();
-      const createHistoryBody = HistoryPayload.getCreateHistoryBodyPayload({
-        userId: userId,
-        questionId: questionId,
-      });
-      createHistoryBody.topics = ["INVALID"];
-
-      // Act
-      const { body, statusCode } = await supertest(app)
-        .post(`/${API_PREFIX}/history`)
-        .send(createHistoryBody);
-
-      // Assert
-      expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
-      expect(body).toEqual({
-        error: "BAD REQUEST",
-        message: "Invalid topic",
-      });
-    });
-  });
-
-  describe("Given a complexity with an invalid complexity", () => {
-    it("should return 400 and an error message", async () => {
-      // Arrange
-      const userId = generateCUID();
-      const questionId = generateCUID();
-      const createHistoryRequestBody =
-        HistoryPayload.getCreateHistoryBodyPayload({
-          userId: userId,
-          questionId: questionId,
-        });
-      createHistoryRequestBody.complexity = "INVALID";
-
-      // Act
-      const { body, statusCode } = await supertest(app)
-        .post(`/${API_PREFIX}/history`)
-        .send(createHistoryRequestBody);
-
-      // Assert
-      expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
-      expect(body).toEqual({
-        error: "BAD REQUEST",
-        message: "Invalid complexity",
-      });
-    });
-  });
-
   describe("Given a language with an invalid language", () => {
     it("should return 400 and an error message", async () => {
       // Arrange
@@ -320,6 +415,60 @@ describe("POST /api/history", () => {
       expect(body).toEqual({
         error: "BAD REQUEST",
         message: "Invalid language",
+      });
+    });
+  });
+
+  describe("Given an empty code", () => {
+    it("should return 400 with an error message", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const createHistoryRequestBody =
+        HistoryPayload.getCreateHistoryBodyPayload({
+          userId: userId,
+          questionId: questionId,
+          hasCode: true,
+        });
+      createHistoryRequestBody.code = "";
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post(`/${API_PREFIX}/history`)
+        .send(createHistoryRequestBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
+      expect(body).toEqual({
+        error: "BAD REQUEST",
+        message: "Invalid code. String must contain at least 10 character(s)",
+      });
+    });
+  });
+
+  describe("Given a code with more than 10000 characters", () => {
+    it("should return 400 with an error message", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const createHistoryRequestBody =
+        HistoryPayload.getCreateHistoryBodyPayload({
+          userId: userId,
+          questionId: questionId,
+          hasCode: true,
+        });
+      createHistoryRequestBody.code = "a".repeat(10001);
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post(`/${API_PREFIX}/history`)
+        .send(createHistoryRequestBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
+      expect(body).toEqual({
+        error: "BAD REQUEST",
+        message: "Invalid code. String must contain at most 10000 character(s)",
       });
     });
   });
@@ -374,6 +523,8 @@ describe("POST /api/history", () => {
         questionId: questionId,
       });
       dbMock.user.findFirst = jest.fn().mockResolvedValue(null);
+      // mock functions that will never be called
+      dbMock.history.create = jest.fn().mockResolvedValueOnce(null);
 
       // Act
       const { body, statusCode } = await supertest(app)
@@ -386,6 +537,8 @@ describe("POST /api/history", () => {
         error: "NOT FOUND",
         message: "User id cannot be found",
       });
+      expect(dbMock.user.findFirst).toBeCalledTimes(1);
+      expect(dbMock.history.create).toBeCalledTimes(0);
     });
   });
 
@@ -433,6 +586,8 @@ describe("POST /api/history", () => {
         id: userId,
       });
       dbMock.question.findFirst = jest.fn().mockResolvedValueOnce(null);
+      // mock functions that will never be called
+      dbMock.history.create = jest.fn().mockResolvedValueOnce(null);
 
       // Act
       const { body, statusCode } = await supertest(app)
@@ -445,10 +600,13 @@ describe("POST /api/history", () => {
         error: "NOT FOUND",
         message: "Question id cannot be found",
       });
+      expect(dbMock.user.findFirst).toBeCalledTimes(1);
+      expect(dbMock.question.findFirst).toBeCalledTimes(1);
+      expect(dbMock.history.create).toBeCalledTimes(0);
     });
   });
 
-  describe("Given a pair of user id and question id that already exists", () => {
+  describe("Given a user id, question id, and language that already exists in the database", () => {
     it("should return 409 and an error message", async () => {
       // Arrange
       const userId = generateCUID();
@@ -456,6 +614,7 @@ describe("POST /api/history", () => {
       const createHistoryBody = HistoryPayload.getCreateHistoryBodyPayload({
         userId: userId,
         questionId: questionId,
+        language: "C++",
       });
 
       dbMock.user.findFirst = jest.fn().mockResolvedValue({
@@ -467,7 +626,12 @@ describe("POST /api/history", () => {
       dbMock.history.findFirst = jest.fn().mockResolvedValueOnce({
         userId: userId,
         questionId: questionId,
+        languages: ["C++"],
       });
+      // mock functions that will never be called
+      dbMock.history.create = jest.fn().mockResolvedValueOnce(null);
+      dbMock.history.update = jest.fn().mockResolvedValueOnce(null);
+      dbMock.codeSubmission.create = jest.fn().mockResolvedValueOnce(null);
 
       // Act
       const { body, statusCode } = await supertest(app)
@@ -480,6 +644,63 @@ describe("POST /api/history", () => {
         error: "CONFLICT",
         message: "History already exists",
       });
+      expect(dbMock.history.create).toBeCalledTimes(0);
+      expect(dbMock.history.update).toBeCalledTimes(0);
+      expect(dbMock.codeSubmission.create).toBeCalledTimes(0);
+    });
+  });
+
+  describe("Given 2 user ids, with 1 of them having a history record with the same language", () => {
+    it("should return 409 and an error message", async () => {
+      // Arrange
+      const userIds = [generateCUID(), generateCUID()];
+      const questionId = generateCUID();
+      const createHistoryBody = HistoryPayload.getCreateHistoryBodyPayload({
+        userId: userIds,
+        questionId: questionId,
+        language: "C++",
+      });
+
+      dbMock.user.findFirst = jest
+        .fn()
+        .mockResolvedValueOnce({
+          id: userIds[0],
+        })
+        .mockResolvedValueOnce({
+          id: userIds[1],
+        });
+
+      dbMock.question.findFirst = jest.fn().mockResolvedValueOnce({
+        id: questionId,
+      });
+
+      dbMock.history.findFirst = jest
+        .fn()
+        .mockResolvedValueOnce({
+          id: generateCUID(),
+          languages: ["C++"],
+        })
+        .mockResolvedValueOnce(null);
+
+      // mock functions that will never be called
+      dbMock.history.create = jest.fn().mockResolvedValue(null);
+      dbMock.history.update = jest.fn().mockResolvedValueOnce(null);
+      dbMock.codeSubmission.create = jest.fn().mockResolvedValue(null);
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .post(`/${API_PREFIX}/history`)
+        .send(createHistoryBody);
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.CONFLICT);
+      expect(body).toEqual({
+        error: "CONFLICT",
+        message: "History already exists",
+      });
+      expect(dbMock.history.create).toBeCalledTimes(0);
+      expect(dbMock.history.update).toBeCalledTimes(0);
+      expect(dbMock.codeSubmission.create).toBeCalledTimes(0);
     });
   });
 

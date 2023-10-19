@@ -35,8 +35,6 @@ export async function postHistory(request: Request, response: Response) {
       ? createHistoryBody.userId
       : [createHistoryBody.userId];
 
-    let userExists = true;
-
     for (let i = 0; i < userList.length; i++) {
       const user = await db.user.findFirst({
         where: {
@@ -48,17 +46,12 @@ export async function postHistory(request: Request, response: Response) {
       });
 
       if (!user) {
-        userExists = false;
-        break;
+        response.status(HttpStatusCode.NOT_FOUND).json({
+          error: "NOT FOUND",
+          message: "User id cannot be found",
+        });
+        return;
       }
-    }
-
-    if (!userExists) {
-      response.status(HttpStatusCode.NOT_FOUND).json({
-        error: "NOT FOUND",
-        message: "User id cannot be found",
-      });
-      return;
     }
 
     // verify the question id exists
@@ -80,6 +73,8 @@ export async function postHistory(request: Request, response: Response) {
     }
 
     // check if history already exists
+    let isDuplicatedHistory = false;
+
     for (let i = 0; i < userList.length; i++) {
       const history = await db.history.findFirst({
         where: {
@@ -88,16 +83,46 @@ export async function postHistory(request: Request, response: Response) {
         },
         select: {
           id: true,
+          languages: true,
         },
       });
 
       if (history) {
+        // check if language already exists
+        if (!history.languages.includes(createHistoryBody.language)) {
+          // update history record
+          await db.history.update({
+            where: {
+              id: history.id,
+            },
+            data: {
+              languages: {
+                push: createHistoryBody.language,
+              },
+            },
+          });
+
+          // create new code submission record for the new language
+          if (createHistoryBody.code) {
+            await db.codeSubmission.create({
+              data: {
+                historyId: history.id,
+                language: createHistoryBody.language,
+                code: createHistoryBody.code,
+              },
+            });
+          }
+        } else {
+          isDuplicatedHistory = true;
+          break;
+        }
+        // remove user id from userList
         userList.splice(i, 1);
         i--;
       }
     }
 
-    if (userList.length === 0) {
+    if (isDuplicatedHistory) {
       response.status(HttpStatusCode.CONFLICT).json({
         error: "CONFLICT",
         message: "History already exists",
@@ -105,18 +130,38 @@ export async function postHistory(request: Request, response: Response) {
       return;
     }
 
-    // create history
-    await db.history.createMany({
-      data: userList.map((id) => ({
-        userId: id,
-        questionId: createHistoryBody.questionId,
-        title: createHistoryBody.title,
-        topics: createHistoryBody.topics,
-        complexity: createHistoryBody.complexity,
-        language: createHistoryBody.language,
-        ...(createHistoryBody.code && { code: createHistoryBody.code }),
-      })),
+    // create history record
+    const createHistoryPromises: any[] = [];
+    userList.map((userId) => {
+      createHistoryPromises.push(
+        db.history.create({
+          data: {
+            userId: userId,
+            questionId: createHistoryBody.questionId,
+            languages: [createHistoryBody.language],
+          },
+        })
+      );
     });
+
+    const historyResponses = await Promise.all(createHistoryPromises);
+
+    if (createHistoryBody.code) {
+      const createCodePromises: any[] = [];
+      historyResponses.map((historyResponse) => {
+        createCodePromises.push(
+          db.codeSubmission.create({
+            data: {
+              historyId: historyResponse.id,
+              language: createHistoryBody.language,
+              code: createHistoryBody.code!,
+            },
+          })
+        );
+      });
+
+      await Promise.all(createCodePromises);
+    }
 
     response.status(HttpStatusCode.CREATED).json({
       message: "History created successfully",

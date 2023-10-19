@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import createUnitTestServer from "../utils/server";
 import db from "../../lib/db";
-import { generateCUID } from "../utils/payloads";
+import { HistoryPayload, generateCUID } from "../utils/payloads";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
 const app = createUnitTestServer();
@@ -10,12 +10,15 @@ const NODE_ENV = process.env.NODE_ENV || "test";
 const API_PREFIX = `${NODE_ENV}/history/api`;
 
 describe("PUT /history/user/:userId/question/:questionId/code", () => {
-  describe("Given a valid user id and question id with a valid code request body", () => {
+  describe("Given a valid user id, question id, with a valid language and code in request body", () => {
     it("should return 204", async () => {
       // Arrange
       const userId = generateCUID();
       const questionId = generateCUID();
-      const code = "console.log('Hello World!');";
+      const updateCodeHistoryBody =
+        HistoryPayload.getUpdateCodeHistoryBodyPayload({
+          language: "C++",
+        });
       dbMock.user.findFirst = jest.fn().mockResolvedValue({
         id: userId,
       });
@@ -24,19 +27,23 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
       });
       dbMock.history.findFirst = jest.fn().mockResolvedValue({
         id: generateCUID(),
+        languages: ["C++"],
       });
-      dbMock.history.update = jest.fn().mockResolvedValue(null);
+      dbMock.codeSubmission.update = jest.fn().mockResolvedValue(null);
 
       // Act
       const { statusCode } = await supertest(app)
         .put(
           `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
         )
-        .send({ code });
+        .send(updateCodeHistoryBody);
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.NO_CONTENT);
-      expect(dbMock.history.update).toBeCalledTimes(1);
+      expect(dbMock.codeSubmission.update).toBeCalledTimes(1);
+      expect(dbMock.user.findFirst).toBeCalledTimes(1);
+      expect(dbMock.question.findFirst).toBeCalledTimes(1);
+      expect(dbMock.history.findFirst).toBeCalledTimes(1);
     });
   });
 
@@ -45,7 +52,10 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
       // Arrange
       const userId = generateCUID();
       const questionId = generateCUID();
-      const code = "console.log('Hello World!');";
+      const updateCodeHistoryBody =
+        HistoryPayload.getUpdateCodeHistoryBodyPayload({
+          language: "C++",
+        });
       dbMock.user.findFirst = jest.fn().mockResolvedValue(null);
 
       // Act
@@ -53,7 +63,7 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
         .put(
           `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
         )
-        .send({ code });
+        .send(updateCodeHistoryBody);
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.NOT_FOUND);
@@ -69,7 +79,10 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
       // Arrange
       const userId = generateCUID();
       const questionId = generateCUID();
-      const code = "console.log('Hello World!');";
+      const updateCodeHistoryBody =
+        HistoryPayload.getUpdateCodeHistoryBodyPayload({
+          language: "C++",
+        });
       dbMock.user.findFirst = jest.fn().mockResolvedValue({
         id: userId,
       });
@@ -80,7 +93,7 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
         .put(
           `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
         )
-        .send({ code });
+        .send(updateCodeHistoryBody);
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.NOT_FOUND);
@@ -114,6 +127,8 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
         error: "BAD REQUEST",
         message: "Request body is required",
       });
+      expect(dbMock.user.findFirst).toBeCalledTimes(0);
+      expect(dbMock.question.findFirst).toBeCalledTimes(0);
     });
   });
 
@@ -122,20 +137,17 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
       // Arrange
       const userId = generateCUID();
       const questionId = generateCUID();
-      const code = "console.log('Hello World!');";
-      dbMock.user.findFirst = jest.fn().mockResolvedValue({
-        id: userId,
-      });
-      dbMock.question.findFirst = jest.fn().mockResolvedValue({
-        id: questionId,
-      });
+      const updateCodeHistoryBody =
+        HistoryPayload.getUpdateCodeHistoryBodyPayload({
+          language: "PYTHON",
+        });
 
       // Act
       const { statusCode, body } = await supertest(app)
         .put(
           `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
         )
-        .send({ code, extra: "field" });
+        .send({ ...updateCodeHistoryBody, extra: "extra" });
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.BAD_REQUEST);
@@ -146,25 +158,50 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
     });
   });
 
-  describe("Given the code is larger than the threshold", () => {
+  describe("Given an empty code", () => {
     it("should return 400 with an error message", async () => {
       // Arrange
       const userId = generateCUID();
       const questionId = generateCUID();
-      const code = "console.log('Hello World!');".repeat(1000);
-      dbMock.user.findFirst = jest.fn().mockResolvedValue({
-        id: userId,
-      });
-      dbMock.question.findFirst = jest.fn().mockResolvedValue({
-        id: questionId,
-      });
+      const updateCodeHistoryBody =
+        HistoryPayload.getUpdateCodeHistoryBodyPayload({
+          language: "C++",
+        });
+      updateCodeHistoryBody.code = "";
 
       // Act
       const { statusCode, body } = await supertest(app)
         .put(
           `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
         )
-        .send({ code });
+        .send(updateCodeHistoryBody);
+
+      // Assert
+      expect(statusCode).toEqual(HttpStatusCode.BAD_REQUEST);
+      expect(body).toEqual({
+        error: "BAD REQUEST",
+        message: "Invalid code. String must contain at least 10 character(s)",
+      });
+    });
+  });
+
+  describe("Given the code is larger than the threshold", () => {
+    it("should return 400 with an error message", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const updateCodeHistoryBody =
+        HistoryPayload.getUpdateCodeHistoryBodyPayload({
+          language: "C++",
+          code: "a".repeat(10001),
+        });
+
+      // Act
+      const { statusCode, body } = await supertest(app)
+        .put(
+          `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
+        )
+        .send(updateCodeHistoryBody);
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.BAD_REQUEST);
@@ -180,7 +217,10 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
       // Arrange
       const userId = generateCUID();
       const questionId = generateCUID();
-      const code = "console.log('Hello World!');";
+      const updateCodeHistoryBody =
+        HistoryPayload.getUpdateCodeHistoryBodyPayload({
+          language: "JAVASCRIPT",
+        });
       dbMock.user.findFirst = jest.fn().mockResolvedValue({
         id: userId,
       });
@@ -194,7 +234,7 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
         .put(
           `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
         )
-        .send({ code });
+        .send(updateCodeHistoryBody);
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.NOT_FOUND);
@@ -210,7 +250,10 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
       // Arrange
       const userId = generateCUID();
       const questionId = generateCUID();
-      const code = "console.log('Hello World!');";
+      const updateCodeHistoryBody =
+        HistoryPayload.getUpdateCodeHistoryBodyPayload({
+          language: "JAVA",
+        });
       dbMock.user.findFirst = jest.fn().mockRejectedValue(null);
 
       // Act
@@ -218,7 +261,7 @@ describe("PUT /history/user/:userId/question/:questionId/code", () => {
         .put(
           `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code`
         )
-        .send({ code });
+        .send(updateCodeHistoryBody);
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.INTERNAL_SERVER_ERROR);

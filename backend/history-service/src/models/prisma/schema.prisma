@@ -94,13 +94,23 @@ model History {
   questionId String
   question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
-  title      String
-  topics     String[]
-  complexity String
-  language   String
+  languages String[]
 
-  code String?
+  CodeSubmission CodeSubmission[]
 
   @@unique([userId, questionId])
+  @@schema("history")
+}
+
+model CodeSubmission {
+  id String @id @default(cuid())
+
+  historyId String
+  history   History @relation(fields: [historyId], references: [id], onDelete: Cascade)
+
+  code     String
+  language String
+
+  @@unique([historyId, language])
   @@schema("history")
 }

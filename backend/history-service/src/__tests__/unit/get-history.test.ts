@@ -204,7 +204,9 @@ describe("GET /api/history", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/${API_PREFIX}/history?questionId=${questionIdList.join("&questionId=")}`
+        `/${API_PREFIX}/history?questionId=${questionIdList.join(
+          "&questionId="
+        )}`
       );
 
       // Assert
@@ -277,16 +279,139 @@ describe("GET /api/history", () => {
 });
 
 describe("GET /api/history/user/:userId/question/:questionId/code", () => {
-  describe("Given a valid user id and question id", () => {
+  describe("Given a valid user id, a question id, and a language in query param", () => {
     it("should return 200 with a code", async () => {
       // Arrange
       const userId = generateCUID();
       const questionId = generateCUID();
-      const code = "console.log('Hello World!');";
+      const language = encodeURIComponent("c++"); //take note that when using C++, encode it to c%2B%2B
+      const code = "cout << 'Hello World!' << endl;";
 
-      dbMock.history.findFirst = jest.fn().mockResolvedValueOnce({
-        code,
+      dbMock.codeSubmission.findFirst = jest
+        .fn()
+        .mockResolvedValueOnce({ code: code });
+      dbMock.codeSubmission.findMany = jest.fn().mockResolvedValueOnce([]);
+
+      // Act
+      const { body, statusCode } = await supertest(app).get(
+        `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code?language=${language}`
+      );
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.OK);
+      expect(body).toEqual({
+        code: code,
       });
+      expect(dbMock.codeSubmission.findMany).toBeCalledTimes(0);
+      expect(dbMock.codeSubmission.findFirst).toBeCalledTimes(1);
+    });
+  });
+
+  describe("Given a valid user id, a question id, and multiple languages in query params", () => {
+    it("should return 200 with respective code", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const languageList = [
+        encodeURIComponent("c++"),
+        encodeURIComponent("python"),
+      ];
+
+      const cppCode = "cout << 'Hello World!' << endl;";
+      const pythonCode = "print('Hello World!')";
+
+      dbMock.codeSubmission.findFirst = jest
+        .fn()
+        .mockResolvedValueOnce({ language: "C++", code: cppCode })
+        .mockResolvedValueOnce({ language: "PYTHON", code: pythonCode });
+
+      dbMock.codeSubmission.findMany = jest.fn().mockResolvedValueOnce([]);
+
+      // Act
+      const { body, statusCode } = await supertest(app).get(
+        `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code?language=${languageList[0]}&language=${languageList[1]}`
+      );
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.OK);
+      expect(body).toEqual({
+        count: 2,
+        data: [
+          {
+            language: "C++",
+            code: cppCode,
+          },
+          {
+            language: "PYTHON",
+            code: pythonCode,
+          },
+        ],
+      });
+
+      expect(dbMock.codeSubmission.findMany).toBeCalledTimes(0);
+      expect(dbMock.codeSubmission.findFirst).toBeCalledTimes(2);
+    });
+  });
+
+  describe("Given a valid user id, a question id, and multiple languages in query params, but only one code submission found", () => {
+    it("should return 200 with respective code", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const languageList = [
+        encodeURIComponent("c++"),
+        encodeURIComponent("python"),
+      ];
+
+      const cppCode = "cout << 'Hello World!' << endl;";
+
+      dbMock.codeSubmission.findFirst = jest
+        .fn()
+        .mockResolvedValueOnce({
+          language: "C++",
+          code: cppCode,
+        })
+        .mockResolvedValueOnce(null);
+      dbMock.codeSubmission.findMany = jest.fn().mockResolvedValueOnce([]);
+
+      // Act
+      const { body, statusCode } = await supertest(app).get(
+        `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code?language=${languageList[0]}&language=${languageList[1]}`
+      );
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.OK);
+      expect(body).toEqual({
+        count: 1,
+        data: [
+          {
+            language: "C++",
+            code: cppCode,
+          },
+        ],
+      });
+      expect(dbMock.codeSubmission.findMany).toBeCalledTimes(0);
+      expect(dbMock.codeSubmission.findFirst).toBeCalledTimes(2);
+    });
+  });
+
+  describe("Given a valid user id, a question id, and no language in query param", () => {
+    it("should return 200 with a list of code submissions", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+
+      const cppCode = "cout << 'Hello World!' << endl;";
+      const pythonCode = "print('Hello World!')";
+      const javaCode = "System.out.println('Hello World!');";
+
+      dbMock.codeSubmission.findMany = jest.fn().mockResolvedValueOnce([
+        { language: "C++", code: cppCode },
+        { language: "PYTHON", code: pythonCode },
+        { language: "JAVA", code: javaCode },
+      ]);
+
+      dbMock.codeSubmission.findFirst = jest.fn().mockResolvedValueOnce(null);
 
       // Act
       const { body, statusCode } = await supertest(app).get(
@@ -295,16 +420,91 @@ describe("GET /api/history/user/:userId/question/:questionId/code", () => {
 
       // Assert
       expect(statusCode).toBe(HttpStatusCode.OK);
-      expect(body).toEqual({ code });
+      expect(body).toEqual({
+        count: 3,
+        data: [
+          {
+            language: "C++",
+            code: cppCode,
+          },
+          {
+            language: "PYTHON",
+            code: pythonCode,
+          },
+          {
+            language: "JAVA",
+            code: javaCode,
+          },
+        ],
+      });
+      expect(dbMock.codeSubmission.findMany).toBeCalledTimes(1);
+      expect(dbMock.codeSubmission.findFirst).toBeCalledTimes(0);
     });
   });
 
-  describe("Given a user id and a question id with no code submission", () => {
+  describe("Given a valid user id, a question id, and a language in query param, but no code submission found", () => {
     it("should return 404 and an error message", async () => {
       // Arrange
       const userId = generateCUID();
       const questionId = generateCUID();
-      dbMock.history.findFirst = jest.fn().mockResolvedValueOnce(null);
+      const language = encodeURIComponent("c++"); //take note that when using C++, encode it to c%2B%2B
+
+      dbMock.codeSubmission.findFirst = jest.fn().mockResolvedValueOnce(null);
+      dbMock.codeSubmission.findMany = jest.fn().mockResolvedValueOnce([]);
+
+      // Act
+      const { body, statusCode } = await supertest(app).get(
+        `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code?language=${language}`
+      );
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.NOT_FOUND);
+      expect(body).toEqual({
+        error: "NOT FOUND",
+        message: "No code submission found",
+      });
+      expect(dbMock.codeSubmission.findMany).toBeCalledTimes(0);
+      expect(dbMock.codeSubmission.findFirst).toBeCalledTimes(1);
+    });
+  });
+
+  describe("Given a valid user id, a question id, and multiple languages in query params, but no code submission found", () => {
+    it("should return 404 and an error message", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const languageList = [
+        encodeURIComponent("c++"),
+        encodeURIComponent("python"),
+      ];
+
+      dbMock.codeSubmission.findFirst = jest.fn().mockResolvedValue(null);
+      dbMock.codeSubmission.findMany = jest.fn().mockResolvedValueOnce([]);
+
+      // Act
+      const { body, statusCode } = await supertest(app).get(
+        `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code?language=${languageList[0]}&language=${languageList[1]}`
+      );
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.NOT_FOUND);
+      expect(body).toEqual({
+        error: "NOT FOUND",
+        message: "No code submission found",
+      });
+      expect(dbMock.codeSubmission.findMany).toBeCalledTimes(0);
+      expect(dbMock.codeSubmission.findFirst).toBeCalledTimes(2);
+    });
+  });
+
+  describe("Given a valid user id, a question id, and no language query param", () => {
+    it("should return 404 and an error message", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+
+      dbMock.codeSubmission.findMany = jest.fn().mockResolvedValue([]);
+      dbMock.codeSubmission.findFirst = jest.fn().mockResolvedValue(null);
 
       // Act
       const { body, statusCode } = await supertest(app).get(
@@ -320,14 +520,36 @@ describe("GET /api/history/user/:userId/question/:questionId/code", () => {
     });
   });
 
+  describe("Given an invalid language", () => {
+    it("should return 400 and an error message", async () => {
+      // Arrange
+      const userId = generateCUID();
+      const questionId = generateCUID();
+      const language = "invalid";
+
+      // Act
+      const { body, statusCode } = await supertest(app).get(
+        `/${API_PREFIX}/history/user/${userId}/question/${questionId}/code?language=${language}`
+      );
+
+      // Assert
+      expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
+      expect(body).toEqual({
+        error: "BAD REQUEST",
+        message: "Invalid language",
+      });
+    });
+  });
+
   describe("Given database is down", () => {
     it("should return 500 and an error message", async () => {
       // Arrange
       const userId = generateCUID();
       const questionId = generateCUID();
-      dbMock.history.findFirst = jest
+      dbMock.codeSubmission.findMany = jest
         .fn()
         .mockRejectedValueOnce(new Error("Database is down"));
+      dbMock.codeSubmission.findFirst = jest.fn().mockResolvedValue(null);
 
       // Act
       const { body, statusCode } = await supertest(app).get(
@@ -340,6 +562,8 @@ describe("GET /api/history/user/:userId/question/:questionId/code", () => {
         error: "INTERNAL SERVER ERROR",
         message: "An unexpected error has occurred",
       });
+      expect(dbMock.codeSubmission.findMany).toBeCalledTimes(1);
+      expect(dbMock.codeSubmission.findFirst).toBeCalledTimes(0);
     });
   });
 });
