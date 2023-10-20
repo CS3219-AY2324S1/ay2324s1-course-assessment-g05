@@ -1,7 +1,7 @@
 "use client";
 
 import Workspace from "@/components/collab/Workspace";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 import { useCollabContext } from "@/contexts/collab";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import ChatSpaceToggle from "@/components/collab/chat/ChatSpaceToggle";
@@ -18,6 +18,7 @@ const page = ({ params: { roomId } }: pageProps) => {
   const partnerId = searchParams.get("partnerId")!;
   const questionId = searchParams.get("questionId")!;
   const language = searchParams.get("language")!;
+  const [roomNotFound, setRoomNotFound] = useState(false);
 
   const {
     socketService,
@@ -32,7 +33,9 @@ const page = ({ params: { roomId } }: pageProps) => {
       handleConnectToRoom(roomId, questionId, partnerId, language);
     }
 
-    if (isNotFoundError) {
+    if (socketService) socketService?.receiveRoomNotFound(setRoomNotFound);
+
+    if (isNotFoundError || roomNotFound) {
       console.log("EROR");
       return notFound();
     }
@@ -43,7 +46,7 @@ const page = ({ params: { roomId } }: pageProps) => {
         handleDisconnectFromRoom();
       }
     };
-  }, [socketService]);
+  }, [socketService, roomNotFound]);
 
   return (
     <div>

@@ -15,13 +15,14 @@ $ sudo docker run -p 6379:6379 --name peerprep-database -d redis
 
 Run event bus between matching and collaboration service:
 ```
-$ sudo docker run -p 6380:6380 --name peerprep-eventbus -d redis
+$ sudo docker run -p 6380:6379 --name peerprep-eventbus -d redis
 ```
 
 Example of .env file:
 ```
 SERVICE_PORT=5300
 REDIS_URL=redis://localhost:6379/
+REDIS_EVENT_BUS=redis://localhost:6380/
 LOG_LEVEL=info
 ```
 
@@ -29,5 +30,8 @@ Removing the containers (if needed):
 ```
 $ sudo docker stop peerprep-database
 $ sudo docker stop peerprep-eventbus
+
+$ sudo docker remove peerprep-database
+$ sudo docker remove peerprep-eventbus
 ```
 

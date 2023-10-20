@@ -24,7 +24,7 @@ const ChatSpace = ({ toggleLeft, setToggleLeft, unreadMessages, onClose, setUnre
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [justMounted, setJustMounted] = useState(true); 
+  const [isPartnerConnected, setIsPartnerConnected] = useState<boolean>(false);
   const [newMessage, setNewMessages] = useState<ChatMessage>({
     content: "",
     senderId: "",
@@ -51,6 +51,7 @@ const ChatSpace = ({ toggleLeft, setToggleLeft, unreadMessages, onClose, setUnre
   useEffect(() => {
     socketService.updateChatMessages(setNewMessages);
     socketService.receiveChatList(setMessages);
+    socketService.receivePartnerConnection(setIsPartnerConnected);
   }, []);
 
   useEffect(() => {
@@ -61,6 +62,9 @@ const ChatSpace = ({ toggleLeft, setToggleLeft, unreadMessages, onClose, setUnre
   }, [newMessage]);
 
   const handleSubmitMessage = (e: React.FormEvent<HTMLFormElement>) => {
+
+    if (!isPartnerConnected) return;
+
     e.preventDefault();
 
     const messageContent = e.currentTarget.message.value;
@@ -134,7 +138,13 @@ const ChatSpace = ({ toggleLeft, setToggleLeft, unreadMessages, onClose, setUnre
           autoComplete="off"
           className="px-2 py-2  rounded-md flex-1 font-light text-sm focus:outline-none focus:bg-zinc-800"
         />
-        <button className="bg-yellow px-2.5 rounded-md text-black hover:bg-amber-200  active:bg-white">
+        <button 
+          className={ isPartnerConnected 
+            ? "bg-yellow px-2.5 rounded-md text-black hover:bg-amber-200  active:bg-white" 
+            : "bg-yellow px-2.5 rounded-md text-black text-opacity-30 cursor-not-allowed" 
+          }
+          disabled={!isPartnerConnected}
+        >
           <Icons.BsSendFill />
         </button>
       </form>

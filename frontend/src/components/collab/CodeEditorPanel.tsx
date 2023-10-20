@@ -5,6 +5,9 @@ import CodeEditor from "./CodeEditor";
 import { getCodeTemplate } from "@/utils/defaultCodeUtils";
 
 import { useCollabContext } from "@/contexts/collab";
+import { notFound } from "next/navigation";
+import displayToast from "../common/Toast";
+import { ToastType } from "@/types/enums";
 
 const CodeEditorPanel: FC = ({}) => {
   const { matchedLanguage, question, socketService } = useCollabContext();
@@ -14,16 +17,23 @@ const CodeEditorPanel: FC = ({}) => {
 
   const questionTitle = question?.title || "";
   const editorRef = useRef(null);
-  const [hasSessionTimerEnded, setHasSessionTimerEnded] =
-    useState<boolean>(false);
 
   const [currentCode, setCurrentCode] = useState<string>(
     getCodeTemplate(matchedLanguage, questionTitle)
   );
+  const [isUserNotValid, setIsUserNotValid] = useState<boolean>(false);
 
   useEffect(() => {
     socketService.receiveCodeUpdate(setCurrentCode);
+    socketService.receiveUserNotValid(setIsUserNotValid);
   }, [socketService]);
+
+  useEffect(() => {
+    if (isUserNotValid) {
+      console.log("EROR");
+      notFound();
+    }
+  }, [isUserNotValid]);
 
   const handleEditorChange = (currentContent: string | undefined) => {
     if (!currentContent) return;
