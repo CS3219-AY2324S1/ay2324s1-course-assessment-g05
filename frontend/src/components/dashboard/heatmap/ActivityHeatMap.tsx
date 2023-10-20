@@ -49,7 +49,7 @@ function getStartAndEndDates(): {
 
 const ActivityHeatMap = () => {
   // we wnat to obtain the actual data from history
-  const { history, isLoading } = useHistoryContext();
+  const { history } = useHistoryContext();
 
   const heatMapValues =
     HistoryService.getNumberOfAttemptedQuestionsByDate(history);
@@ -184,7 +184,7 @@ const ActivityHeatMap = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-full gap-2 rounded-lg overflow-hidden">
+    <div className="flex flex-col h-full gap-2 rounded-lg overflow-auto scrollbar-hide">
       <p className="font-semibold py-4 px-2">Submission from past 6 months:</p>
       <div className="flex justify-center items-center p-4 bg-cal-heatmap rounded">
         {/* Heatmap */}

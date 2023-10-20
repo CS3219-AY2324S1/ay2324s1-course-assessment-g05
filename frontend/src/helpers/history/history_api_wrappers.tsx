@@ -11,7 +11,7 @@ import { getError, throwAndLogError } from "@/utils/errorUtils";
 import ComplexityChip from "@/components/question/ComplexityChip";
 import { formatDistanceToNow } from "date-fns";
 import { StringUtils } from "../../utils/stringUtils";
-import { Link } from "@nextui-org/react";
+import { Chip, Link, Tooltip } from "@nextui-org/react";
 import { CLIENT_ROUTES } from "@/common/constants";
 
 const logger = getLogger("history_api_wrappers");
@@ -224,14 +224,20 @@ const getSortedAttemptedQuestions = (history: History[]) => {
       submissionDate: formatDistanceToNow(new Date(record.updatedAt), {
         addSuffix: true,
       }),
-      // submissionDate: new Date(record.createdAt).toLocaleDateString("en-US", {
-      //   timeZone: "Asia/Singapore",
-      //   year: "numeric",
-      //   month: "short",
-      //   day: "numeric",
-      //   hour: "2-digit",
-      //   minute: "2-digit",
-      // }),
+      topics: (
+        <div className="flex flex-wrap gap-1 overflow-hidden ">
+          {(record.topics as string[]).map((topic) => (
+            <Tooltip
+              key={topic}
+              content={StringUtils.convertAllCapsToCamelCase(topic)}
+            >
+              <Chip size="sm" className="truncate">
+                {StringUtils.convertAllCapsToCamelCase(topic)}
+              </Chip>
+            </Tooltip>
+          ))}
+        </div>
+      ),
     };
   });
 
