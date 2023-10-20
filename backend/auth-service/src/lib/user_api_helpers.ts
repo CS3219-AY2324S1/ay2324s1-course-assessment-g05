@@ -46,29 +46,35 @@ const getUserById = async (id: string) => {
   return res;
 };
 
-const updateVerfication = async(email:string, token:string) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/api/users/updateVerification/${email}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      bypass: getServiceSecret(),
-    },
-  });
+const updateVerfication = async (email: string, token: string) => {
+  const res = await fetch(
+    `${getUserServiceEndpoint()}/api/users/updateVerification/${email}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        bypass: getServiceSecret(),
+      },
+    }
+  );
 
   return res;
-}
+};
 
-const updatePasswordResetToken = async(email:string, updateBody: {}) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/api/users/updatePasswordResetToken/${email}`, {
-    method: "PUT",
-    body: JSON.stringify(updateBody),
-    headers: {
-      "Content-Type": "application/json",
-      bypass: getServiceSecret(),
-    },
-  });
+const updatePasswordResetToken = async (email: string, updateBody: {}) => {
+  const res = await fetch(
+    `${getUserServiceEndpoint()}/api/users/updatePasswordResetToken/${email}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(updateBody),
+      headers: {
+        "Content-Type": "application/json",
+        bypass: getServiceSecret(),
+      },
+    }
+  );
   return res;
-}
+};
 
 const updatePassword = async (id: string, updateBody: {}) => {
   const res = await fetch(`${getUserServiceEndpoint()}/api/users/${id}`, {
@@ -82,5 +88,12 @@ const updatePassword = async (id: string, updateBody: {}) => {
   return res;
 };
 
-
-export { createUser, getUserServiceEndpoint, getUserById, getUserByEmail, updateVerfication, updatePasswordResetToken, updatePassword };
+export {
+  createUser,
+  getUserServiceEndpoint,
+  getUserById,
+  getUserByEmail,
+  updateVerfication,
+  updatePasswordResetToken,
+  updatePassword,
+};

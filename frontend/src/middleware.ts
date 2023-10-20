@@ -22,44 +22,47 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const reRouteContent = ["/login", "/", "/verify", "/500"];
+
   const jwtCookieString = request.cookies.get("jwt")?.value as string;
 
   let isAuthenticated = false;
 
-  if (jwtCookieString) {
-    try {
-      const res = await fetch(authValidateEndpoint, {
-        method: "POST",
-        headers: {
-          Cookie: `jwt=${jwtCookieString}`,
-        },
-      });
-      if (res.status === 200) {
-        isAuthenticated = true;
+  try {
+    const res = await fetch(authValidateEndpoint, {
+      method: "POST",
+      headers: {
+        Cookie: `jwt=${jwtCookieString}`,
+      },
+    });
+
+    // handles error when user service is down
+    if (res.status === 503) {
+      if (request.nextUrl.pathname !== "/500") {
+        return NextResponse.redirect(new URL("/500", baseUrl));
       }
-    } catch (err) {
+    }
+
+    if (res.status === 200) {
+      isAuthenticated = true;
+    }
+  } catch (err) {
+    // handles error when auth service is down
+    if (request.nextUrl.pathname !== "/500") {
       return NextResponse.redirect(new URL("/500", baseUrl));
     }
   }
+
   //authenticated
   if (isAuthenticated) {
-    if (
-      request.nextUrl.pathname === "/login" ||
-      request.nextUrl.pathname === "/" ||
-      request.nextUrl.pathname === "/verify" ||
-      request.nextUrl.pathname === "/500"
-    ) {
+    if (reRouteContent.includes(request.nextUrl.pathname)) {
       return NextResponse.redirect(new URL("/dashboard", baseUrl));
     }
     return NextResponse.next();
   }
 
   //not authenticated
-  if (
-    request.nextUrl.pathname === "/login" ||
-    request.nextUrl.pathname === "/" ||
-    request.nextUrl.pathname === "/verify"
-  ) {
+  if (reRouteContent.includes(request.nextUrl.pathname)) {
     return NextResponse.next();
   }
   return NextResponse.redirect(new URL("/login", baseUrl));
