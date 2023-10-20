@@ -7,6 +7,7 @@ import LegendLite from "cal-heatmap/plugins/LegendLite";
 import "cal-heatmap/cal-heatmap.css";
 import { useHistoryContext } from "@/contexts/history";
 import { HistoryService } from "@/helpers/history/history_api_wrappers";
+import { useEffect } from "react";
 
 function getStartAndEndDates(): {
   startDates: Date[];
@@ -108,77 +109,79 @@ const ActivityHeatMap = () => {
     },
   ];
 
-  // attributes for the heatmap
-  const cal = new CalHeatmap();
+  useEffect(() => {
+    // attributes for the heatmap
+    const cal = new CalHeatmap();
 
-  cal.paint(
-    {
-      // data to display the heatmap
-      data: {
-        source: templateValues,
-        x: "date",
-        y: "value",
-      },
-      // start date of the heatmap
-      date: {
-        start: startDates[4],
-        max: endDates[0],
-        timezone: "Asia/Singapore",
-      },
-      // color scheme for the heatmap
-      scale: {
-        color: {
-          type: "quantize",
-          scheme: "Blues",
-          domain: [0, 10],
+    cal.paint(
+      {
+        // data to display the heatmap
+        data: {
+          source: templateValues,
+          x: "date",
+          y: "value",
         },
-      },
-      range: 6, //show 6 months of data
-      theme: "dark",
-      // heatmap domain
-      domain: {
-        type: "month",
-        gutter: 10,
-      },
-      // cell domain
-      subDomain: { type: "day", width: 18, height: 18, radius: 2 },
-      itemSelector: "#cal-heatmap",
-    },
-    [
-      [
-        Tooltip,
-        {
-          text: function (timestamp: number, value: number, dayjsDate: any) {
-            if (!value) {
-              value = 0;
-            }
-            // convert timestamp to date
-            const date = new Date(timestamp).toLocaleDateString("en-US", {
-              timeZone: "Asia/Singapore",
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            });
-
-            if (value <= 1) {
-              return `${value} submission on ${date}`;
-            }
-
-            return `${value} submissions on ${date}`;
+        // start date of the heatmap
+        date: {
+          start: startDates[4],
+          max: endDates[0],
+          timezone: "Asia/Singapore",
+        },
+        // color scheme for the heatmap
+        scale: {
+          color: {
+            type: "quantize",
+            scheme: "Blues",
+            domain: [0, 10],
           },
         },
-      ],
-      [
-        LegendLite,
-        {
-          itemSelector: "#cal-heatmap-legend",
-          width: 12,
-          height: 12,
-          radius: 2,
+        range: 6, //show 6 months of data
+        theme: "dark",
+        // heatmap domain
+        domain: {
+          type: "month",
+          gutter: 10,
         },
-      ],
-    ]
-  );
+        // cell domain
+        subDomain: { type: "day", width: 18, height: 18, radius: 2 },
+        itemSelector: "#cal-heatmap",
+      },
+      [
+        [
+          Tooltip,
+          {
+            text: function (timestamp: number, value: number, dayjsDate: any) {
+              if (!value) {
+                value = 0;
+              }
+              // convert timestamp to date
+              const date = new Date(timestamp).toLocaleDateString("en-US", {
+                timeZone: "Asia/Singapore",
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              });
+
+              if (value <= 1) {
+                return `${value} submission on ${date}`;
+              }
+
+              return `${value} submissions on ${date}`;
+            },
+          },
+        ],
+        [
+          LegendLite,
+          {
+            itemSelector: "#cal-heatmap-legend",
+            width: 12,
+            height: 12,
+            radius: 2,
+          },
+        ],
+      ]
+    );
+  }, []);
 
   return (
     <div className="flex flex-col h-full gap-2 rounded-lg overflow-hidden">

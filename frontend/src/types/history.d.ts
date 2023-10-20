@@ -1,4 +1,5 @@
 type History = {
+  id: string;
   userId: string;
   questionId: string;
   title: string;
@@ -12,6 +13,11 @@ type History = {
 export type DataItem = {
   name: string;
   value: number;
+};
+
+export type CodeSubmission = {
+  language: string;
+  code: string;
 };
 
 export default History;

@@ -11,6 +11,8 @@ import { getError, throwAndLogError } from "@/utils/errorUtils";
 import ComplexityChip from "@/components/question/ComplexityChip";
 import { formatDistanceToNow } from "date-fns";
 import { StringUtils } from "../../utils/stringUtils";
+import { Link } from "@nextui-org/react";
+import { CLIENT_ROUTES } from "@/common/constants";
 
 const logger = getLogger("history_api_wrappers");
 
@@ -20,8 +22,9 @@ const getAttemptedQuestionsHistory = async (userId: string) => {
   // temporary hardcode solution
   const history: History[] = [
     {
+      id: "historyCuId1",
       userId: "currentUserId",
-      questionId: "questionId1",
+      questionId: "clnbayqw500007kzkd75u50ad",
       title: "Question 1",
       topics: [
         "DEPTH-FIRST SEARCH",
@@ -42,8 +45,9 @@ const getAttemptedQuestionsHistory = async (userId: string) => {
       updatedAt: "2023-08-01T00:00:00.000Z",
     },
     {
+      id: "historyCuId2",
       userId: "currentUserId",
-      questionId: "questionId2",
+      questionId: "clnbazbu400037kzkh3ghgxi3",
       title: "Question 2",
       topics: ["Dynammic Programming", "Hash tabe", "Memoization"],
       language: "C++",
@@ -52,8 +56,9 @@ const getAttemptedQuestionsHistory = async (userId: string) => {
       updatedAt: "2023-10-01T00:00:00.000Z",
     },
     {
+      id: "historyCuId3",
       userId: "currentUserId",
-      questionId: "questionId3",
+      questionId: "clnbazw2a000b7kzk53ql7xbw",
       title: "Question 3",
       topics: ["Graph"],
       language: "Java",
@@ -62,8 +67,9 @@ const getAttemptedQuestionsHistory = async (userId: string) => {
       updatedAt: "2023-09-01T00:00:00.000Z",
     },
     {
+      id: "historyCuId4",
       userId: "currentUserId",
-      questionId: "questionId4",
+      questionId: "clnbbl2py000z7kzkfw4e3sem",
       title: "Question 4",
       topics: ["Graph"],
       language: "Javascript",
@@ -72,8 +78,9 @@ const getAttemptedQuestionsHistory = async (userId: string) => {
       updatedAt: "2023-09-24T00:00:00.000Z",
     },
     {
+      id: "historyCuId5",
       userId: "currentUserId",
-      questionId: "questionId5",
+      questionId: "clniza3lj00057k6weh0fmjgw",
       title: "A very long long long long long long long name Question 5",
       topics: ["Graph", "String"],
       language: "Javascript",
@@ -199,8 +206,20 @@ const getSortedAttemptedQuestions = (history: History[]) => {
   });
 
   const attemptedQuestions = sortedHistory.map((record) => {
+    const completedAt = new Date(record.updatedAt).getTime();
     return {
-      title: record.title,
+      id: record.id,
+      title: (
+        <Link
+          href={`${CLIENT_ROUTES.QUESTIONS}/${record.questionId}/history/${
+            record.id
+          }?language=${encodeURIComponent(
+            record.language
+          )}&completedAt=${encodeURIComponent(completedAt)}`}
+        >
+          {record.title}
+        </Link>
+      ),
       complexity: <ComplexityChip complexity={record.complexity} size="sm" />,
       submissionDate: formatDistanceToNow(new Date(record.updatedAt), {
         addSuffix: true,
@@ -242,27 +261,30 @@ const getNumberOfAttemptedQuestionsByDate = (history: History[]) => {
 
 const getQuestionCodeSubmission = async (
   userId: string,
-  questionId: string
+  questionId: string,
+  language: string
 ) => {
-  const temporaryCodeData = {
-    code: `class Solution:
+  const temporaryCodeData = `class Solution:
     def twoSum(self, nums: List[int], target: int) -> List[int]:
         for i in range(len(nums)):
             for j in range(i+1, len(nums)):
                 if nums[i]+nums[j] == target:
                     return [i, j]
-        return [-1, -1]`,
-  };
-
-  return temporaryCodeData;
+        return [-1, -1]`;
+  const promise = new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ language: language, code: temporaryCodeData });
+    }, 1500);
+  });
+  return promise;
   // const response = await api({
   //   method: HTTP_METHODS.GET,
   //   service: historyService,
-  //   path: `/user/${userId}/questionId/${questionId}/code`,
+  //   path: `/user/${userId}/questionId/${questionId}/code?language=${encodeURIComponent(language)}`,
   // });
 
   // if (response.status === HttpStatusCode.OK) {
-  //   const data = response.data as { code: string };
+  //   const data = response.data as { language: string, code: string };
   //   return data;
   // }
 

@@ -1,4 +1,3 @@
-import ComplexityChip from "@/components/question/ComplexityChip";
 import { useHistoryContext } from "@/contexts/history";
 import { HistoryService } from "@/helpers/history/history_api_wrappers";
 import { cn } from "@/utils/classNameUtils";
@@ -84,7 +83,7 @@ const AttemptedQuestionTable = () => {
         <TableBody items={items}>
           {(item) => {
             return (
-              <TableRow key={item.title}>
+              <TableRow key={item.id}>
                 {(columnKey) => {
                   return <TableCell>{getKeyValue(item, columnKey)}</TableCell>;
                 }}

@@ -1,8 +1,24 @@
 import { BsFileEarmarkCode } from "react-icons/bs";
 import { RxReset } from "react-icons/rx";
+import { TiTick } from "react-icons/ti";
 import { BiExitFullscreen, BiFullscreen } from "react-icons/bi";
-import { FiCheck, FiCodepen, FiEdit, FiEye, FiPlay, FiPlusSquare, FiThumbsUp, FiTrash, FiUserX, FiWifiOff, FiX } from "react-icons/fi";
-import { MdSignalWifiConnectedNoInternet0, MdSignalWifiStatusbar4Bar } from "react-icons/md";
+import {
+  FiCheck,
+  FiCodepen,
+  FiEdit,
+  FiEye,
+  FiPlay,
+  FiPlusSquare,
+  FiThumbsUp,
+  FiTrash,
+  FiUserX,
+  FiWifiOff,
+  FiX,
+} from "react-icons/fi";
+import {
+  MdSignalWifiConnectedNoInternet0,
+  MdSignalWifiStatusbar4Bar,
+} from "react-icons/md";
 
 export const Icons = {
   BsFileEarmarkCode,
@@ -22,4 +38,5 @@ export const Icons = {
   FiEdit,
   MdSignalWifiConnectedNoInternet0,
   MdSignalWifiStatusbar4Bar,
+  TiTick,
 };
