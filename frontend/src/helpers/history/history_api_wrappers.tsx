@@ -147,7 +147,7 @@ const getNumberOfAttemptedQuestionsByComplexity = (
   return data;
 };
 
-const getNumberOfAttemptedQuestionsByTopic = (
+const getSortedNumberOfAttemptedQuestionsByTopic = (
   history: History[]
 ): DataItem[] => {
   const topicCountMap = new Map<string, number>();
@@ -198,50 +198,6 @@ const getNumberOfAttemptedQuestionsByLanguage = (
     data.push({ name: key, value: value });
   });
   return data;
-};
-
-const getSortedAttemptedQuestions = (history: History[]) => {
-  const sortedHistory = history.sort((a, b) => {
-    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-  });
-
-  const attemptedQuestions = sortedHistory.map((record) => {
-    const completedAt = new Date(record.updatedAt).getTime();
-    return {
-      id: record.id,
-      title: (
-        <Link
-          href={`${CLIENT_ROUTES.QUESTIONS}/${record.questionId}/history/${
-            record.id
-          }?language=${encodeURIComponent(
-            record.language
-          )}&completedAt=${encodeURIComponent(completedAt)}`}
-        >
-          {record.title}
-        </Link>
-      ),
-      complexity: <ComplexityChip complexity={record.complexity} size="sm" />,
-      submissionDate: formatDistanceToNow(new Date(record.updatedAt), {
-        addSuffix: true,
-      }),
-      topics: (
-        <div className="flex flex-wrap gap-1 overflow-hidden ">
-          {(record.topics as string[]).map((topic) => (
-            <Tooltip
-              key={topic}
-              content={StringUtils.convertAllCapsToCamelCase(topic)}
-            >
-              <Chip size="sm" className="truncate">
-                {StringUtils.convertAllCapsToCamelCase(topic)}
-              </Chip>
-            </Tooltip>
-          ))}
-        </div>
-      ),
-    };
-  });
-
-  return attemptedQuestions;
 };
 
 const getNumberOfAttemptedQuestionsByDate = (history: History[]) => {
@@ -344,10 +300,10 @@ const deleteHistory = async (userId: string, questionId: string) => {
 export const HistoryService = {
   getAttemptedQuestionsHistory,
   getNumberOfAttemptedQuestionsByComplexity,
-  getNumberOfAttemptedQuestionsByTopic,
+  getNumberOfAttemptedQuestionsByTopic:
+    getSortedNumberOfAttemptedQuestionsByTopic,
   getNumberOfAttemptedQuestionsByLanguage,
   getNumberOfAttemptedQuestionsByDate,
-  getSortedAttemptedQuestions,
   getQuestionCodeSubmission,
   createHistory,
   deleteHistory,
