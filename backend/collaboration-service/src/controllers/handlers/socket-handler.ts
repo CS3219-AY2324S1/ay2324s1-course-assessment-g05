@@ -47,11 +47,11 @@ export const SocketHandler = (socket: Socket) => {
     logger.debug(`[SocketHandler]: ${socket.id} ended session`)
   });
 
-  socket.on((SocketEvent.CONFIRM_END_SESSION), ( leaveDict: { roomId: string, userId: string }) => {
-    handleTerminateSession(socket, leaveDict.roomId, leaveDict.userId);
+  socket.on((SocketEvent.CONFIRM_END_SESSION), async ( leaveDict: { roomId: string, userId: string }) => {
+    await handleTerminateSession(socket, leaveDict.roomId, leaveDict.userId);
     if (activeSessions.get(leaveDict.roomId)?.length == 1) clearSessionDetails(leaveDict.roomId);
   })
-
+  
   socket.on((SocketEvent.GET_SESSION_TIMER), (roomID) => {
     handleGetSessionTimer(socket, roomID);
   })
