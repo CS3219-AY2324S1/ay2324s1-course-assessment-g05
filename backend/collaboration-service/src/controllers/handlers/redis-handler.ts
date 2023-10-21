@@ -1,5 +1,7 @@
 import { redis } from '../../models/db';
 
+const EXPIRY = 3610; // 1 hour 10 seconds
+
 /**
  * Getters
  */
@@ -33,7 +35,7 @@ async function getUserIds(roomId: string) {
 
 function setSessionDetails(roomId: string, sessionDetails: { sessionEndTime: string, users: string[] }) {
     redis.hset(roomId, sessionDetails);
-    redis.expire(roomId, 3610); // 1 hour 10 seconds
+    redis.expire(roomId, EXPIRY, 'XX'); 
 }
 
 function setUserIds(roomId: string, userIds: string) {
@@ -41,11 +43,13 @@ function setUserIds(roomId: string, userIds: string) {
 }
   
 function setCodeChange(roomId: string, content: string) {
-    redis.set(`${roomId}_content`, content);
+    redis.set(`${roomId}_content`, content);    
+    redis.expire(`${roomId}_messages`, EXPIRY, 'NX');
 }
 
 function appendMessage(roomId: string, message: string) {
     redis.lpush(`${roomId}_messages`, message);
+    redis.expire(`${roomId}_messages`, EXPIRY, 'NX');
 }
 
 /**

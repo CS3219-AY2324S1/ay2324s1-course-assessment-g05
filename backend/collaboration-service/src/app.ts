@@ -62,8 +62,6 @@ const io = new Server(server, {
     path: '/socket/collaboration/',
 })
 
-// io.adapter(createAdapter(eventBus));
-
 io.on(SocketEvent.CONNECTION, (socket: Socket) => {
     SocketHandler(socket);
 })
