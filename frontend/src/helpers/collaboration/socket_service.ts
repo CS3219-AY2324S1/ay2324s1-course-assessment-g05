@@ -83,7 +83,6 @@ class SocketService {
 
   leaveRoom = () => {
     // This clears the things from the cache, confirming that a user has the data saved
-    this.sendConfirmEndSession();
     this.socket.disconnect();
   };
 

@@ -28,6 +28,12 @@ const page = ({ params: { roomId } }: pageProps) => {
     isNotFoundError,
   } = useCollabContext();
 
+  const handleBeforeUnload = (e: { returnValue: string; }) => {
+    if (socketService) {
+      e.returnValue = 'Are you sure you want to navigate out of this page?';
+    }
+  };
+
   useEffect(() => {
     if (!socketService) {
       handleConnectToRoom(roomId, questionId, partnerId, language);
@@ -40,11 +46,17 @@ const page = ({ params: { roomId } }: pageProps) => {
       return notFound();
     }
 
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     return () => {
+
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      
       console.log("Running handleDisconnectFromRoom");
       if (socketService) {
         handleDisconnectFromRoom();
       }
+
     };
   }, [socketService, roomNotFound]);
 

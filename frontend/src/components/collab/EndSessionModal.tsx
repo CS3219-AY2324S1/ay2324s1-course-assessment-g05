@@ -57,6 +57,11 @@ export default function EndSessionModal({
 
   const handleTerminateSession = async () => {
     setIsSaving(true);
+    
+    if (socketService) {
+      socketService.sendConfirmEndSession();
+    }
+
     try {
       await postToHistoryService();
       onClose();
