@@ -46,11 +46,7 @@ const page = ({ params: { roomId } }: pageProps) => {
       return notFound();
     }
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
     return () => {
-
-      window.removeEventListener('beforeunload', handleBeforeUnload);
       
       console.log("Running handleDisconnectFromRoom");
       if (socketService) {
