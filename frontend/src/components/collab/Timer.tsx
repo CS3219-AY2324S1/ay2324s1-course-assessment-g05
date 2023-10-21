@@ -2,14 +2,27 @@
 
 import React, { useEffect, useState } from "react";
 import { Image } from "@nextui-org/react";
+import { useCollabContext } from "@/contexts/collab";
 
-type TimerProps = {};
+interface TimerProps {
+  setSessionEnded: () => void;
+  timeDifference: number;
+};
 
-const Timer: React.FC<TimerProps> = () => {
-  const [showTimer, setShowTimer] = useState<boolean>(false);
-  const [time, setTime] = useState<number>(0);
+const Timer: React.FC<TimerProps> = ({ setSessionEnded, timeDifference }) => {
 
-  const formatTime = (time: number): string => {
+  const { socketService } = useCollabContext();
+
+  if (!socketService) return null;
+
+  const [showTimer, setShowTimer] = useState<boolean>(true);
+  const [time, setTime] = useState<number>(timeDifference); 
+  
+  const formatTime = (): string => {
+    if (time <= 0) {
+      return "00:00:00";
+    }
+
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);
     const seconds = time % 60;
@@ -19,24 +32,23 @@ const Timer: React.FC<TimerProps> = () => {
     }:${seconds < 10 ? "0" + seconds : seconds}`;
   };
 
-  // retrieve time from local storage
   useEffect(() => {
-    const time = localStorage.getItem("time");
-    if (time) {
-      setTime(parseInt(time));
+    if (time < 0) { 
+      setSessionEnded();
     }
-  }, []);
+  }, [time])
 
   // create timer logic
   useEffect(() => {
     const timer = setInterval(() => {
-      // temporary solution, will create API endpoint for keeping track of time state
       setTime((prevTime) => {
-        localStorage.setItem("time", (prevTime + 1).toString());
-        return prevTime + 1;
+
+        const newTime = prevTime - 1
+        localStorage.setItem("time", newTime.toString());
+
+        return newTime;
       });
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
@@ -44,12 +56,14 @@ const Timer: React.FC<TimerProps> = () => {
     <div>
       {showTimer ? (
         <div className="flex items-center space-x-2 p-1.5 cursor-pointer rounded">
-          <div onClick={() => setShowTimer(false)}>{formatTime(time)}</div>
+          <div onClick={() => setShowTimer(false)}>{formatTime()}</div>
         </div>
       ) : (
         <div
           className="flex items-center text-white cursor-pointer rounded"
-          onClick={() => setShowTimer(true)}
+          onClick={() => {
+            setShowTimer(true)
+          }}
         >
           <Image src="/timer.svg" className="" />
         </div>

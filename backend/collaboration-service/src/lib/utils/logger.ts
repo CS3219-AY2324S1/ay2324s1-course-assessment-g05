@@ -7,5 +7,5 @@ export function createLogger(prefix: string) {
     });
 }
 
-const logger = createLogger('matching-service');
-export default logger
+const logger = createLogger('collaboration-service');
+export default logger;

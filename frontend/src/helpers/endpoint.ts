@@ -148,7 +148,6 @@ export async function getSocketConfig(service: SERVICE) {
   const endpoint = `http://${host}${servicePort}`;
   const path = `/socket/${service}/`;
   logger.info(`[endpoint] socket: ${endpoint}`);
-
   return { endpoint, path };
 }
 
