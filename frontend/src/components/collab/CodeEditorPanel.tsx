@@ -3,8 +3,11 @@ import CodeEditorNavbar from "./CodeEditorNavbar";
 import { Divider } from "@nextui-org/react";
 import CodeEditor from "./CodeEditor";
 import { getCodeTemplate } from "@/utils/defaultCodeUtils";
-
 import { useCollabContext } from "@/contexts/collab";
+import Split from "react-split";
+import ConsolePanel from "./console/ConsolePanel";
+import ConsoleBar from "./console/ConsoleBar";
+import parse from "html-react-parser";
 
 const CodeEditorPanel: FC = ({}) => {
   const { matchedLanguage, question, socketService } = useCollabContext();
@@ -16,6 +19,10 @@ const CodeEditorPanel: FC = ({}) => {
   const [currentCode, setCurrentCode] = useState<string>(
     getCodeTemplate(matchedLanguage, questionTitle)
   );
+
+  const [isConsoleOpen, setIsConsoleOpen] = useState<boolean>(false);
+
+  const [isCodeRunning, setIsCodeRunning] = useState<boolean>(false);
 
   useEffect(() => {
     socketService.receiveCodeUpdate(setCurrentCode);
@@ -39,13 +46,29 @@ const CodeEditorPanel: FC = ({}) => {
   };
 
   return (
-    <div className="h-[calc(100vh-60px)]">
+    <div className="flex flex-col h-[calc(100vh-55px)]">
       <CodeEditorNavbar handleResetToDefaultCode={handleResetToDefaultCode} />
       <Divider className="space-y-2" />
-      <CodeEditor
-        currentCode={currentCode}
-        handleEditorChange={handleEditorChange}
-        handleEditorDidMount={handleEditorDidMount}
+      <Split
+        className="flex flex-col h-full overflow-hidden"
+        direction="vertical"
+        sizes={isConsoleOpen ? [60, 40] : [100, 0]}
+        minSize={isConsoleOpen ? [100, 100] : [100, 0]}
+        gutterSize={isConsoleOpen ? 10 : 0}
+      >
+        <CodeEditor
+          currentCode={currentCode}
+          handleEditorChange={handleEditorChange}
+          handleEditorDidMount={handleEditorDidMount}
+        />
+
+        <ConsolePanel isOpen={isConsoleOpen} isCodeRunning={isCodeRunning} />
+      </Split>
+      <Divider className="space-y-2" />
+      <ConsoleBar
+        isConsoleOpen={isConsoleOpen}
+        setIsConsoleOpen={setIsConsoleOpen}
+        setIsCodeRunning={setIsCodeRunning}
       />
     </div>
   );

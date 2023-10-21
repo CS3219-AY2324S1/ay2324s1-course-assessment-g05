@@ -7,6 +7,7 @@ import User from "@/types/user";
 import { createContext, useContext, useRef, useState } from "react";
 import { useAuthContext } from "./auth";
 import { verifyRoomParamsIntegrity } from "@/utils/hashUtils";
+import parse from "html-react-parser";
 
 interface ICollabContext {
   handleConnectToRoom: (
@@ -26,6 +27,9 @@ interface ICollabContext {
   question: Question | undefined;
   matchedLanguage: string;
   isNotFoundError: boolean;
+  testCaseArray: any[];
+  deleteTestCase: (index: number) => void;
+  addTestCase: (testCase: {}) => void;
 }
 
 interface ICollabProvider {
@@ -45,6 +49,9 @@ const CollabContext = createContext<ICollabContext>({
   question: undefined,
   matchedLanguage: "",
   isNotFoundError: false,
+  testCaseArray: [],
+  deleteTestCase: (index: number) => {},
+  addTestCase: (testCase: {}) => {},
 });
 
 const useCollabContext = () => useContext(CollabContext);
@@ -60,6 +67,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
   const [question, setQuestion] = useState<Question>();
   const [matchedLanguage, setMatchedLanguage] = useState<string>("");
   const [isNotFoundError, setIsNotFoundError] = useState<boolean>(false);
+  const [testCaseArray, setTestCaseArray] = useState<any[]>([]);
 
   const initializeSocket = async (roomId: string) => {
     setRoomId(roomId);
@@ -130,6 +138,16 @@ const CollabProvider = ({ children }: ICollabProvider) => {
       setPartner(partner);
       setQuestion(question);
 
+      const initialTestCaseArray = question.examples?.map(
+        (example: any, index: number) => ({
+          label: `Case ${index + 1}`,
+          input: parse(example.input),
+          output: parse(example.output),
+        })
+      );
+
+      setTestCaseArray(initialTestCaseArray!);
+
       await initializeSocket(roomId);
     } catch (error) {
       console.log(error);
@@ -151,6 +169,18 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     }
   };
 
+  const deleteTestCase = (index: number) => {
+    const updatedTestCaseArray = [...testCaseArray];
+    updatedTestCaseArray.splice(index, 1);
+    setTestCaseArray(updatedTestCaseArray);
+  };
+
+  const addTestCase = (testCase: {}) => {
+    const updatedTestCaseArray = [...testCaseArray];
+    updatedTestCaseArray.push(testCase);
+    setTestCaseArray(updatedTestCaseArray);
+  };
+
   const context = {
     handleConnectToRoom,
     initializeSocket,
@@ -164,6 +194,9 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     question,
     matchedLanguage,
     isNotFoundError,
+    testCaseArray,
+    deleteTestCase,
+    addTestCase,
   };
 
   return (
