@@ -1,23 +1,24 @@
 import { Button, Link } from "@nextui-org/react";
+import { use, useEffect } from "react";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 
 interface IConsoleBarProps {
   isConsoleOpen: boolean;
   setIsConsoleOpen: (isConsoleOpen: boolean) => void;
-  setIsCodeRunning: (isCodeRunning: boolean) => void;
+  setSelectedConsoleTab: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const ConsoleBar = ({
   isConsoleOpen,
   setIsConsoleOpen,
-  setIsCodeRunning,
+  setSelectedConsoleTab,
 }: IConsoleBarProps) => {
   const handleConsoleToggle = () => {
     setIsConsoleOpen(!isConsoleOpen);
   };
 
   const handleRunCode = () => {
-    setIsCodeRunning(true);
+    setSelectedConsoleTab("result");
     setIsConsoleOpen(true);
   };
 

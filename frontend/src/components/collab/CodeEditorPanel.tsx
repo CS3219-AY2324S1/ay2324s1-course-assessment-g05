@@ -25,9 +25,14 @@ const CodeEditorPanel: FC = ({}) => {
 
   const [isCodeRunning, setIsCodeRunning] = useState<boolean>(false);
 
+  const [selectedConsoleTab, setSelectedConsoleTab] =
+    useState<string>("testcase");
+
   useEffect(() => {
     socketService.receiveCodeUpdate(setCurrentCode);
   }, [socketService]);
+
+  useEffect(() => {}, [isCodeRunning]);
 
   const handleEditorChange = (currentContent: string | undefined) => {
     if (!currentContent) return;
@@ -63,13 +68,17 @@ const CodeEditorPanel: FC = ({}) => {
             handleEditorChange={handleEditorChange}
             handleEditorDidMount={handleEditorDidMount}
           />
-          <ConsolePanel isOpen={isConsoleOpen} isCodeRunning={isCodeRunning} />
+          <ConsolePanel
+            isOpen={isConsoleOpen}
+            selectedConsoleTab={selectedConsoleTab}
+            setSelectedConsoleTab={setSelectedConsoleTab}
+          />
         </Split>
         <Divider className="space-y-2" />
         <ConsoleBar
           isConsoleOpen={isConsoleOpen}
           setIsConsoleOpen={setIsConsoleOpen}
-          setIsCodeRunning={setIsCodeRunning}
+          setSelectedConsoleTab={setSelectedConsoleTab}
         />
       </div>
     </ConsoleProvider>
