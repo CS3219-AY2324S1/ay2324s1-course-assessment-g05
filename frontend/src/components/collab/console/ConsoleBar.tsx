@@ -20,6 +20,7 @@ const ConsoleBar = ({
     setIsCodeRunning(true);
     setIsConsoleOpen(true);
   };
+
   return (
     <div className="flex flex-row justify-start px-5 gap-x-10 py-2">
       <Link

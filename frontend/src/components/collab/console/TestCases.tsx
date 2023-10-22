@@ -1,19 +1,24 @@
-import { useCollabContext } from "@/contexts/collab";
-import { Button, Chip } from "@nextui-org/react";
-import parse from "html-react-parser";
+import { useConsoleContext } from "@/contexts/console";
+import { Button, Chip, Input, Tooltip } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { IoIosClose, IoIosAdd } from "react-icons/io";
+import { RxReset } from "react-icons/rx";
 
 const TestCases = () => {
-  const { question, testCaseArray, addTestCase, deleteTestCase } =
-    useCollabContext();
+  const {
+    testCaseArray,
+    initialTestCaseArray,
+    addTestCase,
+    deleteTestCase,
+    modifyTestCaseArray,
+  } = useConsoleContext();
 
   const [selectedCase, setSelectedCase] = useState<number>(0);
 
   const handleTestCaseClose = (index: number) => {
     if (testCaseArray.length === 1) return;
     deleteTestCase(index);
-    setSelectedCase(index - 1);
+    setSelectedCase(index - 1 < 0 ? 0 : index - 1);
   };
 
   const handleAddTestCase = () => {
@@ -25,67 +30,116 @@ const TestCases = () => {
     setSelectedCase(testCaseArray.length);
   };
 
+  const handleResetToDefaultTestCases = () => {
+    setSelectedCase(0);
+    modifyTestCaseArray([], true);
+  };
+
+  const handleModifyTestcase = (index: number, value: string, key: string) => {
+    const updatedTestCaseArray = [...testCaseArray];
+    if (key === "input") {
+      updatedTestCaseArray[selectedCase].input = value;
+    } else {
+      updatedTestCaseArray[selectedCase].output = value;
+    }
+    modifyTestCaseArray(updatedTestCaseArray);
+  };
+
   useEffect(() => {}, [testCaseArray, selectedCase]);
 
   return (
-    <div className="flex flex-col w-full h-full gap-1">
+    <div className="flex flex-col w-full h-full gap-2">
       <div className="flex flex-wrap first-letter:justify-start items-center gap-x-2">
-        {testCaseArray?.map(
-          (testCase: any, index: number) => (
-            console.log(index, selectedCase, index === selectedCase),
-            (
-              <Chip
-                key={index}
-                radius="sm"
-                style={{
-                  backgroundColor:
-                    index === selectedCase ? "#27272A" : "transparent",
-                }}
-                className="my-2 px-2 py-4"
-                size="sm"
-                onClose={() => handleTestCaseClose(index)}
-                endContent={<IoIosClose />}
-                onClick={() => setSelectedCase(index)}
-              >
-                Case {index + 1}
-              </Chip>
-            )
-          )
-        )}
+        {testCaseArray?.map((testCase: any, index: number) => (
+          <Chip
+            key={index}
+            radius="sm"
+            style={{
+              backgroundColor:
+                index === selectedCase ? "#27272A" : "transparent",
+            }}
+            className="my-2 px-2 py-4"
+            size="sm"
+            onClose={() => handleTestCaseClose(index)}
+            endContent={<IoIosClose />}
+            onClick={() => setSelectedCase(index)}
+          >
+            Case {index + 1}
+          </Chip>
+        ))}
 
-        <Button
+        <Tooltip
+          color="default"
+          placement="top"
           size="sm"
-          variant="light"
-          isIconOnly
-          onClick={() => handleAddTestCase()}
+          content="Duplicate current test case"
         >
-          <IoIosAdd />
-        </Button>
+          <Button
+            size="sm"
+            variant="light"
+            isIconOnly
+            onClick={() => handleAddTestCase()}
+          >
+            <IoIosAdd />
+          </Button>
+        </Tooltip>
+        <div
+          style={{
+            display:
+              JSON.stringify(testCaseArray) ===
+              JSON.stringify(initialTestCaseArray)
+                ? "none"
+                : "block",
+          }}
+        >
+          <Tooltip
+            color="default"
+            placement="top"
+            size="sm"
+            content="Reset to default test cases"
+          >
+            <Button
+              size="sm"
+              variant="light"
+              isIconOnly
+              onClick={handleResetToDefaultTestCases}
+            >
+              <RxReset size="0.9em" />
+            </Button>
+          </Tooltip>
+        </div>
       </div>
       <strong className="text-white text-xs">Input: </strong>
-      <pre className="bg-gray-600 bg-opacity-50 my-1 p-4 rounded-lg text-white text-xs whitespace-pre-wrap">
-        {testCaseArray[selectedCase].input}
+      <pre>
+        <Input
+          type="text"
+          classNames={{
+            input: "text-xs text-white py-4 text-xs",
+            inputWrapper: "bg-gray-600 bg-opacity-50 p-4 rounded-lg",
+          }}
+          value={testCaseArray[selectedCase].input}
+          onValueChange={(value: string) =>
+            handleModifyTestcase(selectedCase, value, "input")
+          }
+        />
       </pre>
-      <strong className="text-white text-xs">Output: </strong>
-      <pre className="bg-gray-600 bg-opacity-50 my-1 p-4 rounded-lg text-white text-xs whitespace-pre-wrap">
-        {testCaseArray[selectedCase].output}
+
+      <strong className="text-white text-xs">Expected output: </strong>
+      <pre>
+        <Input
+          type="text"
+          classNames={{
+            input: "text-xs text-white py-4 text-xs",
+            inputWrapper: "bg-gray-600 bg-opacity-50 p-4 rounded-lg",
+          }}
+          value={testCaseArray[selectedCase].output}
+          onValueChange={(value: string) =>
+            handleModifyTestcase(selectedCase, value, "output")
+          }
+        />
       </pre>
     </div>
   );
 };
 
 export default TestCases;
-
-/*
-   <Tab key={testCase.id} title={testCase.label}>
-            <strong className="text-white text-xs">Input: </strong>
-            <pre className="bg-gray-600 bg-opacity-50 my-1 p-4 rounded-lg text-white text-xs whitespace-pre-wrap">
-              {testCase.input}
-            </pre>
-            <strong className="text-white text-xs">Output: </strong>
-            <pre className="bg-gray-600 bg-opacity-50 my-1 p-4 rounded-lg text-white text-xs whitespace-pre-wrap">
-              {testCase.output}
-            </pre>
-          </Tab>
-
-*/
