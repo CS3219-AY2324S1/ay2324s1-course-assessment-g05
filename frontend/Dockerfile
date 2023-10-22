@@ -1,6 +1,6 @@
 FROM node:20
 
-ENV BUILD_ENV=development
+ENV NODE_ENV=development
 
 # Create app directory
 WORKDIR /app
@@ -18,7 +18,6 @@ RUN npm run build
 COPY . .
 
 ARG port=3000
-
 EXPOSE $port
 
 CMD [ "npm", "run", "start" ]

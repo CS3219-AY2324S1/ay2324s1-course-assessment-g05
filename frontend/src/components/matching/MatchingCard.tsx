@@ -70,7 +70,7 @@ const MatchingCard = () => {
       })
     }
     setUpTopics();
-  }, [])
+  }, [currentPreferences])
 
   return (
     <>
