@@ -186,7 +186,7 @@ const ActivityHeatMap = () => {
       <p className="font-semibold py-4 px-2">Submission from past 6 months:</p>
       <div className="flex justify-center items-center p-4 mx-2 bg-cal-heatmap rounded">
         {/* Heatmap */}
-        <div id="cal-heatmap" className="overflow-auto scrollbar-hide"></div>
+        <div id="cal-heatmap" className="overflow-auto"></div>
       </div>
       {/* Heatmap legend */}
       <div id="cal-heatmap-legend" className="flex justify-end mx-2" />
