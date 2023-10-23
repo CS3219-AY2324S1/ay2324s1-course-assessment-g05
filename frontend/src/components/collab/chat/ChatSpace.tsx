@@ -41,6 +41,7 @@ const ChatSpace = ({
     // const [AIMessages, setAIMessages] = useState<ChatMessage[]>([]);
     const [isPartnerConnected, setIsPartnerConnected] = useState<boolean>(false);
     const [isGeneratingAIMessage, setIsGeneratingAIMessage] = useState<boolean>(false);
+    const [isSlashAI, setIsSlashAI] = useState<boolean>(false);
 
     const [newMessage, setNewMessages] = useState<ChatMessage>({
         content: "",
@@ -115,6 +116,7 @@ const ChatSpace = ({
         }
 
         setIsGeneratingAIMessage(false);
+        setIsSlashAI(false);
         scrollToNewestMessage();
     };
 
@@ -123,6 +125,8 @@ const ChatSpace = ({
     };
 
     const generateAIMessage = async (input: string) => {
+        if (input == "") return "Please input a question for the AI.";
+
         const llm = new OpenAI({
             openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
             temperature: 0.9,
@@ -181,7 +185,6 @@ const ChatSpace = ({
                                 key={crypto.randomUUID()}
                                 message={item}
                                 isSelf={item.senderId === user.id!}
-                                isAIMessage={item.isAIMessage}
                             />
                         ))}
                     </ul>
@@ -197,22 +200,46 @@ const ChatSpace = ({
                     placeholder="Message"
                     autoComplete="off"
                     className="px-2 py-2  rounded-md flex-1 font-light text-sm focus:outline-none focus:bg-zinc-800"
+                    onChange={(e) => {
+                        if (e.target.value.startsWith("/ai")) setIsSlashAI(true);
+                        else setIsSlashAI(false);
+                    }}
                 />
-                {isGeneratingAIMessage ? (
-                    <div className="bg-blue px-2.5 rounded-md text-black cursor-not-allowed">
-                        <Icons.SiOpenai style={{ width: "100%", height: "100%" }} />
-                    </div>
-                ) : (
+                {isSlashAI ? (
                     <button
                         className={
-                            isPartnerConnected
-                                ? "bg-yellow px-2.5 rounded-md text-black hover:bg-amber-200  active:bg-white"
-                                : "bg-yellow px-2.5 rounded-md text-black text-opacity-30 cursor-not-allowed"
+                            isGeneratingAIMessage
+                                ? "bg-blue px-2.5 rounded-md text-black text-opacity-30 cursor-not-allowed"
+                                : "bg-blue px-2.5 rounded-md text-black hover:bg-cyan-200  active:bg-white"
                         }
-                        disabled={!isPartnerConnected}
+                        disabled={isGeneratingAIMessage}
                     >
-                        <Icons.BsSendFill />
+                        <Icons.SiOpenai />
                     </button>
+                ) : (
+                    <>
+                        {!isGeneratingAIMessage ? (
+                            <button
+                                className={
+                                    isPartnerConnected
+                                        ? "bg-yellow px-2.5 rounded-md text-black hover:bg-amber-200  active:bg-white"
+                                        : "bg-yellow px-2.5 rounded-md text-black text-opacity-30 cursor-not-allowed"
+                                }
+                                disabled={!isPartnerConnected}
+                            >
+                                <Icons.BsSendFill />
+                            </button>
+                        ) : (
+                            <button
+                                className={
+                                    "bg-blue px-2.5 rounded-md text-black text-opacity-30 cursor-not-allowed"
+                                }
+                                disabled={isGeneratingAIMessage}
+                            >
+                                <Icons.SiOpenai />
+                            </button>
+                        )}
+                    </>
                 )}
             </form>
         </div>
