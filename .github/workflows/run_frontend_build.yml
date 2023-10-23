@@ -1,10 +1,10 @@
 name: Frontend Build Check
 
 on:
-    pull_request:
-        branches: [master]
-    push:
-        branches: [production]
+  pull_request:
+    branches: [master]
+  push:
+    branches: [production]
 
 jobs:
   build:
@@ -23,6 +23,7 @@ jobs:
         run: |
           cd frontend/  
           npm ci --omit=dev
+          npm install @types/d3 --save
 
       - name: Build
         run: |
