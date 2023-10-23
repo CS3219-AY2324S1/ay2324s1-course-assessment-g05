@@ -45,9 +45,15 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
   let servicePort = getServicePorts(config.service);
 
   // Build the final API endpoint URL.
-  const endpoint = `http://${host}${servicePort}/api/${config.service}/${
-    config.path || ""
-  }`;
+  // temporary hardcode for history service, to be fixed in PR #113
+  const endpoint =
+    config.service === SERVICE.HISTORY
+      ? `http://${host}${servicePort}/history/api/${config.service}${
+          config.path || ""
+        }`
+      : `http://${host}${servicePort}/api/${config.service}/${
+          config.path || ""
+        }`;
 
   // If JWT cookies exist in the browser, add them to the request header.
   let jwtCookieString = "";
@@ -175,6 +181,9 @@ function getServicePorts(service: SERVICE) {
         break;
       case SERVICE.COLLABORATION:
         servicePort += process.env.ENDPOINT_COLLABORATION_PORT || "";
+        break;
+      case SERVICE.HISTORY:
+        servicePort += process.env.ENDPOINT_HISTORY_PORT || "";
         break;
       default:
         servicePort = "";

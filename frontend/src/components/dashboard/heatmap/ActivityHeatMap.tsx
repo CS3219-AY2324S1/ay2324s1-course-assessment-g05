@@ -51,137 +51,90 @@ const ActivityHeatMap = () => {
   // we wnat to obtain the actual data from history
   const { history } = useHistoryContext();
 
-  const heatMapValues =
-    HistoryService.getNumberOfAttemptedQuestionsByDate(history);
-
-  const currentDate = new Date();
-
   const { startDates, endDates } = getStartAndEndDates();
 
-  const templateValues = [
-    {
-      date: "2023-08-01",
-      value: 12,
-    },
-    {
-      date: "2023-08-22",
-      value: 2,
-    },
-    {
-      date: "2023-07-30",
-      value: 3,
-    },
-    {
-      date: "2023-09-07",
-      value: 1,
-    },
-    {
-      date: "2023-10-15",
-      value: 4,
-    },
-    {
-      date: "2023-08-22",
-      value: 2,
-    },
-    {
-      date: "2023-07-12",
-      value: 2,
-    },
-    {
-      date: "2023-07-19",
-      value: 3,
-    },
-    {
-      date: "2023-08-26",
-      value: 1,
-    },
-    {
-      date: "2023-09-02",
-      value: 1,
-    },
-    {
-      date: "2023-09-23",
-      value: 4,
-    },
-    {
-      date: "2023-10-13",
-      value: 7,
-    },
-  ];
-
   useEffect(() => {
-    // attributes for the heatmap
-    const cal = new CalHeatmap();
+    if (history && history.length > 0) {
+      // attributes for the heatmap
+      const heatMapValues =
+        HistoryService.getNumberOfAttemptedQuestionsByDate(history);
 
-    cal.paint(
-      {
-        // data to display the heatmap
-        data: {
-          source: templateValues,
-          x: "date",
-          y: "value",
-        },
-        // start date of the heatmap
-        date: {
-          start: startDates[4],
-          max: endDates[0],
-          timezone: "Asia/Singapore",
-        },
-        // color scheme for the heatmap
-        scale: {
-          color: {
-            type: "quantize",
-            scheme: "Blues",
-            domain: [0, 10],
+      const cal = new CalHeatmap();
+
+      cal.paint(
+        {
+          // data to display the heatmap
+          data: {
+            source: heatMapValues,
+            x: "date",
+            y: "value",
           },
-        },
-        range: 6, //show 6 months of data
-        theme: "dark",
-        // heatmap domain
-        domain: {
-          type: "month",
-          gutter: 10,
-        },
-        // cell domain
-        subDomain: { type: "day", width: 18, height: 18, radius: 2 },
-        itemSelector: "#cal-heatmap",
-      },
-      [
-        [
-          Tooltip,
-          {
-            text: function (timestamp: number, value: number, dayjsDate: any) {
-              if (!value) {
-                value = 0;
-              }
-              // convert timestamp to date
-              const date = new Date(timestamp).toLocaleDateString("en-US", {
-                timeZone: "Asia/Singapore",
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              });
-
-              if (value <= 1) {
-                return `${value} submission on ${date}`;
-              }
-
-              return `${value} submissions on ${date}`;
+          // start date of the heatmap
+          date: {
+            start: startDates[4],
+            max: endDates[0],
+            timezone: "Asia/Singapore",
+          },
+          // color scheme for the heatmap
+          scale: {
+            color: {
+              type: "quantize",
+              scheme: "Blues",
+              domain: [0, 10],
             },
           },
-        ],
-        [
-          LegendLite,
-          {
-            itemSelector: "#cal-heatmap-legend",
-            width: 12,
-            height: 12,
-            radius: 2,
+          range: 6, //show 6 months of data
+          theme: "dark",
+          // heatmap domain
+          domain: {
+            type: "month",
+            gutter: 10,
           },
-        ],
-      ]
-    );
-  }, []);
+          // cell domain
+          subDomain: { type: "day", width: 18, height: 18, radius: 2 },
+          itemSelector: "#cal-heatmap",
+        },
+        [
+          [
+            Tooltip,
+            {
+              text: function (
+                timestamp: number,
+                value: number,
+                dayjsDate: any
+              ) {
+                if (!value) {
+                  value = 0;
+                }
+                // convert timestamp to date
+                const date = new Date(timestamp).toLocaleDateString("en-US", {
+                  timeZone: "Asia/Singapore",
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                });
+
+                if (value <= 1) {
+                  return `${value} submission on ${date}`;
+                }
+
+                return `${value} submissions on ${date}`;
+              },
+            },
+          ],
+          [
+            LegendLite,
+            {
+              itemSelector: "#cal-heatmap-legend",
+              width: 12,
+              height: 12,
+              radius: 2,
+            },
+          ],
+        ]
+      );
+    }
+  }, [history]);
 
   return (
     <div className="flex flex-col h-full gap-2 rounded-lg overflow-auto scrollbar-hide">

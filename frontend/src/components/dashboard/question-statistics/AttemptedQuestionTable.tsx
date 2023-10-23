@@ -1,7 +1,7 @@
 import { CLIENT_ROUTES } from "@/common/constants";
 import ComplexityChip from "@/components/question/ComplexityChip";
 import { useHistoryContext } from "@/contexts/history";
-import History from "@/types/history";
+import History, { QuestionHistory } from "@/types/history";
 import { cn } from "@/utils/classNameUtils";
 import { StringUtils } from "@/utils/stringUtils";
 import {
@@ -9,6 +9,7 @@ import {
   Link,
   Pagination,
   SortDescriptor,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -19,15 +20,19 @@ import {
   getKeyValue,
 } from "@nextui-org/react";
 import { formatDistanceToNow } from "date-fns";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface AttemptedQuestionTableProps {
+  history: QuestionHistory[];
   isFullPage?: boolean;
 }
 
 const AttemptedQuestionTable = ({
+  history,
   isFullPage = false,
 }: AttemptedQuestionTableProps) => {
+  const { isLoading, handleRetrieveHistory } = useHistoryContext();
+
   let rowsPerPage = 4;
   let showTopics = false;
 
@@ -61,7 +66,11 @@ const AttemptedQuestionTable = ({
     },
   ];
 
-  const renderCell = useCallback((record: History, columnKey: any) => {
+  const renderCell = (record: QuestionHistory, columnKey: any) => {
+    if (!record) {
+      return null;
+    }
+
     switch (columnKey) {
       case "title":
         const completedAt = new Date(record.updatedAt).getTime();
@@ -100,9 +109,7 @@ const AttemptedQuestionTable = ({
       default:
         return getKeyValue(record, columnKey);
     }
-  }, []);
-
-  const { history } = useHistoryContext();
+  };
 
   // for table pagination
   const [page, setPage] = useState(1);
@@ -124,6 +131,10 @@ const AttemptedQuestionTable = ({
 
   const sortedHistoryItems = useMemo(() => {
     const { column, direction } = sortDescriptor;
+
+    if (!historyItems || historyItems.length === 0) {
+      return [];
+    }
 
     if (!column) {
       return historyItems;
@@ -175,59 +186,68 @@ const AttemptedQuestionTable = ({
   }, [historyItems, sortDescriptor]);
 
   return (
-    <Table
-      aria-label="Attempted Question Table"
-      isStriped={true}
-      bottomContent={
-        pages > 1 ? (
-          <div className="flex w-full justify-center">
-            <Pagination
-              isCompact
-              showControls
-              showShadow
-              color="secondary"
-              page={page}
-              total={pages}
-              onChange={(page) => setPage(page)}
-            />
-          </div>
-        ) : null
-      }
-      sortDescriptor={sortDescriptor}
-      onSortChange={(sortDescriptor) => setSortDescriptor(sortDescriptor)}
-    >
-      <TableHeader columns={tableColumns}>
-        {(column) => (
-          <TableColumn
-            key={column.key}
-            className={cn({
-              "w-2/3": column.key === "title" && !showTopics,
-              "w-2/5": showTopics && column.key === "title",
-              "w-1/8": showTopics && column.key === "complexity",
-              "w-3/10": showTopics && column.key === "topics",
-            })}
-            allowsSorting={column.key !== "topics"}
-          >
-            {column.label}
-          </TableColumn>
-        )}
-      </TableHeader>
-      {history.length === 0 ? (
-        <TableBody emptyContent="No rows to display">{[]}</TableBody>
-      ) : (
-        <TableBody items={sortedHistoryItems}>
-          {(item) => {
+    sortedHistoryItems &&
+    sortedHistoryItems.length > 0 && (
+      <Table
+        aria-label="Attempted Question Table"
+        isStriped={true}
+        bottomContent={
+          pages > 1 ? (
+            <div className="flex w-full justify-center">
+              <Pagination
+                isCompact
+                showControls
+                showShadow
+                color="secondary"
+                page={page}
+                total={pages}
+                onChange={(page) => setPage(page)}
+              />
+            </div>
+          ) : null
+        }
+        sortDescriptor={sortDescriptor}
+        onSortChange={(sortDescriptor) => setSortDescriptor(sortDescriptor)}
+      >
+        <TableHeader columns={tableColumns}>
+          {(column) => (
+            <TableColumn
+              key={column.key}
+              className={cn({
+                "w-2/3": column.key === "title" && !showTopics,
+                "w-2/5": showTopics && column.key === "title",
+                "w-1/8": showTopics && column.key === "complexity",
+                "w-3/10": showTopics && column.key === "topics",
+              })}
+              allowsSorting={column.key !== "topics"}
+            >
+              {column.label}
+            </TableColumn>
+          )}
+        </TableHeader>
+
+        <TableBody
+          emptyContent="No rows to display"
+          isLoading={isLoading}
+          loadingContent={<Spinner label="Loading..." />}
+        >
+          {/* Must do array.map as NextUI table does not support rendering async dynamic state values */}
+          {sortedHistoryItems.map((item) => {
             return (
               <TableRow key={item.id}>
-                {(columnKey) => {
-                  return <TableCell>{renderCell(item, columnKey)}</TableCell>;
-                }}
+                {tableColumns.map((column) => {
+                  return (
+                    <TableCell key={column.key}>
+                      {renderCell(item, column.key)}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             );
-          }}
+          })}
         </TableBody>
-      )}
-    </Table>
+      </Table>
+    )
   );
 };
 

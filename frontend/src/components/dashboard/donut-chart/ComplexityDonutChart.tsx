@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import * as d3 from "d3";
 import { DataItem } from "@/types/history";
 import { Tooltip } from "@nextui-org/react";
+import { cn } from "@/utils/classNameUtils";
 
 const MARGIN = 30;
 
@@ -57,18 +58,18 @@ const ComplexityDonutChart = ({
         </span>
       </div>
       <div className="flex flex-col justify-center gap-2 text-[10px]">
-        <div className="flex flex-row items-center gap-3">
-          <div className="w-8 h-3 rounded-lg bg-dark-blue" />
-          <p>Easy</p>
-        </div>
-        <div className="flex flex-row items-center gap-3">
-          <div className="w-8 h-3 rounded-lg bg-orange" />
-          <p>Medium</p>
-        </div>
-        <div className="flex flex-row items-center gap-3">
-          <div className="w-8 h-3 rounded-lg bg-blue" />
-          <p>Hard</p>
-        </div>
+        {data.map((item, i) => (
+          <div className="flex flex-row items-center gap-3" key={i}>
+            <div
+              className={cn("w-8 h-3 rounded-lg", {
+                "bg-dark-blue": item.name === "Easy",
+                "bg-orange": item.name === "Medium",
+                "bg-blue": item.name === "Hard",
+              })}
+            />
+            <p>{item.name}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { HistoryService } from "@/helpers/history/history_api_wrappers";
-import History, { CodeSubmission } from "@/types/history";
+import History, { CodeSubmission, QuestionHistory } from "@/types/history";
 import User from "@/types/user";
 import { createContext, useContext, useState } from "react";
 import { useAuthContext } from "./auth";
@@ -10,7 +10,7 @@ interface IHistoryContext {
   user: User | undefined;
   isLoading: boolean;
   isNotFoundError: boolean;
-  history: History[];
+  history: QuestionHistory[];
   question: Question | undefined;
   code: string | undefined;
   language: string | undefined;
@@ -42,7 +42,7 @@ const HistoryProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuthContext();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isNotFoundError, setIsNotFoundError] = useState<boolean>(false);
-  const [history, setHistory] = useState<History[]>([]);
+  const [history, setHistory] = useState<QuestionHistory[]>([]);
 
   const [question, setQuestion] = useState<Question>();
   const [code, setCode] = useState<string>("");

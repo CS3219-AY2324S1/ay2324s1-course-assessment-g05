@@ -2,14 +2,25 @@ import { HistoryService } from "@/helpers/history/history_api_wrappers";
 import ComplexityDonutChart from "./donut-chart/ComplexityDonutChart";
 import LanguageDonutChart from "./donut-chart/LanguageDonutChart";
 import { useHistoryContext } from "@/contexts/history";
+import { useEffect, useState } from "react";
+import { DataItem } from "@/types/history";
 
 const StatisticsCard = () => {
   const { history, isLoading } = useHistoryContext();
 
-  const complexityData =
-    HistoryService.getNumberOfAttemptedQuestionsByComplexity(history);
-  const languageData =
-    HistoryService.getNumberOfAttemptedQuestionsByLanguage(history);
+  const [complexityData, setComplexityData] = useState<DataItem[]>([]);
+  const [languageData, setLanguageData] = useState<DataItem[]>([]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      const complexityCountMap =
+        HistoryService.getNumberOfAttemptedQuestionsByComplexity(history);
+      setComplexityData(complexityCountMap);
+      const languageCountMap =
+        HistoryService.getNumberOfAttemptedQuestionsByLanguage(history);
+      setLanguageData(languageCountMap);
+    }
+  }, [history, isLoading]);
 
   return (
     <div className="flex flex-col h-full justify-start bg-black rounded-lg px-6 py-1 text-sm overflow-y-auto">
