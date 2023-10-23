@@ -31,7 +31,7 @@ const ConsolePanel = ({
       ) : (
         <div
           style={{ display: isOpen ? "block" : "none" }}
-          className="flex flex-col w-full h-full px-2 py-2"
+          className="flex flex-col w-full h-full px-2 py-2 overflow-auto"
         >
           <Tabs
             disableAnimation

@@ -29,16 +29,22 @@ const Results = () => {
           </Chip>
         ))}
       </div>
-      <strong className="text-white text-xs">Input: </strong>
-      <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-white text-xs whitespace-pre-wrap">
-        {testCaseArray[selectedCase].input}
-      </pre>
 
-      <strong className="text-white text-xs">Expected output: </strong>
+      {Object.entries(testCaseArray[selectedCase].input).map(
+        ([variableName, variableValue]: [string, any]) => (
+          <div key={variableName}>
+            <div className="text-white text-xs py-1"> {variableName} = </div>
+            <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-white text-xs whitespace-pre-wrap">
+              {variableValue}
+            </pre>
+          </div>
+        )
+      )}
+      <div className="text-white text-xs py-1">Expected output: </div>
       <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-white text-xs whitespace-pre-wrap">
         {testCaseArray[selectedCase].output}
       </pre>
-      <strong className="text-white text-xs">Actual output: </strong>
+      <div className="text-yellow text-xs">Actual output: </div>
       <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-white text-xs whitespace-pre-wrap">
         Actual output
       </pre>

@@ -1,6 +1,7 @@
 import Question from "@/types/question";
 import { createContext, useContext, useState } from "react";
 import parse from "html-react-parser";
+import { extractInputStringToInputDict } from "@/utils/codeExecutorUtils";
 
 interface IConsoleContext {
   isQuestionLoaded: boolean;
@@ -34,18 +35,14 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
   const [isQuestionLoaded, setIsQuestionLoaded] = useState<boolean>(false);
 
   const setQuestionInConsoleContext = (question: Question) => {
-    console.log("question has been set in context");
     const initialTestCaseArray = question.examples?.map(
       (example: any, index: number) => ({
-        input: parse(example.input),
+        input: extractInputStringToInputDict(parse(example.input) as string),
         output: parse(example.output),
       })
     );
-
     setInitialTestCaseArray(initialTestCaseArray!);
-
     setTestCaseArray(structuredClone(initialTestCaseArray!));
-
     setIsQuestionLoaded(true);
   };
 

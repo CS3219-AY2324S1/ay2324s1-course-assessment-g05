@@ -1,3 +1,5 @@
+import { useConsoleContext } from "@/contexts/console";
+import { revertInputDictToInputString } from "@/utils/codeExecutorUtils";
 import { Button, Link } from "@nextui-org/react";
 import { use, useEffect } from "react";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
@@ -13,6 +15,7 @@ const ConsoleBar = ({
   setIsConsoleOpen,
   setSelectedConsoleTab,
 }: IConsoleBarProps) => {
+  const { testCaseArray } = useConsoleContext();
   const handleConsoleToggle = () => {
     setIsConsoleOpen(!isConsoleOpen);
   };
@@ -20,6 +23,11 @@ const ConsoleBar = ({
   const handleRunCode = () => {
     setSelectedConsoleTab("result");
     setIsConsoleOpen(true);
+    let finalTestCaseArray = structuredClone(testCaseArray);
+    finalTestCaseArray.map((testCase: any) => {
+      testCase.input = revertInputDictToInputString(testCase.input);
+    });
+    console.log("Final: ", finalTestCaseArray);
   };
 
   return (

@@ -22,10 +22,7 @@ const TestCases = () => {
   };
 
   const handleAddTestCase = () => {
-    const newTestCase = {
-      input: testCaseArray[selectedCase].input,
-      output: testCaseArray[selectedCase].output,
-    };
+    const newTestCase = structuredClone(testCaseArray[selectedCase]);
     addTestCase(newTestCase);
     setSelectedCase(testCaseArray.length);
   };
@@ -35,13 +32,25 @@ const TestCases = () => {
     modifyTestCaseArray([], true);
   };
 
-  const handleModifyTestcase = (index: number, value: string, key: string) => {
+  const handleModifyTestcase = (
+    index: number,
+    variableName: string,
+    value: any
+  ) => {
     const updatedTestCaseArray = [...testCaseArray];
-    if (key === "input") {
-      updatedTestCaseArray[selectedCase].input = value;
-    } else {
-      updatedTestCaseArray[selectedCase].output = value;
-    }
+    updatedTestCaseArray[index].input[variableName] = value.trim();
+    updatedTestCaseArray[index].output = "Not Available";
+    // check if input is equal to any existing input in initialTestCaseArray
+    // if yes, update output to the corresponding output in initialTestCaseArray, else set output to "Not Available"
+    initialTestCaseArray.map((testCase: any) => {
+      if (
+        JSON.stringify(testCase.input) ===
+        JSON.stringify(updatedTestCaseArray[index].input)
+      ) {
+        updatedTestCaseArray[index].output = testCase.output;
+      }
+    });
+
     modifyTestCaseArray(updatedTestCaseArray);
   };
 
@@ -109,35 +118,26 @@ const TestCases = () => {
           </Tooltip>
         </div>
       </div>
-      <strong className="text-white text-xs">Input: </strong>
-      <pre>
-        <Input
-          type="text"
-          classNames={{
-            input: "text-xs text-white py-4 text-xs",
-            inputWrapper: "bg-gray-600 bg-opacity-50 p-4 rounded-lg",
-          }}
-          value={testCaseArray[selectedCase].input}
-          onValueChange={(value: string) =>
-            handleModifyTestcase(selectedCase, value, "input")
-          }
-        />
-      </pre>
-
-      <strong className="text-white text-xs">Expected output: </strong>
-      <pre>
-        <Input
-          type="text"
-          classNames={{
-            input: "text-xs text-white py-4 text-xs",
-            inputWrapper: "bg-gray-600 bg-opacity-50 p-4 rounded-lg",
-          }}
-          value={testCaseArray[selectedCase].output}
-          onValueChange={(value: string) =>
-            handleModifyTestcase(selectedCase, value, "output")
-          }
-        />
-      </pre>
+      {Object.entries(testCaseArray[selectedCase].input).map(
+        ([variableName, variableValue]: [string, any]) => (
+          <div key={variableName}>
+            <div className="text-white text-xs py-1"> {variableName} = </div>
+            <pre>
+              <Input
+                type="text"
+                classNames={{
+                  input: "text-xs text-white py-4 text-xs",
+                  inputWrapper: "bg-gray-600 bg-opacity-50 p-4 rounded-lg",
+                }}
+                value={variableValue}
+                onValueChange={(value: string) =>
+                  handleModifyTestcase(selectedCase, variableName, value)
+                }
+              />
+            </pre>
+          </div>
+        )
+      )}
     </div>
   );
 };
