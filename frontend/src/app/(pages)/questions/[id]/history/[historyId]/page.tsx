@@ -13,7 +13,7 @@ interface pageProps {
   };
 }
 
-const page = ({ params }: pageProps) => {
+const QuestionHistoryPage = ({ params }: pageProps) => {
   const searchParams = useSearchParams();
   const language = searchParams.get("language");
   const completedAt = searchParams.get("completedAt");
@@ -51,4 +51,4 @@ const page = ({ params }: pageProps) => {
   );
 };
 
-export default page;
+export default QuestionHistoryPage;

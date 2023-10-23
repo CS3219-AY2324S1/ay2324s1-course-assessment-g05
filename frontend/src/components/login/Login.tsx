@@ -193,9 +193,9 @@ export function LoginComponent() {
                 onClick={togglePasswordVisibility}
               >
                 {isPasswordVisible ? (
-                  <Image src="/assets/eye-hide.svg" />
+                  <Image src="/assets/eye-hide.svg" alt="" />
                 ) : (
-                  <Image src="/assets/eye-show.svg" />
+                  <Image src="/assets/eye-show.svg" alt="" />
                 )}
               </Button>
             }
