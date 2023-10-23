@@ -30,11 +30,13 @@ const MatchingCard = () => {
   const optionsDifficulties = Object.values(COMPLEXITY);
   const [optionsTopics, setOptionsTopics] = useState<string[]>([]);
 
-  const [preferences, setPreferences] = useState<Preference>({ languages: [], difficulties: [], topics: [] });
+  const [preferences, setPreferences] = useState<Preference>({
+    languages: [],
+    difficulties: [],
+    topics: [],
+  });
 
-  const handleOnSelectionChange = (
-    event: ChangeEvent<HTMLSelectElement>
-  ) => {
+  const handleOnSelectionChange = (event: ChangeEvent<HTMLSelectElement>) => {
     if (event.target.value === "") {
       displayToast(`${event.target.name} is required`);
       return;
@@ -61,16 +63,16 @@ const MatchingCard = () => {
 
   useEffect(() => {
     async function setUpTopics() {
-      await getTopics().then(topics => {
+      await getTopics().then((topics) => {
         if (currentPreferences) {
           setPreferences(currentPreferences);
         }
 
-        setOptionsTopics(topics)
-      })
+        setOptionsTopics(topics);
+      });
     }
     setUpTopics();
-  }, [currentPreferences])
+  }, []);
 
   return (
     <>
@@ -81,7 +83,14 @@ const MatchingCard = () => {
               <span>Find a pair programmer</span>
               <span>
                 <Tooltip content="Reset preferences">
-                  <Button isIconOnly size="sm" variant="light" onPress={handleReset}><Icons.RxReset /></Button>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="light"
+                    onPress={handleReset}
+                  >
+                    <Icons.RxReset />
+                  </Button>
                 </Tooltip>
               </span>
             </div>
@@ -95,12 +104,14 @@ const MatchingCard = () => {
               selectionMode="multiple"
               placeholder="Select a language"
               classNames={{
-                value: "capitalize"
+                value: "capitalize",
               }}
               selectedKeys={preferences.languages}
               onChange={handleOnSelectionChange}
               errorMessage={
-                preferences.languages.length == 0 && <span>Language is required</span>
+                preferences.languages.length == 0 && (
+                  <span>Language is required</span>
+                )
               }
             >
               {optionsLanguages.map((value) => (
@@ -118,12 +129,14 @@ const MatchingCard = () => {
               selectionMode="multiple"
               placeholder="Select a complexity level"
               classNames={{
-                value: "capitalize"
+                value: "capitalize",
               }}
               selectedKeys={preferences.difficulties}
               onChange={handleOnSelectionChange}
               errorMessage={
-                preferences.difficulties.length == 0 && <span>Difficulty is required</span>
+                preferences.difficulties.length == 0 && (
+                  <span>Difficulty is required</span>
+                )
               }
             >
               {optionsDifficulties.map((value) => (
@@ -141,12 +154,14 @@ const MatchingCard = () => {
               selectionMode="multiple"
               placeholder="Select a topic"
               classNames={{
-                value: "capitalize"
+                value: "capitalize",
               }}
               selectedKeys={preferences.topics}
               onChange={handleOnSelectionChange}
               errorMessage={
-                preferences.topics.length == 0 && <span>Topics is required</span>
+                preferences.topics.length == 0 && (
+                  <span>Topics is required</span>
+                )
               }
             >
               {optionsTopics.map((value) => (
@@ -156,10 +171,7 @@ const MatchingCard = () => {
               ))}
             </Select>
 
-            <Button
-              className="bg-yellow text-black"
-              onPress={handleGetMatched}
-            >
+            <Button className="bg-yellow text-black" onPress={handleGetMatched}>
               Get Matched
             </Button>
             <MatchingLobby

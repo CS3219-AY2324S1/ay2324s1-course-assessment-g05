@@ -5,6 +5,7 @@ export enum DOMAIN {
   USER = "user",
   AUTH = "auth",
   COLLABORATION = "collaboration",
+  HISTORY = "history",
 }
 
 // DEPRECIATED, changed to domain to support aws api route mapping
