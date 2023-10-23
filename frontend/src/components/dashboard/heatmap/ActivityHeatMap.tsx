@@ -54,8 +54,6 @@ const ActivityHeatMap = () => {
   const heatMapValues =
     HistoryService.getNumberOfAttemptedQuestionsByDate(history);
 
-  const currentDate = new Date();
-
   const { startDates, endDates } = getStartAndEndDates();
 
   const templateValues = [
@@ -111,9 +109,9 @@ const ActivityHeatMap = () => {
 
   useEffect(() => {
     // attributes for the heatmap
-    const cal = new CalHeatmap();
+    const calForSixMonths = new CalHeatmap();
 
-    cal.paint(
+    calForSixMonths.paint(
       {
         // data to display the heatmap
         data: {
@@ -143,7 +141,7 @@ const ActivityHeatMap = () => {
           gutter: 10,
         },
         // cell domain
-        subDomain: { type: "day", width: 18, height: 18, radius: 2 },
+        subDomain: { type: "day", width: 16, height: 16, radius: 2 },
         itemSelector: "#cal-heatmap",
       },
       [
@@ -184,14 +182,14 @@ const ActivityHeatMap = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-full gap-2 rounded-lg overflow-auto scrollbar-hide">
+    <div className="flex flex-col h-full w-full gap-2 rounded-lg overflow-auto scrollbar-hide">
       <p className="font-semibold py-4 px-2">Submission from past 6 months:</p>
-      <div className="flex justify-center items-center p-4 bg-cal-heatmap rounded">
+      <div className="flex justify-center items-center p-4 mx-2 bg-cal-heatmap rounded">
         {/* Heatmap */}
-        <div id="cal-heatmap" className="bg-cal-heatmap"></div>
+        <div id="cal-heatmap" className="overflow-auto scrollbar-hide"></div>
       </div>
       {/* Heatmap legend */}
-      <div id="cal-heatmap-legend" className="flex justify-end" />
+      <div id="cal-heatmap-legend" className="flex justify-end mx-2" />
     </div>
   );
 };

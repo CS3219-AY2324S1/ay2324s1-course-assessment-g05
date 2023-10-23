@@ -1,6 +1,7 @@
 import { Link } from "@nextui-org/react";
 import ActivityHeatMap from "./heatmap/ActivityHeatMap";
 import { CLIENT_ROUTES } from "@/common/constants";
+import { Icons } from "../common/Icons";
 
 const HeatmapCard = () => {
   return (
@@ -10,6 +11,10 @@ const HeatmapCard = () => {
         <Link
           href={`${CLIENT_ROUTES.QUESTIONS}/history`}
           className="text-sm mx-2"
+          size="md"
+          color="foreground"
+          showAnchorIcon
+          anchorIcon={<Icons.Anchor width="20" height="20" />}
         >
           View all attempted questions
         </Link>
