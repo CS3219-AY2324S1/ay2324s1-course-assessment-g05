@@ -18,9 +18,10 @@ import PeerPrepLogo from "@/components/common/PeerPrepLogo";
 import bcrypt from "bcryptjs-react";
 import displayToast from "@/components/common/Toast";
 import { CLIENT_ROUTES } from "@/common/constants";
-import LogoLoadingComponent from "../common/LogoLoadingComponent";
+import z from "zod";
+import { is } from "date-fns/locale";
 
-export default async function ForgotPasswordComponent() {
+export default function ForgotPasswordComponent() {
   // States
   const [userId, setUserId] = useState("");
   const [token, setToken] = useState("");
@@ -57,6 +58,11 @@ export default async function ForgotPasswordComponent() {
       return;
     }
 
+    if (isEmailInvalid) {
+      displayToast("Please enter a valid email.", ToastType.ERROR);
+      return;
+    }
+
     try {
       setIsLoading(true);
       const res = await AuthService.sendPasswordResetEmail(email);
@@ -64,10 +70,6 @@ export default async function ForgotPasswordComponent() {
         setIsSubmitted(true);
       }
     } catch (error) {
-      displayToast(
-        "Something went wrong. Please refresh and try again.",
-        ToastType.ERROR
-      );
       setIsSubmitted(true);
     } finally {
       setIsLoading(false);
@@ -100,22 +102,27 @@ export default async function ForgotPasswordComponent() {
     }
   }
 
-  useEffect(() => {
-    const userId = searchParams.get("id");
-    const token = searchParams.get("token");
+  // Validation
 
-    if (userId && token) {
-      setIsChangePassword(true);
-      setUserId(userId);
-      setToken(token);
+  const validateEmail = (value: string) => {
+    try {
+      z.string().email().min(3).max(254).parse(value);
+      return true;
+    } catch {
+      return false;
     }
-  }, []);
+  };
+
+  const isEmailInvalid = React.useMemo(() => {
+    if (email === "") return false;
+
+    return validateEmail(email) ? false : true;
+  }, [email]);
 
   useEffect(() => {
     setArePasswordsEqual(
       !(password !== checkPassword && password !== "" && checkPassword !== "")
     );
-
     if (password !== "" && checkPassword !== "" && password.length < 8) {
       setErrorMsg("Password should contain 8 characters or more.");
     } else if (!arePasswordsEqual) {
@@ -130,6 +137,17 @@ export default async function ForgotPasswordComponent() {
     setCheckPassword,
     arePasswordsEqual,
   ]);
+
+  useEffect(() => {
+    const userId = searchParams.get("id");
+    const token = searchParams.get("token");
+
+    if (userId && token) {
+      setIsChangePassword(true);
+      setUserId(userId);
+      setToken(token);
+    }
+  }, []);
 
   useEffect(() => {
     // call api that takes in email and generates a token

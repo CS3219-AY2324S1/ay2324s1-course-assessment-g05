@@ -31,7 +31,6 @@ export function LoginComponent() {
   const [password, setPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
   const [name, setName] = useState("");
-  const [isRemembered, setIsRemembered] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
   // Flags
