@@ -5,7 +5,7 @@ import AttemptedQuestionTable from "@/components/dashboard/question-statistics/A
 import { useHistoryContext } from "@/contexts/history";
 import { useEffect } from "react";
 
-const page = () => {
+const QuestionsHistoryPage = () => {
   const { history, isLoading, handleRetrieveHistory } = useHistoryContext();
 
   useEffect(() => {
@@ -30,4 +30,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default QuestionsHistoryPage;

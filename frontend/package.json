@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "build": "next build",
+    "start": "next start",
     "dev": "next dev | pino-pretty",
     "dev:frontend": "npm run dev | pino-pretty",
     "dev:user": "cd ../backend/user-service && npm run dev",
@@ -21,8 +23,6 @@
     "setup:auth": "cd ../backend/auth-service && npm i",
     "setup:history": "cd ../backend/history-service && npm i",
     "setup-all": "concurrently \"npm run setup:frontend\" \"npm run setup:user\" \"npm run setup:question\" \"npm run setup:matching\" \"npm run setup:collaboration\" \"npm run setup:auth\" \"npm run setup:history\" ",
-    "build": "next build",
-    "start": "next start",
     "lint": "next lint",
     "checkstyle": "prettier . --check",
     "pretty": "prettier . --write"
@@ -32,6 +32,7 @@
     "@nextui-org/react": "^2.1.10",
     "@types/bcrypt": "^5.0.0",
     "@types/bcryptjs": "^2.4.4",
+    "@types/d3": "^7.4.0",
     "@types/node": "20.5.7",
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
@@ -49,6 +50,7 @@
     "monaco-editor": "^0.43.0",
     "next": "^13.5.2",
     "pino": "^8.15.0",
+    "pino-pretty": "^10.2.0",
     "postcss": "8.4.29",
     "quill-image-compress": "^1.2.30",
     "react": "^18.2.0",
@@ -67,8 +69,9 @@
     "@types/bcrypt": "^5.0.0",
     "@types/d3": "^7.4.0",
     "concurrently": "^8.2.2",
-    "eslint-config-prettier": "^9.0.0",
     "pino-pretty": "^10.2.0",
-    "prettier": "3.0.3"
+    "eslint-config-prettier": "^9.0.0",
+    "prettier": "3.0.3",
+    "style-loader": "^3.3.3"
   }
 }

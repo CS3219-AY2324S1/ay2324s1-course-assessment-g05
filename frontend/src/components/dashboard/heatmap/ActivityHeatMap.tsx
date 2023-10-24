@@ -137,14 +137,14 @@ const ActivityHeatMap = () => {
   }, [history]);
 
   return (
-    <div className="flex flex-col h-full gap-2 rounded-lg overflow-auto scrollbar-hide">
+    <div className="flex flex-col h-full w-full gap-2 rounded-lg overflow-auto scrollbar-hide">
       <p className="font-semibold py-4 px-2">Submission from past 6 months:</p>
-      <div className="flex justify-center items-center p-4 bg-cal-heatmap rounded">
+      <div className="flex justify-center items-center p-4 mx-2 bg-cal-heatmap rounded">
         {/* Heatmap */}
-        <div id="cal-heatmap" className="bg-cal-heatmap"></div>
+        <div id="cal-heatmap" className="overflow-auto"></div>
       </div>
       {/* Heatmap legend */}
-      <div id="cal-heatmap-legend" className="flex justify-end" />
+      <div id="cal-heatmap-legend" className="flex justify-end mx-2" />
     </div>
   );
 };

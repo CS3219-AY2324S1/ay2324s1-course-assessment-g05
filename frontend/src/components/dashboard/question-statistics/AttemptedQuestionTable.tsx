@@ -81,6 +81,9 @@ const AttemptedQuestionTable = ({
             }?language=${encodeURIComponent(
               record.language
             )}&completedAt=${encodeURIComponent(completedAt)}`}
+            color="foreground"
+            size="sm"
+            className="font-semibold"
           >
             {record.title}
           </Link>

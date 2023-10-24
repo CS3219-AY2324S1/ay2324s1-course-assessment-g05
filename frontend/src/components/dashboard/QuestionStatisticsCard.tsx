@@ -3,6 +3,7 @@ import AttemptedQuestionTable from "./question-statistics/AttemptedQuestionTable
 import { useHistoryContext } from "@/contexts/history";
 import { useEffect, useState } from "react";
 import { QuestionHistory } from "@/types/history";
+import { Spinner } from "@nextui-org/react";
 
 const QuestionStatisticsCard = () => {
   const { history, isLoading } = useHistoryContext();
@@ -22,7 +23,14 @@ const QuestionStatisticsCard = () => {
   return (
     <div className="flex flex-col h-full gap-2 bg-black rounded-lg p-4 overflow-y-auto">
       {isLoading ? (
-        <>Loading animation</>
+        <div>
+          <div className="flex justify-center">
+            <Spinner size="md" />
+          </div>
+          <div className="flex justify-center">
+            <span className="text-gray-500">Loading...</span>
+          </div>
+        </div>
       ) : (
         <>
           <QuestionFilter />

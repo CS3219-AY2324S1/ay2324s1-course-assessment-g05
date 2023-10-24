@@ -7,12 +7,15 @@ import MatchingCard from "../matching/MatchingCard";
 import StatisticsCard from "./StatisticsCard";
 import QuestionStatisticsCard from "./QuestionStatisticsCard";
 import { useHistoryContext } from "@/contexts/history";
+import { useTopicContext } from "@/contexts/topic";
 
 const Dashboard = () => {
   const { handleRetrieveHistory } = useHistoryContext();
+  const { fetchTopics } = useTopicContext();
 
   useEffect(() => {
     handleRetrieveHistory();
+    fetchTopics();
   }, []);
 
   return (

@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import HttpStatusCode from "../lib/enums/HttpStatusCode";
+import dotenv from "dotenv";
 
+dotenv.config();
 export const authMiddleware = async (
   req: Request,
   res: Response,
@@ -36,22 +38,30 @@ export const authMiddleware = async (
     return;
   }
 
+  const GATEWAY = process.env.GATEWAY || "http://localhost:5050";
   //If there is JWT, validate it through the auth endpoint
-  const authEndpoint =
-    process.env.AUTH_ENDPOINT || "http://localhost:5050/api/auth/validate";
+  const authEndpoint = process.env.AUTH_ENDPOINT || `auth/api/validate`;
 
-  const authRes = await fetch(authEndpoint, {
-    method: "POST",
-    headers: {
-      Cookie: `jwt=${jwtCookieString}`,
-    },
-  });
+  try {
+    const authRes = await fetch(`${GATEWAY}/${authEndpoint}`, {
+      method: "POST",
+      headers: {
+        Cookie: `jwt=${jwtCookieString}`,
+      },
+    });
 
-  if (authRes.status !== HttpStatusCode.OK) {
-    const message = await authRes.text();
-    res.status(authRes.status).json({
-      error: message,
-      message,
+    if (authRes.status !== HttpStatusCode.OK) {
+      const message = await authRes.text();
+      res.status(authRes.status).json({
+        error: message,
+        message,
+      });
+      return;
+    }
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "INTERNAL SERVER ERROR",
+      message: "Authorization service is unreachable",
     });
     return;
   }

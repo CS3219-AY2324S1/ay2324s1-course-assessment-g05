@@ -2,7 +2,7 @@
 /*                      mock backend for history service                      */
 /* -------------------------------------------------------------------------- */
 
-import { HTTP_METHODS, SERVICE } from "@/types/enums";
+import { DOMAIN, HTTP_METHODS } from "@/types/enums";
 import api from "../endpoint";
 import { getLogger } from "../logger";
 import HttpStatusCode from "@/types/HttpStatusCode";
@@ -12,7 +12,7 @@ import { StringUtils } from "../../utils/stringUtils";
 
 const logger = getLogger("history_api_wrappers");
 
-const historyService = SERVICE.HISTORY;
+const historyService = DOMAIN.HISTORY;
 
 const getAttemptedQuestionsHistory = async (userId: string) => {
   const queryParam = `?userId=${userId}`;
@@ -242,7 +242,7 @@ const createHistory = async (
 ) => {
   const response = await api({
     method: HTTP_METHODS.POST,
-    service: historyService,
+    domain: historyService,
     body: {
       userId: userId,
       questionId: questionId,
@@ -265,7 +265,7 @@ const createHistory = async (
 const deleteHistory = async (userId: string, questionId: string) => {
   const response = await api({
     method: HTTP_METHODS.DELETE,
-    service: historyService,
+    domain: historyService,
     path: `/user/${userId}/questionId/${questionId}`,
   });
 
