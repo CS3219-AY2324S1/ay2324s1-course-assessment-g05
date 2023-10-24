@@ -27,7 +27,6 @@ const QuestionHistoryPage = ({ params }: pageProps) => {
   } = useHistoryContext();
 
   useEffect(() => {
-    console.log(language, question, code);
     if (!language) {
       return notFound();
     }

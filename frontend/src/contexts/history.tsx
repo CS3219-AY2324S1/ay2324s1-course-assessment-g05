@@ -1,5 +1,5 @@
 import { HistoryService } from "@/helpers/history/history_api_wrappers";
-import History, { CodeSubmission, QuestionHistory } from "@/types/history";
+import { CodeSubmission, QuestionHistory } from "@/types/history";
 import User from "@/types/user";
 import { createContext, useContext, useState } from "react";
 import { useAuthContext } from "./auth";
@@ -57,16 +57,21 @@ const HistoryProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      const history = await HistoryService.getAttemptedQuestionsHistory(
+      if (history.length > 0) {
+        setIsLoading(false);
+        return;
+      }
+
+      const rawHistory = await HistoryService.getAttemptedQuestionsHistory(
         user.id
       );
 
-      if (!history || history.length === 0) {
+      if (!rawHistory || rawHistory.length === 0) {
         setIsNotFoundError(true);
         return;
       }
 
-      setHistory(history);
+      setHistory(rawHistory);
     } catch (error) {
       setIsNotFoundError(true);
     } finally {
@@ -86,28 +91,7 @@ const HistoryProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      // set the language
-      switch (decodeURIComponent(language).toLowerCase()) {
-        case "c++":
-          language = "cpp";
-          break;
-        case "java":
-          language = "java";
-          break;
-        case "python":
-          language = "python";
-          break;
-        case "javascript":
-          language = "javascript";
-          break;
-        default:
-          setIsNotFoundError(true);
-          return;
-      }
-      setLanguage(language);
-
-      // set the completed date
-      setCompletedAt(new Date(completedAt));
+      language = decodeURIComponent(language);
 
       // get the question detail and the code submission
       const promises = [
@@ -133,6 +117,29 @@ const HistoryProvider = ({ children }: { children: React.ReactNode }) => {
       // set the question detail, and the code submission
       setQuestion(question);
       setCode(codeSubmission.code);
+
+      // set the language
+      switch (language.toLowerCase()) {
+        case "c++":
+          language = "cpp";
+          break;
+        case "java":
+          language = "java";
+          break;
+        case "python":
+          language = "python";
+          break;
+        case "javascript":
+          language = "javascript";
+          break;
+        default:
+          setIsNotFoundError(true);
+          return;
+      }
+      setLanguage(language);
+
+      // set the completed date
+      setCompletedAt(new Date(completedAt));
     } catch (error) {
       setIsNotFoundError(true);
     } finally {

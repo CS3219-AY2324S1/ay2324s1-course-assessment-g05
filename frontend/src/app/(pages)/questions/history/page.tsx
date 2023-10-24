@@ -23,7 +23,7 @@ const QuestionsHistoryPage = () => {
           <p className="mx-2 p-2 text-base">
             You have attempted {history.length} questions:
           </p>
-          <AttemptedQuestionTable isFullPage={true} />
+          <AttemptedQuestionTable isFullPage={true} history={history} />
         </div>
       )}
     </div>

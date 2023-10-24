@@ -38,7 +38,7 @@ export const authMiddleware = async (
 
   //If there is JWT, validate it through the auth endpoint
   const authEndpoint =
-    process.env.AUTH_ENDPOINT || `http://localhost:5050/api/auth/validate`;
+    process.env.AUTH_ENDPOINT || `http://localhost:5050/auth/api/validate`;
 
   try {
     const authRes = await fetch(authEndpoint, {

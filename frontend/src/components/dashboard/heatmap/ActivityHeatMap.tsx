@@ -91,7 +91,7 @@ const ActivityHeatMap = () => {
             gutter: 10,
           },
           // cell domain
-          subDomain: { type: "day", width: 18, height: 18, radius: 2 },
+          subDomain: { type: "day", width: 16, height: 16, radius: 2 },
           itemSelector: "#cal-heatmap",
         },
         [

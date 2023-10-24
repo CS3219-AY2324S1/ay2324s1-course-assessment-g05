@@ -26,7 +26,7 @@ const MatchingCard = () => {
     user: { preferences: currentPreferences },
   } = useAuthContext();
 
-  const { topics } = useTopicContext();
+  const { topics, fetchTopics } = useTopicContext();
 
   const optionsLanguages = Object.values(LANGUAGE);
   const optionsDifficulties = Object.values(COMPLEXITY);
@@ -64,13 +64,14 @@ const MatchingCard = () => {
   };
 
   useEffect(() => {
-    console.log(topics.length);
-    console.log("Options topics: ", optionsTopics.length);
-    if (optionsTopics.length === 0) {
-      if (currentPreferences) {
-        setPreferences(currentPreferences);
-      }
+    if (topics.length === 0) {
+      fetchTopics();
+    }
+    if (currentPreferences) {
+      setPreferences(currentPreferences);
+    }
 
+    if (optionsTopics.length === 0) {
       setOptionsTopics(topics);
     }
   }, [topics]);

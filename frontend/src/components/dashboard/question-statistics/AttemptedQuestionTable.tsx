@@ -31,8 +31,6 @@ const AttemptedQuestionTable = ({
   history,
   isFullPage = false,
 }: AttemptedQuestionTableProps) => {
-  const { isLoading, handleRetrieveHistory } = useHistoryContext();
-
   let rowsPerPage = 4;
   let showTopics = false;
 
@@ -51,6 +49,10 @@ const AttemptedQuestionTable = ({
     {
       key: "complexity",
       label: "Complexity",
+    },
+    {
+      key: "language",
+      label: "Language",
     },
     ...(showTopics
       ? [
@@ -90,6 +92,12 @@ const AttemptedQuestionTable = ({
         );
       case "complexity":
         return <ComplexityChip complexity={record.complexity} size="sm" />;
+      case "language":
+        return (
+          <Chip size="sm" variant="bordered" className="text-sm">
+            {record.language}
+          </Chip>
+        );
       case "topics":
         return (
           <div className="flex flex-wrap gap-1 overflow-hidden ">
@@ -189,55 +197,54 @@ const AttemptedQuestionTable = ({
   }, [historyItems, sortDescriptor]);
 
   return (
-    sortedHistoryItems &&
-    sortedHistoryItems.length > 0 && (
-      <Table
-        aria-label="Attempted Question Table"
-        isStriped={true}
-        bottomContent={
-          pages > 1 ? (
-            <div className="flex w-full justify-center">
-              <Pagination
-                isCompact
-                showControls
-                showShadow
-                color="secondary"
-                page={page}
-                total={pages}
-                onChange={(page) => setPage(page)}
-              />
-            </div>
-          ) : null
-        }
-        sortDescriptor={sortDescriptor}
-        onSortChange={(sortDescriptor) => setSortDescriptor(sortDescriptor)}
-      >
-        <TableHeader columns={tableColumns}>
-          {(column) => (
-            <TableColumn
-              key={column.key}
-              className={cn({
-                "w-2/3": column.key === "title" && !showTopics,
-                "w-2/5": showTopics && column.key === "title",
-                "w-1/8": showTopics && column.key === "complexity",
-                "w-3/10": showTopics && column.key === "topics",
-              })}
-              allowsSorting={column.key !== "topics"}
-            >
-              {column.label}
-            </TableColumn>
-          )}
-        </TableHeader>
+    <Table
+      aria-label="Attempted Question Table"
+      isStriped={true}
+      bottomContent={
+        pages > 1 ? (
+          <div className="flex w-full justify-center">
+            <Pagination
+              isCompact
+              showControls
+              showShadow
+              color="secondary"
+              page={page}
+              total={pages}
+              onChange={(page) => setPage(page)}
+            />
+          </div>
+        ) : null
+      }
+      sortDescriptor={sortDescriptor}
+      onSortChange={(sortDescriptor) => setSortDescriptor(sortDescriptor)}
+    >
+      <TableHeader columns={tableColumns}>
+        {(column) => (
+          <TableColumn
+            key={column.key}
+            className={cn({
+              "w-2/3": column.key === "title" && !showTopics,
+              "w-2/5": showTopics && column.key === "title",
+              "w-1/8": showTopics && column.key === "complexity",
+              "w-3/10": showTopics && column.key === "topics",
+            })}
+            allowsSorting={column.key !== "topics"}
+          >
+            {column.label}
+          </TableColumn>
+        )}
+      </TableHeader>
 
-        <TableBody
-          emptyContent="No rows to display"
-          isLoading={isLoading}
-          loadingContent={<Spinner label="Loading..." />}
-        >
+      {!sortedHistoryItems || sortedHistoryItems.length === 0 ? (
+        <TableBody items={[]} emptyContent="No rows to display">
+          <></>
+        </TableBody>
+      ) : (
+        <TableBody>
           {/* Must do array.map as NextUI table does not support rendering async dynamic state values */}
           {sortedHistoryItems.map((item) => {
             return (
-              <TableRow key={item.id}>
+              <TableRow key={item.id + item.language}>
                 {tableColumns.map((column) => {
                   return (
                     <TableCell key={column.key}>
@@ -249,8 +256,8 @@ const AttemptedQuestionTable = ({
             );
           })}
         </TableBody>
-      </Table>
-    )
+      )}
+    </Table>
   );
 };
 

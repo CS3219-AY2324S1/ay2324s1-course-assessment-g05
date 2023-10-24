@@ -16,10 +16,6 @@ const QuestionStatisticsCard = () => {
     }
   }, [history]);
 
-  if (!questionHistory) {
-    return null;
-  }
-
   return (
     <div className="flex flex-col h-full gap-2 bg-black rounded-lg p-4 overflow-y-auto">
       {isLoading ? (

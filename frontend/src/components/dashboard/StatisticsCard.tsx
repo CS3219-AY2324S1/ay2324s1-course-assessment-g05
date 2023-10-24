@@ -13,14 +13,16 @@ const StatisticsCard = () => {
   const [languageData, setLanguageData] = useState<DataItem[]>([]);
 
   useEffect(() => {
-    if (!isLoading) {
-      const complexityCountMap =
-        HistoryService.getNumberOfAttemptedQuestionsByComplexity(history);
-      setComplexityData(complexityCountMap);
-      const languageCountMap =
-        HistoryService.getNumberOfAttemptedQuestionsByLanguage(history);
-      setLanguageData(languageCountMap);
+    if (!history || history.length === 0) {
+      return;
     }
+
+    const complexityCountMap =
+      HistoryService.getNumberOfAttemptedQuestionsByComplexity(history);
+    setComplexityData(complexityCountMap);
+    const languageCountMap =
+      HistoryService.getNumberOfAttemptedQuestionsByLanguage(history);
+    setLanguageData(languageCountMap);
   }, [history, isLoading]);
 
   return (

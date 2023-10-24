@@ -12,14 +12,16 @@ import { StringUtils } from "../../utils/stringUtils";
 
 const logger = getLogger("history_api_wrappers");
 
-const historyService = DOMAIN.HISTORY;
+const historyDomain = DOMAIN.HISTORY;
+
+const baseRoute = "history";
 
 const getAttemptedQuestionsHistory = async (userId: string) => {
   const queryParam = `?userId=${userId}`;
   const response = await api({
     method: HTTP_METHODS.GET,
-    service: historyService,
-    path: queryParam,
+    domain: historyDomain,
+    path: baseRoute + queryParam,
   });
 
   if (response.status === HttpStatusCode.OK) {
@@ -204,35 +206,26 @@ const getQuestionCodeSubmission = async (
   questionId: string,
   language: string
 ) => {
-  const temporaryCodeData = `class Solution:
-    def twoSum(self, nums: List[int], target: int) -> List[int]:
-        for i in range(len(nums)):
-            for j in range(i+1, len(nums)):
-                if nums[i]+nums[j] == target:
-                    return [i, j]
-        return [-1, -1]`;
-  const promise = new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ language: language, code: temporaryCodeData });
-    }, 1500);
+  const response = await api({
+    method: HTTP_METHODS.GET,
+    domain: historyDomain,
+    path:
+      baseRoute +
+      `/user/${userId}/question/${questionId}/code?language=${encodeURIComponent(
+        language
+      )}`,
   });
-  return promise;
-  // const response = await api({
-  //   method: HTTP_METHODS.GET,
-  //   service: historyService,
-  //   path: `/user/${userId}/questionId/${questionId}/code?language=${encodeURIComponent(language)}`,
-  // });
 
-  // if (response.status === HttpStatusCode.OK) {
-  //   const data = response.data as { language: string, code: string };
-  //   return data;
-  // }
+  if (response.status === HttpStatusCode.OK) {
+    const data = response.data as { language: string; code: string };
+    return data;
+  }
 
-  // return throwAndLogError(
-  //   "getQuestionCodeSubmission",
-  //   response.message,
-  //   getError(response.status)
-  // );
+  return throwAndLogError(
+    "getQuestionCodeSubmission",
+    response.message,
+    getError(response.status)
+  );
 };
 
 const createHistory = async (
@@ -242,7 +235,8 @@ const createHistory = async (
 ) => {
   const response = await api({
     method: HTTP_METHODS.POST,
-    domain: historyService,
+    domain: historyDomain,
+    path: baseRoute,
     body: {
       userId: userId,
       questionId: questionId,
@@ -265,8 +259,8 @@ const createHistory = async (
 const deleteHistory = async (userId: string, questionId: string) => {
   const response = await api({
     method: HTTP_METHODS.DELETE,
-    domain: historyService,
-    path: `/user/${userId}/questionId/${questionId}`,
+    domain: historyDomain,
+    path: baseRoute + `/user/${userId}/questionId/${questionId}`,
   });
 
   if (response.status === HttpStatusCode.NO_CONTENT) {
