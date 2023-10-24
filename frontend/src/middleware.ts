@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const reRouteContent = ["/login", "/", "/verify", "/500"];
+  const reRouteContent = ["/login", "/", "/verify", "/error"];
 
   const jwtCookieString = request.cookies.get("jwt")?.value as string;
   console.log(authValidateEndpoint);
@@ -33,8 +33,8 @@ export async function middleware(request: NextRequest) {
 
     // handles error when user service is down
     if (res.status === 503) {
-      if (request.nextUrl.pathname !== "/500") {
-        return NextResponse.redirect(new URL("/500", request.nextUrl.origin));
+      if (request.nextUrl.pathname !== "/error") {
+        return NextResponse.redirect(new URL("/error", request.nextUrl.origin));
       }
     }
 
@@ -43,8 +43,8 @@ export async function middleware(request: NextRequest) {
     }
   } catch (err) {
     // handles error when auth service is down
-    if (request.nextUrl.pathname !== "/500") {
-      return NextResponse.redirect(new URL("/500", request.nextUrl.origin));
+    if (request.nextUrl.pathname !== "/error") {
+      return NextResponse.redirect(new URL("/error", request.nextUrl.origin));
     }
   }
 
