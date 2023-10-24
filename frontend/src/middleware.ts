@@ -4,17 +4,11 @@ export const config = {
 };
 
 export async function middleware(request: NextRequest) {
-  const host =
-    process.env.NODE_ENV == "production"
-      ? process.env.ENDPOINT_PROD
-      : process.env.ENDPOINT_DEV;
+  const host = process.env.ENDPOINT || "http://localhost";
 
-  const baseUrl =
-    process.env.NODE_ENV == "production"
-      ? `http://${host}`
-      : `http://${process.env.ENDPOINT_DEV}:${process.env.ENDPOINT_FRONTEND_PORT}`;
-
-  const authValidateEndpoint = `http://${host}:${process.env.ENDPOINT_AUTH_PORT}/api/auth/validate`;
+  // Needs to support cloud endpoint deployment without port number
+  const port = host.startsWith("https") ? "" : ":5050";
+  const authValidateEndpoint = `${host}${port}/auth/api/validate`;
 
   const publicContent = ["/_next", "/assets", "/logout", "/forgotpassword"];
 
@@ -25,6 +19,7 @@ export async function middleware(request: NextRequest) {
   const reRouteContent = ["/login", "/", "/verify", "/500"];
 
   const jwtCookieString = request.cookies.get("jwt")?.value as string;
+  console.log(authValidateEndpoint);
 
   let isAuthenticated = false;
 
@@ -39,7 +34,7 @@ export async function middleware(request: NextRequest) {
     // handles error when user service is down
     if (res.status === 503) {
       if (request.nextUrl.pathname !== "/500") {
-        return NextResponse.redirect(new URL("/500", baseUrl));
+        return NextResponse.redirect(new URL("/500", request.nextUrl.origin));
       }
     }
 
@@ -49,14 +44,16 @@ export async function middleware(request: NextRequest) {
   } catch (err) {
     // handles error when auth service is down
     if (request.nextUrl.pathname !== "/500") {
-      return NextResponse.redirect(new URL("/500", baseUrl));
+      return NextResponse.redirect(new URL("/500", request.nextUrl.origin));
     }
   }
 
   //authenticated
   if (isAuthenticated) {
     if (reRouteContent.includes(request.nextUrl.pathname)) {
-      return NextResponse.redirect(new URL("/dashboard", baseUrl));
+      return NextResponse.redirect(
+        new URL("/dashboard", request.nextUrl.origin)
+      );
     }
     return NextResponse.next();
   }
@@ -65,5 +62,5 @@ export async function middleware(request: NextRequest) {
   if (reRouteContent.includes(request.nextUrl.pathname)) {
     return NextResponse.next();
   }
-  return NextResponse.redirect(new URL("/login", baseUrl));
+  return NextResponse.redirect(new URL("/login", request.nextUrl.origin));
 }

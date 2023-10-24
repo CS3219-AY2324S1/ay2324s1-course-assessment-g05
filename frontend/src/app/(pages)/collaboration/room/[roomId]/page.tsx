@@ -1,25 +1,28 @@
 "use client";
 
 import Workspace from "@/components/collab/Workspace";
-import { FC, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCollabContext } from "@/contexts/collab";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import ChatSpaceToggle from "@/components/collab/chat/ChatSpaceToggle";
 import { notFound, useSearchParams } from "next/navigation";
 
-interface pageProps {
+interface RoomPageProps {
   params: {
     roomId: string;
   };
 }
 
-const page: FC<pageProps> = ({ params: { roomId } }) => {
+export default function RoomPage({ params }: RoomPageProps) {
   const searchParams = useSearchParams();
+  const roomId = params.roomId;
   const partnerId = searchParams.get("partnerId")!;
   const questionId = searchParams.get("questionId")!;
   const language = searchParams.get("language")!;
+  const [roomNotFound, setRoomNotFound] = useState(false);
 
   const {
+    socketService,
     handleConnectToRoom,
     handleDisconnectFromRoom,
     isLoading,
@@ -27,22 +30,29 @@ const page: FC<pageProps> = ({ params: { roomId } }) => {
   } = useCollabContext();
 
   useEffect(() => {
-    handleConnectToRoom(roomId, questionId, partnerId, language);
+    if (!socketService) {
+      handleConnectToRoom(roomId, questionId, partnerId, language);
+      console.log(roomId, questionId, partnerId, language);
+    }
 
-    if (isNotFoundError) {
+    if (socketService) socketService?.receiveRoomNotFound(setRoomNotFound);
+
+    if (isNotFoundError || roomNotFound) {
       console.log("EROR");
       return notFound();
     }
 
     return () => {
-      console.log("disconnecting from room");
-      handleDisconnectFromRoom();
+      console.log("Running handleDisconnectFromRoom");
+      if (socketService) {
+        handleDisconnectFromRoom();
+      }
     };
-  }, []);
+  }, [socketService, roomNotFound]);
 
   return (
     <div>
-      {isLoading ? (
+      {isLoading && !socketService ? (
         <LogoLoadingComponent />
       ) : (
         <>
@@ -52,6 +62,4 @@ const page: FC<pageProps> = ({ params: { roomId } }) => {
       )}
     </div>
   );
-};
-
-export default page;
+}

@@ -1,11 +1,22 @@
 // Used in api path, value should be in small caps
+export enum DOMAIN {
+  QUESTION = "question",
+  MATCHING = "matching",
+  USER = "user",
+  AUTH = "auth",
+  COLLABORATION = "collaboration",
+  HISTORY = "history",
+}
+
+// DEPRECIATED, changed to domain to support aws api route mapping
 export enum SERVICE {
   USER = "users",
-  QUESTION = "questions",
+  QUESTION = "question",
   AUTH = "auth",
   MATCHING = "matching",
   COLLABORATION = "collaboration",
-  TOPICS = "topics"
+  HISTORY = "history",
+  TOPICS = "topics",
 }
 
 export enum HTTP_METHODS {
@@ -80,9 +91,6 @@ export enum ToastType {
   INFO = "info",
 }
 
-
-
-
 export enum SocketEvent {
   CONNECT = "connect",
   DISCONNECT = "disconnect",
@@ -100,6 +108,16 @@ export enum SocketEvent {
   MATCHING_USER_READY_CHANGE = "user_update_ready",
   MATCHING_START_COLLABORATION = "start_collaboration",
   MATCHING_REDIRECT_COLLABORATION = "redirect_collaboration",
+  SESSION_TIMER = "session_timer",
+  END_SESSION = "end_session",
+  PARTNER_CONNECTION = "partner_connection",
+  CONFIRM_END_SESSION = "confirm_end_session",
+  GET_SESSION_TIMER = "get_session_timer",
+  SEND_CHAT_LIST = "send_chat_list",
+  UPDATE_CHAT_LIST = "update_chat_list",
+  ROOM_NOT_FOUND = "room_not_found",
+  USER_NOT_VALID = "user_not_valid",
+  PARTNER_LEFT = "partner_left",
 }
 
 export enum MATCHING_STAGE {

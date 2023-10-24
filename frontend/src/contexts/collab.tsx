@@ -15,7 +15,13 @@ interface ICollabContext {
     partnerId: string,
     matchedLanguage: string
   ) => Promise<void>;
-  initializeSocket: (roomId: string) => Promise<void>;
+  initializeSocket: (
+    userId: string,
+    roomId: string,
+    partnerId: string,
+    questionId: string,
+    language: string
+  ) => Promise<void>;
   handleDisconnectFromRoom: () => void;
   isLoading: boolean;
   socketService: SocketService | undefined;
@@ -34,7 +40,13 @@ interface ICollabProvider {
 
 const CollabContext = createContext<ICollabContext>({
   handleConnectToRoom: async (roomId: string) => {},
-  initializeSocket: async (roomId: string) => {},
+  initializeSocket: async (
+    userId: string,
+    roomId: string,
+    partnerId: string,
+    questionId: string,
+    language: string
+  ) => {},
   handleDisconnectFromRoom: () => {},
   isLoading: false,
   socketService: undefined,
@@ -51,7 +63,9 @@ const useCollabContext = () => useContext(CollabContext);
 
 const CollabProvider = ({ children }: ICollabProvider) => {
   const { user } = useAuthContext();
-  const [socketService, setSocketService] = useState<SocketService>();
+  const [socketService, setSocketService] = useState<SocketService | undefined>(
+    undefined
+  );
   const [isSocketConnected, setIsSocketConnected] = useState<boolean>(false);
   const [roomId, setRoomId] = useState<string>("");
   const intervalRef = useRef<NodeJS.Timeout>();
@@ -61,12 +75,31 @@ const CollabProvider = ({ children }: ICollabProvider) => {
   const [matchedLanguage, setMatchedLanguage] = useState<string>("");
   const [isNotFoundError, setIsNotFoundError] = useState<boolean>(false);
 
-  const initializeSocket = async (roomId: string) => {
+  const initializeSocket = async (
+    userId: string,
+    roomId: string,
+    partnerId: string,
+    questionId: string,
+    language: string
+  ) => {
     setRoomId(roomId);
-
     const config = await getCollaborationSocketConfig();
 
-    const newSocket = new SocketService(roomId, config.endpoint, config.path);
+    if (!config) {
+      setIsNotFoundError(true);
+      return;
+    }
+
+    const newSocket = new SocketService(
+      userId,
+      roomId,
+      config.endpoint,
+      config.path,
+      partnerId,
+      questionId,
+      language
+    );
+
     setSocketService(newSocket);
 
     if (intervalRef.current) {
@@ -76,6 +109,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     intervalRef.current = setInterval(() => {
       const isConnected = newSocket.getConnectionStatus();
       setIsSocketConnected(isConnected);
+
       if (!isConnected) {
         newSocket.joinRoom(); // Ensures that socket attempts to rejoin the room if it disconnects
       }
@@ -88,7 +122,9 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     partnerId: string,
     matchedLanguage: string
   ) => {
+    console.log("Running handleConnectToRoom");
     setIsLoading(true);
+
     try {
       // check if we have an authenticated user, a not-null partnerId, questionId, matchedLanguage, and roomId
       if (!user || !partnerId || !questionId || !matchedLanguage || !roomId) {
@@ -115,6 +151,13 @@ const CollabProvider = ({ children }: ICollabProvider) => {
       const promises = [
         UserService.getUserById(partnerId),
         getQuestionById(questionId),
+        initializeSocket(
+          user.id!,
+          roomId,
+          partnerId,
+          questionId,
+          matchedLanguage
+        ),
       ];
 
       const responses = await Promise.all(promises);
@@ -129,11 +172,8 @@ const CollabProvider = ({ children }: ICollabProvider) => {
 
       setPartner(partner);
       setQuestion(question);
-
-      await initializeSocket(roomId);
     } catch (error) {
       console.log(error);
-      setIsNotFoundError(true);
     } finally {
       setIsLoading(false);
     }
@@ -141,7 +181,12 @@ const CollabProvider = ({ children }: ICollabProvider) => {
 
   const handleDisconnectFromRoom = () => {
     // Leave room
+    console.log(socketService);
     if (socketService) {
+      console.log("Clean up socket service");
+
+      // Delay 500
+
       socketService.leaveRoom();
       setSocketService(undefined);
     }
