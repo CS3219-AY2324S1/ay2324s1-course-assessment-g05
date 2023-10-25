@@ -5,6 +5,8 @@ import { createContext, useContext, useState } from "react";
 import { useAuthContext } from "./auth";
 import { getQuestionById } from "@/helpers/question/question_api_wrappers";
 import Question from "@/types/question";
+import { PeerPrepErrors } from "@/types/PeerPrepErrors";
+import { useRouter } from "next/navigation";
 
 interface IHistoryContext {
   user: User | undefined;
@@ -39,6 +41,8 @@ const HistoryContext = createContext<IHistoryContext>({
 const useHistoryContext = () => useContext(HistoryContext);
 
 const HistoryProvider = ({ children }: { children: React.ReactNode }) => {
+  const router = useRouter();
+
   const { user } = useAuthContext();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isNotFoundError, setIsNotFoundError] = useState<boolean>(false);
@@ -51,29 +55,49 @@ const HistoryProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleRetrieveHistory = async () => {
     setIsLoading(true);
+
+    const timeoutMs = 2000;
     try {
       if (!user || !user.id) {
         setIsNotFoundError(true);
         return;
       }
 
-      if (history.length > 0) {
-        setIsLoading(false);
-        return;
-      }
-
-      const rawHistory = await HistoryService.getAttemptedQuestionsHistory(
+      // Create a promise that resolves when the history is successfully fetched
+      const historyPromise1 = HistoryService.getAttemptedQuestionsHistory(
         user.id
       );
 
-      if (!rawHistory || rawHistory.length === 0) {
-        setIsNotFoundError(true);
-        return;
-      }
+      // Create a promise that rejects with a timeout error if the operation takes too long
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          reject(new Error("Operation timed out"));
+        }, timeoutMs);
+      });
+
+      // Use Promise.race to await either the history or the timeout
+      const rawHistory = (await Promise.race([
+        historyPromise1,
+        timeoutPromise,
+      ])) as QuestionHistory[];
 
       setHistory(rawHistory);
-    } catch (error) {
-      setIsNotFoundError(true);
+    } catch (error: any) {
+      if (error instanceof PeerPrepErrors.NotFoundError) {
+        // a not found will mean that the user has no history
+        setHistory([]);
+      } else if (error.message === "Operation timed out") {
+        try {
+          const rawHistory = await HistoryService.getAttemptedQuestionsHistory(
+            user.id!
+          );
+          setHistory(rawHistory);
+        } catch (error) {
+          setHistory([]);
+        }
+      } else {
+        setIsNotFoundError(true);
+      }
     } finally {
       setIsLoading(false);
     }

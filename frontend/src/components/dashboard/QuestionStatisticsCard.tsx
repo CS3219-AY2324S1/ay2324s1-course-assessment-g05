@@ -6,15 +6,7 @@ import { QuestionHistory } from "@/types/history";
 import { Spinner } from "@nextui-org/react";
 
 const QuestionStatisticsCard = () => {
-  const { history, isLoading } = useHistoryContext();
-
-  const [questionHistory, setQuestionHistory] = useState<QuestionHistory[]>();
-
-  useEffect(() => {
-    if (history && history.length > 0) {
-      setQuestionHistory(history);
-    }
-  }, [history]);
+  const { isLoading } = useHistoryContext();
 
   return (
     <div className="flex flex-col h-full gap-2 bg-black rounded-lg p-4 overflow-y-auto">
@@ -30,9 +22,7 @@ const QuestionStatisticsCard = () => {
       ) : (
         <>
           <QuestionFilter />
-          {questionHistory && questionHistory.length > 0 && (
-            <AttemptedQuestionTable history={questionHistory} />
-          )}
+          <AttemptedQuestionTable />
         </>
       )}
     </div>

@@ -9,7 +9,6 @@ import {
   Link,
   Pagination,
   SortDescriptor,
-  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -23,14 +22,14 @@ import { formatDistanceToNow } from "date-fns";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface AttemptedQuestionTableProps {
-  history: QuestionHistory[];
   isFullPage?: boolean;
 }
 
 const AttemptedQuestionTable = ({
-  history,
   isFullPage = false,
 }: AttemptedQuestionTableProps) => {
+  const { history } = useHistoryContext();
+
   let rowsPerPage = 4;
   let showTopics = false;
 
@@ -194,6 +193,8 @@ const AttemptedQuestionTable = ({
         }
         break;
     }
+
+    return [];
   }, [historyItems, sortDescriptor]);
 
   return (
@@ -235,28 +236,24 @@ const AttemptedQuestionTable = ({
         )}
       </TableHeader>
 
-      {!sortedHistoryItems || sortedHistoryItems.length === 0 ? (
-        <TableBody items={[]} emptyContent="No rows to display">
-          <></>
-        </TableBody>
-      ) : (
-        <TableBody>
-          {/* Must do array.map as NextUI table does not support rendering async dynamic state values */}
-          {sortedHistoryItems.map((item) => {
-            return (
-              <TableRow key={item.id + item.language}>
-                {tableColumns.map((column) => {
-                  return (
-                    <TableCell key={column.key}>
-                      {renderCell(item, column.key)}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      )}
+      <TableBody
+        emptyContent={"No questions attempted yet, try matching with one!"}
+      >
+        {/* Must do array.map as NextUI table does not support rendering async dynamic state values */}
+        {sortedHistoryItems.map((item) => {
+          return (
+            <TableRow key={item.id + item.language}>
+              {tableColumns.map((column) => {
+                return (
+                  <TableCell key={column.key}>
+                    {renderCell(item, column.key)}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          );
+        })}
+      </TableBody>
     </Table>
   );
 };

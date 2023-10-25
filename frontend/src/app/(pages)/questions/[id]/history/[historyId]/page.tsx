@@ -41,7 +41,6 @@ const QuestionHistoryPage = ({ params }: pageProps) => {
   }, [question, code, language, completedAt]);
 
   if (isNotFoundError) {
-    console.log("Error not found!");
     return notFound();
   }
 
