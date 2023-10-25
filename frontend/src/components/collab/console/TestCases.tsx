@@ -39,9 +39,9 @@ const TestCases = () => {
   ) => {
     const updatedTestCaseArray = [...testCaseArray];
     updatedTestCaseArray[index].input[variableName] = value.trim();
-    updatedTestCaseArray[index].output = "Not Available";
+    updatedTestCaseArray[index].output = "";
     // check if input is equal to any existing input in initialTestCaseArray
-    // if yes, update output to the corresponding output in initialTestCaseArray, else set output to "Not Available"
+    // if yes, update output to the corresponding output in initialTestCaseArray, else set output to ""
     initialTestCaseArray.map((testCase: any) => {
       if (
         JSON.stringify(testCase.input) ===

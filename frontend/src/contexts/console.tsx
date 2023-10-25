@@ -1,7 +1,7 @@
 import Question from "@/types/question";
 import { createContext, useContext, useState } from "react";
 import parse from "html-react-parser";
-import { extractInputStringToInputDict } from "@/utils/codeExecutorUtils";
+import { CodeExecutorUtils } from "@/utils/codeExecutorUtils";
 
 interface IConsoleContext {
   isQuestionLoaded: boolean;
@@ -37,7 +37,9 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
   const setQuestionInConsoleContext = (question: Question) => {
     const initialTestCaseArray = question.examples?.map(
       (example: any, index: number) => ({
-        input: extractInputStringToInputDict(parse(example.input) as string),
+        input: CodeExecutorUtils.extractInputStringToInputDict(
+          parse(example.input) as string
+        ),
         output: parse(example.output),
       })
     );

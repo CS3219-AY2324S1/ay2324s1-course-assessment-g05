@@ -1,12 +1,23 @@
 import { useConsoleContext } from "@/contexts/console";
 import { Chip } from "@nextui-org/react";
-import { useState } from "react";
+import test from "node:test";
+import { useMemo, useState } from "react";
 import { GoDotFill } from "react-icons/go";
 
 const Results = () => {
   const { testCaseArray } = useConsoleContext();
   const [selectedCase, setSelectedCase] = useState<number>(0);
-  const isCorrect = false;
+
+  const isDefaultTestCase = useMemo(() => {
+    return testCaseArray[selectedCase].output ? true : false;
+  }, [selectedCase, testCaseArray]);
+
+  const isCorrect = useMemo(() => {
+    return testCaseArray[selectedCase].output ===
+      testCaseArray[selectedCase].actualOutput
+      ? true
+      : false;
+  }, [selectedCase]);
 
   return (
     <div className="flex flex-col w-full h-full gap-2">
@@ -41,12 +52,24 @@ const Results = () => {
         )
       )}
       <div className="text-white text-xs py-1">Expected output: </div>
-      <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-white text-xs whitespace-pre-wrap">
-        {testCaseArray[selectedCase].output}
-      </pre>
-      <div className="text-yellow text-xs">Actual output: </div>
-      <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-white text-xs whitespace-pre-wrap">
-        Actual output
+      {isDefaultTestCase ? (
+        <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-white text-xs whitespace-pre-wrap">
+          {testCaseArray[selectedCase].output}
+        </pre>
+      ) : (
+        <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-gray-400 text-xs whitespace-pre-wrap">
+          Not available for custom inputs
+        </pre>
+      )}
+      <div className="text-white text-xs">Actual output: </div>
+      <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-xs whitespace-pre-wrap">
+        <div
+          style={{
+            color: isDefaultTestCase ? (isCorrect ? "green" : "red") : "white",
+          }}
+        >
+          Actual output
+        </div>
       </pre>
     </div>
   );

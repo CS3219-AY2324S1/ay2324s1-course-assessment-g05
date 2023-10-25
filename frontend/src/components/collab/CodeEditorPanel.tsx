@@ -13,12 +13,10 @@ const CodeEditorPanel: FC = ({}) => {
   const { matchedLanguage, question, socketService } = useCollabContext();
 
   if (!socketService) return null;
-
-  const questionTitle = question?.title || "";
   const editorRef = useRef(null);
 
   const [currentCode, setCurrentCode] = useState<string>(
-    getCodeTemplate(matchedLanguage, questionTitle)
+    getCodeTemplate(matchedLanguage, question!)
   );
 
   const [isConsoleOpen, setIsConsoleOpen] = useState<boolean>(false);
@@ -45,10 +43,8 @@ const CodeEditorPanel: FC = ({}) => {
   };
 
   const handleResetToDefaultCode = () => {
-    setCurrentCode(getCodeTemplate(matchedLanguage, questionTitle));
-    socketService.sendCodeChange(
-      getCodeTemplate(matchedLanguage, questionTitle)
-    );
+    setCurrentCode(getCodeTemplate(matchedLanguage, question!));
+    socketService.sendCodeChange(getCodeTemplate(matchedLanguage, question!));
   };
 
   return (
@@ -76,6 +72,7 @@ const CodeEditorPanel: FC = ({}) => {
         </Split>
         <Divider className="space-y-2" />
         <ConsoleBar
+          code={currentCode}
           isConsoleOpen={isConsoleOpen}
           setIsConsoleOpen={setIsConsoleOpen}
           setSelectedConsoleTab={setSelectedConsoleTab}
