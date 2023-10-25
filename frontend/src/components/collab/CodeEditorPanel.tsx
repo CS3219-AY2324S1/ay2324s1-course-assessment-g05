@@ -32,7 +32,6 @@ const CodeEditorPanel: FC = ({}) => {
 
   useEffect(() => {
     if (isUserNotValid) {
-      console.log("EROR");
       notFound();
     }
   }, [isUserNotValid]);
@@ -55,8 +54,8 @@ const CodeEditorPanel: FC = ({}) => {
   };
 
   if (error) {
-    return <></>
-  } 
+    return <></>;
+  }
 
   return (
     <div className="h-[calc(100vh-60px)]">

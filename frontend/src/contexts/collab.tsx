@@ -122,7 +122,6 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     partnerId: string,
     matchedLanguage: string
   ) => {
-    console.log("Running handleConnectToRoom");
     setIsLoading(true);
 
     try {
@@ -181,12 +180,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
 
   const handleDisconnectFromRoom = () => {
     // Leave room
-    console.log(socketService);
     if (socketService) {
-      console.log("Clean up socket service");
-
-      // Delay 500
-
       socketService.leaveRoom();
       setSocketService(undefined);
     }
