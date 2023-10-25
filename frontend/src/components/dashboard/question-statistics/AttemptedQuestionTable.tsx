@@ -67,7 +67,7 @@ const AttemptedQuestionTable = ({
     },
   ];
 
-  const renderCell = (record: QuestionHistory, columnKey: any) => {
+  const renderCell = useCallback((record: QuestionHistory, columnKey: any) => {
     if (!record) {
       return null;
     }
@@ -119,7 +119,7 @@ const AttemptedQuestionTable = ({
       default:
         return getKeyValue(record, columnKey);
     }
-  };
+  }, []);
 
   // for table pagination
   const [page, setPage] = useState(1);

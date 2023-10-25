@@ -7,17 +7,17 @@ import {
   CardHeader,
   Select,
   SelectItem,
-  Spinner,
   Tooltip,
   useDisclosure,
 } from "@nextui-org/react";
-import { COMPLEXITY, LANGUAGE, TOPIC, ToastType } from "@/types/enums";
+import { COMPLEXITY, LANGUAGE, ToastType } from "@/types/enums";
 import MatchingLobby from "./MatchingLobby";
 import { useAuthContext } from "@/contexts/auth";
 import Preference from "@/types/preference";
 import displayToast from "../common/Toast";
 import { Icons } from "../common/Icons";
 import { useTopicContext } from "@/contexts/topic";
+import SpinnerLoadingComponent from "../common/SpinnerLoadingComponent";
 
 const MatchingCard = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -97,12 +97,7 @@ const MatchingCard = () => {
       </CardHeader>
       {optionsTopics.length === 0 ? (
         <CardBody>
-          <div className="flex justify-center">
-            <Spinner size="md" />
-          </div>
-          <div className="flex justify-center">
-            <span className="text-gray-500">Loading...</span>
-          </div>
+          <SpinnerLoadingComponent />
         </CardBody>
       ) : (
         <CardBody className="flex flex-col  gap-4 p-2">
