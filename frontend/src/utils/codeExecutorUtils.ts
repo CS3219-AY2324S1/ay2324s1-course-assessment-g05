@@ -1,3 +1,5 @@
+import { Judge0Language, Judge0Status } from "@/types/judge0";
+
 const prepareCodeForExecution = (
   inputString: string,
   code: string,
@@ -15,6 +17,61 @@ const prepareCodeForExecution = (
   return formattedCode;
 };
 
+const checkCorrectnessOfOutput = (
+  actualOutput: string,
+  expectedOutput: string
+) => {
+  if (expectedOutput === "") {
+    return false;
+  }
+  if (actualOutput === "" && expectedOutput !== "") {
+    return false;
+  }
+  if (getVariableType(expectedOutput) === VariableType.STRING) {
+    return (
+      actualOutput === expectedOutput ||
+      actualOutput === expectedOutput.replace(/"/g, "").trim()
+    );
+  }
+  if (getVariableType(expectedOutput) === VariableType.INTEGER) {
+    return parseInt(actualOutput) === parseInt(expectedOutput);
+  }
+  if (getVariableType(expectedOutput) === VariableType.DOUBLE) {
+    return parseFloat(actualOutput) === parseFloat(expectedOutput);
+  }
+  if (getVariableType(expectedOutput) === VariableType.BOOLEAN) {
+    return actualOutput.toLowerCase() === expectedOutput.toLowerCase();
+  } else {
+    // Remove whitespace from both strings
+    const actualOutputWithoutWhitespace = actualOutput
+      .replace(/\s/g, "")
+      .trim();
+    const expectedOutputWithoutWhitespace = expectedOutput
+      .replace(/\s/g, "")
+      .trim();
+    return actualOutputWithoutWhitespace === expectedOutputWithoutWhitespace;
+  }
+};
+
+const getOutputMessage = (
+  statusId: number,
+  description: string,
+  isCorrect: boolean,
+  isDefaultTestCase: boolean
+) => {
+  if (statusId === Judge0Status.ACCEPTED && isDefaultTestCase && isCorrect) {
+    return "Correct Answer";
+  }
+  if (statusId === Judge0Status.ACCEPTED && isDefaultTestCase && !isCorrect) {
+    return "Wrong Answer";
+  }
+
+  if (statusId === Judge0Status.ACCEPTED && !isDefaultTestCase) {
+    return "Code Executed Successfully";
+  }
+
+  return description;
+};
 const extractInputStringToInputDict = (inputString: string) => {
   const inputDict: { [key: string]: string } = {};
 
@@ -66,13 +123,13 @@ const revertInputDictToInputString = (inputMap: {
 const getJudge0LanguageId = (language: string) => {
   switch (language) {
     case "python":
-      return 71;
+      return Judge0Language.PYTHON;
     case "java":
-      return 26;
+      return Judge0Language.JAVA;
     case "cpp":
-      return 54;
+      return Judge0Language.CPP;
     case "javascript":
-      return 29;
+      return Judge0Language.JAVASCRIPT;
     default:
       throw new Error("Language not supported");
   }
@@ -268,7 +325,7 @@ const getVariableType = (variable: string) => {
     return VariableType.ARRAY;
   }
 
-  if (variable.startsWith('"xw') && variable.endsWith('"')) {
+  if (variable.startsWith('"') && variable.endsWith('"')) {
     return VariableType.STRING;
   }
 
@@ -284,6 +341,8 @@ const getVariableType = (variable: string) => {
 
 export const CodeExecutorUtils = {
   prepareCodeForExecution,
+  checkCorrectnessOfOutput,
+  getOutputMessage,
   extractInputStringToInputDict,
   revertInputDictToInputString,
   getJudge0LanguageId,

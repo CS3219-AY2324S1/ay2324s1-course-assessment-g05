@@ -1,9 +1,6 @@
 import { useCollabContext } from "@/contexts/collab";
 import { useConsoleContext } from "@/contexts/console";
-import { CodeExecutionService } from "@/helpers/code_execution/code_execution_api_wrappers";
-import { CodeExecutorUtils } from "@/utils/codeExecutorUtils";
 import { Button, Link } from "@nextui-org/react";
-import { use, useEffect } from "react";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 
 interface IConsoleBarProps {
@@ -19,7 +16,7 @@ const ConsoleBar = ({
   setIsConsoleOpen,
   setSelectedConsoleTab,
 }: IConsoleBarProps) => {
-  const { testCaseArray } = useConsoleContext();
+  const { runTestCases } = useConsoleContext();
   const { matchedLanguage } = useCollabContext();
   const handleConsoleToggle = () => {
     setIsConsoleOpen(!isConsoleOpen);
@@ -28,24 +25,7 @@ const ConsoleBar = ({
   const handleRunCode = async () => {
     setSelectedConsoleTab("result");
     setIsConsoleOpen(true);
-    let finalTestCaseArray = structuredClone(testCaseArray);
-    finalTestCaseArray.map((testCase: any) => {
-      testCase.input = CodeExecutorUtils.revertInputDictToInputString(
-        testCase.input
-      );
-    });
-    console.log("Final: ", finalTestCaseArray);
-    console.log("Test case to try: ", finalTestCaseArray[0]);
-    // console.log(code);
-    // console.log(matchedLanguage);
-    const id = await CodeExecutionService.executeCode(
-      code,
-      matchedLanguage,
-      finalTestCaseArray[0]
-    );
-    console.log(id);
-    const result = await CodeExecutionService.checkCodeExecutionStatus(id);
-    console.log(result);
+    runTestCases(code, matchedLanguage);
   };
 
   return (

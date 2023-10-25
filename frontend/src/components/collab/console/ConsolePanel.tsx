@@ -18,11 +18,18 @@ const ConsolePanel = ({
   setSelectedConsoleTab,
 }: IConsolePanelProps) => {
   const { question } = useCollabContext();
-  const { isQuestionLoaded, setQuestionInConsoleContext } = useConsoleContext();
+  const {
+    isQuestionLoaded,
+    setQuestionInConsoleContext,
+    isResultsLoading,
+    hasCodeRun,
+  } = useConsoleContext();
 
   useEffect(() => {
     setQuestionInConsoleContext(question!);
   }, [question]);
+
+  useEffect(() => {}, [isResultsLoading, hasCodeRun]);
 
   return (
     <div>
@@ -31,7 +38,7 @@ const ConsolePanel = ({
       ) : (
         <div
           style={{ display: isOpen ? "block" : "none" }}
-          className="flex flex-col w-full h-full px-2 py-2 overflow-auto"
+          className="flex-col w-full h-full px-2 py-2 overflow-auto"
         >
           <Tabs
             disableAnimation
@@ -41,11 +48,29 @@ const ConsolePanel = ({
               setSelectedConsoleTab(key.toString())
             }
           >
-            <Tab key="testcase" title="Testcase">
+            <Tab
+              className="flex flex-col w-full"
+              key="testcase"
+              title="Testcase"
+            >
               <TestCases />
             </Tab>
-            <Tab key="result" title="Result">
-              <Results />
+            <Tab className="flex flex-col w-full" key="result" title="Result">
+              {!hasCodeRun ? (
+                <div
+                  className={`flex flex-col pt-[15px] items-center justify-center text-gray-400 text-sm`}
+                >
+                  Please run the code first.
+                </div>
+              ) : isResultsLoading ? (
+                <div
+                  className={`flex flex-col pt-[60px] items-center justify-center`}
+                >
+                  <LogoLoadingComponent minHeight="0" />
+                </div>
+              ) : (
+                <Results />
+              )}
             </Tab>
           </Tabs>
         </div>

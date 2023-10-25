@@ -26,17 +26,15 @@ export const getCodeTemplate = (
     language
   );
 
-  // const formattedMainFunction =
-
   switch (language.toLowerCase()) {
     case "cpp":
-      return `${formattedExampleInput}\nclass Solution {\npublic:\n\t// change the function type and arguments below if necessary\n\tvoid ${formattedQuestionTitle}(/*define your params here*/){\n\t\t\n\t};\n}`;
+      return `${formattedExampleInput}\nclass Solution {\npublic:\n\t// change the function type and arguments below if necessary\n\tvoid ${formattedQuestionTitle}(/*define your params here*/){\n\t\t\n\t};\n\n//TODO: call your function and print its output below}`;
     case "java":
-      return `${formattedExampleInput}\nclass Solution {\n\t// change the function type and arguments below if necessary\n\tpublic static void ${formattedQuestionTitle}(/*define your params here*/) {\n\t\t\n\t}\n}\n`;
+      return `${formattedExampleInput}\nclass Solution {\n\t// change the function type and arguments below if necessary\n\tpublic static void ${formattedQuestionTitle}(/*define your params here*/) {\n\t\t\n\t}\n}\n\n//TODO: call your function and print its output below`;
     case "python":
-      return `${formattedExampleInput}\nclass Solution(object):\n\t# change the function type and arguments below if necessary\n\tdef ${formattedQuestionTitle}():\n\t\treturn\n`;
+      return `${formattedExampleInput}\nclass Solution(object):\n\t# change the function type and arguments below if necessary\n\tdef ${formattedQuestionTitle}():\n\t\treturn\n\n#TODO: call your function and print its output below`;
     case "javascript":
-      return `${formattedExampleInput}\nconst ${formattedQuestionTitle} = (/*define your params here*/) => {\n\treturn;\n}`;
+      return `${formattedExampleInput}\nconst ${formattedQuestionTitle} = (/*define your params here*/) => {\n\treturn;\n}\n\n//TODO: call your function and print its output below`;
     default:
       return "";
   }
@@ -52,7 +50,7 @@ const formatExampleInput = (input: string, language: string) => {
         "This is how the code executor will process the input from testcases:\n" +
         "E.G: Example 1\n" +
         `${input}` +
-        "Please reserve these variables and \nprint your answer to stdout for execution.\n" +
+        "Please reserve these variables and \nuse them in your functions where necessary.\n" +
         "*/" +
         "\n"
       );
@@ -62,7 +60,7 @@ const formatExampleInput = (input: string, language: string) => {
         "This is how the code executor will process the input from testcases:\n" +
         "E.G: Example 1\n" +
         `${input}` +
-        "Please reserve these variables and \nprint your answer for execution.\n" +
+        "Please reserve these variables and \nuse them in your functions where necessary.\n" +
         '"""' +
         "\n"
       );

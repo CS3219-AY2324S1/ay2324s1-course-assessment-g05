@@ -1,33 +1,36 @@
 import { useConsoleContext } from "@/contexts/console";
-import { Chip } from "@nextui-org/react";
-import test from "node:test";
-import { useMemo, useState } from "react";
+import { Chip, Spinner } from "@nextui-org/react";
+import { useEffect, useMemo, useState } from "react";
 import { GoDotFill } from "react-icons/go";
+import { BsQuestion } from "react-icons/bs";
+import { Judge0Status } from "@/types/judge0";
+import { cn } from "@/utils/classNameUtils";
 
 const Results = () => {
-  const { testCaseArray } = useConsoleContext();
+  const { testCaseArray, isResultsLoading } = useConsoleContext();
   const [selectedCase, setSelectedCase] = useState<number>(0);
 
-  const isDefaultTestCase = useMemo(() => {
-    return testCaseArray[selectedCase].output ? true : false;
-  }, [selectedCase, testCaseArray]);
-
-  const isCorrect = useMemo(() => {
-    return testCaseArray[selectedCase].output ===
-      testCaseArray[selectedCase].actualOutput
-      ? true
-      : false;
-  }, [selectedCase]);
+  useEffect(() => {}, [isResultsLoading, testCaseArray]);
 
   return (
     <div className="flex flex-col w-full h-full gap-2">
       <div className="flex flex-wrap first-letter:justify-start items-center gap-x-2">
         {testCaseArray?.map((testCase: any, index: number) => (
-          //TODO: if test case is custom, give a "question mark" icon
           <Chip
             key={index}
             radius="sm"
-            startContent={<GoDotFill color={isCorrect ? "green" : "red"} />}
+            startContent={
+              testCase.statusId !== Judge0Status.ACCEPTED ||
+              testCase.description === "Wrong Answer" ? (
+                <GoDotFill color="red" />
+              ) : testCase.description === "Code Executed Successfully" ? (
+                <BsQuestion color="white" />
+              ) : testCase.description === "Correct Answer" ? (
+                <GoDotFill color="green" />
+              ) : (
+                <GoDotFill color="red" />
+              )
+            }
             style={{
               backgroundColor:
                 index === selectedCase ? "#27272A" : "transparent",
@@ -41,6 +44,30 @@ const Results = () => {
         ))}
       </div>
 
+      <div
+        className={cn("text-m font-semibold py-1", {
+          "text-red-500":
+            testCaseArray[selectedCase].statusId !== Judge0Status.ACCEPTED ||
+            (testCaseArray[selectedCase].isDefaultTestCase &&
+              !testCaseArray[selectedCase].isCorrect),
+          "text-green-500":
+            testCaseArray[selectedCase].statusId === Judge0Status.ACCEPTED &&
+            testCaseArray[selectedCase].isDefaultTestCase &&
+            testCaseArray[selectedCase].isCorrect,
+          "text-white":
+            testCaseArray[selectedCase].statusId === Judge0Status.ACCEPTED &&
+            !testCaseArray[selectedCase].isDefaultTestCase,
+        })}
+      >
+        {testCaseArray[selectedCase].description}
+      </div>
+
+      {testCaseArray[selectedCase].stderr && (
+        <pre className="bg-red-500 bg-opacity-20 px-4 py-3 rounded-lg text-white text-xs whitespace-pre-wrap">
+          {testCaseArray[selectedCase].stderr}
+        </pre>
+      )}
+
       {Object.entries(testCaseArray[selectedCase].input).map(
         ([variableName, variableValue]: [string, any]) => (
           <div key={variableName}>
@@ -52,7 +79,7 @@ const Results = () => {
         )
       )}
       <div className="text-white text-xs py-1">Expected output: </div>
-      {isDefaultTestCase ? (
+      {testCaseArray[selectedCase].isDefaultTestCase ? (
         <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-white text-xs whitespace-pre-wrap">
           {testCaseArray[selectedCase].output}
         </pre>
@@ -65,10 +92,14 @@ const Results = () => {
       <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-xs whitespace-pre-wrap">
         <div
           style={{
-            color: isDefaultTestCase ? (isCorrect ? "green" : "red") : "white",
+            color: testCaseArray[selectedCase].isDefaultTestCase
+              ? testCaseArray[selectedCase].isCorrect
+                ? "lime"
+                : "red"
+              : "white",
           }}
         >
-          Actual output
+          {testCaseArray[selectedCase].stdout || "No output"}
         </div>
       </pre>
     </div>

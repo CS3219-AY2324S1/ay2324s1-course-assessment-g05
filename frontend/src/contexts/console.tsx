@@ -1,7 +1,10 @@
+"use client";
 import Question from "@/types/question";
 import { createContext, useContext, useState } from "react";
 import parse from "html-react-parser";
 import { CodeExecutorUtils } from "@/utils/codeExecutorUtils";
+import { CodeExecutionService } from "@/helpers/code_execution/code_execution_api_wrappers";
+import { judge0Response } from "@/types/judge0";
 
 interface IConsoleContext {
   isQuestionLoaded: boolean;
@@ -11,6 +14,9 @@ interface IConsoleContext {
   deleteTestCase: (index: number) => void;
   addTestCase: (testCase: {}) => void;
   modifyTestCaseArray: (testCases: any[], resetToDefault?: boolean) => void;
+  isResultsLoading: boolean;
+  runTestCases: (code: string, language: string) => Promise<void>;
+  hasCodeRun: boolean;
 }
 
 interface IConsoleProvider {
@@ -25,6 +31,9 @@ const ConsoleContext = createContext<IConsoleContext>({
   deleteTestCase: (index: number) => {},
   addTestCase: (testCase: {}) => {},
   modifyTestCaseArray: (testCases: any[], resetToDefault?: boolean) => {},
+  isResultsLoading: false,
+  runTestCases: (code: string, language: string) => Promise.resolve(),
+  hasCodeRun: false,
 });
 
 const useConsoleContext = () => useContext(ConsoleContext);
@@ -33,6 +42,8 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
   const [initialTestCaseArray, setInitialTestCaseArray] = useState<any[]>([]);
   const [testCaseArray, setTestCaseArray] = useState<any[]>([]);
   const [isQuestionLoaded, setIsQuestionLoaded] = useState<boolean>(false);
+  const [isResultsLoading, setIsResultsLoading] = useState<boolean>(false);
+  const [hasCodeRun, setHasCodeRun] = useState<boolean>(false);
 
   const setQuestionInConsoleContext = (question: Question) => {
     const initialTestCaseArray = question.examples?.map(
@@ -58,6 +69,7 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
     const updatedTestCaseArray = [...testCaseArray];
     updatedTestCaseArray.push(testCase);
     setTestCaseArray(updatedTestCaseArray);
+    setHasCodeRun(false);
   };
 
   const modifyTestCaseArray = (testCases: any[], resetToDefault?: boolean) => {
@@ -66,6 +78,59 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
     } else {
       setTestCaseArray([...testCases]);
     }
+    setHasCodeRun(false);
+  };
+
+  const runTestCases = async (code: string, language: string) => {
+    setHasCodeRun(true);
+    setIsResultsLoading(true);
+    let finalTestCaseArray = structuredClone(testCaseArray);
+    finalTestCaseArray.map((testCase: any) => {
+      testCase.input = CodeExecutorUtils.revertInputDictToInputString(
+        testCase.input
+      );
+    });
+
+    let submissionIds = [];
+    for (let i = 0; i < finalTestCaseArray.length; i++) {
+      const id = await CodeExecutionService.executeCode(
+        code,
+        language,
+        finalTestCaseArray[i]
+      );
+      submissionIds.push(id);
+    }
+
+    console.log(submissionIds);
+
+    for (let i = 0; i < submissionIds.length; i++) {
+      let result;
+      while (result === undefined) {
+        result = (await CodeExecutionService.checkCodeExecutionStatus(
+          submissionIds[i]
+        )) as judge0Response;
+      }
+      testCaseArray[i].isDefaultTestCase = testCaseArray[i].output
+        ? true
+        : false;
+      testCaseArray[i].stdout = result.stdout;
+      testCaseArray[i].statusId = result.statusId;
+      testCaseArray[i].message = result.message;
+      testCaseArray[i].compile_output = result.compile_output;
+      testCaseArray[i].stderr = result.stderr;
+      testCaseArray[i].isCorrect = CodeExecutorUtils.checkCorrectnessOfOutput(
+        testCaseArray[i].stdout,
+        testCaseArray[i].output
+      );
+      testCaseArray[i].description = CodeExecutorUtils.getOutputMessage(
+        testCaseArray[i].statusId,
+        result.description,
+        testCaseArray[i].isCorrect,
+        testCaseArray[i].isDefaultTestCase
+      );
+    }
+
+    setIsResultsLoading(false);
   };
 
   const context = {
@@ -76,6 +141,9 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
     deleteTestCase,
     addTestCase,
     modifyTestCaseArray,
+    isResultsLoading,
+    runTestCases,
+    hasCodeRun,
   };
 
   return (

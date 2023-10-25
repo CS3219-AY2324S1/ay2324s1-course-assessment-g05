@@ -55,7 +55,7 @@ const CodeEditorPanel: FC = ({}) => {
         <Split
           className="flex flex-col h-full overflow-hidden"
           direction="vertical"
-          sizes={isConsoleOpen ? [55, 45] : [100, 0]}
+          sizes={isConsoleOpen ? [50, 50] : [100, 0]}
           minSize={isConsoleOpen ? [100, 100] : [100, 0]}
           gutterSize={isConsoleOpen ? 10 : 0}
         >
