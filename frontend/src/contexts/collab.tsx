@@ -131,6 +131,8 @@ const CollabProvider = ({ children }: ICollabProvider) => {
         return;
       }
 
+      matchedLanguage = decodeURIComponent(matchedLanguage);
+
       // verify parameters integrity
       const isValidParams = verifyRoomParamsIntegrity(
         roomId,
@@ -145,7 +147,24 @@ const CollabProvider = ({ children }: ICollabProvider) => {
         return;
       }
 
-      setMatchedLanguage(matchedLanguage.toLowerCase());
+      switch (matchedLanguage.toLowerCase()) {
+        case "python":
+          matchedLanguage = "python";
+          break;
+        case "c++":
+          matchedLanguage = "cpp";
+          break;
+        case "java":
+          matchedLanguage = "java";
+          break;
+        case "javascript":
+          matchedLanguage = "javascript";
+          break;
+        default:
+          break;
+      }
+
+      setMatchedLanguage(matchedLanguage);
 
       const promises = [
         UserService.getUserById(partnerId),

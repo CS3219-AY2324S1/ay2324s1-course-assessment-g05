@@ -8,7 +8,7 @@ import { HistoryService } from "@/helpers/history/history_api_wrappers";
 
 const MARGIN = 30;
 
-const colors = ["#112F45", "#EC8B33", "#4D9CB9"];
+const colors = ["#17c964", "#f5a524", "#f31260"];
 
 interface DonutChartProps {
   width?: number;
@@ -30,6 +30,7 @@ const ComplexityDonutChart = ({
 
     const complexityCountMap =
       HistoryService.getNumberOfAttemptedQuestionsByComplexity(history);
+
     setData(complexityCountMap);
   }, [history]);
 
@@ -77,9 +78,9 @@ const ComplexityDonutChart = ({
             <div className="flex flex-row items-center gap-3" key={i}>
               <div
                 className={cn("w-8 h-3 rounded-lg", {
-                  "bg-dark-blue": item.name === "Easy",
-                  "bg-orange": item.name === "Medium",
-                  "bg-blue": item.name === "Hard",
+                  "bg-success": item.name === "Easy",
+                  "bg-warning": item.name === "Medium",
+                  "bg-danger": item.name === "Hard",
                 })}
               />
               <p>{item.name}</p>

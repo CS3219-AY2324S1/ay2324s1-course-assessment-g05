@@ -1,15 +1,12 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CodeEditorNavbar from "./CodeEditorNavbar";
 import { Divider } from "@nextui-org/react";
 import CodeEditor from "./CodeEditor";
 import { getCodeTemplate } from "@/utils/defaultCodeUtils";
-
 import { useCollabContext } from "@/contexts/collab";
 import { notFound } from "next/navigation";
-import displayToast from "../common/Toast";
-import { ToastType } from "@/types/enums";
 
-const CodeEditorPanel: FC = ({}) => {
+const CodeEditorPanel = ({}) => {
   const [error, setError] = useState(false);
   const { matchedLanguage, question, socketService } = useCollabContext();
 
