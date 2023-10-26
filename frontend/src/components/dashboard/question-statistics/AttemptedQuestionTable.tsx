@@ -84,7 +84,7 @@ const AttemptedQuestionTable = ({
             )}&completedAt=${encodeURIComponent(completedAt)}`}
             color="foreground"
             size="sm"
-            className="font-semibold"
+            className="font-normal hover:font-semibold hover:underline text-sm"
           >
             {record.title}
           </Link>
