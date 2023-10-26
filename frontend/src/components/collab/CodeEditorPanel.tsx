@@ -6,8 +6,6 @@ import { getCodeTemplate } from "@/utils/defaultCodeUtils";
 
 import { useCollabContext } from "@/contexts/collab";
 import { notFound } from "next/navigation";
-import displayToast from "../common/Toast";
-import { ToastType } from "@/types/enums";
 
 const CodeEditorPanel: FC = ({}) => {
   const [error, setError] = useState(false);
@@ -16,7 +14,6 @@ const CodeEditorPanel: FC = ({}) => {
   if (!socketService) setError(true);
 
   const questionTitle = question?.title || setError(true);
-  const editorRef = useRef(null);
   const [hasSessionTimerEnded, setHasSessionTimerEnded] =
     useState<boolean>(false);
 
@@ -43,10 +40,6 @@ const CodeEditorPanel: FC = ({}) => {
     socketService!.sendCodeChange(currentContent!);
   };
 
-  const handleEditorDidMount = async (editor: any, monaco: any) => {
-    editorRef.current = editor;
-  };
-
   const handleResetToDefaultCode = () => {
     setCurrentCode(getCodeTemplate(matchedLanguage, questionTitle!));
     socketService!.sendCodeChange(
@@ -65,7 +58,6 @@ const CodeEditorPanel: FC = ({}) => {
       <CodeEditor
         currentCode={currentCode}
         handleEditorChange={handleEditorChange}
-        handleEditorDidMount={handleEditorDidMount}
       />
     </div>
   );

@@ -5,6 +5,7 @@ import { get } from "http";
 import { SetStateAction } from "react";
 import { Socket, io } from "socket.io-client";
 import { getCollaborationSocketConfig } from "./collaboration_api_wrappers";
+import { Position, Range } from "monaco-editor";
 
 class SocketService {
   static instance: SocketService;
@@ -91,11 +92,23 @@ class SocketService {
     });
   };
 
+  sendCodeEvent = (event: string) => {
+    this.socket.emit(SocketEvent.SEND_CODE_EVENT, {
+      roomId: this.roomId,
+      event: event,
+    });
+  }
+
+  receiveCodeEvent = (setEvents: React.Dispatch<React.SetStateAction<string[]>>) => {
+    this.socket.on(SocketEvent.CODE_EVENT, (event: string) => {
+      setEvents((events) => [...events, event]);
+    })
+  }
+
   receiveCodeUpdate = (
     setCurrentCode: React.Dispatch<React.SetStateAction<string>>
   ) => {
     this.socket.on(SocketEvent.CODE_UPDATE, (content: string) => {
-      console.log("Receiving code update ", content)
       setCurrentCode(content);
     });
   };
@@ -177,22 +190,39 @@ class SocketService {
 
   receiveRoomNotFound = (setRoomNotFound: React.Dispatch<SetStateAction<boolean>>) => {
     this.socket.on(SocketEvent.ROOM_NOT_FOUND, () => {
-      console.log("Room not found");
       setRoomNotFound(true);
     })
   }
 
   receiveUserNotValid(setUserNotValid: React.Dispatch<SetStateAction<boolean>>) {
     this.socket.on(SocketEvent.USER_NOT_VALID, () => {
-      console.log("User not found");
       setUserNotValid(true);
     })
   }
 
   receiveHasPartnerLeft(setPartnerLeft: React.Dispatch<SetStateAction<boolean>>) {
     this.socket.on(SocketEvent.PARTNER_LEFT, () => {
-      console.log("Partner left");
       setPartnerLeft(true);
+    })
+  }
+
+  sendPartnerCursor(cursorPosition: { lineNumber: number, column: number }) {
+    this.socket.emit(SocketEvent.SEND_CURSOR_CHANGE, { roomId: this.roomId, cursorPosition: JSON.stringify(cursorPosition) })
+  }
+
+  receivePartnerCursor(setPartnerCursor: React.Dispatch<SetStateAction<Position>>) {
+    this.socket.on(SocketEvent.CURSOR_CHANGE, (cursorPosition: string) => {
+      setPartnerCursor(JSON.parse(cursorPosition));
+    })
+  }
+
+  sendPartnerHighlight(highlightPosition: Range) {
+    this.socket.emit(SocketEvent.SEND_HIGHLIGHT_CHANGE, { roomId: this.roomId, highlightPosition: JSON.stringify(highlightPosition) })
+  }
+
+  receivePartnerHighlight(setPartnerHighlight: React.Dispatch<SetStateAction<Range>>) {
+    this.socket.on(SocketEvent.HIGHLIGHT_CHANGE, (highlightPosition: string) => {
+      setPartnerHighlight(JSON.parse(highlightPosition));
     })
   }
 
