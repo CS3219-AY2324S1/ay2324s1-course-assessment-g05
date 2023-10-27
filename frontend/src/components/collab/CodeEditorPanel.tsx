@@ -8,36 +8,30 @@ import { useCollabContext } from "@/contexts/collab";
 import { notFound } from "next/navigation";
 
 const CodeEditorPanel: FC = ({}) => {
-  const [error, setError] = useState(false);
   const { matchedLanguage, question, socketService } = useCollabContext();
 
-  if (!socketService) setError(true);
-
-  const questionTitle = question?.title || setError(true);
-  const [hasSessionTimerEnded, setHasSessionTimerEnded] =
-    useState<boolean>(false);
-
+  const questionTitle = question?.title;
   const [currentCode, setCurrentCode] = useState<string>(
     getCodeTemplate(matchedLanguage, questionTitle!)
   );
   const [isUserNotValid, setIsUserNotValid] = useState<boolean>(false);
+  const isUserNotValidRef = useRef<boolean>(false);
 
   useEffect(() => {
     socketService?.receiveCodeUpdate(setCurrentCode);
-    socketService?.receiveUserNotValid(setIsUserNotValid);
+    socketService?.receiveUserNotValid(setIsUserNotValid, isUserNotValidRef);
   }, [socketService]);
 
   useEffect(() => {
-    if (isUserNotValid) {
+    if (isUserNotValidRef.current) {
       console.log("EROR");
       notFound();
     }
   }, [isUserNotValid]);
 
   const handleEditorChange = (currentContent: string | undefined) => {
-    if (!currentContent) setError(true);
     setCurrentCode(currentContent!);
-    socketService!.sendCodeChange(currentContent!);
+    socketService?.sendCodeChange(currentContent!);
   };
 
   const handleResetToDefaultCode = () => {
@@ -46,10 +40,6 @@ const CodeEditorPanel: FC = ({}) => {
       getCodeTemplate(matchedLanguage, questionTitle!)
     );
   };
-
-  if (error) {
-    return <></>
-  } 
 
   return (
     <div className="h-[calc(100vh-60px)]">

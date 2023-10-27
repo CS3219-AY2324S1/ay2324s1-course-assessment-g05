@@ -4,7 +4,7 @@ import { FC, use, useEffect, useState } from "react";
 import { Position, Range } from "monaco-editor";
 import { useRef } from "react";
 import type monaco from 'monaco-editor';
-import { select } from "d3";
+import { UUID } from "crypto";
 
 interface CodeEditorProps {
   currentCode: string;
@@ -21,15 +21,18 @@ const CodeEditor: FC<CodeEditorProps> = ({
   const decorations = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
   const isSocketEvent = useRef(false);
   const isHighlightingEvent = useRef(false);
-  const [events, setEvents] = useState<string[]>([]);
+  const previousEvent = useRef<string>("");
+  const [receivedEvents, setReceivedEvents] = useState<string[]>([]);
   const [partnerCursor, setPartnerCursor] = useState<Position>(new Position(1, 1));
   const [partnerConnected, setPartnerConnected] = useState<boolean>(false);
   const [partnerHighlight, setPartnerHighlight] = useState<Range>(new Range(1, 1, 1, 1));
+  const [eventQueue, setEventQueue] = useState<string[]>([]);
 
   const handleContentChange = (event: string | null) => {
     if (!event) return;
     // Execute changes from other editor
     const convertedEvent = JSON.parse(event);
+    previousEvent.current = event;
     isSocketEvent.current = true;
     if (editorRef.current) {
       editorRef.current.executeEdits("my-source", [convertedEvent]);
@@ -75,9 +78,8 @@ const CodeEditor: FC<CodeEditorProps> = ({
   
   // Subscribe to changes in events
   useEffect(() => {
-    handleContentChange(events[events.length - 1]);
-  }, [events])
-
+    handleContentChange(receivedEvents[receivedEvents.length - 1]);
+  }, [receivedEvents])
   // Subscribe to changes in partner cursor
   useEffect(() => {
     handlePartnerCursorChange();
@@ -97,7 +99,7 @@ const CodeEditor: FC<CodeEditorProps> = ({
 
   useEffect(() => {
     if (!socketService) return;
-    socketService.receiveCodeEvent(setEvents);
+    socketService.receiveCodeEvent(setReceivedEvents);
     socketService.receivePartnerCursor(setPartnerCursor);
     socketService.receivePartnerHighlight(setPartnerHighlight)
     socketService.receivePartnerConnection(setPartnerConnected);
@@ -113,6 +115,7 @@ const CodeEditor: FC<CodeEditorProps> = ({
     let selectedRange: Range | null = null;
 
     editor.onDidPaste((event: monaco.editor.IPasteEvent) => {
+      console.log(editor)
       console.log("On did paste", event);
     })
 
@@ -121,9 +124,10 @@ const CodeEditor: FC<CodeEditorProps> = ({
       // Emitting changes only due to keypress and not due to socket service
       console.log("Trying to emit changes: ", event.changes[0]);
       if (!isSocketEvent.current) {
-        // Emitting changes: event.changes[0] is the change object that the other editor can execute
+        // Emitting changes: event.changes[0] is the change object that the other editor can execute        
         if (socketService) socketService.sendCodeEvent(JSON.stringify(event.changes[0]));
-        console.log("Emitting changes: ", event.changes[0])
+        console.log("Emitting changes: ", event.changes[0]);
+        console.log("Setting event queue")
       }
       isSocketEvent.current = false;
     })
@@ -158,32 +162,8 @@ const CodeEditor: FC<CodeEditorProps> = ({
         socketService.sendPartnerCursor(cursorPosition);
       }
     });
-
-    let dragStartPosition: Position | null = null;
-
-    editor.onMouseDown((e: monaco.editor.IEditorMouseEvent) => {
-      dragStartPosition = e.target.position;
-      editor.onMouseUp((event: monaco.editor.IEditorMouseEvent) => {
-
-        const mouseUpPosition = event.target.position;
-  
-        if (!selectedRange || !mouseUpPosition) return;
-  
-        const isDraggingText = !selectedRange.containsPosition(mouseUpPosition);
-  
-        if (isDraggingText) {
-  
-          console.log("Dragging text out of highlighted position");
-  
-          // Reset dragStartPosition for next potential drag operation
-          dragStartPosition = null;
-          selectedRange = null;
-          dragStartPosition = null;
-        }
-      });
-
-    });
   }
+
 
   return (
     <div className="mt-1 p-2">

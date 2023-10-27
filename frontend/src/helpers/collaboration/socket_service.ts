@@ -6,6 +6,7 @@ import { SetStateAction } from "react";
 import { Socket, io } from "socket.io-client";
 import { getCollaborationSocketConfig } from "./collaboration_api_wrappers";
 import { Position, Range } from "monaco-editor";
+import { notFound } from "next/navigation";
 
 class SocketService {
   static instance: SocketService;
@@ -121,6 +122,7 @@ class SocketService {
     setSessionTimer: React.Dispatch<React.SetStateAction<Date>>
   ) => {
     this.socket.on(SocketEvent.SESSION_TIMER, (sessionEndTime: string) => {
+      if (sessionEndTime == "") notFound();
       let utcDate = new Date(sessionEndTime);
       console.log("Received session timer ", utcDate)
       // let localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
@@ -194,9 +196,10 @@ class SocketService {
     })
   }
 
-  receiveUserNotValid(setUserNotValid: React.Dispatch<SetStateAction<boolean>>) {
+  receiveUserNotValid(setUserNotValid: React.Dispatch<SetStateAction<boolean>>, isUserNotValidRef: React.MutableRefObject<boolean>) {
     this.socket.on(SocketEvent.USER_NOT_VALID, () => {
-      setUserNotValid(true);
+      // setUserNotValid(true);
+      isUserNotValidRef.current = true;
     })
   }
 
