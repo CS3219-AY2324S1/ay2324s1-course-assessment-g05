@@ -84,19 +84,12 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
   const runTestCases = async (code: string, language: string) => {
     setHasCodeRun(true);
     setIsResultsLoading(true);
-    let finalTestCaseArray = structuredClone(testCaseArray);
-    finalTestCaseArray.map((testCase: any) => {
-      testCase.input = CodeExecutorUtils.revertInputDictToInputString(
-        testCase.input
-      );
-    });
-
     let submissionIds = [];
-    for (let i = 0; i < finalTestCaseArray.length; i++) {
+    for (let i = 0; i < testCaseArray.length; i++) {
       const id = await CodeExecutionService.executeCode(
         code,
         language,
-        finalTestCaseArray[i]
+        testCaseArray[i].input
       );
       submissionIds.push(id);
     }

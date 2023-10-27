@@ -4,17 +4,19 @@ import { Judge0Status, judge0Request, judge0Response } from "@/types/judge0";
 import { CodeExecutorUtils } from "@/utils/codeExecutorUtils";
 import { getError, throwAndLogError } from "@/utils/errorUtils";
 
-//http://localhost:2358/submissions/?base64_encoded=true&wait=false
-
 const codeExecPort = "2358";
 const submissionsEndpointQueries = "?base64_encoded=true";
 
 const submissionsEndpoint = `http://localhost:${codeExecPort}/submissions/`;
 
-const executeCode = async (code: string, language: string, testCase: any) => {
+const executeCode = async (
+  code: string,
+  language: string,
+  inputDict: { [variableName: string]: string }
+) => {
   const languageId = CodeExecutorUtils.getJudge0LanguageId(language);
   const codeToExecute = CodeExecutorUtils.prepareCodeForExecution(
-    testCase["input"],
+    inputDict,
     code,
     language
   );
@@ -81,14 +83,10 @@ const checkCodeExecutionStatus = async (submissionId: string) => {
         const data = await response.clone().json();
         judge0Response = {
           stdout: data.stdout
-            ? Buffer.from(data.stdout.split("\n")[0], "base64")
-                .toString("utf-8")
-                .split("\n")[0]
+            ? Buffer.from(data.stdout, "base64").toString("utf-8")
             : "",
           stderr: data.stderr
-            ? Buffer.from(data.stderr.split("\n")[0], "base64").toString(
-                "utf-8"
-              )
+            ? Buffer.from(data.stderr, "base64").toString("utf-8")
             : "",
           compile_output: data.compile_output
             ? Buffer.from(data.compile_output, "base64").toString("utf-8")
@@ -99,7 +97,6 @@ const checkCodeExecutionStatus = async (submissionId: string) => {
           statusId: data.status && data.status.id,
           description: data.status && data.status.description,
         };
-        // console.log("response", judge0Response);
         return judge0Response;
       }
     }

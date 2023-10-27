@@ -1,19 +1,15 @@
 import { Judge0Language, Judge0Status } from "@/types/judge0";
 
+/* -------------------------------------------------------------------------- */
+/*                               Code Execution                               */
+/* -------------------------------------------------------------------------- */
 const prepareCodeForExecution = (
-  inputString: string,
+  inputDict: { [variableName: string]: string },
   code: string,
   language: string
 ) => {
-  const formattedInputStrings = getFormattedInputVariables(
-    inputString,
-    language
-  );
-  console.log("Submitting these:");
-  console.log(formattedInputStrings);
+  const formattedInputStrings = getFormattedInputVariables(inputDict, language);
   const formattedCode = `${formattedInputStrings}\n${code}`;
-  console.log(formattedCode);
-
   return formattedCode;
 };
 
@@ -27,6 +23,15 @@ const checkCorrectnessOfOutput = (
   if (actualOutput === "" && expectedOutput !== "") {
     return false;
   }
+
+  //standardise "" to '
+  if (actualOutput.includes('"')) {
+    actualOutput = actualOutput.replace(/"/g, "'");
+  }
+  if (expectedOutput.includes('"')) {
+    expectedOutput = expectedOutput.replace(/"/g, "'");
+  }
+
   if (getVariableType(expectedOutput) === VariableType.STRING) {
     return (
       actualOutput === expectedOutput ||
@@ -72,6 +77,25 @@ const getOutputMessage = (
 
   return description;
 };
+
+const getJudge0LanguageId = (language: string) => {
+  switch (language) {
+    case "python":
+      return Judge0Language.PYTHON;
+    case "java":
+      return Judge0Language.JAVA;
+    case "cpp":
+      return Judge0Language.CPP;
+    case "javascript":
+      return Judge0Language.JAVASCRIPT;
+    default:
+      throw new Error("Language not supported");
+  }
+};
+
+/* -------------------------------------------------------------------------- */
+/*                       Extracting User Input Variables                      */
+/* -------------------------------------------------------------------------- */
 const extractInputStringToInputDict = (inputString: string) => {
   const inputDict: { [key: string]: string } = {};
 
@@ -106,42 +130,13 @@ const extractInputStringToInputDict = (inputString: string) => {
   return inputDict;
 };
 
-const revertInputDictToInputString = (inputMap: {
-  [variableName: string]: [variableValue: any];
-}) => {
-  const inputStringArray = Object.entries(inputMap).map(
-    ([variableName, variableValue]) => {
-      return `${variableName}=${variableValue}`;
-    }
-  );
-
-  const inputString = inputStringArray.join(", ");
-
-  return inputString;
-};
-
-const getJudge0LanguageId = (language: string) => {
-  switch (language) {
-    case "python":
-      return Judge0Language.PYTHON;
-    case "java":
-      return Judge0Language.JAVA;
-    case "cpp":
-      return Judge0Language.CPP;
-    case "javascript":
-      return Judge0Language.JAVASCRIPT;
-    default:
-      throw new Error("Language not supported");
-  }
-};
-
+/* -------------------------------------------------------------------------- */
+/*                         Determining Input Variables                        */
+/* -------------------------------------------------------------------------- */
 const getFormattedInputVariables = (
-  inputVariablesString: string,
+  inputDict: { [variableName: string]: string },
   language: string
 ) => {
-  const inputDict = extractInputStringToInputDict(inputVariablesString);
-
-  console.log("This my input dict!", inputDict);
   let formattedInputVariables = "";
   // iterate through the inputDict and return the input variable formatted as string
   Object.entries(inputDict).forEach(([variableName, variableValue]) => {
@@ -189,6 +184,43 @@ const getFormattedInputVariables = (
   return formattedInputVariables;
 };
 
+/* -------------------------------------------------------------------------- */
+/*                     Determine the type of the variable                     */
+/* -------------------------------------------------------------------------- */
+const enum VariableType {
+  ARRAY = "array",
+  STRING = "string",
+  INTEGER = "integer",
+  DOUBLE = "double",
+  BOOLEAN = "boolean",
+}
+
+const getVariableType = (variable: string) => {
+  if (variable.toLowerCase() === "true" || variable.toLowerCase() === "false") {
+    return VariableType.BOOLEAN;
+  }
+
+  if (variable.startsWith("[") && variable.endsWith("]")) {
+    return VariableType.ARRAY;
+  }
+
+  if (variable.startsWith('"') && variable.endsWith('"')) {
+    return VariableType.STRING;
+  }
+
+  if (variable.includes(".")) {
+    return VariableType.DOUBLE;
+  }
+
+  if (/^\d+$/.test(variable)) {
+    return VariableType.INTEGER;
+  }
+  return VariableType.STRING;
+};
+
+/* -------------------------------------------------------------------------- */
+/*            Format the input variables based on type and language           */
+/* -------------------------------------------------------------------------- */
 const formatBooleanType = (
   variableName: string,
   value: string,
@@ -238,14 +270,15 @@ const formatArrayType = (
 
   switch (language.toLowerCase()) {
     case "cpp":
+      value = value.replace(/\[/g, "{").replace(/\]/g, "}");
       if (variableType === VariableType.STRING) {
-        return `#include <string>\nstd::string ${variableName}[] = {${value}};\n`;
+        return `#include <string>\nstd::string ${variableName}[] = ${value};\n`;
       } else if (variableType === VariableType.INTEGER) {
-        return `int ${variableName}[] = {${value}};\n`;
+        return `int ${variableName}[] = ${value};\n`;
       } else if (variableType === VariableType.DOUBLE) {
-        return `double ${variableName}[] = {${value}};\n`;
+        return `double ${variableName}[] = ${value};\n`;
       } else if (variableType === VariableType.BOOLEAN) {
-        return `#include <iostream>\nbool ${variableName}[] = {${value}};\n`;
+        return `#include <iostream>\nbool ${variableName}[] = ${value};\n`;
       } else {
         return "NOT SUPPORTED";
       }
@@ -308,44 +341,12 @@ const formatDoubleType = (
   }
 };
 
-const enum VariableType {
-  ARRAY = "array",
-  STRING = "string",
-  INTEGER = "integer",
-  DOUBLE = "double",
-  BOOLEAN = "boolean",
-}
-
-const getVariableType = (variable: string) => {
-  if (variable.toLowerCase() === "true" || variable.toLowerCase() === "false") {
-    return VariableType.BOOLEAN;
-  }
-
-  if (variable.startsWith("[") && variable.endsWith("]")) {
-    return VariableType.ARRAY;
-  }
-
-  if (variable.startsWith('"') && variable.endsWith('"')) {
-    return VariableType.STRING;
-  }
-
-  if (variable.includes(".")) {
-    return VariableType.DOUBLE;
-  }
-
-  if (/^\d+$/.test(variable)) {
-    return VariableType.INTEGER;
-  }
-  return VariableType.STRING;
-};
-
 export const CodeExecutorUtils = {
   prepareCodeForExecution,
   checkCorrectnessOfOutput,
   getOutputMessage,
-  extractInputStringToInputDict,
-  revertInputDictToInputString,
   getJudge0LanguageId,
+  extractInputStringToInputDict,
   getFormattedInputVariables,
   getVariableType,
 };

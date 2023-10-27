@@ -14,8 +14,12 @@ export const getCodeTemplate = (
 
   const inputVariables = question.examples?.[0]?.input;
 
+  const inputDict = CodeExecutorUtils.extractInputStringToInputDict(
+    inputVariables!
+  );
+
   const formattedInputVariables = CodeExecutorUtils.getFormattedInputVariables(
-    inputVariables!,
+    inputDict,
     language
   );
 
@@ -32,7 +36,7 @@ export const getCodeTemplate = (
     case "java":
       return `${formattedExampleInput}\nclass Solution {\n\t// change the function type and arguments below if necessary\n\tpublic static void ${formattedQuestionTitle}(/*define your params here*/) {\n\t\t\n\t}\n}\n\n//TODO: call your function and print its output below`;
     case "python":
-      return `${formattedExampleInput}\nclass Solution(object):\n\t# change the function type and arguments below if necessary\n\tdef ${formattedQuestionTitle}():\n\t\treturn\n\n#TODO: call your function and print its output below`;
+      return `${formattedExampleInput}\n#TODO: change the function arguments below \ndef ${formattedQuestionTitle}():\n\treturn\n\n#TODO: call your function and print its output below`;
     case "javascript":
       return `${formattedExampleInput}\nconst ${formattedQuestionTitle} = (/*define your params here*/) => {\n\treturn;\n}\n\n//TODO: call your function and print its output below`;
     default:
