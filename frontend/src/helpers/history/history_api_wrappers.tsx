@@ -231,8 +231,27 @@ const getQuestionCodeSubmission = async (
 const createHistory = async (
   userId: string | string[],
   questionId: string,
-  language: string
+  language: string,
+  code: string
 ) => {
+  // convert language to API format
+  switch (language.toLowerCase()) {
+    case "cpp":
+      language = "C++";
+      break;
+    case "python":
+      language = "PYTHON";
+      break;
+    case "java":
+      language = "JAVA";
+      break;
+    case "javascript":
+      language = "JAVASCRIPT";
+      break;
+    default:
+      break;
+  }
+
   const response = await api({
     method: HTTP_METHODS.POST,
     domain: historyDomain,
@@ -241,6 +260,7 @@ const createHistory = async (
       userId: userId,
       questionId: questionId,
       language: language,
+      code: code,
     },
   });
 

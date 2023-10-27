@@ -224,7 +224,7 @@ const AttemptedQuestionTable = ({
           <TableColumn
             key={column.key}
             className={cn({
-              "w-2/3": column.key === "title" && !showTopics,
+              "w-3/5": column.key === "title" && !showTopics,
               "w-2/5": showTopics && column.key === "title",
               "w-1/8": showTopics && column.key === "complexity",
               "w-3/10": showTopics && column.key === "topics",
