@@ -6,6 +6,7 @@ import { type Socket as ServerSocket, Server } from "socket.io";
 import { SocketEvent } from "../../lib/enums/SocketEvent";
 import { clearSessionDetails, handleChatMessage, handleCodeChange, handleEndSession, handleGetSessionTimer, handleJoinRoom } from "../../controllers";
 import { redis } from "../../models/db";
+import { Socket } from "dgram";
 
 dotenv.config();
 
@@ -128,6 +129,11 @@ describe("Handlers Test", () => {
             handleEndSession(serverSocket2, incomingRoomID);
         })
 
+        serverSocket2.on(SocketEvent.CODE_CHANGE, (content) => {
+            handleCodeChange(serverSocket2, { roomId: roomId, content: content })
+        })
+
+        clientSocketUser2.emit(SocketEvent.CODE_CHANGE, content);
         clientSocketUser2.emit(SocketEvent.END_SESSION, roomId);
 
         await receivedEndSessionPromise;
