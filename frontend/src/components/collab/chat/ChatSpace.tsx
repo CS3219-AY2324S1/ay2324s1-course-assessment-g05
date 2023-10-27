@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import ChatBubble from "./ChatBubble";
-import { Button, Divider, Tooltip } from "@nextui-org/react";
+import { Button, Divider, Tooltip, Spinner } from "@nextui-org/react";
 import ProfilePictureAvatar from "@/components/common/ProfilePictureAvatar";
 import { useCollabContext } from "@/contexts/collab";
 import ChatMessage from "@/types/chat_message";
@@ -174,8 +174,7 @@ const ChatSpace = ({
             <div className="py-8 text-base leading-7 text-gray-600 h-[400px] overflow-y-auto">
                 <div style={{ display: messages.length === 0 ? "block" : "none" }}>
                     <div className="text-center text-gray-400 text-sm">
-                        No messages yet, send one now! here is api key
-                        {process.env.OPENAI_API_KEY}
+                        No messages yet, send one now!
                     </div>
                 </div>
                 {
@@ -204,41 +203,31 @@ const ChatSpace = ({
                         if (e.target.value.startsWith("/ai")) setIsSlashAI(true);
                         else setIsSlashAI(false);
                     }}
+                    disabled={isGeneratingAIMessage}
                 />
                 {isSlashAI ? (
                     <button
                         className={
                             isGeneratingAIMessage
-                                ? "bg-blue px-2.5 rounded-md text-black text-opacity-30 cursor-not-allowed"
+                                ? "bg-blue px-2.5 rounded-md text-black text-opacity-30 cursor-not-allowed flex items-center"
                                 : "bg-blue px-2.5 rounded-md text-black hover:bg-cyan-200  active:bg-white"
                         }
                         disabled={isGeneratingAIMessage}
                     >
-                        <Icons.SiOpenai />
+                        {isGeneratingAIMessage ? <Spinner size="sm" /> : <Icons.SiOpenai />}
                     </button>
                 ) : (
                     <>
-                        {!isGeneratingAIMessage ? (
-                            <button
-                                className={
-                                    isPartnerConnected
-                                        ? "bg-yellow px-2.5 rounded-md text-black hover:bg-amber-200  active:bg-white"
-                                        : "bg-yellow px-2.5 rounded-md text-black text-opacity-30 cursor-not-allowed"
-                                }
-                                disabled={!isPartnerConnected}
-                            >
-                                <Icons.BsSendFill />
-                            </button>
-                        ) : (
-                            <button
-                                className={
-                                    "bg-blue px-2.5 rounded-md text-black text-opacity-30 cursor-not-allowed"
-                                }
-                                disabled={isGeneratingAIMessage}
-                            >
-                                <Icons.SiOpenai />
-                            </button>
-                        )}
+                        <button
+                            className={
+                                isPartnerConnected
+                                    ? "bg-yellow px-2.5 rounded-md text-black hover:bg-amber-200  active:bg-white"
+                                    : "bg-yellow px-2.5 rounded-md text-black text-opacity-30 cursor-not-allowed"
+                            }
+                            disabled={!isPartnerConnected}
+                        >
+                            <Icons.BsSendFill />
+                        </button>
                     </>
                 )}
             </form>
