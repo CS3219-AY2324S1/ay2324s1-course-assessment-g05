@@ -44,7 +44,6 @@ export default function EndSessionModal({
 
   useEffect(() => {
     if (socketService) {
-      console.log(endSessionState);
       // Ping to get details to end session:
       if (isOpen) {
         socketService.endSession();
@@ -55,11 +54,6 @@ export default function EndSessionModal({
   }, [isOpen, socketService]);
 
   const postToHistoryService = async () => {
-    console.log(
-      "Posting endSessionState to history service: ",
-      endSessionState
-    );
-
     // in case of error, show 500 page
     await HistoryService.createHistory(
       user.id!,
