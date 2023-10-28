@@ -17,7 +17,7 @@ To run the user service locally, run `npm run dev` directly under the `/user-ser
 
 There are multiple API endpoints available, you may find the detailed documentation of each endpoint in below section.
 
-## Docs for user service API
+## Endpoint and usage
 
 ### `GET /user/api/health`
 
