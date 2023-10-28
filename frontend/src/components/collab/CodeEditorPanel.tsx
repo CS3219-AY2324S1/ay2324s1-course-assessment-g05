@@ -14,11 +14,10 @@ const CodeEditorPanel: FC = ({}) => {
     getCodeTemplate(matchedLanguage, questionTitle!)
   );
   const [isUserNotValid, setIsUserNotValid] = useState<boolean>(false);
-  const isUserNotValidRef = useRef<boolean>(false);
 
   useEffect(() => {
     socketService?.receiveCodeUpdate(setCurrentCode);
-    socketService?.receiveUserNotValid(setIsUserNotValid, isUserNotValidRef);
+    socketService?.receiveUserNotValid(setIsUserNotValid);
   }, [socketService]);
 
   useEffect(() => {
