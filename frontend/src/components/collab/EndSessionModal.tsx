@@ -55,7 +55,7 @@ export default function EndSessionModal({
 
   const postToHistoryService = async () => {
     // in case of error, show 500 page
-    await HistoryService.createHistory(
+    await HistoryService.postToHistoryService(
       user.id!,
       endSessionState.questionId,
       endSessionState.matchedLanguage,
