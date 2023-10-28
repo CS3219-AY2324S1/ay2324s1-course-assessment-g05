@@ -2,34 +2,54 @@
 
 ## Set up
 
-As we are currently running our PostgreSQL database locally, you need to ensure you have installed PostgreSQL.
-Create a database in your local device, named it `peerprep`. 
-
-Create a .env file directly under `/user-service`. Create 2 env variables as shown below:
-```
-SERVICE_PORT=xxx (the port that we are going to use to run the user service)
-
-DATABASE_URL="postgresql://postgres:<your_local_database_password>localhost:5432/peerprep?schema=public"
+To set up `user-service` locally, we will need to create a `.env` file directly under `/user-service`. Ensure that you have all the environmental variables listed below:
+```sh
+SERVICE_PORT=5005
+NODE_ENV=development
+LOG_LEVEL=debug
+EMAIL_VERIFICATION_SECRET=<COPY_EMAIL_VERIFICATION_SECRET_FROM_ENV_FILE_SECRETS>
+DATABASE_URL=<COPY_DATABASE_URL_FROM_ENV_FILE_SECRETS>
 ```
 
 ## Running the service
 
-Once you have set up the `SERVICE_PORT`, you may start the dev server by running `npm run dev`.
+To run the user service locally, run `npm run dev` directly under the `/user-service` directory.
 
-All the API endpoints' route are available in `src/routes` directory, so for example, if you want to get a user data by the user id, you can call the `GET /<NODE_ENV>/user/users/:userId` endpoint, replace the `:userId` with the actual user id.
+There are multiple API endpoints available, you may find the detailed documentation of each endpoint in below section.
 
-On your side, you can try calling the API by using either Postman/cURL request.
+## Docs for user service API
 
-## Docs for user service API (unofficial)
+### `GET /user/api/health`
 
-### GET /<NODE_ENV>/user/users/:userId
+This endpoint helps ping the API server and the database connected to ensure it is working perfectly.
 
-This endpoint returns the user information with the specific user id `userId` from the database. If you don't know how to get the `userId`, please use the `getUserByEmail` endpoint.
+**Example**
+```
+GET http://localhost:5005/user/api/health
+```
+**Response**
+```
+status: 200 OK
+{
+  message: "Healthy"
+}
+```
 
-**Request**:
+**Possible Status Code**
+| Status Code | Explanation |
+|-------------|-------------|
+| 200 | The API server is connected to the database and is working. |
+| 500 | The API server/database ran into a problem |
+
+
+### `GET /user/api/users/:userId`
+
+This endpoint returns the user information with the specific user id `userId` from the database. If you don't know about the `userId` yet, please use the `getUserByEmail` endpoint.
+
+**Example**:
 
 ```
-GET http://localhost:5000/<NODE_ENV>/user/users/clmlp93wz00007kbwvws8oynd
+GET http://localhost:5000/user/api/users/clmlp93wz00007kbwvws8oynd
 ```
 
 **Response**:
@@ -42,11 +62,24 @@ Response Body:
   "name": "Your Name",
   "email": "youremail@domain.com",
   "role": "USER",
-  "gender": "male",
-  "image": "https://testimage.com/image.png",
-  "bio": "Hello World!",
-  "createdOn": "2023-09-16T07:21:02.483Z",
-  "updatedOn": "2023-09-16T07:21:02.483Z"
+  "image": "http://your-image.png",
+  "bio": "Your Bio",
+  "gender": "MALE",
+  "createdOn": "2023-10-17T15:30:30.751Z",
+  "updatedOn": "2023-10-27T09:31:02.105Z",
+  "isVerified": true,
+  "preferences": {
+    "languages": [
+      "C++"
+    ],
+    "topics": [
+      "DYNAMIC PROGRAMMING"
+    ],
+    "difficulties": [
+      "MEDIUM",
+      "EASY"
+    ]
+  }
 }
 ```
 
@@ -54,16 +87,17 @@ Response Body:
 |Status Code|Explanation|
 |---|---|
 |200|Successful retrieving user data from the database|
+|401|You are not authorized yet, login first|
 |404|The given user id cannot be found|
 |500|Server error, please see log message for details|
 
-### GET /<NODE_ENV>/user/users/email
+### `GET /<NODE_ENV>/user/api/users/email`
 
 This endpoint returns the user information based on the user email provided in the query parameter. The `email` query parameter must exist.
 
-**Request**:
+**Example**:
 ```
-GET http://localhost:5000/<NODE_ENV>/user/users/email?email=youremail@domain.com
+GET http://localhost:5000/user/api/users/email?email=youremail@domain.com
 ```
 
 **Response**:
@@ -73,14 +107,27 @@ Status: 200 OK
 Response Body:
 {
   "id": "clmlp93wz00007kbwvws8oynd",
-  "name": "Your Name",
+  "name": "Your Nae",
   "email": "youremail@domain.com",
   "role": "USER",
-  "gender": "male",
-  "image": "https://testimage.com/image.png",
-  "bio": "Hello World!",
-  "createdOn": "2023-09-16T07:21:02.483Z",
-  "updatedOn": "2023-09-16T07:21:02.483Z"
+  "image": "http://your-image.png",
+  "bio": "Your Bio",
+  "gender": "MALE",
+  "createdOn": "2023-10-17T15:30:30.751Z",
+  "updatedOn": "2023-10-27T09:31:02.105Z",
+  "isVerified": true,
+  "preferences": {
+    "languages": [
+      "C++"
+    ],
+    "topics": [
+      "DYNAMIC PROGRAMMING"
+    ],
+    "difficulties": [
+      "MEDIUM",
+      "EASY"
+    ]
+  }
 }
 ```
 
@@ -89,31 +136,70 @@ Response Body:
 |---|---|
 |200|Successful retrieving user data from the database|
 |400|The given user email is invalid|
+|401|You are not authorized yet, login first|
 |404|The given user email cannot be found|
 |500|Server error, please see log message for details|
 
-### POST /<NODE_ENV>/user/users
+### `GET /user/api/users/:userId/preferences`
 
-This endpoint allows creating a new user given some necessary information like `name`, `email`, and `role` in the request body.
+This endpoint only returns the preferences set by the user with `userId`.
 
-Request Body format:
+**Example**
+```
+GET http://localhost:5005/user/api/users/clmlp93wz00007kbwvws8oynd/preferences
+```
+
+**Response**
 ```
 {
-    "name": string
-    "email": string
-    "role": enum ('admin' or 'user')
-    "image": string
-    "gender" enum ('male' or 'female')
-    "bio": string
+  "userId": "clmlp93wz00007kbwvws8oynd",
+  "languages": [
+    "C++"
+  ],
+  "topics": [
+    "DYNAMIC PROGRAMMING"
+  ],
+  "difficulties": [
+    "MEDIUM",
+    "EASY"
+  ]
 }
 ```
 
-**Request**:
+**Possible Response Status Code**
+|Status Code|Explanation|
+|---|---|
+|200|Successful retrieving user data from the database|
+|401|You are not authorized yet, login first|
+|404|The given user id cannot be found|
+|500|Server error, please see log message for details|
+
+### `POST /user/api/users`
+
+This endpoint allows creating a new user given some necessary information like `name`, `email`, and `role` in the request body.
+
+**Request Body format**
+| Property | Type | Description |
+|----------|------|-------------|
+| name | string | The name of the user |
+| email | string | The email of the user, must be unique |
+| password | string | The hashed password set by the user |
+| role | Role | The role of the user, either "user" or "admin" |
+| image | string | The url of the profile image, optional |
+| gender | Gender | The gender of the user, either "male", "female", or "other", optional, default as "other" |
+| bio | string | The bio of the user, optional |
+
+**Example**
 ```
-POST  http://localhost:5000/<NODE_ENV>/user/users
+POST  http://localhost:5000/user/api/users
 
 Request Body:
-
+{
+  "name": "Your Name",
+  "email": "Your email",
+  "password": "hashed_password",
+  "role": "user"
+}
 ```
 
 **Response**:
@@ -122,6 +208,9 @@ Status: 201 Created
 
 Response Body:
 {
+  "id": "NEW_USER_ID_GENERATED",
+  "email": "Your email",
+  "verificationToken": "NEW_ACCOUNT_VERIFICATION_TOKEN_GENERATED",
   "message": "User created."
 }
 ```
@@ -130,29 +219,29 @@ Response Body:
 |Status Code|Explanation|
 |---|---|
 |201|Successfully created a new user|
-|400|The given request body is invalid, either because of syntax error, extra request properties, or value error|
+|400|The given request body is invalid|
+|401|You are not authorized yet, login first|
 |409|The input user email is already taken|
 |500|Server error, please see log message for details|
 
-### PUT /<NODE_ENV>/user/users/:userId
+### `PUT /user/api/users/:userId`
 
 This endpoint updates the user information according to the request body provided.
 
-**Request Body format**:
-```
-{
-    "name": string
-    "email": string
-    "role": enum ('admin' or 'user')
-    "image": string
-    "gender" enum ('male' or 'female')
-    "bio": string
-}
-```
+**Request Body format**
+| Property | Type | Description |
+|----------|------|-------------|
+| name | string | The name of the user, optional |
+| email | string | The email of the user, must be unique, optional |
+| password | string | The hashed password set by the user, optional |
+| role | Role | The role of the user, either "user" or "admin", optional |
+| image | string | The url of the profile image, optional |
+| gender | Gender | The gender of the user, either "male", "female", or "other", optional |
+| bio | string | The bio of the user, optional |
 
 **Request**:
 ```
-PUT http://localhost:5000/<NODE_ENV>/user/users/clmlp93wz00007kbwvws8oynd
+PUT http://localhost:5000/user/api/users/clmlp93wz00007kbwvws8oynd
 
 Request Body:
 {
@@ -176,18 +265,19 @@ No response body.
 |Status Code|Explanation|
 |---|---|
 |204|Successfully updated the user information|
-|400|The given request body is invalid, either because of syntax error, extra request properties, or value error|
+|400|The given request body is invalid|
+|401|You are not authorized yet, login first|
 |404|The given user id cannot be found in the database|
 |409|The user email is already taken|
 |500|Server error, please see log message for details|
 
-### DELETE /<NODE_ENV>/user/users/:userId
+### `DELETE /user/api/users/:userId`
 
 This endpoint deletes user record from the database, be cautious when you are using this endpoint.
 
 **Request**:
 ```
-DELETE http://localhost:5000/<NODE_ENV>/user/users/clmlp93wz00007kbwvws8oynd
+DELETE http://localhost:5000/user/api/users/clmlp93wz00007kbwvws8oynd
 ```
 
 **Response**:
@@ -201,112 +291,31 @@ No response body.
 |Status Code|Explanation|
 |---|---|
 |204|Successfully deleted the user record in the database|
+|401|You are not authorized yet, login first|
 |404|The given user id cannot be found in the database|
 |500|Server error, please see log message for details|
 
-## GET /<NODE_ENV>/user/users/:userId/preferences
-
-This endpoints returns the languages, question difficulties, and the question topics preferences that are previously set by the user with `userId`.
-
-**Request**:
-```
-GET http://localhost:5000/<NODE_ENV>/user/users/clmlp93wz00007kbwvws8oynd/preferences
-```
-
-**Response**:
-```
-Status: 200 OK
-
-Response Body
-{
-  "userId": "clmlp93wz00007kbwvws8oynd",
-  "languages": [
-    "PYTHON",
-    "C++",
-    "JAVA"
-  ],
-  "difficulties": [
-    "EASY"
-  ],
-  "topics": [
-    "DYNAMIC PROGRAMMING"
-  ]
-}
-```
-
-**Possible Response Status Code**:
-|Status Code|Explanation|
-|---|---|
-|204|Successfully retrieved the preferences data|
-|404|The given user id does not exist, or the preferences are not set yet|
-|500|Server error, please see log message for details|
-
-## POST /<NODE_ENV>/user/users/:userId/preferences
-
-This endpoint creates the preferences record in the database. This is required when the user does not have any preferences record in the database yet. For subsequent update of preferences, please use the `PUT /preferences` endpoint.
-
-**Request Body Format**:
-```
-{
-  "languages": Array<Language>,
-  "difficulties": Array<Complexity>,
-  "topics": Array<Topic>
-}
-```
-
-**Request**:
-```
-PUT http://localhost:5000/<NODE_ENV>/user/users/clmlp93wz00007kbwvws8oynd/preferences
-
-Request Body:
-{
-  "languages": ["Python", "C++"],
-  "difficulties": ["Easy", "Medium"],
-  "topics": ["Dynamic Programming", "Hash Table", "String", "Memoization", "Recursion"]
-}
-```
-
-**Response**:
-```
-Status: 201 Created
-
-Response Body
-{
-  message: "User preferences created"
-}
-```
-
-**Possible Response Status Code**:
-|Status Code|Explanation|
-|---|---|
-|201|Successfully created the preferences in the database|
-|400|Invalid request body given|
-|404|The given user id does not exist|
-|409|The user preferences record is already there|
-|500|Server error, please see log message for details|
-
-## PUT /<NODE_ENV>/user/users/:userId/preferences
+### `PUT /user/api/users/:userId/preferences`
 
 This endpoint updates the user preferences, provided that there already have a preferences record in the database.
 
 **Request Body Format**:
-```
-{
-  "languages": Array<Language> | undefined,
-  "difficulties": Array<Complexity> | undefined,
-  "topics": Array<Topic> | undefined
-}
-```
+| Property | Type | Description |
+| -------- | ---- | ----------- |
+| languages | Array<Language> | Each language provided must be either "C++", "Python", "Java", or "JavaScript", optional |
+| difficulties | Array<Complexity> | Each complexity provided must be either "Easy", "Medium", or "Hard", optional |
+| topics | Array<Topic> | Each topic provided must be one of the topics recognised by the question service, for information about which topic is supported, see question service topics list, optional | 
+
 Take note that although each field can be omitted, at least one field need to be provided for a successful call.
 
 **Request**:
 ```
-PUT http://localhost:5000/<NODE_ENV>/user/users/clmlp93wz00007kbwvws8oynd/preferences
+PUT http://localhost:5000/user/api/users/clmlp93wz00007kbwvws8oynd/preferences
 
 Request Body:
 {
   "languages": ["Python", "C++", "Java"],
-  "difficulties": ["hard"],
+  "difficulties": ["Hard"],
   "topics": ["Brain Teaser"]
 }
 ```
@@ -321,5 +330,6 @@ No response body.
 |Status Code|Explanation|
 |---|---|
 |204|Successfully updated the user record in the database|
+|401|You are not authorized yet, login first|
 |404|The given user id does not exist, or there is no existing preferences with the user id.|
 |500|Server error, please see log message for details|
