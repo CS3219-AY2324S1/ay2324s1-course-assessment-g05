@@ -28,40 +28,6 @@ const createUser = async (user: UserProfile) => {
   return res;
 };
 
-const getUserByEmail = async (email: string) => {
-  const res = await fetch(
-    `${getUserServiceEndpoint()}/user/api/users/email?email=${email}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        bypass: getServiceSecret(),
-      },
-    }
-  );
-  console.debug(
-    `[getUserByEmail][${
-      res.status
-    }] fetch ${getUserServiceEndpoint()}/user/api/users/email?email=${email}`
-  );
-  return res;
-};
-
-const getUserById = async (id: string) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/${id}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      bypass: getServiceSecret(),
-    },
-  });
-  console.debug(
-    `[getUserById][${
-      res.status
-    }] fetch ${getUserServiceEndpoint()}/user/api/users/${id}`
-  );
-  return res;
-};
-
 const updateVerfication = async (email: string, token: string) => {
   const res = await fetch(
     `${getUserServiceEndpoint()}/user/api/users/updateVerification/${email}`,
@@ -119,11 +85,9 @@ const updatePassword = async (id: string, updateBody: {}) => {
   return res;
 };
 
-export {
+export const UserService = {
   createUser,
   getUserServiceEndpoint,
-  getUserById,
-  getUserByEmail,
   updateVerfication,
   updatePasswordResetToken,
   updatePassword,

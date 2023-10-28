@@ -1,13 +1,15 @@
 import { Request, Response } from "express";
 import HttpStatusCode from "../../common/HttpStatusCode";
-import { createUser, getUserByEmail } from "../../lib/user_api_helpers";
+import { UserService } from "../../lib/user_api_helpers";
 import { issueJWT, validatePassword } from "../../lib/utils";
 import { UserProfile } from "../../common/types";
 import { VerificationMail } from "../../lib/email/verificationMail";
+import db from "../../lib/db";
 
 const registerByEmail = async (request: Request, response: Response) => {
   try {
-    const res = await createUser(request.body);
+    const res = await UserService.createUser(request.body);
+
     if (res.status !== HttpStatusCode.CREATED) {
       const data = await res.json();
       response.status(res.status).json({
@@ -19,6 +21,7 @@ const registerByEmail = async (request: Request, response: Response) => {
 
     const user = await res.json();
 
+    // TODO: instead of getting verificationToken, generate here
     const mail = new VerificationMail(user.email, user.verificationToken);
     await mail.send();
 
@@ -27,7 +30,6 @@ const registerByEmail = async (request: Request, response: Response) => {
       userId: user.id,
     });
   } catch (error) {
-    console.log("Fetch failed, User service is down.");
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",
       message: "User service is down.",
@@ -36,59 +38,87 @@ const registerByEmail = async (request: Request, response: Response) => {
 };
 
 const logInByEmail = async (request: Request, response: Response) => {
-  const { email, password } = request.body;
-  //check if user exists
   try {
-    const res = await getUserByEmail(email);
+    const { email, password } = request.body;
 
-    if (res.status !== HttpStatusCode.OK) {
-      const data = await res.json();
-      response.status(res.status).json({
-        error: data.error,
-        message: data.message,
+    if (!email || !password) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Email and password are required",
       });
       return;
     }
 
-    const user = (await res.json()) as UserProfile;
+    const user = (await db.user.findFirst({
+      where: {
+        email: email,
+      },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        isVerified: true,
+        role: true,
+        gender: true,
+        bio: true,
+        image: true,
+        createdOn: true,
+        updatedOn: true,
+      },
+    })) as UserProfile;
 
-    //if user exists, check if password is correct
-    if (!(await validatePassword(password, user.password))) {
-      response.status(HttpStatusCode.UNAUTHORIZED).json({
-        error: "UNAUTHORIZED",
-        message: `Incorrect password.`,
+    if (!user) {
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: `User with email ${email} cannot be found`,
       });
       return;
     }
 
-    //if password is correct, check if user is verified
+    // check if user is verified
     if (!user.isVerified) {
       response.status(HttpStatusCode.FORBIDDEN).json({
         error: "FORBIDDEN",
-        message: `User is not verified.`,
+        message: `User is not verified`,
+      });
+      return;
+    }
+
+    // if user exists, check if password is correct
+    if (!(await validatePassword(password, user.password))) {
+      response.status(HttpStatusCode.UNAUTHORIZED).json({
+        error: "UNAUTHORIZED",
+        message: `The user credentials are incorrect`,
       });
       return;
     }
 
     //user exists + pw is correct + user is verified -> attach cookie and return user
     const tokenObject = issueJWT(user);
+
     response
       .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
       .status(HttpStatusCode.OK)
       .json({
         success: true,
-        user: user,
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          gender: user.gender,
+          bio: user.bio,
+          image: user.image,
+          createdOn: user.createdOn,
+          updatedOn: user.updatedOn,
+          isVerified: user.isVerified,
+        },
       });
   } catch (error) {
-    console.log("Fetch failed, User service is down.");
-    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      error: "INTERNAL SERVER ERROR",
-      message: "User service is down.",
-    });
+    console.log(error);
   }
 };
 
-const logOut = async (request: Request, response: Response) => {
+const logOut = async (_: Request, response: Response) => {
   response.clearCookie("jwt");
   response.status(HttpStatusCode.OK).json({
     success: true,

@@ -17,8 +17,11 @@ import { UserProfile } from "../common/types";
 const router: Router = Router();
 
 router.route("/health").get(getHealth);
+
 router.route("/registerByEmail").post(registerByEmail);
+
 router.route("/loginByEmail").post(logInByEmail);
+
 router
   .route("/validate")
   .post(passport.authenticate("jwt", { session: false }), (req, res, next) => {
@@ -30,8 +33,22 @@ router
       });
       return;
     }
-    res.status(HttpStatusCode.OK).json(req.user);
+
+    const userToReturn = { ...req.user } as UserProfile;
+
+    res.status(HttpStatusCode.OK).json({
+      id: userToReturn.id,
+      email: userToReturn.email,
+      role: userToReturn.role,
+      gender: userToReturn.gender,
+      bio: userToReturn.bio,
+      image: userToReturn.image,
+      createdOn: userToReturn.createdOn,
+      updatedOn: userToReturn.updatedOn,
+      isVerified: userToReturn.isVerified,
+    });
   });
+
 router
   .route("/validateAdmin")
   .post(passport.authenticate("jwt", { session: false }), (req, res, next) => {
@@ -43,6 +60,7 @@ router
       });
       return;
     }
+
     const user = req.user as UserProfile;
     if (user.role !== "ADMIN") {
       res.status(HttpStatusCode.FORBIDDEN).json({
@@ -51,11 +69,28 @@ router
       });
       return;
     }
-    res.status(HttpStatusCode.OK).json(req.user);
+
+    const userToReturn = { ...req.user } as UserProfile;
+
+    res.status(HttpStatusCode.OK).json({
+      id: userToReturn.id,
+      email: userToReturn.email,
+      role: userToReturn.role,
+      gender: userToReturn.gender,
+      bio: userToReturn.bio,
+      image: userToReturn.image,
+      createdOn: userToReturn.createdOn,
+      updatedOn: userToReturn.updatedOn,
+      isVerified: userToReturn.isVerified,
+    });
   });
+
 router.route("/logout").post(logOut);
+
 router.route("/verifyEmail/:email/:token").put(verifyUserEmail);
+
 router.route("/sendPasswordResetEmail/:email").put(sendPasswordResetEmail);
+
 router.route("/changePassword/:id").put(changePassword);
 
 export default router;

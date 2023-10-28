@@ -30,7 +30,14 @@ export const getUserById = async (request: Request, response: Response) => {
       where: {
         id: userId,
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        image: true,
+        bio: true,
+        gender: true,
         preferences: {
           select: {
             languages: true,
@@ -38,6 +45,8 @@ export const getUserById = async (request: Request, response: Response) => {
             difficulties: true,
           },
         },
+        createdOn: true,
+        updatedOn: true,
       },
     });
 
@@ -79,7 +88,14 @@ export const getUserByEmail = async (request: Request, response: Response) => {
       where: {
         email: parsedEmail,
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        image: true,
+        bio: true,
+        gender: true,
         preferences: {
           select: {
             languages: true,
@@ -87,6 +103,8 @@ export const getUserByEmail = async (request: Request, response: Response) => {
             difficulties: true,
           },
         },
+        createdOn: true,
+        updatedOn: true,
       },
     });
 

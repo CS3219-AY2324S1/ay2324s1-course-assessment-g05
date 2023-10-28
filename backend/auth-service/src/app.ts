@@ -6,9 +6,9 @@ import HttpStatusCode from "./common/HttpStatusCode";
 import cors from "./middleware/cors";
 import passport from "passport";
 import cookieParser from "cookie-parser";
+import "./config/passport";
 
 dotenv.config();
-import "./config/passport";
 
 const app: Express = express();
 
@@ -22,7 +22,7 @@ app.use(cookieParser());
 app.use(passport.initialize());
 
 // implement routes for API endpoints
-const NODE_ENV = process.env.NODE_ENV || 'development';
+const NODE_ENV = process.env.NODE_ENV || "development";
 app.use(`/auth/api`, router);
 
 app.all("*", (req: Request, res: Response) => {
@@ -33,5 +33,7 @@ app.all("*", (req: Request, res: Response) => {
 });
 
 app.listen(process.env.SERVICE_PORT, () => {
-  console.log(`Server listens on port ${process.env.SERVICE_PORT} build[${NODE_ENV}] gateway[${process.env.GATEWAY}]`);
+  console.log(
+    `Server listens on port ${process.env.SERVICE_PORT} build[${NODE_ENV}] gateway[${process.env.GATEWAY}]`
+  );
 });
