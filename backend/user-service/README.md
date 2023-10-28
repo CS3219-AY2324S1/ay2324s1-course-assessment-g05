@@ -107,7 +107,7 @@ Status: 200 OK
 Response Body:
 {
   "id": "clmlp93wz00007kbwvws8oynd",
-  "name": "Your Nae",
+  "name": "Your Name",
   "email": "youremail@domain.com",
   "role": "USER",
   "image": "http://your-image.png",
