@@ -1,9 +1,8 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, FC } from "react";
 import CodeEditorNavbar from "./CodeEditorNavbar";
 import { Divider } from "@nextui-org/react";
 import CodeEditor from "./CodeEditor";
 import { getCodeTemplate } from "@/utils/defaultCodeUtils";
-
 import { useCollabContext } from "@/contexts/collab";
 import { notFound } from "next/navigation";
 
@@ -23,8 +22,7 @@ const CodeEditorPanel: FC = ({}) => {
   }, [socketService]);
 
   useEffect(() => {
-    if (isUserNotValidRef.current) {
-      console.log("EROR");
+    if (isUserNotValid) {
       notFound();
     }
   }, [isUserNotValid]);

@@ -6,7 +6,6 @@ import { type Socket as ServerSocket, Server } from "socket.io";
 import { SocketEvent } from "../../lib/enums/SocketEvent";
 import { clearSessionDetails, handleChatMessage, handleCodeChange, handleEndSession, handleGetSessionTimer, handleJoinRoom } from "../../controllers";
 import { redis } from "../../models/db";
-import { Socket } from "dgram";
 
 dotenv.config();
 
