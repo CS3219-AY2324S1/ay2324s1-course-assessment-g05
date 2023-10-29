@@ -12,8 +12,7 @@ import {
 } from "@nextui-org/react";
 import User from "@/types/user";
 import { FormEvent, Key, useEffect, useState } from "react";
-import { COMPLEXITY, LANGUAGE, TOPIC } from "@/types/enums";
-import { StringUtils } from "@/utils/stringUtils";
+import { COMPLEXITY, LANGUAGE } from "@/types/enums";
 import { ToastType } from "@/types/enums";
 import displayToast from "@/components/common/Toast";
 import { UserService } from "@/helpers/user/user_api_wrappers";
@@ -32,7 +31,7 @@ export default function Information({
   imageUrl,
   setIsChangePassword,
 }: InformationProps) {
-  const { mutate } = useAuthContext();
+  const { fetchUser } = useAuthContext();
   const [name, setName] = useState<string>(user.name);
   const [bio, setBio] = useState<string>(user.bio ? user.bio : "");
   const [gender, setGender] = useState(user.gender ? user.gender : "OTHER");
@@ -133,7 +132,7 @@ export default function Information({
 
       await UserService.updateUserPreference(user.id, preferences);
       await UserService.updateUser(user.id, updatedUser);
-      await mutate(true);
+      await fetchUser(true);
       displayToast("Information saved successfully!", ToastType.SUCCESS);
     } catch (error) {
       displayToast(

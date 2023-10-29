@@ -64,7 +64,6 @@ const getUserById = async (
 
 const createUser = async (user: User, cache: RequestCache = "no-cache") => {
   // call POST /api/users from user domain
-  console.log(user);
   const response = await api({
     method: HTTP_METHODS.POST,
     domain: domain,

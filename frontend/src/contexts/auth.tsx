@@ -1,16 +1,13 @@
 "use client";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
-import { getTopics } from "@/helpers/question/question_api_wrappers";
 import { Role } from "@/types/enums";
 import User from "@/types/user";
-import { StringUtils } from "@/utils/stringUtils";
-import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface IAuthContext {
   user: User;
-  mutate: (preventLoading: boolean) => Promise<void>;
+  fetchUser: (preventLoading: boolean) => Promise<void>;
   isAuthenticated: boolean;
   logIn: (email: string, password: string) => Promise<void>;
   logOut: () => Promise<void>;
@@ -31,7 +28,7 @@ const defaultUser: User = {
 
 const AuthContext = createContext<IAuthContext>({
   user: defaultUser,
-  mutate: () => Promise.resolve(),
+  fetchUser: () => Promise.resolve(),
   isAuthenticated: false,
   logIn: (email: string, password: string) => Promise.resolve(),
   logOut: () => Promise.resolve(),
@@ -45,8 +42,6 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   const [user, setUser] = useState<User>(defaultUser);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const router = useRouter();
-
   useEffect(() => {
     fetchUser();
   }, []);
@@ -55,10 +50,12 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   const fetchUser = async (preventLoading?: boolean) => {
     !preventLoading && setIsLoading(true);
     try {
+      // POST /validate will not return password
       const rawUser = await AuthService.validateUser();
+      console.log(rawUser);
       updateUser(rawUser);
     } catch (error) {
-      console.log({ error });
+      console.log(error);
       setUser(defaultUser);
     } finally {
       !preventLoading && setIsLoading(false);
@@ -101,7 +98,7 @@ const AuthProvider = ({ children }: IAuthProvider) => {
     <AuthContext.Provider
       value={{
         user,
-        mutate: fetchUser,
+        fetchUser,
         isAuthenticated: !!user.id,
         logIn,
         logOut,

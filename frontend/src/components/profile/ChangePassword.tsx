@@ -13,7 +13,7 @@ interface ChangePasswordProps {
 export default function ChangePassword({
   setIsChangePassword,
 }: ChangePasswordProps) {
-  const { user, mutate } = useAuthContext();
+  const { user, fetchUser } = useAuthContext();
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -82,7 +82,7 @@ export default function ChangePassword({
 
     try {
       await UserService.updateUser(user.id!, newUser);
-      await mutate(true);
+      await fetchUser(true);
       displayToast("Password changed successfully.", ToastType.SUCCESS);
     } catch (error) {
       displayToast(

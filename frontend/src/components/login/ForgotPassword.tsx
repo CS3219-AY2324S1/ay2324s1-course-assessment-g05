@@ -19,7 +19,6 @@ import bcrypt from "bcryptjs-react";
 import displayToast from "@/components/common/Toast";
 import { CLIENT_ROUTES } from "@/common/constants";
 import z from "zod";
-import { is } from "date-fns/locale";
 
 export default function ForgotPasswordComponent() {
   // States
@@ -223,7 +222,7 @@ export default function ForgotPasswordComponent() {
               <Spacer y={3} />
               <Input
                 type={isPasswordVisible ? "text" : "password"}
-                placeholder="Password"
+                placeholder="Enter new password"
                 isClearable
                 isRequired
                 fullWidth
