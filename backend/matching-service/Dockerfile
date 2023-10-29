@@ -1,5 +1,5 @@
 # Stage 1: Build environment
-FROM node:20 AS build
+FROM node:alpine AS build
 WORKDIR /app
 
 # Copy the source code and install dependencies
@@ -9,7 +9,7 @@ COPY . .
 RUN npm run build 
 
 # Stage 2: Production environment
-FROM node:20
+FROM node:alpine
 WORKDIR /app
 
 # Defing service arguments
@@ -23,8 +23,8 @@ ARG CORS_ALLOWED_ORIGINS=http://localhost:3000
 ENV CORS_ALLOWED_ORIGINS=$CORS_ALLOWED_ORIGINS
 
 # event bus = redis://<container_name>:6380/
-ARG REDIS_EVENT_BUS=redis://peerprep-eventbus:6380/
-ENV REDIS_EVENT_BUS=$REDIS_EVENT_BUS
+ARG EVENT_BUS_CONTAINER_NAME=event-bus
+ENV EVENT_BUS_CONTAINER_NAME=$EVENT_BUS_CONTAINER_NAME
 
 # Copy only the production artifacts from the build stage
 COPY --from=build /app/dist ./dist
