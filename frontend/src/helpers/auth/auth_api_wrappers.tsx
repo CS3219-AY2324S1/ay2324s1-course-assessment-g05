@@ -136,17 +136,27 @@ const sendPasswordResetEmail = async (email: string) => {
   );
 };
 
-const changePassword = async (
-  id: string,
-  token: string,
-  hashedPassword: string
-) => {
+const changePassword = async ({
+  id,
+  token,
+  oldPassword,
+  hashedNewPassword,
+}: {
+  id: string;
+  token?: string;
+  oldPassword?: string;
+  hashedNewPassword: string;
+}) => {
   // call PUT /api/auth/changePassword/:id from auth domain
   const response = await api({
     method: HTTP_METHODS.PUT,
     domain: domain,
     path: `changePassword/${id}`,
-    body: { token: token, hashedPassword: hashedPassword },
+    body: {
+      ...(token !== undefined && { token }),
+      ...(oldPassword !== undefined && { oldPassword: oldPassword }),
+      hashedNewPassword,
+    },
     tags: scope,
   });
 
@@ -161,7 +171,7 @@ const changePassword = async (
   );
 };
 
-function getError(status: HttpStatusCode, error?: string) {
+function getError(status: HttpStatusCode) {
   switch (status) {
     case HttpStatusCode.BAD_REQUEST:
       return PeerPrepErrors.BadRequestError;

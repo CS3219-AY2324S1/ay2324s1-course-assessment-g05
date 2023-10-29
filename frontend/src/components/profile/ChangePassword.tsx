@@ -4,8 +4,7 @@ import bcrypt from "bcryptjs-react";
 import { useAuthContext } from "@/contexts/auth";
 import displayToast from "../common/Toast";
 import { ToastType } from "@/types/enums";
-import { UserService } from "@/helpers/user/user_api_wrappers";
-import User from "@/types/user";
+import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 interface ChangePasswordProps {
   setIsChangePassword: (isChangePassword: boolean) => void;
 }
@@ -32,27 +31,16 @@ export default function ChangePassword({
   };
 
   useEffect(() => {
-    if (oldPassword != "" && user.password) {
-      validatePassword(oldPassword, user.password);
-    }
     setArePasswordsEqual(newPassword === confirmNewPassword);
 
-    if (isPasswordWrong) {
-      setErrorMsg("Old password is incorrect.");
-    } else if (newPassword !== "" && newPassword.length < 8) {
+    if (newPassword !== "" && newPassword.length < 8) {
       setErrorMsg("Password should contain 8 characters or more.");
     } else if (!arePasswordsEqual) {
       setErrorMsg("Passwords do not match.");
     } else {
       setErrorMsg("");
     }
-  }, [
-    oldPassword,
-    newPassword,
-    confirmNewPassword,
-    arePasswordsEqual,
-    isPasswordWrong,
-  ]);
+  }, [newPassword, confirmNewPassword, arePasswordsEqual, isPasswordWrong]);
 
   const toggleOldPasswordVisibility = () =>
     setIsOldPasswordVisible(!isOldPasswordVisible);
@@ -73,15 +61,14 @@ export default function ChangePassword({
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
-    const newUser: User = {
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      password: hashedNewPassword,
-    };
-
     try {
-      await UserService.updateUser(user.id!, newUser);
+      // Check if old password is correct
+      await AuthService.changePassword({
+        id: user.id!,
+        oldPassword: oldPassword,
+        hashedNewPassword: hashedNewPassword,
+      });
+
       await fetchUser(true);
       displayToast("Password changed successfully.", ToastType.SUCCESS);
     } catch (error) {

@@ -4,6 +4,7 @@ import { ResetPasswordMail } from "../../lib/email/resetPasswordMail";
 import jwt from "jsonwebtoken";
 import { UserService } from "../../lib/user_api_helpers";
 import db from "../../lib/db";
+import bcrypt from "bcrypt";
 
 const verifyUserEmail = async (request: Request, response: Response) => {
   try {
@@ -115,28 +116,78 @@ const changePassword = async (request: Request, response: Response) => {
 
     // check no extra properties in the request body
     const receivedProperties = Object.keys(request.body);
-    const allowedProperties = ["token", "hashedPassword"];
+    const allowedProperties = ["token", "oldPassword", "hashedNewPassword"];
 
-    const isInvalidProperty = receivedProperties.some(
+    const hasExtraProperty = receivedProperties.some(
       (property) => !allowedProperties.includes(property)
     );
 
-    if (isInvalidProperty) {
+    if (hasExtraProperty) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
-        message: "Invalid property in request body.",
+        message: "Invalid property.",
       });
       return;
     }
 
-    const token = request.body.token;
+    const { token, oldPassword, hashedNewPassword } = request.body;
 
-    // check if token is missing
-    if (!token) {
+    if (!token && !oldPassword) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
-        message: "Token is missing in the request body.",
+        message: "Token or password is required.",
       });
+      return;
+    }
+
+    if (!token) {
+      const user = await db.user.findFirst({
+        where: {
+          id: userId,
+        },
+        select: {
+          password: true,
+        },
+      });
+
+      if (!user) {
+        response.status(HttpStatusCode.NOT_FOUND).json({
+          error: "NOT FOUND",
+          message: `User with id ${userId} cannot be found.`,
+        });
+        return;
+      }
+
+      const isCorrectPassword = await bcrypt.compare(
+        oldPassword,
+        user.password
+      );
+
+      if (!isCorrectPassword) {
+        console.log(user.password, oldPassword);
+        response.status(HttpStatusCode.FORBIDDEN).json({
+          error: "FORBIDDEN",
+          message: "You don't have the permission to change password",
+        });
+        return;
+      }
+
+      const updateBody = {
+        password: hashedNewPassword,
+      };
+
+      const res = await UserService.updatePassword(userId, updateBody);
+
+      if (res.status !== HttpStatusCode.NO_CONTENT) {
+        const data = await res.json();
+        response.status(res.status).json({
+          error: data.error,
+          message: data.message,
+        });
+        return;
+      }
+
+      response.status(HttpStatusCode.NO_CONTENT).send();
       return;
     }
 
@@ -165,14 +216,15 @@ const changePassword = async (request: Request, response: Response) => {
 
     if (decoded.email !== user.email) {
       //return error
-      response
-        .status(HttpStatusCode.BAD_REQUEST)
-        .json({ error: "BAD REQUEST", messsage: "Token is wrong." });
+      response.status(HttpStatusCode.FORBIDDEN).json({
+        error: "FORBIDDEN",
+        message: "You don't have the permission to change password.",
+      });
       return;
     }
 
     const updateBody = {
-      password: request.body.hashedPassword,
+      password: hashedNewPassword,
       passwordResetToken: "",
     };
 
@@ -187,9 +239,7 @@ const changePassword = async (request: Request, response: Response) => {
       return;
     }
 
-    response.status(HttpStatusCode.NO_CONTENT).json({
-      success: true,
-    });
+    response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
     response.status(HttpStatusCode.BAD_REQUEST).json({
       error: "BAD REQUEST",
