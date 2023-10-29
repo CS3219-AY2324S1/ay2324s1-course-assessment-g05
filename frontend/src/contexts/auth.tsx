@@ -52,7 +52,6 @@ const AuthProvider = ({ children }: IAuthProvider) => {
     try {
       // POST /validate will not return password
       const rawUser = await AuthService.validateUser();
-      console.log(rawUser);
       updateUser(rawUser);
     } catch (error) {
       console.log(error);
