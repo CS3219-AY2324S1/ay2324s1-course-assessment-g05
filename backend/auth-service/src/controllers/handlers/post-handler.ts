@@ -55,6 +55,7 @@ const logInByEmail = async (request: Request, response: Response) => {
       },
       select: {
         id: true,
+        name: true,
         email: true,
         password: true,
         isVerified: true,
@@ -103,6 +104,7 @@ const logInByEmail = async (request: Request, response: Response) => {
         success: true,
         user: {
           id: user.id,
+          name: user.name,
           email: user.email,
           role: user.role,
           gender: user.gender,

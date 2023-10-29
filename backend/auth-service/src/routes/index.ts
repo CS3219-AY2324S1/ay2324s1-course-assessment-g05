@@ -38,6 +38,7 @@ router
 
     res.status(HttpStatusCode.OK).json({
       id: userToReturn.id,
+      name: userToReturn.name,
       email: userToReturn.email,
       role: userToReturn.role,
       gender: userToReturn.gender,
@@ -74,6 +75,7 @@ router
 
     res.status(HttpStatusCode.OK).json({
       id: userToReturn.id,
+      name: userToReturn.name,
       email: userToReturn.email,
       role: userToReturn.role,
       gender: userToReturn.gender,

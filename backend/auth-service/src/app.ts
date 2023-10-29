@@ -25,7 +25,7 @@ app.use(passport.initialize());
 const NODE_ENV = process.env.NODE_ENV || "development";
 app.use(`/auth/api`, router);
 
-app.all("*", (req: Request, res: Response) => {
+app.all("*", (_: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({
     error: "NOT FOUND",
     message: "The requested resource could not be found.",
@@ -34,6 +34,6 @@ app.all("*", (req: Request, res: Response) => {
 
 app.listen(process.env.SERVICE_PORT, () => {
   console.log(
-    `Server listens on port ${process.env.SERVICE_PORT} build[${NODE_ENV}] gateway[${process.env.GATEWAY}]`
+    `Auth Server listens on port ${process.env.SERVICE_PORT} build[${NODE_ENV}] gateway[${process.env.GATEWAY}]`
   );
 });
