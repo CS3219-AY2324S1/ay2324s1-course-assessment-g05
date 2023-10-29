@@ -23,15 +23,9 @@ export async function middleware(request: NextRequest) {
 
   const jwtCookieString = request.cookies.get("jwt")?.value as string;
 
-  if (!jwtCookieString) {
-    if (rerouteContents.includes(request.nextUrl.pathname)) {
-      return NextResponse.next();
-    }
-    return NextResponse.redirect(new URL("/login", request.nextUrl.origin));
-  }
+  let isAuthenticated = false;
 
   try {
-    // call auth service POST /validate to validate the jwt token
     const res = await fetch(authValidateEndpoint, {
       method: "POST",
       headers: {
@@ -39,31 +33,29 @@ export async function middleware(request: NextRequest) {
       },
     });
 
-    // handles authenicated user route navigation
     if (res.status === 200) {
-      if (rerouteContents.includes(request.nextUrl.pathname)) {
-        return NextResponse.redirect(
-          new URL("/dashboard", request.nextUrl.origin)
-        );
-      }
-      return NextResponse.next();
+      isAuthenticated = true;
     }
-    // handles error when auth or user service is down
-    else if (res.status >= 500) {
-      if (request.nextUrl.pathname !== "/error") {
-        return NextResponse.redirect(new URL("/error", request.nextUrl.origin));
-      }
-    } else {
-      if (rerouteContents.includes(request.nextUrl.pathname)) {
-        return NextResponse.next();
-      }
-    }
-  } catch (error) {
-    // handles unforseen error
+  } catch (err) {
+    // handles error when auth service is down
     if (request.nextUrl.pathname !== "/error") {
       return NextResponse.redirect(new URL("/error", request.nextUrl.origin));
     }
   }
 
+  //authenticated
+  if (isAuthenticated) {
+    if (rerouteContents.includes(request.nextUrl.pathname)) {
+      return NextResponse.redirect(
+        new URL("/dashboard", request.nextUrl.origin)
+      );
+    }
+    return NextResponse.next();
+  }
+
+  //not authenticated
+  if (rerouteContents.includes(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
   return NextResponse.redirect(new URL("/login", request.nextUrl.origin));
 }
