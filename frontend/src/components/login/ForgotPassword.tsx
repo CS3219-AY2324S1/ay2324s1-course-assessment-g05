@@ -86,10 +86,14 @@ export default function ForgotPasswordComponent() {
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedNewPassword = await bcrypt.hash(password, 10);
 
     try {
-      let res = await AuthService.changePassword(userId, token, hashedPassword);
+      let res = await AuthService.changePassword({
+        id: userId,
+        token: token,
+        hashedNewPassword: hashedNewPassword,
+      });
       if (res) {
         setIsSubmitted(true);
       }
