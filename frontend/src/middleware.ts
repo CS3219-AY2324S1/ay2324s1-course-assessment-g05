@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+
 export const config = {
+  // consume middleware for all API routes
   matcher: "/:path*",
 };
 
@@ -10,19 +12,26 @@ export async function middleware(request: NextRequest) {
   const port = host.startsWith("https") ? "" : ":5050";
   const authValidateEndpoint = `${host}${port}/auth/api/validate`;
 
-  const publicContent = ["/_next", "/assets", "/logout", "/forgotpassword"];
+  const publicRoutes = ["/_next", "/assets", "/logout", "/forgotpassword"];
 
-  if (publicContent.some((path) => request.nextUrl.pathname.startsWith(path))) {
+  // no need to validate the token for these routes
+  if (publicRoutes.some((path) => request.nextUrl.pathname.startsWith(path))) {
     return NextResponse.next();
   }
 
-  const reRouteContent = ["/login", "/", "/verify", "/error"];
+  const rerouteContents = ["/login", "/", "/verify", "/error"];
 
   const jwtCookieString = request.cookies.get("jwt")?.value as string;
 
-  let isAuthenticated = false;
+  if (!jwtCookieString) {
+    if (rerouteContents.includes(request.nextUrl.pathname)) {
+      return NextResponse.next();
+    }
+    return NextResponse.redirect(new URL("/login", request.nextUrl.origin));
+  }
 
   try {
+    // call auth service POST /validate to validate the jwt token
     const res = await fetch(authValidateEndpoint, {
       method: "POST",
       headers: {
@@ -30,36 +39,31 @@ export async function middleware(request: NextRequest) {
       },
     });
 
-    // handles error when user service is down
-    if (res.status === 503) {
+    // handles authenicated user route navigation
+    if (res.status === 200) {
+      if (rerouteContents.includes(request.nextUrl.pathname)) {
+        return NextResponse.redirect(
+          new URL("/dashboard", request.nextUrl.origin)
+        );
+      }
+      return NextResponse.next();
+    }
+    // handles error when auth or user service is down
+    else if (res.status >= 500) {
       if (request.nextUrl.pathname !== "/error") {
         return NextResponse.redirect(new URL("/error", request.nextUrl.origin));
       }
+    } else {
+      if (rerouteContents.includes(request.nextUrl.pathname)) {
+        return NextResponse.next();
+      }
     }
-
-    if (res.status === 200) {
-      isAuthenticated = true;
-    }
-  } catch (err) {
-    // handles error when auth service is down
+  } catch (error) {
+    // handles unforseen error
     if (request.nextUrl.pathname !== "/error") {
       return NextResponse.redirect(new URL("/error", request.nextUrl.origin));
     }
   }
 
-  //authenticated
-  if (isAuthenticated) {
-    if (reRouteContent.includes(request.nextUrl.pathname)) {
-      return NextResponse.redirect(
-        new URL("/dashboard", request.nextUrl.origin)
-      );
-    }
-    return NextResponse.next();
-  }
-
-  //not authenticated
-  if (reRouteContent.includes(request.nextUrl.pathname)) {
-    return NextResponse.next();
-  }
   return NextResponse.redirect(new URL("/login", request.nextUrl.origin));
 }
