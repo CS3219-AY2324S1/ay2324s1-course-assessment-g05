@@ -32,6 +32,24 @@ const authenticateWithJWT = async (
     where: {
       id: jwt_payload.sub,
     },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      image: true,
+      bio: true,
+      gender: true,
+      preferences: {
+        select: {
+          languages: true,
+          topics: true,
+          difficulties: true,
+        },
+      },
+      createdOn: true,
+      updatedOn: true,
+    },
   });
 
   // check if the user exists, if not, return undefined to fail the authentication
@@ -44,9 +62,16 @@ const jwtStrategy = new JwtStrategy(options, async (jwt_payload, done) => {
   let result: object | UserProfile | undefined = {};
   try {
     result = await authenticateWithJWT(jwt_payload);
+
+    // if user does not exist, return false
+    if (!result) {
+      return done(null, false);
+    }
   } catch (error) {
     console.log(error);
   }
+
+  // if user db throws an error, return empty object, so that the error can be handled in the route
   return done(null, result);
 });
 
