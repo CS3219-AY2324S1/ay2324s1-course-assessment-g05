@@ -40,6 +40,9 @@ ENV NM_MAIL=$NM_MAIL
 ARG NM_PASS
 ENV NM_PASS=$NM_PASS
 
+ARG CLOUD_URL
+ENV CLOUD_URL=$CLOUD_URL
+
 # Copy only the production artifacts from the build stage
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package*.json ./
