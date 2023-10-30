@@ -12,7 +12,7 @@ import {
 } from "../controllers/handlers/put-handler";
 import passport from "passport";
 import HttpStatusCode from "../common/HttpStatusCode";
-import { UserProfile } from "../common/types";
+import { Role, UserProfile } from "../common/types";
 
 const router: Router = Router();
 
@@ -25,29 +25,15 @@ router.route("/loginByEmail").post(logInByEmail);
 router
   .route("/validate")
   .post(passport.authenticate("jwt", { session: false }), (req, res, next) => {
-    // If user service is down, req.user will be an empty object
+    // If user db is down, req.user will be an empty object
     if (req.user && Object.keys(req.user).length === 0) {
       res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
         error: "INTERNAL SERVER ERROR",
-        message: "User service is down.",
+        message: "User database is down.",
       });
       return;
     }
-
-    const userToReturn = { ...req.user } as UserProfile;
-
-    res.status(HttpStatusCode.OK).json({
-      id: userToReturn.id,
-      name: userToReturn.name,
-      email: userToReturn.email,
-      role: userToReturn.role,
-      gender: userToReturn.gender,
-      bio: userToReturn.bio,
-      image: userToReturn.image,
-      createdOn: userToReturn.createdOn,
-      updatedOn: userToReturn.updatedOn,
-      isVerified: userToReturn.isVerified,
-    });
+    res.status(HttpStatusCode.OK).json(req.user);
   });
 
 router
@@ -57,13 +43,13 @@ router
     if (req.user && Object.keys(req.user).length === 0) {
       res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
         error: "INTERNAL SERVER ERROR",
-        message: "User service is down.",
+        message: "User database is down.",
       });
       return;
     }
 
     const user = req.user as UserProfile;
-    if (user.role !== "ADMIN") {
+    if (user.role !== Role.ADMIN) {
       res.status(HttpStatusCode.FORBIDDEN).json({
         error: "Forbidden",
         message: "You are not authorized to access this resource.",
@@ -71,20 +57,7 @@ router
       return;
     }
 
-    const userToReturn = { ...req.user } as UserProfile;
-
-    res.status(HttpStatusCode.OK).json({
-      id: userToReturn.id,
-      name: userToReturn.name,
-      email: userToReturn.email,
-      role: userToReturn.role,
-      gender: userToReturn.gender,
-      bio: userToReturn.bio,
-      image: userToReturn.image,
-      createdOn: userToReturn.createdOn,
-      updatedOn: userToReturn.updatedOn,
-      isVerified: userToReturn.isVerified,
-    });
+    res.status(HttpStatusCode.OK).json(req.user);
   });
 
 router.route("/logout").post(logOut);

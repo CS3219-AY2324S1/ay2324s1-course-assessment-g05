@@ -65,6 +65,13 @@ const logInByEmail = async (request: Request, response: Response) => {
         image: true,
         createdOn: true,
         updatedOn: true,
+        preferences: {
+          select: {
+            languages: true,
+            topics: true,
+            difficulties: true,
+          },
+        },
       },
     })) as UserProfile;
 
@@ -86,7 +93,7 @@ const logInByEmail = async (request: Request, response: Response) => {
     }
 
     // if user exists, check if password is correct
-    if (!(await validatePassword(password, user.password))) {
+    if (!(await validatePassword(password, user.password!))) {
       response.status(HttpStatusCode.UNAUTHORIZED).json({
         error: "UNAUTHORIZED",
         message: `The user credentials are incorrect`,
@@ -102,18 +109,7 @@ const logInByEmail = async (request: Request, response: Response) => {
       .status(HttpStatusCode.OK)
       .json({
         success: true,
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          gender: user.gender,
-          bio: user.bio,
-          image: user.image,
-          createdOn: user.createdOn,
-          updatedOn: user.updatedOn,
-          isVerified: user.isVerified,
-        },
+        user: user,
       });
   } catch (error) {
     console.log(error);
