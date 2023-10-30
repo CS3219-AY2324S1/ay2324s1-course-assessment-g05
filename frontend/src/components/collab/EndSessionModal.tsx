@@ -15,6 +15,7 @@ import {
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import displayToast from "../common/Toast";
 
 interface EndSessionModalProps {
   isOpen: boolean;
@@ -55,6 +56,11 @@ export default function EndSessionModal({
 
   const postToHistoryService = async () => {
     // in case of error, show 500 page
+    if (!endSessionState.code || endSessionState.code === "") {
+      displayToast(
+        "As no code modification is detected, the session is not saved."
+      );
+    }
     await HistoryService.postToHistoryService(
       user.id!,
       endSessionState.questionId,
