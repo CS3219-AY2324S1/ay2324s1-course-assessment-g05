@@ -17,9 +17,9 @@ const getServiceSecret = (): string => {
   return process.env.SERVICE_SECRET || "secret";
 };
 
-const issueJWT = (user: UserProfile) => {
+const issueJWT = (userId: string) => {
   const payload = {
-    sub: user.id,
+    sub: userId,
     iat: Date.now(),
   };
 
