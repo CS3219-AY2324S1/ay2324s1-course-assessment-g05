@@ -216,7 +216,7 @@ const ActivityHeatMap = () => {
     <div className="flex flex-col h-full w-full gap-2 rounded-lg overflow-auto scrollbar-hide">
       <div className="flex justify-between font-semibold py-4 px-2">
         <p>Submission from past 6 months:</p>
-        <Link href={`${CLIENT_ROUTES.QUESTIONS}/history`}>
+        <Link href={`${CLIENT_ROUTES.QUESTIONS}/history`} className="text-sky-500">
           <Icons.GoLinkExternal />
         </Link>
       </div>

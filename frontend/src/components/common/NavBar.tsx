@@ -47,20 +47,20 @@ const NavBar = () => {
       <Divider orientation="vertical" className="h-1/2 ml-5"/>
       <NavbarContent className="hidden sm:flex gap-4 p-3" justify="start">
         <NavbarItem>
-          <Link className="text-white" href={CLIENT_ROUTES.QUESTIONS}>
+          <Link className="text-white hover:text-yellow" href={CLIENT_ROUTES.QUESTIONS}>
             Questions
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link className="text-white" href={`${CLIENT_ROUTES.QUESTIONS}/history`}>
-            Past attempts
+          <Link className="text-white hover:text-yellow" href={`${CLIENT_ROUTES.QUESTIONS}/history`}>
+            Past Attempts
           </Link>
         </NavbarItem>
       </NavbarContent>
       <NavbarContent as="div" justify="end">
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
-            <button className="outline-none">
+            <button className="outline-none hover:opacity-70">
               <ProfilePictureAvatar profileUrl={image} />
             </button>
           </DropdownTrigger>

@@ -15,18 +15,6 @@ const HeatmapCard = () => {
       ) : (
         <div>
           <ActivityHeatMap />
-          {/* <div>
-            <Link
-              href={`${CLIENT_ROUTES.QUESTIONS}/history`}
-              className="text-sm mx-2"
-              size="md"
-              color="foreground"
-              showAnchorIcon
-              anchorIcon={<Icons.Anchor width="20" height="20" />}
-            >
-              View all attempted questions
-            </Link>
-          </div> */}
         </div>
       )}
     </Card>

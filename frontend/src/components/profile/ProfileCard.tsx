@@ -6,6 +6,7 @@ import displayToast from "../common/Toast";
 import { HTTP_METHODS, ToastType } from "@/types/enums";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
 import { Icons } from "../common/Icons";
+import SpinnerLoadingComponent from "../common/SpinnerLoadingComponent";
 
 interface ProfileCardProps {
   user: User;
@@ -102,12 +103,12 @@ export default function ProfileCard({ user, setImageUrl }: ProfileCardProps) {
                 }}
               >
                 {isUploading ? 
-                  <Spinner color="primary"/> 
+                  <SpinnerLoadingComponent /> 
                   :
                   <>
                     <Badge
                       content={<Icons.AiFillEdit />}
-                      color="primary"
+                      className="bg-sky-600"
                       size="md"
                       placement="bottom-right"
                       shape="circle"
