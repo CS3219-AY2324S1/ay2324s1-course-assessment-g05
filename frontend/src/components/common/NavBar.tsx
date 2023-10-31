@@ -10,6 +10,7 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownSection,
+  Divider,
 } from "@nextui-org/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -35,17 +36,24 @@ const NavBar = () => {
     return <></>;
   }
   return (
-    <Navbar className="bg-black justify-stretch" maxWidth="full" height="50px">
+    <>
+    <Navbar className="bg-black justify-stretch shadow-xl" maxWidth="full" height="50px">
       <NavbarBrand className="flex-grow-0">
         <Link href={CLIENT_ROUTES.HOME} className="flex items-center gap-1">
           <PeerPrepLogo width="30px" height="30px" />
           <p className="text-white text-2xl font-semibold"> PeerPrep </p>
         </Link>
       </NavbarBrand>
+      <Divider orientation="vertical" className="h-1/2 ml-5"/>
       <NavbarContent className="hidden sm:flex gap-4 p-3" justify="start">
         <NavbarItem>
-          <Link className="text-light-blue" href={CLIENT_ROUTES.QUESTIONS}>
+          <Link className="text-white" href={CLIENT_ROUTES.QUESTIONS}>
             Questions
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link className="text-white" href={`${CLIENT_ROUTES.QUESTIONS}/history`}>
+            Past attempts
           </Link>
         </NavbarItem>
       </NavbarContent>
@@ -74,6 +82,8 @@ const NavBar = () => {
         </Dropdown>
       </NavbarContent>
     </Navbar>
+    <div className="width-100 background-white h-1"></div>
+    </>
   );
 };
 
