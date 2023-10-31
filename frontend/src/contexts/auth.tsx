@@ -54,7 +54,6 @@ const AuthProvider = ({ children }: IAuthProvider) => {
       const rawUser = await AuthService.validateUser();
       updateUser(rawUser);
     } catch (error) {
-      console.log(error);
       setUser(defaultUser);
     } finally {
       !preventLoading && setIsLoading(false);
