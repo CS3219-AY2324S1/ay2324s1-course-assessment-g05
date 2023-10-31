@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { getHealth } from "../controllers/handlers/get-handler";
+import {
+  getHealth,
+  verifyResetPasswordLinkValidity,
+} from "../controllers/handlers/get-handler";
 import {
   logInByEmail,
   registerByEmail,
@@ -65,6 +68,10 @@ router.route("/logout").post(logOut);
 router.route("/verifyEmail/:email/:token").put(verifyUserEmail);
 
 router.route("/sendPasswordResetEmail/:email").put(sendPasswordResetEmail);
+
+router
+  .route("/verifyResetPasswordLinkValidity/:id/:token")
+  .get(verifyResetPasswordLinkValidity);
 
 router.route("/changePassword/:id").put(changePassword);
 
