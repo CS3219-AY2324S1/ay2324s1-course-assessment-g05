@@ -20,14 +20,13 @@ export type UserProfile = {
   name: string;
   email: string;
   role: Role; //enum
-  image?: string;
-  bio?: string;
-  gender?: Gender;
-  createdOn?: Date;
-  updatedOn?: Date;
-  preferences?: Preference;
-  isVerified?: boolean;
-  password?: string;
+  image: string | null;
+  bio: string | null;
+  gender: Gender | null;
+  createdOn: Date;
+  updatedOn: Date;
+  preferences: Preference | null;
+  isVerified: boolean;
 };
 
 export type Source = {

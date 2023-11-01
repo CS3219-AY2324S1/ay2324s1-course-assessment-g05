@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { UserService } from "../../lib/user_api_helpers";
 import db from "../../lib/db";
 import bcrypt from "bcrypt";
+import { validatePasswordResetToken } from "../../lib/utils";
 
 const verifyUserEmail = async (request: Request, response: Response) => {
   try {
@@ -146,6 +147,7 @@ const changePassword = async (request: Request, response: Response) => {
       return;
     }
 
+    // if token is not provided, this is a request to change password
     if (!token) {
       const user = await db.user.findFirst({
         where: {
@@ -170,7 +172,6 @@ const changePassword = async (request: Request, response: Response) => {
       );
 
       if (!isCorrectPassword) {
-        console.log(user.password, oldPassword);
         response.status(HttpStatusCode.FORBIDDEN).json({
           error: "FORBIDDEN",
           message: "You don't have the permission to change password.",
@@ -193,38 +194,18 @@ const changePassword = async (request: Request, response: Response) => {
         return;
       }
 
-      response.status(HttpStatusCode.NO_CONTENT).send();
-      return;
-    }
-
-    // verify if token is valid
-    const secretKey = process.env.EMAIL_RESET_SECRET!;
-
-    const decoded = jwt.verify(token, secretKey) as { email: string };
-
-    const user = await db.user.findFirst({
-      where: {
-        id: userId,
-      },
-      select: {
-        email: true,
-      },
-    });
-
-    // check if user exists
-    if (!user) {
-      response.status(HttpStatusCode.NOT_FOUND).json({
-        error: "NOT FOUND",
-        message: `User with id ${userId} cannot be found.`,
+      response.status(HttpStatusCode.NO_CONTENT).json({
+        success: true,
       });
       return;
     }
 
-    if (decoded.email !== user.email) {
-      //return error
+    // it token is provided, this is a request to reset password from email
+    const isTokenValid = await validatePasswordResetToken(token, userId);
+    if (!isTokenValid) {
       response.status(HttpStatusCode.FORBIDDEN).json({
         error: "FORBIDDEN",
-        message: "You don't have the permission to change password.",
+        message: "This reset password link is invalid.",
       });
       return;
     }
@@ -245,7 +226,9 @@ const changePassword = async (request: Request, response: Response) => {
       return;
     }
 
-    response.status(HttpStatusCode.NO_CONTENT).send();
+    response.status(HttpStatusCode.NO_CONTENT).json({
+      success: true,
+    });
   } catch (error) {
     response.status(HttpStatusCode.BAD_REQUEST).json({
       error: "BAD REQUEST",

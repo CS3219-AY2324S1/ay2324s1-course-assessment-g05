@@ -5,10 +5,32 @@ import { issueJWT, validatePassword } from "../../lib/utils";
 import { UserProfile } from "../../common/types";
 import { VerificationMail } from "../../lib/email/verificationMail";
 import db from "../../lib/db";
+import jwt from "jsonwebtoken";
 
 const registerByEmail = async (request: Request, response: Response) => {
   try {
-    const res = await UserService.createUser(request.body);
+    if (!request.body.email) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Email is required",
+      });
+      return;
+    }
+
+    // generate verification token for email verification
+    const secretKey = process.env.EMAIL_VERIFICATION_SECRET || "secret";
+
+    const verificationToken = jwt.sign(
+      { email: request.body.email },
+      secretKey
+    );
+
+    const userData = {
+      ...request.body,
+      verificationToken: verificationToken,
+    };
+
+    const res = await UserService.createUser(userData);
 
     if (res.status !== HttpStatusCode.CREATED) {
       const data = await res.json();
@@ -21,7 +43,6 @@ const registerByEmail = async (request: Request, response: Response) => {
 
     const user = await res.json();
 
-    // TODO: instead of getting verificationToken, generate here
     const mail = new VerificationMail(user.email, user.verificationToken);
     await mail.send();
 
@@ -49,7 +70,7 @@ const logInByEmail = async (request: Request, response: Response) => {
       return;
     }
 
-    const user = (await db.user.findFirst({
+    const user = await db.user.findFirst({
       where: {
         email: email,
       },
@@ -73,7 +94,7 @@ const logInByEmail = async (request: Request, response: Response) => {
           },
         },
       },
-    })) as UserProfile;
+    });
 
     if (!user) {
       response.status(HttpStatusCode.NOT_FOUND).json({
@@ -102,17 +123,26 @@ const logInByEmail = async (request: Request, response: Response) => {
     }
 
     //user exists + pw is correct + user is verified -> attach cookie and return user
-    const tokenObject = issueJWT(user);
+    const tokenObject = issueJWT(user.id);
+
+    //remove password from user object
+    let { password: _, ...userWithoutPassword } = user;
+
+    userWithoutPassword = userWithoutPassword as UserProfile;
 
     response
       .cookie("jwt", tokenObject, { httpOnly: true, secure: false })
       .status(HttpStatusCode.OK)
       .json({
         success: true,
-        user: user,
+        user: userWithoutPassword,
       });
   } catch (error) {
     console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "INTERNAL SERVER ERROR",
+      message: "Internal server error",
+    });
   }
 };
 

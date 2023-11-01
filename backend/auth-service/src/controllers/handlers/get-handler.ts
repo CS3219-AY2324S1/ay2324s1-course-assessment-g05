@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import HttpStatusCode from "../../common/HttpStatusCode";
 import db from "../../lib/db";
+import { validatePasswordResetToken } from "../../lib/utils";
 
 async function getHealth(_: Request, response: Response) {
   try {
@@ -19,4 +20,35 @@ async function getHealth(_: Request, response: Response) {
     });
   }
 }
-export { getHealth };
+
+const verifyResetPasswordLinkValidity = async (
+  request: Request,
+  response: Response
+) => {
+  const userId = request.params.id;
+
+  const token = request.params.token;
+
+  if (!userId || !token) {
+    response.status(HttpStatusCode.FORBIDDEN).json({
+      error: "FORBIDDEN",
+      message: "This reset password link is invalid.",
+    });
+    return;
+  }
+  const result = await validatePasswordResetToken(token, userId);
+
+  if (!result) {
+    response.status(HttpStatusCode.FORBIDDEN).json({
+      error: "FORBIDDEN",
+      message: "This reset password link is invalid.",
+    });
+    return;
+  } else {
+    response.status(HttpStatusCode.OK).json({
+      success: true,
+    });
+  }
+};
+
+export { getHealth, verifyResetPasswordLinkValidity };
