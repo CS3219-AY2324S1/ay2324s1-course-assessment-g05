@@ -36,6 +36,6 @@ const PORT = process.env.SERVICE_PORT || 5050;
 
 app.listen(process.env.SERVICE_PORT, () => {
   console.log(
-    `Auth Server listens on port ${process.env.SERVICE_PORT} build[${NODE_ENV}] user_gateway[${process.env.GATEWAY}]`
+    `Auth Server listens on port ${PORT} build[${NODE_ENV}] user_gateway[${process.env.GATEWAY}]`
   );
 });

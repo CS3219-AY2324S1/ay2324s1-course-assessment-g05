@@ -91,9 +91,7 @@ const sendPasswordResetEmail = async (request: Request, response: Response) => {
     );
     await mail.send();
 
-    response.status(HttpStatusCode.NO_CONTENT).json({
-      success: true,
-    });
+    response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
     response.status(HttpStatusCode.BAD_REQUEST).json({
       error: "BAD REQUEST",
@@ -106,10 +104,10 @@ const changePassword = async (request: Request, response: Response) => {
   try {
     const userId = request.params.id;
 
-    if (!userId) {
+    if (!request.body || Object.keys(request.body).length === 0) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
-        message: "User id is required.",
+        message: "Request body is missing.",
       });
       return;
     }
@@ -131,6 +129,14 @@ const changePassword = async (request: Request, response: Response) => {
     }
 
     const { token, oldPassword, hashedNewPassword } = request.body;
+
+    if (!hashedNewPassword) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Change password failed.",
+      });
+      return;
+    }
 
     if (!token && !oldPassword) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
@@ -167,7 +173,7 @@ const changePassword = async (request: Request, response: Response) => {
         console.log(user.password, oldPassword);
         response.status(HttpStatusCode.FORBIDDEN).json({
           error: "FORBIDDEN",
-          message: "You don't have the permission to change password",
+          message: "You don't have the permission to change password.",
         });
         return;
       }
