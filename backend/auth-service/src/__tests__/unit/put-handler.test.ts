@@ -27,10 +27,11 @@ describe("PUT /auth/api/changePassword/:id", () => {
   describe("Given a change password request body with a valid token", () => {
     it("should return 204 and update the password", async () => {
       // Assign
-      const token = "testToken";
+      const token = "testPasswordResetToken";
       const hashedNewPassword = "testHashedNewPassword";
       dbMock.user.findFirst = jest.fn().mockResolvedValue({
         email: "testuser@email.com",
+        passwordResetToken: "testPasswordResetToken",
       });
       jwtMock.verify = jest.fn().mockReturnValue({
         email: "testuser@email.com",
@@ -56,6 +57,7 @@ describe("PUT /auth/api/changePassword/:id", () => {
         },
         select: {
           email: true,
+          passwordResetToken: true,
         },
       });
       expect(jwtMock.verify).toBeCalledTimes(1);
@@ -93,7 +95,7 @@ describe("PUT /auth/api/changePassword/:id", () => {
       expect(status).toBe(HttpStatusCode.FORBIDDEN);
       expect(body).toEqual({
         error: "FORBIDDEN",
-        message: "You don't have the permission to change password.",
+        message: "This reset password link is invalid.",
       });
     });
   });
@@ -119,17 +121,17 @@ describe("PUT /auth/api/changePassword/:id", () => {
         });
 
       // Assert
-      expect(status).toBe(HttpStatusCode.BAD_REQUEST);
+      expect(status).toBe(HttpStatusCode.FORBIDDEN);
       expect(body).toEqual({
-        error: "BAD REQUEST",
-        message: "Change password failed.",
+        error: "FORBIDDEN",
+        message: "This reset password link is invalid.",
       });
       expect(dbMock.user.findFirst).not.toBeCalled();
     });
   });
 
   describe("Given a change password request body with an invalid user id", () => {
-    it("should return 404 with an error message", async () => {
+    it("should return 403 with an error message", async () => {
       // Assign
       const token = "testToken";
       const hashedNewPassword = "testHashedNewPassword";
@@ -147,10 +149,10 @@ describe("PUT /auth/api/changePassword/:id", () => {
         });
 
       // Assert
-      expect(status).toBe(HttpStatusCode.NOT_FOUND);
+      expect(status).toBe(HttpStatusCode.FORBIDDEN);
       expect(body).toEqual({
-        error: "NOT FOUND",
-        message: `User with id testUserId cannot be found.`,
+        error: "FORBIDDEN",
+        message: "This reset password link is invalid.",
       });
     });
   });

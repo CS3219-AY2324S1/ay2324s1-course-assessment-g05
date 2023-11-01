@@ -9,10 +9,36 @@ import jwt from "jsonwebtoken";
 
 const registerByEmail = async (request: Request, response: Response) => {
   try {
-    if (!request.body.email) {
+    if (!request.body || Object.keys(request.body).length === 0) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
-        message: "Email is required",
+        message: "Request body is missing.",
+      });
+      return;
+    }
+
+    const { name, email, password, role } = request.body;
+
+    if (!name || !email || !password || !role) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Name, email, password, and role are required.",
+      });
+      return;
+    }
+
+    // check no extra properties
+    const allowedProperties = ["name", "email", "password", "role"];
+    const requestProperties = Object.keys(request.body);
+
+    const hasExtraProperties = requestProperties.some(
+      (property) => !allowedProperties.includes(property)
+    );
+
+    if (hasExtraProperties) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Invalid properties.",
       });
       return;
     }
@@ -60,12 +86,36 @@ const registerByEmail = async (request: Request, response: Response) => {
 
 const logInByEmail = async (request: Request, response: Response) => {
   try {
+    if (!request.body || Object.keys(request.body).length === 0) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Request body is missing.",
+      });
+      return;
+    }
+
     const { email, password } = request.body;
 
     if (!email || !password) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
-        message: "Email and password are required",
+        message: "Email and password are required.",
+      });
+      return;
+    }
+
+    // check no extra properties
+    const allowedProperties = ["email", "password"];
+    const requestProperties = Object.keys(request.body);
+
+    const hasExtraProperties = requestProperties.some(
+      (property) => !allowedProperties.includes(property)
+    );
+
+    if (hasExtraProperties) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: "Invalid properties.",
       });
       return;
     }
@@ -97,9 +147,9 @@ const logInByEmail = async (request: Request, response: Response) => {
     });
 
     if (!user) {
-      response.status(HttpStatusCode.NOT_FOUND).json({
-        error: "NOT FOUND",
-        message: `User with email ${email} cannot be found`,
+      response.status(HttpStatusCode.UNAUTHORIZED).json({
+        error: "UNAUTHORIZED",
+        message: `The user credentials are incorrect.`,
       });
       return;
     }
@@ -108,7 +158,7 @@ const logInByEmail = async (request: Request, response: Response) => {
     if (!user.isVerified) {
       response.status(HttpStatusCode.FORBIDDEN).json({
         error: "FORBIDDEN",
-        message: `User is not verified`,
+        message: `User is not verified.`,
       });
       return;
     }
@@ -117,7 +167,7 @@ const logInByEmail = async (request: Request, response: Response) => {
     if (!(await validatePassword(password, user.password!))) {
       response.status(HttpStatusCode.UNAUTHORIZED).json({
         error: "UNAUTHORIZED",
-        message: `The user credentials are incorrect`,
+        message: `The user credentials are incorrect.`,
       });
       return;
     }

@@ -159,9 +159,9 @@ const changePassword = async (request: Request, response: Response) => {
       });
 
       if (!user) {
-        response.status(HttpStatusCode.NOT_FOUND).json({
-          error: "NOT FOUND",
-          message: `User with id ${userId} cannot be found.`,
+        response.status(HttpStatusCode.FORBIDDEN).json({
+          error: "FORBIDDEN",
+          message: "You don't have the permission to change password.",
         });
         return;
       }

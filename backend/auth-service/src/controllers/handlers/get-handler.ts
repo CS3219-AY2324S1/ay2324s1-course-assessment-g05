@@ -44,11 +44,11 @@ const verifyResetPasswordLinkValidity = async (
       message: "This reset password link is invalid.",
     });
     return;
-  } else {
-    response.status(HttpStatusCode.OK).json({
-      success: true,
-    });
   }
+
+  response.status(HttpStatusCode.OK).json({
+    success: true,
+  });
 };
 
 export { getHealth, verifyResetPasswordLinkValidity };
