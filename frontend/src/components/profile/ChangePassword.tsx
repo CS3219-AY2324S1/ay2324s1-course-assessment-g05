@@ -5,6 +5,7 @@ import { useAuthContext } from "@/contexts/auth";
 import displayToast from "../common/Toast";
 import { ToastType } from "@/types/enums";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
+import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 interface ChangePasswordProps {
   setIsChangePassword: (isChangePassword: boolean) => void;
 }
@@ -18,17 +19,11 @@ export default function ChangePassword({
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [arePasswordsEqual, setArePasswordsEqual] = useState(false);
-  const [isPasswordWrong, setIsPasswordWrong] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
   const [isOldPasswordVisible, setIsOldPasswordVisible] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isCheckPasswordVisible, setIsCheckPasswordVisible] = useState(false);
-
-  const validatePassword = async (password: string, hash: string) => {
-    const correct = await bcrypt.compare(password, hash);
-    setIsPasswordWrong(!correct);
-  };
 
   useEffect(() => {
     setArePasswordsEqual(newPassword === confirmNewPassword);
@@ -40,7 +35,7 @@ export default function ChangePassword({
     } else {
       setErrorMsg("");
     }
-  }, [newPassword, confirmNewPassword, arePasswordsEqual, isPasswordWrong]);
+  }, [newPassword, confirmNewPassword, arePasswordsEqual]);
 
   const toggleOldPasswordVisibility = () =>
     setIsOldPasswordVisible(!isOldPasswordVisible);
@@ -62,7 +57,6 @@ export default function ChangePassword({
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
     try {
-      // Check if old password is correct
       await AuthService.changePassword({
         id: user.id!,
         oldPassword: oldPassword,
@@ -72,10 +66,17 @@ export default function ChangePassword({
       await fetchUser(true);
       displayToast("Password changed successfully.", ToastType.SUCCESS);
     } catch (error) {
-      displayToast(
-        "Something went wrong. Please refresh and try again.",
-        ToastType.ERROR
-      );
+      if (error instanceof PeerPrepErrors.ForbiddenError) {
+        displayToast(
+          "Please check if the old password is correct.",
+          ToastType.ERROR
+        );
+      } else {
+        displayToast(
+          "Something went wrong. Please refresh and try again.",
+          ToastType.ERROR
+        );
+      }
     }
   };
 

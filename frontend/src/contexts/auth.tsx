@@ -75,8 +75,8 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   };
 
   const logIn = async (email: string, password: string) => {
-    await AuthService.logInByEmail(email, password);
-    await fetchUser(true);
+    const user = await AuthService.logInByEmail(email, password);
+    updateUser(user!);
   };
 
   const logOut = async () => {
