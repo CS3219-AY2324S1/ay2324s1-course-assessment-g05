@@ -16,12 +16,12 @@ jobs:
         node-version: [16.x, 18.x, 20.x]
         service:
           [
+            auth-service,
             user-service,
             question-service,
             collaboration-service,
             history-service,
             matching-service,
-            auth-service,
           ]
 
     services:
@@ -56,4 +56,3 @@ jobs:
         run: |
           cd backend/${{matrix.service}}
           npx jest --coverage --detectOpenHandles --forceExit
-        continue-on-error: true # Continue even if tests fail
