@@ -29,13 +29,6 @@ const verifyResetPasswordLinkValidity = async (
 
   const token = request.params.token;
 
-  if (!userId || !token) {
-    response.status(HttpStatusCode.FORBIDDEN).json({
-      error: "FORBIDDEN",
-      message: "This reset password link is invalid.",
-    });
-    return;
-  }
   const result = await validatePasswordResetToken(token, userId);
 
   if (!result) {

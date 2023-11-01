@@ -112,7 +112,14 @@ export default function ForgotPasswordComponent() {
         setIsSubmitted(true);
       }
     } catch (error) {
-      setIsSubmitted(true);
+      if (error instanceof PeerPrepErrors.InternalServerError) {
+        displayToast(
+          "Something went wrong. Please try again.",
+          ToastType.ERROR
+        );
+      } else {
+        setIsSubmitted(true);
+      }
     } finally {
       setIsLoading(false);
     }
