@@ -15,14 +15,22 @@ const verifyUserEmail = async (request: Request, response: Response) => {
     // verify if token is valid
     const secretKey = process.env.EMAIL_VERIFICATION_SECRET!;
 
-    const decoded = jwt.verify(token, secretKey) as { email: string };
+    try {
+      const decoded = jwt.verify(token, secretKey) as { email: string };
 
-    if (decoded.email !== email) {
+      if (decoded.email !== email) {
+        response.status(HttpStatusCode.BAD_REQUEST).json({
+          error: "BAD REQUEST",
+          message: "Email verification failed.",
+        });
+        return;
+      }
+    } catch (error) {
+      console.log(error);
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
         message: "Email verification failed.",
       });
-      return;
     }
 
     // query database for user email
@@ -56,8 +64,9 @@ const verifyUserEmail = async (request: Request, response: Response) => {
 
     response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
-    response.status(HttpStatusCode.BAD_REQUEST).json({
-      error: "BAD REQUEST",
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "Internal Server Error",
       message: "Email verification failed.",
     });
   }
@@ -109,6 +118,7 @@ const sendPasswordResetEmail = async (request: Request, response: Response) => {
 
     response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
+    console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "Internal Server Error",
       message: "Send reset password failed.",
@@ -138,10 +148,10 @@ const changePassword = async (request: Request, response: Response) => {
 
     const { token, oldPassword, hashedNewPassword } = request.body;
 
-    if (!token && !oldPassword) {
+    if ((!token && !oldPassword) || !hashedNewPassword) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
-        message: "Token or password is required.",
+        message: "Token/old password + New hashed password is required.",
       });
       return;
     }
@@ -193,9 +203,7 @@ const changePassword = async (request: Request, response: Response) => {
         return;
       }
 
-      response.status(HttpStatusCode.NO_CONTENT).json({
-        success: true,
-      });
+      response.status(HttpStatusCode.NO_CONTENT).send();
       return;
     }
 
@@ -227,8 +235,9 @@ const changePassword = async (request: Request, response: Response) => {
 
     response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
-    response.status(HttpStatusCode.BAD_REQUEST).json({
-      error: "BAD REQUEST",
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "Internal Server Error",
       message: "Change password failed.",
     });
   }
