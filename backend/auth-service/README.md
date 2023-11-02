@@ -371,7 +371,9 @@ status: 204 No Content
 ### `PUT /auth/api/changePassword/:id`
 
 This endpoint is used to change the password of the user. There are 2 use cases for this endpoint:
+
 Case 1. User who is logged in is trying to change their password
+
 Case 2. User who is not logged in is trying to change their password by using the password reset link.
 
 Note that in our implementation, the password should be hashed in the frontend before sending to this endpoint. Therefore, even though a new password can be set through this endpoint, this password cannot be used to log in the user through the endpoint [`POST /auth/api/loginByEmail`](#post-authapiloginbyemail), as the password will not pass our validity check.
@@ -385,7 +387,7 @@ Note that in our implementation, the password should be hashed in the frontend b
 | oldPassword | string | The user's original unhashed password (necessary for Case 1) |
 | hashedNewPassword | string | The new hashed password set by the user (necessary for Case 1 and 2) |
 
-**Request (Example 1)**
+**Request (Case 1)**
 
 ```
 PUT http://localhost:5050/auth/api/changePassword/cloft82xl000025vfzvj9s9rm
