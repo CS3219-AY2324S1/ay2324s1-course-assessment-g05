@@ -2,19 +2,19 @@
 
 ## Quick Navigation
 
-- [Set up](#Setup)
-- [Running the service](#Runningtheservice)
-- [Endpoint and usage](#Endpointandusage)
-  - [`GET /user/api/health`](#GETuserapihealth)
-  - [`GET /user/api/users/:userId`](#GETuserapiusers:userId)
-  - [`GET /<NODE_ENV>/user/api/users/email`](#GETNODE_ENVuserapiusersemail)
-  - [`GET /user/api/users/:userId/preferences`](#GETuserapiusers:userIdpreferences)
-  - [`POST /user/api/users`](#POSTuserapiusers)
-  - [`PUT /user/api/users/:userId`](#PUTuserapiusers:userId)
-  - [`DELETE /user/api/users/:userId`](#DELETEuserapiusers:userId)
-  - [`PUT /user/api/users/:userId/preferences`](#PUTuserapiusers:userIdpreferences)
+- [Set up](#set-up)
+- [Running the service](#running-the-service)
+- [Endpoint and usage](#endpoint-and-usage)
+  - [`GET /user/api/health`](#get-userapihealth)
+  - [`GET /user/api/users/:userId`](#get-userapiusersuserid)
+  - [`GET /user/api/users/email`](#get-userapiusersemail)
+  - [`GET /user/api/users/:userId/preferences`](#get-userapiusersuseridpreferences)
+  - [`POST /user/api/users`](#post-userapiusers)
+  - [`PUT /user/api/users/:userId`](#put-userapiusersuserid)
+  - [`DELETE /user/api/users/:userId`](#delete-userapiusersuserid)
+  - [`PUT /user/api/users/:userId/preferences`](#put-userapiusersuseridpreferences)
 
-## <a name='Setup'></a>Set up
+## Set up
 
 To set up `user-service` locally, we will need to create a `.env` file directly under `/user-service`. Ensure that you have all the environmental variables listed below:
 
@@ -25,7 +25,7 @@ LOG_LEVEL=debug
 DATABASE_URL=<COPY_DATABASE_URL_FROM_ENV_FILE_SECRETS>
 ```
 
-## <a name='Runningtheservice'></a>Running the service
+## Running the service
 
 To run the user service locally, run `npm run dev` directly under the `/user-service` directory.
 
@@ -33,9 +33,9 @@ There are multiple API endpoints available, you may find the detailed documentat
 
 **IMPORTANT:** All the user service endpoints, other than [`GET /user/api/health`](#GETuserapihealth) are protected, which means that they require a valid JWT token embedded inside a HTTP-Only cookie within the request header. To authenticate yourself, please refer to the `README.md` under `../auth-service`.
 
-## <a name='Endpointandusage'></a>Endpoint and usage
+## Endpoint and usage
 
-### <a name='GETuserapihealth'></a>`GET /user/api/health`
+### `GET /user/api/health`
 
 This endpoint helps ping the API server and the database connected to ensure it is working perfectly.
 
@@ -60,7 +60,7 @@ status: 200 OK
 | 200 | The API server is connected to the database and is working. |
 | 500 | The API server/database ran into a problem |
 
-### <a name='GETuserapiusers:userId'></a>`GET /user/api/users/:userId`
+### `GET /user/api/users/:userId`
 
 This endpoint returns the user information with the specific user id `userId` from the database. If you don't know about the `userId` yet, please use the `getUserByEmail` endpoint.
 
@@ -110,7 +110,7 @@ Response Body:
 |404|The given user id cannot be found|
 |500|Server error, please see log message for details|
 
-### <a name='GETNODE_ENVuserapiusersemail'></a>`GET /<NODE_ENV>/user/api/users/email`
+### `GET /user/api/users/email`
 
 This endpoint returns the user information based on the user email provided in the query parameter. The `email` query parameter must exist.
 
@@ -161,7 +161,7 @@ Response Body:
 |404|The given user email cannot be found|
 |500|Server error, please see log message for details|
 
-### <a name='GETuserapiusers:userIdpreferences'></a>`GET /user/api/users/:userId/preferences`
+### `GET /user/api/users/:userId/preferences`
 
 This endpoint only returns the preferences set by the user with `userId`.
 
@@ -197,7 +197,7 @@ GET http://localhost:5005/user/api/users/clmlp93wz00007kbwvws8oynd/preferences
 |404|The given user id cannot be found|
 |500|Server error, please see log message for details|
 
-### <a name='POSTuserapiusers'></a>`POST /user/api/users`
+### `POST /user/api/users`
 
 This endpoint allows creating a new user given some necessary information like `name`, `email`, and `role` in the request body.
 
@@ -250,7 +250,7 @@ Response Body:
 |409|The input user email is already taken|
 |500|Server error, please see log message for details|
 
-### <a name='PUTuserapiusers:userId'></a>`PUT /user/api/users/:userId`
+### `PUT /user/api/users/:userId`
 
 This endpoint updates the user information according to the request body provided.
 
@@ -299,7 +299,7 @@ No response body.
 |409|The user email is already taken|
 |500|Server error, please see log message for details|
 
-### <a name='DELETEuserapiusers:userId'></a>`DELETE /user/api/users/:userId`
+### `DELETE /user/api/users/:userId`
 
 This endpoint deletes user record from the database, be cautious when you are using this endpoint.
 
@@ -325,7 +325,7 @@ No response body.
 |404|The given user id cannot be found in the database|
 |500|Server error, please see log message for details|
 
-### <a name='PUTuserapiusers:userIdpreferences'></a>`PUT /user/api/users/:userId/preferences`
+### `PUT /user/api/users/:userId/preferences`
 
 This endpoint updates the user preferences, provided that there already have a preferences record in the database.
 
