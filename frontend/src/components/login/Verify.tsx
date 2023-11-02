@@ -74,7 +74,7 @@ export default function VerifyComponent() {
               </p>
               <Spacer y={5} />
               <Button
-                color="primary"
+                className="bg-sky-600"
                 onClick={() => {
                   router.push(CLIENT_ROUTES.LOGIN);
                 }}
@@ -105,7 +105,7 @@ export default function VerifyComponent() {
                     </p>
                     <Spacer y={5} />
                     <Button
-                      color="primary"
+                      className="bg-sky-600"
                       onClick={() => {
                         router.push(CLIENT_ROUTES.LOGIN);
                       }}
@@ -134,7 +134,7 @@ export default function VerifyComponent() {
                     <Spacer y={5} />
 
                     <Button
-                      color="primary"
+                      className="bg-sky-600"
                       onClick={() => {
                         router.push(CLIENT_ROUTES.LOGIN);
                       }}

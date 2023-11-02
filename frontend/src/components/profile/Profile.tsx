@@ -40,8 +40,8 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
   }
 
   return (
-    <div className="flex flex-col items-center align-middle justify-center h-screen space-y-6">
-      <Card className="flex w-unit-8xl">
+    <div className="flex flex-col items-center align-middle justify-center h-[calc(100vh-55px)] space-y-4">
+      <Card className="flex w-unit-8xl bg-black">
         <CardBody className="justify-center space-y-5">
           {isChangePassword ? (
             <ChangePassword setIsChangePassword={setIsChangePassword} />
@@ -57,14 +57,13 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
           )}
         </CardBody>
       </Card>
-      <Button>
-        <Link
-          onClick={() => {
-            router.push(CLIENT_ROUTES.HOME);
-          }}
-        >
-          Back to dashboard
-        </Link>
+      <Button
+        className="bg-black text-white hover:text-sky-600"
+        onClick={() => {
+          router.push(CLIENT_ROUTES.HOME);
+        }}
+      >
+        Back to dashboard
       </Button>
       <Button
         className="bg-red-700"

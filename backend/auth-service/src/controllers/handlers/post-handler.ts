@@ -43,7 +43,7 @@ const registerByEmail = async (request: Request, response: Response) => {
 
     const user = await res.json();
 
-    const mail = new VerificationMail(user.email, user.verificationToken);
+    const mail = new VerificationMail(user.email, verificationToken);
     await mail.send();
 
     response.status(HttpStatusCode.CREATED).json({

@@ -1,25 +1,45 @@
 # Question Service
 
+## Quick Navigation
+
+- [Setting up the service locally](#setting-up-the-service-locally)
+- [Running the service](#running-the-service)
+- [Endpoint and usage](#endpoint-and-usage)
+  - [`GET /question/api/health`](#get-questionapihealth)
+  - [`GET /question/api/questions`](#get-questionapiquestions)
+  - [`GET /question/api/questions/:questionId`](#get-questionapiquestionsquestionid)
+  - [`GET /question/api/topics`](#get-questionapitopics)
+  - [`POST /question/api/questions`](#post-questionapiquestions)
+  - [`PUT /question/api/questions/:questionId`](#put-questionapiquestionsquestionid)
+  - [`DELETE /question/api/questions/:questionId`](#delete-questionapiquestionsquestionid)
+
 ## Setting up the service locally
 
 To run the service locally, first create a `.env` file directly under the `question-service` path. Ensure that your `.env` file contains all the environmental variables listed below:
+
 ```
 SERVICE_PORT=5100
 DATABASE_URL=<REPLACE_WITH_THE_DATABASE_URL_IN_ENV_FILE_SECRETS>
 ```
+
 If you are running the question service for testing Assignment 1, kindly add an additional variable here:
+
 ```
 CONNECTION_STRING=<REPLACE_WITH_MONGO_URL_IN_ENV_FILE_SECRET>
 ```
 
+**IMPORTANT:** All the question service endpoints, other than [`GET /question/api/health`](#get-questionapihealth) are protected, which means that they require a valid JWT token embedded inside a HTTP-Only cookie within the request header. To authenticate yourself, please refer to the [`README.md`](#https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g05/tree/update-user-and-question-readme/backend/auth-service#authentication-service) under `../auth-service`. Additionally, for `POST`, `PUT` and `DELETE` endpoints, the authenticated user needs to be an `ADMIN`.
+
 ## Running the service
 
 To run the service, do the following command in the `question-service` path:
+
 ```bash
 npm run dev
 ```
 
 You may also build the docker image using the following command:
+
 ```bash
 docker build --tag question-service .
 ```
@@ -31,10 +51,13 @@ docker build --tag question-service .
 This endpoint helps ping the API server and the database connected to ensure it is working perfectly.
 
 **Example**
+
 ```
 GET http://localhost:5100/question/api/health
 ```
+
 **Response**
+
 ```
 status: 200 OK
 {
@@ -59,10 +82,13 @@ It is possible to provide filters to filter only desired questions by providing 
 | complexity | Complexity | Must be one of the valid complexity, either "Easy", "Medium", or "Hard" |
 
 **Example**
+
 ```
 GET http://localhost:5100/question/api/questions
 ```
+
 **Response**
+
 ```
 status: 200 OK
 {
@@ -112,10 +138,13 @@ status: 200 OK
 This endpoint returns the specific question with the `questionId` in detail.
 
 **Example**
+
 ```
 GET http://localhost:5100/question/api/questions/exampleQuestionId1
 ```
+
 **Response**
+
 ```
 status: 200 OK
 {
@@ -157,11 +186,13 @@ status: 200 OK
 This endpoint returns all the topics available for the question, any topic provided out of this list will result in an error.
 
 **Example**
+
 ```
 GET http://localhost:5100/question/api/topics
 ```
 
 **Response**
+
 ```
 {
     "topics": [
@@ -233,6 +264,7 @@ The structure of the `Example`:
 | explanation | string | The explanation of the intended behaviour, optional |
 
 **Example**
+
 ```
 POST http://localhost:5100/question/api/questions
 
@@ -255,7 +287,9 @@ POST http://localhost:5100/question/api/questions
     ]
 }
 ```
+
 **Response**
+
 ```
 status: 201 Created
 
@@ -275,7 +309,7 @@ status: 201 Created
 
 ### `PUT /question/api/questions/:questionId`
 
-This endpoint updates the existing question with the `questionId`. 
+This endpoint updates the existing question with the `questionId`.
 
 Please note that only user with `ADMIN` access can update the question.
 
@@ -292,6 +326,7 @@ Please note that only user with `ADMIN` access can update the question.
 | examples | Array<Example> | The input output example of the question, if any. See `postQuestion` endpoint details on how to construct a valid example, optional |
 
 **Example**
+
 ```
 PUT http://localhost:5100/question/api/questions/exampleQuestionId1
 
@@ -307,7 +342,7 @@ PUT http://localhost:5100/question/api/questions/exampleQuestionId1
         {
             "input": "a = 10",
             "output": "100",
-            "explanation": "A simple example of a code behaviour that multiply the input by 10." 
+            "explanation": "A simple example of a code behaviour that multiply the input by 10."
         },
         {
             "input": "a = 100",
@@ -335,11 +370,13 @@ This endpoint will perform the deletion of the question, be careful when calling
 Please note that only the user with `ADMIN` role will be allowed to delete the question.
 
 **Example**
+
 ```
 DELETE http://localhost:5100/question/api/questions/:questionId
 ```
 
 **Response**
+
 ```
 status: 204 NO CONTENT
 

@@ -160,14 +160,14 @@ export default function ChangePassword({
         </div>
         <div className="flex flex-row justify-between">
           <Link
-            className="cursor-pointer"
+            className="cursor-pointer text-sky-600"
             onClick={() => {
               setIsChangePassword(false);
             }}
           >
             Edit information
           </Link>
-          <Button type="submit" color="primary">
+          <Button type="submit" className="bg-sky-600">
             Confirm
           </Button>
         </div>

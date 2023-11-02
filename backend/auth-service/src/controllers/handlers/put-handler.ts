@@ -12,28 +12,46 @@ const verifyUserEmail = async (request: Request, response: Response) => {
     const email = request.params.email;
     const token = request.params.token;
 
-    if (!email || !token) {
-      response.status(HttpStatusCode.BAD_REQUEST).json({
-        error: "BAD REQUEST",
-        message: "Email and token are required.",
-      });
-      return;
-    }
-
     // verify if token is valid
     const secretKey = process.env.EMAIL_VERIFICATION_SECRET!;
 
-    const decoded = jwt.verify(token, secretKey) as { email: string };
+    try {
+      const decoded = jwt.verify(token, secretKey) as { email: string };
 
-    if (decoded.email !== email) {
+      if (decoded.email !== email) {
+        response.status(HttpStatusCode.BAD_REQUEST).json({
+          error: "BAD REQUEST",
+          message: "Email verification failed.",
+        });
+        return;
+      }
+    } catch (error) {
+      console.log(error);
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
         message: "Email verification failed.",
       });
+    }
+
+    // query database for user email
+    const user = await db.user.findFirst({
+      where: {
+        email: email,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!user) {
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: `User with email ${email} cannot be found.`,
+      });
       return;
     }
 
-    const res = await UserService.updateVerfication(email, token);
+    const res = await UserService.updateVerification(user.id);
 
     if (res.status !== HttpStatusCode.NO_CONTENT) {
       const data = await res.json();
@@ -46,8 +64,9 @@ const verifyUserEmail = async (request: Request, response: Response) => {
 
     response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
-    response.status(HttpStatusCode.BAD_REQUEST).json({
-      error: "BAD REQUEST",
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "Internal Server Error",
       message: "Email verification failed.",
     });
   }
@@ -57,10 +76,20 @@ const sendPasswordResetEmail = async (request: Request, response: Response) => {
   try {
     const email = request.params.email;
 
-    if (!email) {
-      response.status(HttpStatusCode.BAD_REQUEST).json({
-        error: "BAD REQUEST",
-        message: "Email is required.",
+    // query database for user email
+    const user = await db.user.findFirst({
+      where: {
+        email: email,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!user) {
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: `User with email ${email} cannot be found.`,
       });
       return;
     }
@@ -70,11 +99,12 @@ const sendPasswordResetEmail = async (request: Request, response: Response) => {
 
     const passwordResetToken = jwt.sign({ email: email }, secretKey);
 
-    const res = await UserService.updatePasswordResetToken(email, {
-      passwordResetToken: passwordResetToken,
-    });
+    const res = await UserService.updatePasswordResetToken(
+      user.id,
+      passwordResetToken
+    );
 
-    if (res.status !== HttpStatusCode.OK) {
+    if (res.status !== HttpStatusCode.NO_CONTENT) {
       const data = await res.json();
       response.status(res.status).json({
         error: data.error,
@@ -83,21 +113,14 @@ const sendPasswordResetEmail = async (request: Request, response: Response) => {
       return;
     }
 
-    const user = await res.json();
-
-    const mail = new ResetPasswordMail(
-      user.id,
-      user.email,
-      user.passwordResetToken
-    );
+    const mail = new ResetPasswordMail(user.id, email, passwordResetToken);
     await mail.send();
 
-    response.status(HttpStatusCode.NO_CONTENT).json({
-      success: true,
-    });
+    response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
-    response.status(HttpStatusCode.BAD_REQUEST).json({
-      error: "BAD REQUEST",
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "Internal Server Error",
       message: "Send reset password failed.",
     });
   }
@@ -106,14 +129,6 @@ const sendPasswordResetEmail = async (request: Request, response: Response) => {
 const changePassword = async (request: Request, response: Response) => {
   try {
     const userId = request.params.id;
-
-    if (!userId) {
-      response.status(HttpStatusCode.BAD_REQUEST).json({
-        error: "BAD REQUEST",
-        message: "User id is required.",
-      });
-      return;
-    }
 
     // check no extra properties in the request body
     const receivedProperties = Object.keys(request.body);
@@ -133,10 +148,10 @@ const changePassword = async (request: Request, response: Response) => {
 
     const { token, oldPassword, hashedNewPassword } = request.body;
 
-    if (!token && !oldPassword) {
+    if ((!token && !oldPassword) || !hashedNewPassword) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",
-        message: "Token or password is required.",
+        message: "Token/old password + New hashed password is required.",
       });
       return;
     }
@@ -188,9 +203,7 @@ const changePassword = async (request: Request, response: Response) => {
         return;
       }
 
-      response.status(HttpStatusCode.NO_CONTENT).json({
-        success: true,
-      });
+      response.status(HttpStatusCode.NO_CONTENT).send();
       return;
     }
 
@@ -220,12 +233,11 @@ const changePassword = async (request: Request, response: Response) => {
       return;
     }
 
-    response.status(HttpStatusCode.NO_CONTENT).json({
-      success: true,
-    });
+    response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
-    response.status(HttpStatusCode.BAD_REQUEST).json({
-      error: "BAD REQUEST",
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "Internal Server Error",
       message: "Change password failed.",
     });
   }

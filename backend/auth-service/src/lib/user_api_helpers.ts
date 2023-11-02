@@ -28,42 +28,40 @@ const createUser = async (user: UserProfile) => {
   return res;
 };
 
-const updateVerfication = async (email: string, token: string) => {
-  const res = await fetch(
-    `${getUserServiceEndpoint()}/user/api/users/updateVerification/${email}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        bypass: getServiceSecret(),
-      },
-    }
-  );
+const updateVerification = async (id: string) => {
+  const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      bypass: getServiceSecret(),
+    },
+    body: JSON.stringify({ verificationToken: "", isVerified: true }),
+  });
 
   console.debug(
-    `[updateVerfication][${
+    `[updateVerification][${
       res.status
-    }] fetch ${getUserServiceEndpoint()}/user/api/users/updateVerification/${email}`
+    }] fetch ${getUserServiceEndpoint()}/user/api/users/${id}`
   );
   return res;
 };
 
-const updatePasswordResetToken = async (email: string, updateBody: {}) => {
-  const res = await fetch(
-    `${getUserServiceEndpoint()}/user/api/users/updatePasswordResetToken/${email}`,
-    {
-      method: "PUT",
-      body: JSON.stringify(updateBody),
-      headers: {
-        "Content-Type": "application/json",
-        bypass: getServiceSecret(),
-      },
-    }
-  );
+const updatePasswordResetToken = async (
+  id: string,
+  passwordResetToken: string
+) => {
+  const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ passwordResetToken: passwordResetToken }),
+    headers: {
+      "Content-Type": "application/json",
+      bypass: getServiceSecret(),
+    },
+  });
   console.debug(
     `[updatePasswordResetToken][${
       res.status
-    }] fetch ${getUserServiceEndpoint()}/user/api/users/updatePasswordResetToken/${email}`
+    }] fetch ${getUserServiceEndpoint()}/user/api/users/${id}`
   );
   return res;
 };
@@ -88,7 +86,7 @@ const updatePassword = async (id: string, updateBody: {}) => {
 export const UserService = {
   createUser,
   getUserServiceEndpoint,
-  updateVerfication,
+  updateVerification,
   updatePasswordResetToken,
   updatePassword,
 };
