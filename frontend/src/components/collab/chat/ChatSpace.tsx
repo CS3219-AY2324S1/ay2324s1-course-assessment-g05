@@ -10,9 +10,6 @@ import { OpenAI } from "langchain/llms/openai";
 import { ConversationChain } from "langchain/chains";
 import { BufferMemory, ChatMessageHistory } from "langchain/memory";
 import { HumanMessage, AIMessage } from "langchain/schema";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 interface IChatSpaceProps {
     toggleLeft: boolean;
@@ -192,11 +189,11 @@ const ChatSpace = ({
             </div>
             <form
                 onSubmit={handleSubmitMessage}
-                className="p-4 flex gap-2 text-base font-semibold leading-7"
+                className="px-4 pt-4 flex gap-2 text-base font-semibold leading-7"
             >
                 <input
                     id="message"
-                    placeholder="Message"
+                    placeholder="Write a messsage..."
                     autoComplete="off"
                     className="px-2 py-2  rounded-md flex-1 font-light text-sm focus:outline-none focus:bg-zinc-800"
                     onChange={(e) => {
@@ -231,6 +228,12 @@ const ChatSpace = ({
                     </>
                 )}
             </form>
+            <p className="px-4 text-xs text-gray-200 leading-7 flex">
+                <div className="flex flex-col pr-1 justify-center">
+                    <Icons.HiOutlineLightBulb size={15} />
+                </div>
+                Tip: Start your message with "/ai" to chat with our AI bot.
+            </p>
         </div>
     );
 };

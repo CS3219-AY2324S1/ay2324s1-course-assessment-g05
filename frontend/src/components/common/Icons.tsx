@@ -17,7 +17,7 @@ import {
     FiX,
 } from "react-icons/fi";
 import { MdSignalWifiConnectedNoInternet0, MdSignalWifiStatusbar4Bar } from "react-icons/md";
-import { HiSwitchHorizontal } from "react-icons/hi";
+import { HiSwitchHorizontal, HiOutlineLightBulb } from "react-icons/hi";
 import { BsSendFill } from "react-icons/bs";
 import { SiOpenai } from "react-icons/si";
 
@@ -69,4 +69,5 @@ export const Icons = {
     BsSendFill,
     Anchor,
     SiOpenai,
+    HiOutlineLightBulb,
 };
