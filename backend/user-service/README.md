@@ -2,17 +2,19 @@
 
 ## Quick Navigation
 
-- [Set up](#set-up)
-- [Running the service](#running-the-service)
-- [Endpoint and usage](#endpoint-and-usage)
-  - [`GET /user/api/health`](#get-userapihealth)
-  - [`GET /user/api/users/:userId`](#get-userapiusersuserid)
-  - [`GET /user/api/users/email`](#get-userapiusersemail)
-  - [`GET /user/api/users/:userId/preferences`](#get-userapiusersuseridpreferences)
-  - [`POST /user/api/users`](#post-userapiusers)
-  - [`PUT /user/api/users/:userId`](#put-userapiusersuserid)
-  - [`DELETE /user/api/users/:userId`](#delete-userapiusersuserid)
-  - [`PUT /user/api/users/:userId/preferences`](#put-userapiusersuseridpreferences)
+- [User Service](#user-service)
+  - [Quick Navigation](#quick-navigation)
+  - [Set up](#set-up)
+  - [Running the service](#running-the-service)
+  - [Endpoint and usage](#endpoint-and-usage)
+    - [`GET /user/api/health`](#get-userapihealth)
+    - [`GET /user/api/users/:userId`](#get-userapiusersuserid)
+    - [`GET /user/api/users/email`](#get-userapiusersemail)
+    - [`GET /user/api/users/:userId/preferences`](#get-userapiusersuseridpreferences)
+    - [`POST /user/api/users`](#post-userapiusers)
+    - [`PUT /user/api/users/:userId`](#put-userapiusersuserid)
+    - [`DELETE /user/api/users/:userId`](#delete-userapiusersuserid)
+    - [`PUT /user/api/users/:userId/preferences`](#put-userapiusersuseridpreferences)
 
 ## Set up
 

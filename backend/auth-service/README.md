@@ -2,19 +2,21 @@
 
 ## Quick Navigation
 
-- [Set up](#set-up)
-- [Running the service](#running-the-service)
-- [Endpoint and usage](#endpoint-and-usage)
-  - [`GET /auth/api/health`](#get-authapihealth)
-  - [`GET /auth/api/verifyResetPasswordLinkValidity/:userId/:token`](#get-authapiverifyresetpasswordlinkvalidityuseridtoken)
-  - [`POST /auth/api/registerByEmail`](#post-authapiregisterbyemail)
-  - [`POST /auth/api/loginByEmail`](#post-authapiloginbyemail)
-  - [`POST /auth/api/logout`](#post-authapilogout)
-  - [`POST /auth/api/validate`](#post-authapivalidate)
-  - [`POST /auth/api/validateAdmin`](#post-authapivalidateadmin)
-  - [`PUT /auth/api/verifyEmail/:email/:token`](#put-authapiverifyemailemailtoken)
-  - [`PUT /auth/api/sendPasswordResetEmail/:email`](#put-authapisendpasswordresetemailemail)
-  - [`PUT /auth/api/changePassword/:id`](#put-authapichangepasswordid)
+- [Authentication Service](#authentication-service)
+  - [Quick Navigation](#quick-navigation)
+  - [Set up](#set-up)
+  - [Running the service](#running-the-service)
+  - [Endpoint and usage](#endpoint-and-usage)
+    - [`GET /auth/api/health`](#get-authapihealth)
+    - [`GET /auth/api/verifyResetPasswordLinkValidity/:userId/:token`](#get-authapiverifyresetpasswordlinkvalidityuseridtoken)
+    - [`POST /auth/api/registerByEmail`](#post-authapiregisterbyemail)
+    - [`POST /auth/api/loginByEmail`](#post-authapiloginbyemail)
+    - [`POST /auth/api/logout`](#post-authapilogout)
+    - [`POST /auth/api/validate`](#post-authapivalidate)
+    - [`POST /auth/api/validateAdmin`](#post-authapivalidateadmin)
+    - [`PUT /auth/api/verifyEmail/:email/:token`](#put-authapiverifyemailemailtoken)
+    - [`PUT /auth/api/sendPasswordResetEmail/:email`](#put-authapisendpasswordresetemailemail)
+    - [`PUT /auth/api/changePassword/:id`](#put-authapichangepasswordid)
 
 ## Set up
 
@@ -351,7 +353,6 @@ This endpoint is used to send a password reset link to the user's email and upda
 
 ```
 PUT http://localhost:5050/auth/api/sendPasswordResetEmail/userguide@mail.com
-
 ```
 
 **Response**
