@@ -149,7 +149,7 @@ const ChatSpace = ({
         <div className={`bg-black rounded-xl w-[400px] p-2`}>
             <div className="flex w-full justify-between mb-2">
                 <div className="flex items-center gap-2">
-                    <ProfilePictureAvatar profileUrl={partner.image!} size="8" />
+                    <ProfilePictureAvatar profileUrl={partner.image!} isChatAvatar />
 
                     <span className="font-semibold text-sm"> {partner.name} </span>
                 </div>

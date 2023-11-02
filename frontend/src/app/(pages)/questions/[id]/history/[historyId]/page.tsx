@@ -13,7 +13,7 @@ interface pageProps {
   };
 }
 
-const page = ({ params }: pageProps) => {
+const QuestionHistoryPage = ({ params }: pageProps) => {
   const searchParams = useSearchParams();
   const language = searchParams.get("language");
   const completedAt = searchParams.get("completedAt");
@@ -27,7 +27,6 @@ const page = ({ params }: pageProps) => {
   } = useHistoryContext();
 
   useEffect(() => {
-    console.log(language, question, code);
     if (!language) {
       return notFound();
     }
@@ -42,7 +41,6 @@ const page = ({ params }: pageProps) => {
   }, [question, code, language, completedAt]);
 
   if (isNotFoundError) {
-    console.log("Error not found!");
     return notFound();
   }
 
@@ -51,4 +49,4 @@ const page = ({ params }: pageProps) => {
   );
 };
 
-export default page;
+export default QuestionHistoryPage;

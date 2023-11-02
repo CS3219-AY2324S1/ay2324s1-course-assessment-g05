@@ -1,7 +1,17 @@
 // Used in api path, value should be in small caps
+export enum DOMAIN {
+  QUESTION = "question",
+  MATCHING = "matching",
+  USER = "user",
+  AUTH = "auth",
+  COLLABORATION = "collaboration",
+  HISTORY = "history",
+}
+
+// DEPRECIATED, changed to domain to support aws api route mapping
 export enum SERVICE {
   USER = "users",
-  QUESTION = "questions",
+  QUESTION = "question",
   AUTH = "auth",
   MATCHING = "matching",
   COLLABORATION = "collaboration",
@@ -89,6 +99,8 @@ export enum SocketEvent {
   ROOM_CLOSED = "room_closed",
   CODE_CHANGE = "code_change",
   CODE_UPDATE = "code_update",
+  CODE_EVENT = "code_event",
+  SEND_CODE_EVENT = "send_code_event",
   SEND_CHAT_MESSAGE = "send_chat_message",
   UPDATE_CHAT_MESSAGE = "update_chat_message",
   MATCHING_REQUEST = "request_match",
@@ -108,6 +120,10 @@ export enum SocketEvent {
   ROOM_NOT_FOUND = "room_not_found",
   USER_NOT_VALID = "user_not_valid",
   PARTNER_LEFT = "partner_left",
+  SEND_CURSOR_CHANGE = "send_cursor_change",
+  CURSOR_CHANGE = "cursor_change",
+  SEND_HIGHLIGHT_CHANGE = "send_highlight_change",
+  HIGHLIGHT_CHANGE = "highlight_change",
 }
 
 export enum MATCHING_STAGE {
