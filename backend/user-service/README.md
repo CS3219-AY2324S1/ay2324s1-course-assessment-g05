@@ -1,4 +1,4 @@
-# Simple guide about how to launch the user service
+# User Service
 
 ## Quick Navigation
 
@@ -31,7 +31,7 @@ To run the user service locally, run `npm run dev` directly under the `/user-ser
 
 There are multiple API endpoints available, you may find the detailed documentation of each endpoint in below section.
 
-**IMPORTANT:** All the user service endpoints, other than [`GET /user/api/health`](#GETuserapihealth) are protected, which means that they require a valid JWT token embedded inside a HTTP-Only cookie within the request header. To authenticate yourself, please refer to the `README.md` under `../auth-service`.
+**IMPORTANT:** All the user service endpoints, other than [`GET /user/api/health`](#get-userapihealth) are protected, which means that they require a valid JWT token embedded inside a HTTP-Only cookie within the request header. To authenticate yourself, please refer to the [`README.md`](#https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g05/tree/update-user-and-question-readme/backend/auth-service#authentication-service) under `../auth-service`.
 
 ## Endpoint and usage
 
