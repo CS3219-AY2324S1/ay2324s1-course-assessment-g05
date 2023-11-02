@@ -194,7 +194,7 @@ export function LoginComponent() {
 
   return (
     <div className="flex items-center justify-center h-screen">
-      <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
+      <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10 bg-black">
         <form className="w-1/2" onSubmit={isSignUp ? submitNewUser : getUser}>
           <PeerPrepLogo />
           <CardHeader className="lg font-bold justify-center">
@@ -283,12 +283,13 @@ export function LoginComponent() {
                   isLoading={isSubmitted}
                   type="submit"
                   color="primary"
-                  className="w-1/2"
+                  className="w-1/2 bg-sky-600"
                 >
                   {isSubmitted ? null : <>Sign Up</>}
                 </Button>
                 <Link
-                  className="cursor-pointer"
+                  size="sm"
+                  className="cursor-pointer text-sky-600 hover:underline"
                   onClick={() => {
                     toggleSignUp();
                   }}
@@ -305,7 +306,7 @@ export function LoginComponent() {
               </div>
               <div className="flex flex-col items-center pt-2">
                 <Button
-                  className="w-1/2"
+                  className="w-1/2 bg-sky-600"
                   type="submit"
                   isLoading={isSubmitted}
                   aria-label="Submit"
@@ -316,11 +317,15 @@ export function LoginComponent() {
               </div>
               <Spacer y={5} />
               <div className="flex justify-between">
-                <Link size="sm" href="/forgotpassword">
+                <Link
+                  className="text-sky-600 hover:underline"
+                  size="sm"
+                  href="/forgotpassword"
+                >
                   Forgot password?
                 </Link>
                 <Link
-                  className="cursor-pointer"
+                  className="cursor-pointer text-sky-600 hover:underline"
                   size="sm"
                   onClick={() => {
                     toggleSignUp();

@@ -224,7 +224,11 @@ export default function ForgotPasswordComponent() {
                 {!isSubmitted && (
                   <>
                     <Spacer y={5} />
-                    <Button color="primary" type="submit" isLoading={isLoading}>
+                    <Button
+                      className="bg-sky-600"
+                      type="submit"
+                      isLoading={isLoading}
+                    >
                       {isLoading ? null : <>Reset Password</>}
                     </Button>
                   </>
@@ -240,7 +244,7 @@ export default function ForgotPasswordComponent() {
               ) : null}
 
               <Link
-                className="cursor-pointer"
+                className="cursor-pointer hover:underline text-sky-600"
                 size="sm"
                 onClick={() => {
                   router.push(CLIENT_ROUTES.LOGIN);
@@ -261,7 +265,7 @@ export default function ForgotPasswordComponent() {
               link.
               <Spacer y={5} />
               <Link
-                className="cursor-pointer"
+                className="cursor-pointer hover:underline text-sky-600"
                 size="sm"
                 onClick={() => {
                   router.push(CLIENT_ROUTES.FORGOT_PASSWORD);
@@ -270,7 +274,7 @@ export default function ForgotPasswordComponent() {
                 Forgot password?
               </Link>
               <Link
-                className="cursor-pointer"
+                className="cursor-pointer hover:underline text-sky-600"
                 size="sm"
                 onClick={() => {
                   router.push(CLIENT_ROUTES.LOGIN);
@@ -365,7 +369,7 @@ export default function ForgotPasswordComponent() {
                 </p>
 
                 <Link
-                  className="cursor-pointer"
+                  className="cursor-pointer hover:underline text-sky-600"
                   size="sm"
                   onClick={() => {
                     router.push(CLIENT_ROUTES.LOGIN);
