@@ -9,7 +9,7 @@ const StatisticsCard = () => {
 
   return (
     <Card className="flex flex-col h-full justify-start bg-black rounded-lg px-6 py-1 text-sm overflow-y-auto">
-      <p className="mt-2">Solved Problems</p>
+      <p className="text-base mt-1">Solved Problems</p>
       {isLoading ? (
         <SpinnerLoadingComponent />
       ) : (
