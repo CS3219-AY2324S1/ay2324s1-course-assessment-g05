@@ -28,6 +28,26 @@ const createUser = async (user: UserProfile) => {
   return res;
 };
 
+const updateVerificationToken = async (
+  id: string,
+  verificationToken: string
+) => {
+  const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ verificationToken: verificationToken }),
+    headers: {
+      "Content-Type": "application/json",
+      bypass: getServiceSecret(),
+    },
+  });
+  console.debug(
+    `[updatePasswordResetToken][${
+      res.status
+    }] fetch ${getUserServiceEndpoint()}/user/api/users/${id}`
+  );
+  return res;
+};
+
 const updateVerification = async (id: string) => {
   const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/${id}`, {
     method: "PUT",
@@ -87,6 +107,7 @@ export const UserService = {
   createUser,
   getUserServiceEndpoint,
   updateVerification,
+  updateVerificationToken,
   updatePasswordResetToken,
   updatePassword,
 };
