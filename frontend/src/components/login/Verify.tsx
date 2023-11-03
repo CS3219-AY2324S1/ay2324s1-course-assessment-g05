@@ -16,6 +16,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { ToastType } from "@/types/enums";
 import displayToast from "@/components/common/Toast";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
+import { set } from "date-fns";
 
 export default function VerifyComponent() {
   // flags
@@ -25,6 +26,7 @@ export default function VerifyComponent() {
   const [isSuccessfulVerification, setIsSuccessfulVerification] =
     useState(false);
   const [isVerifiedLoading, setIsVerifiedLoading] = useState(true);
+  const [email, setEmail] = useState("");
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -49,43 +51,17 @@ export default function VerifyComponent() {
     const email = searchParams.get("email");
     const token = searchParams.get("token");
 
-    if (email && token) {
-      setIsVerificationFromEmailLink(true);
+    if (!email || !token) {
+      router.push(CLIENT_ROUTES.HOME);
+    } else {
       verifyEmail(email, token);
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   }, []);
 
   return (
     <div className="flex items-center justify-center h-screen">
-      {!isLoading && !isVerificationFromEmailLink && (
-        <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
-          <div className="w-1/2">
-            <PeerPrepLogo />
-            <CardHeader className="justify-center font-bold">
-              Sign Up Success
-            </CardHeader>
-            <CardBody className="flex flex-col ">
-              <Divider />
-              <Spacer y={5} />
-              <p className="flex text-center">
-                Please check your email for verification.
-              </p>
-              <Spacer y={5} />
-              <Button
-                className="bg-sky-600"
-                onClick={() => {
-                  router.push(CLIENT_ROUTES.LOGIN);
-                }}
-              >
-                Back to login
-              </Button>
-            </CardBody>
-          </div>
-        </Card>
-      )}
-      {isVerificationFromEmailLink && (
+      {!isLoading && isVerificationFromEmailLink && (
         <>
           {isVerifiedLoading ? (
             <LogoLoadingComponent />

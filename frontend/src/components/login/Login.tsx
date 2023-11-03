@@ -23,6 +23,7 @@ import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 import { useAuthContext } from "@/contexts/auth";
 import z from "zod";
 import { getLogger } from "@/helpers/logger";
+import SignUpSuccess from "./SignUpSuccess";
 
 export function LoginComponent() {
   const { logIn } = useAuthContext();
@@ -42,6 +43,7 @@ export function LoginComponent() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isCheckPasswordVisible, setIsCheckPasswordVisible] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUpSuccess, setIsSignUpSuccess] = useState(false);
   const [arePasswordsEqual, setArePasswordsEqual] = useState(false);
 
   // Toggles
@@ -125,7 +127,8 @@ export function LoginComponent() {
       await AuthService.registerByEmail(user);
 
       displayToast("Sign up success!", ToastType.SUCCESS);
-      router.push(CLIENT_ROUTES.VERIFY);
+
+      setIsSignUpSuccess(true);
     } catch (error) {
       if (error instanceof PeerPrepErrors.ConflictError) {
         displayToast(
@@ -192,7 +195,9 @@ export function LoginComponent() {
     }
   }
 
-  return (
+  return isSignUpSuccess ? (
+    <SignUpSuccess email={email} setIsSignUpSuccess={setIsSignUpSuccess} />
+  ) : (
     <div className="flex items-center justify-center h-screen">
       <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10 bg-black">
         <form className="w-1/2" onSubmit={isSignUp ? submitNewUser : getUser}>
