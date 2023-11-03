@@ -15,6 +15,7 @@
     - [`POST /auth/api/validate`](#post-authapivalidate)
     - [`POST /auth/api/validateAdmin`](#post-authapivalidateadmin)
     - [`PUT /auth/api/verifyEmail/:email/:token`](#put-authapiverifyemailemailtoken)
+    - [`PUT /auth/api/resendVerificationEmail/:email/`](#put-authapiresendverificationemailemail)
     - [`PUT /auth/api/sendPasswordResetEmail/:email`](#put-authapisendpasswordresetemailemail)
     - [`PUT /auth/api/changePassword/:id`](#put-authapichangepasswordid)
 
@@ -341,6 +342,36 @@ status: 400 Bad Request
 | 204 | The user was verified successfully |
 | 404 | The user with this email cannot be found |
 | 400 | The token is invalid |
+| 500 | Server error, please see log message for details |
+
+### `PUT /auth/api/resendVerificationEmail/:email`
+
+This endpoint is used to resend a verification email to the user's email and update the user's record in the database with a verification token that will be used to verify the validity of this link.
+
+**IMPORTANT:** This endpoint will call the user service internally. Therefore, make sure that the user service is running before calling this endpoint, else the server will always return error code 500.
+
+**Example**
+
+```
+PUT http://localhost:5050/auth/api/resendVerificationEmail/userguide@mail.com
+```
+
+**Response**
+
+```
+status: 409 Conflict
+{
+    "error": "CONFLICT",
+    "message": "User with email userguide@mail.com is already verified."
+}
+```
+
+**Possible Status Code**
+| Status Code | Explanation |
+|-------------|-------------|
+| 204 | The email was sent successfully |
+| 404 | The user with this email cannot be found |
+| 409 | The user with this email is already verified |
 | 500 | Server error, please see log message for details |
 
 ### `PUT /auth/api/sendPasswordResetEmail/:email`

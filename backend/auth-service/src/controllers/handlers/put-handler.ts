@@ -5,33 +5,16 @@ import jwt from "jsonwebtoken";
 import { UserService } from "../../lib/user_api_helpers";
 import db from "../../lib/db";
 import bcrypt from "bcrypt";
-import { validatePasswordResetToken } from "../../lib/utils";
+import {
+  validatePasswordResetToken,
+  validateVerificationToken,
+} from "../../lib/utils";
+import { VerificationMail } from "../../lib/email/verificationMail";
 
 const verifyUserEmail = async (request: Request, response: Response) => {
   try {
     const email = request.params.email;
     const token = request.params.token;
-
-    // verify if token is valid
-    const secretKey = process.env.EMAIL_VERIFICATION_SECRET!;
-
-    try {
-      const decoded = jwt.verify(token, secretKey) as { email: string };
-
-      if (decoded.email !== email) {
-        response.status(HttpStatusCode.BAD_REQUEST).json({
-          error: "BAD REQUEST",
-          message: "Email verification failed.",
-        });
-        return;
-      }
-    } catch (error) {
-      console.log(error);
-      response.status(HttpStatusCode.BAD_REQUEST).json({
-        error: "BAD REQUEST",
-        message: "Email verification failed.",
-      });
-    }
 
     // query database for user email
     const user = await db.user.findFirst({
@@ -47,6 +30,15 @@ const verifyUserEmail = async (request: Request, response: Response) => {
       response.status(HttpStatusCode.NOT_FOUND).json({
         error: "NOT FOUND",
         message: `User with email ${email} cannot be found.`,
+      });
+      return;
+    }
+
+    const isTokenValid = await validateVerificationToken(token, user.id);
+    if (!isTokenValid) {
+      response.status(HttpStatusCode.FORBIDDEN).json({
+        error: "FORBIDDEN",
+        message: "This verification link is invalid.",
       });
       return;
     }
@@ -68,6 +60,72 @@ const verifyUserEmail = async (request: Request, response: Response) => {
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "Internal Server Error",
       message: "Email verification failed.",
+    });
+  }
+};
+
+const resendVerificationEmail = async (
+  request: Request,
+  response: Response
+) => {
+  try {
+    const email = request.params.email;
+
+    // query database for user email
+    const user = await db.user.findFirst({
+      where: {
+        email: email,
+      },
+      select: {
+        id: true,
+        isVerified: true,
+      },
+    });
+
+    if (!user) {
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: `User with email ${email}} cannot be found.`,
+      });
+      return;
+    }
+
+    if (user.isVerified) {
+      response.status(HttpStatusCode.CONFLICT).json({
+        error: "CONFLICT",
+        message: `User with email ${email} is already verified.`,
+      });
+      return;
+    }
+
+    // generate verification token for email verification
+    const secretKey = process.env.EMAIL_VERIFICATION_SECRET || "secret";
+
+    const verificationToken = jwt.sign({ email: email }, secretKey);
+
+    const res = await UserService.updateVerificationToken(
+      user.id,
+      verificationToken
+    );
+
+    if (res.status !== HttpStatusCode.NO_CONTENT) {
+      const data = await res.json();
+      response.status(res.status).json({
+        error: data.error,
+        message: data.message,
+      });
+      return;
+    }
+
+    const mail = new VerificationMail(email, verificationToken);
+    await mail.send();
+
+    response.status(HttpStatusCode.NO_CONTENT).send();
+  } catch (error) {
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "Internal Server Error",
+      message: "Resend verification email failed.",
     });
   }
 };
@@ -243,4 +301,9 @@ const changePassword = async (request: Request, response: Response) => {
   }
 };
 
-export { verifyUserEmail, sendPasswordResetEmail, changePassword };
+export {
+  verifyUserEmail,
+  resendVerificationEmail,
+  sendPasswordResetEmail,
+  changePassword,
+};

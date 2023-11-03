@@ -16,17 +16,12 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { ToastType } from "@/types/enums";
 import displayToast from "@/components/common/Toast";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
-import { set } from "date-fns";
 
 export default function VerifyComponent() {
   // flags
-  const [isVerificationFromEmailLink, setIsVerificationFromEmailLink] =
-    useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSuccessfulVerification, setIsSuccessfulVerification] =
     useState(false);
   const [isVerifiedLoading, setIsVerifiedLoading] = useState(true);
-  const [email, setEmail] = useState("");
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -38,10 +33,7 @@ export default function VerifyComponent() {
         setIsSuccessfulVerification(true);
       }
     } catch (error) {
-      displayToast(
-        "Something went wrong. Please refresh and try again.",
-        ToastType.ERROR
-      );
+      setIsSuccessfulVerification(false);
     } finally {
       setIsVerifiedLoading(false);
     }
@@ -55,74 +47,68 @@ export default function VerifyComponent() {
       router.push(CLIENT_ROUTES.HOME);
     } else {
       verifyEmail(email, token);
-      setIsLoading(false);
     }
   }, []);
 
   return (
     <div className="flex items-center justify-center h-screen">
-      {!isLoading && isVerificationFromEmailLink && (
-        <>
-          {isVerifiedLoading ? (
-            <LogoLoadingComponent />
-          ) : (
-            <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
-              {isSuccessfulVerification && (
-                <div className="w-1/2">
-                  <PeerPrepLogo />
-                  <CardHeader className="justify-center font-bold">
-                    Verification Success
-                  </CardHeader>
-                  <CardBody className="flex flex-col">
-                    <Divider />
-                    <Spacer y={5} />
-                    <p className="flex text-center">
-                      You can now login to access our services.
-                    </p>
-                    <Spacer y={5} />
-                    <Button
-                      className="bg-sky-600"
-                      onClick={() => {
-                        router.push(CLIENT_ROUTES.LOGIN);
-                      }}
-                    >
-                      Login now
-                    </Button>
-                  </CardBody>
-                </div>
-              )}
-              {!isSuccessfulVerification && (
-                <div className="w-1/2">
-                  <PeerPrepLogo />
-                  <CardHeader className="justify-center font-bold">
-                    Verification Failed
-                  </CardHeader>
-                  <CardBody className="flex flex-col">
-                    <Divider />
-                    <Spacer y={5} />
-                    <p className="flex text-center">
-                      Please retry the link from your email.
-                    </p>
-                    <Spacer y={5} />
-                    <p className="flex text-center text-xs text-red-500">
-                      If this problem persists, please contact admin.
-                    </p>
-                    <Spacer y={5} />
+      {isVerifiedLoading ? (
+        <LogoLoadingComponent />
+      ) : isSuccessfulVerification ? (
+        <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
+          <div className="w-1/2">
+            <PeerPrepLogo />
+            <CardHeader className="justify-center font-bold">
+              Verification Success
+            </CardHeader>
+            <CardBody className="flex flex-col">
+              <Divider />
+              <Spacer y={5} />
+              <p className="flex text-center">
+                You can now login to access our services.
+              </p>
+              <Spacer y={5} />
+              <Button
+                className="bg-sky-600"
+                onClick={() => {
+                  router.push(CLIENT_ROUTES.LOGIN);
+                }}
+              >
+                Login now
+              </Button>
+            </CardBody>
+          </div>
+        </Card>
+      ) : (
+        <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
+          <div className="w-1/2">
+            <PeerPrepLogo />
+            <CardHeader className="justify-center font-bold">
+              Verification Failed
+            </CardHeader>
+            <CardBody className="flex flex-col">
+              <Divider />
+              <Spacer y={5} />
+              <p className="flex text-center">
+                Please retry the latest link from your email.
+              </p>
+              <Spacer y={5} />
+              <p className="flex text-center text-xs text-red-500">
+                If this problem persists, please contact admin.
+              </p>
+              <Spacer y={5} />
 
-                    <Button
-                      className="bg-sky-600"
-                      onClick={() => {
-                        router.push(CLIENT_ROUTES.LOGIN);
-                      }}
-                    >
-                      Back to login
-                    </Button>
-                  </CardBody>
-                </div>
-              )}
-            </Card>
-          )}
-        </>
+              <Button
+                className="bg-sky-600"
+                onClick={() => {
+                  router.push(CLIENT_ROUTES.LOGIN);
+                }}
+              >
+                Back to login
+              </Button>
+            </CardBody>
+          </div>
+        </Card>
       )}
     </div>
   );

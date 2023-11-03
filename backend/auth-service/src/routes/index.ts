@@ -12,6 +12,7 @@ import {
   verifyUserEmail,
   sendPasswordResetEmail,
   changePassword,
+  resendVerificationEmail,
 } from "../controllers/handlers/put-handler";
 import passport from "passport";
 import HttpStatusCode from "../common/HttpStatusCode";
@@ -66,6 +67,8 @@ router
 router.route("/logout").post(logOut);
 
 router.route("/verifyEmail/:email/:token").put(verifyUserEmail);
+
+router.route("/resendVerificationEmail/:email").put(resendVerificationEmail);
 
 router.route("/sendPasswordResetEmail/:email").put(sendPasswordResetEmail);
 
