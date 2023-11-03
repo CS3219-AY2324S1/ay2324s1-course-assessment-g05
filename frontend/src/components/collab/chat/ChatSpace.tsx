@@ -30,8 +30,6 @@ const ChatSpace = ({
 }: IChatSpaceProps) => {
     const { partner, user, socketService } = useCollabContext();
 
-    if (!socketService || !partner || !user) return null;
-
     const scrollTargetRef = useRef<HTMLDivElement>(null);
 
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -65,13 +63,13 @@ const ChatSpace = ({
     }, [isOpen]);
 
     useEffect(() => {
-        socketService.updateChatMessages(setNewMessages);
-        socketService.receiveChatList(setMessages);
-        socketService.receivePartnerConnection(setIsPartnerConnected);
+        socketService?.updateChatMessages(setNewMessages);
+        socketService?.receiveChatList(setMessages);
+        socketService?.receivePartnerConnection(setIsPartnerConnected);
     }, []);
 
     useEffect(() => {
-        if (newMessage.content !== "" && newMessage.senderId !== user.id) {
+        if (newMessage.content !== "" && newMessage.senderId !== user!.id!) {
             setMessages([...messages, newMessage]);
             scrollToNewestMessage();
         }
@@ -89,12 +87,12 @@ const ChatSpace = ({
 
         const message = {
             content: messageContent,
-            senderId: user.id!,
+            senderId: user!.id!,
             isAIMessage: false,
         };
 
         setMessages((prevMessages) => [...prevMessages, message]);
-        socketService.sendChatMessage(message);
+        socketService?.sendChatMessage(message);
 
         e.currentTarget.message.value = "";
         scrollToNewestMessage();
@@ -105,11 +103,11 @@ const ChatSpace = ({
             const AIMessageContent = await generateAIMessage(messageContent.substring(4));
             const AIMessage = {
                 content: AIMessageContent,
-                senderId: user.id!,
+                senderId: user!.id!,
                 isAIMessage: true,
             };
             setMessages((prevMessages) => [...prevMessages, AIMessage]);
-            socketService.sendChatMessage(AIMessage);
+            socketService?.sendChatMessage(AIMessage);
         }
 
         setIsGeneratingAIMessage(false);
@@ -149,9 +147,9 @@ const ChatSpace = ({
         <div className={`bg-black rounded-xl w-[400px] p-2`}>
             <div className="flex w-full justify-between mb-2">
                 <div className="flex items-center gap-2">
-                    <ProfilePictureAvatar profileUrl={partner.image!} isChatAvatar />
+                    <ProfilePictureAvatar profileUrl={partner!.image!} isChatAvatar />
 
-                    <span className="font-semibold text-sm"> {partner.name} </span>
+                    <span className="font-semibold text-sm"> {partner!.name!} </span>
                 </div>
                 <div>
                     <Tooltip
@@ -180,7 +178,7 @@ const ChatSpace = ({
                             <ChatBubble
                                 key={crypto.randomUUID()}
                                 message={item}
-                                isSelf={item.senderId === user.id!}
+                                isSelf={item.senderId === user!.id!}
                             />
                         ))}
                     </ul>
@@ -232,7 +230,7 @@ const ChatSpace = ({
                 <div className="flex flex-col pr-1 justify-center">
                     <Icons.HiOutlineLightBulb size={15} />
                 </div>
-                Tip: Start your message with "/ai" to chat with our AI bot.
+                Tip: Start your message with &quot;/ai&quot; to chat with our AI bot.
             </p>
         </div>
     );
