@@ -7,7 +7,7 @@ const QuestionFilter = () => {
   const { history } = useHistoryContext();
   const [showMore, setShowMore] = useState(false);
 
-  const maxTopicsToShow = 6;
+  const maxTopicsToShow = 5;
 
   const topicData =
     HistoryService.getNumberOfAttemptedQuestionsByTopic(history);
@@ -25,7 +25,7 @@ const QuestionFilter = () => {
       {topicData.length > maxTopicsToShow && (
         <button
           onClick={() => setShowMore(!showMore)}
-          className="mx-2 text-sm text-cyan-600"
+          className="mx-2 text-sm text-sky-500 hover:underline"
         >
           {showMore ? "Hide" : "Show more..."}
         </button>

@@ -63,7 +63,6 @@ export const postUser = async (request: Request, response: Response) => {
     response.status(HttpStatusCode.CREATED).json({
       id: user.id,
       email: user.email,
-      verificationToken: user.verificationToken,
       message: "User created.",
     });
   } catch (error) {

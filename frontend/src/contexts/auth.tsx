@@ -1,6 +1,9 @@
 "use client";
+
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
+import NavBar from "@/components/common/NavBar";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
+import { getLogger } from "@/helpers/logger";
 import { Role } from "@/types/enums";
 import User from "@/types/user";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -8,7 +11,6 @@ import { createContext, useContext, useEffect, useState } from "react";
 interface IAuthContext {
   user: User;
   fetchUser: (preventLoading: boolean) => Promise<void>;
-  isAuthenticated: boolean;
   logIn: (email: string, password: string) => Promise<void>;
   logOut: () => Promise<void>;
 }
@@ -29,7 +31,6 @@ const defaultUser: User = {
 const AuthContext = createContext<IAuthContext>({
   user: defaultUser,
   fetchUser: () => Promise.resolve(),
-  isAuthenticated: false,
   logIn: (email: string, password: string) => Promise.resolve(),
   logOut: () => Promise.resolve(),
 });
@@ -54,7 +55,7 @@ const AuthProvider = ({ children }: IAuthProvider) => {
       const rawUser = await AuthService.validateUser();
       updateUser(rawUser);
     } catch (error) {
-      console.log(error);
+      getLogger().error(error);
       setUser(defaultUser);
     } finally {
       !preventLoading && setIsLoading(false);
@@ -90,6 +91,7 @@ const AuthProvider = ({ children }: IAuthProvider) => {
       // this is the loading component that will render in every page when fetching user auth status
       return <LogoLoadingComponent />;
     }
+
     return children;
   };
 
@@ -98,11 +100,11 @@ const AuthProvider = ({ children }: IAuthProvider) => {
       value={{
         user,
         fetchUser,
-        isAuthenticated: !!user.id,
         logIn,
         logOut,
       }}
     >
+      {!!user.id && <NavBar />}
       {renderComponents()}
     </AuthContext.Provider>
   );

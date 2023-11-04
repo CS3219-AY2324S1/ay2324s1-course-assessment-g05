@@ -1,8 +1,10 @@
+import { AiFillEdit } from "react-icons/ai";
 import { BsFileEarmarkCode } from "react-icons/bs";
 import { TiTick } from "react-icons/ti";
 import { RxReset, RxCross2 } from "react-icons/rx";
-import { BiExitFullscreen, BiFullscreen } from "react-icons/bi";
+import { BiArrowBack, BiExitFullscreen, BiFullscreen } from "react-icons/bi";
 import { FaUserSlash } from "react-icons/fa";
+import { GoLinkExternal } from "react-icons/go";
 import {
   FiCheck,
   FiCodepen,
@@ -10,6 +12,7 @@ import {
   FiEye,
   FiPlay,
   FiPlusSquare,
+  FiSave,
   FiThumbsUp,
   FiTrash,
   FiUserX,
@@ -20,7 +23,7 @@ import {
   MdSignalWifiConnectedNoInternet0,
   MdSignalWifiStatusbar4Bar,
 } from "react-icons/md";
-import { HiSwitchHorizontal } from "react-icons/hi";
+import { HiOutlineLightBulb, HiSwitchHorizontal } from "react-icons/hi";
 import { BsSendFill } from "react-icons/bs";
 
 import React from "react";
@@ -51,6 +54,7 @@ export const Icons = {
   RxReset,
   BiFullscreen,
   BiExitFullscreen,
+  BiArrowBack,
   FiWifiOff,
   FiThumbsUp,
   FiUserX,
@@ -62,6 +66,7 @@ export const Icons = {
   FiTrash,
   FiEye,
   FiEdit,
+  FiSave,
   MdSignalWifiConnectedNoInternet0,
   MdSignalWifiStatusbar4Bar,
   TiTick,
@@ -70,4 +75,7 @@ export const Icons = {
   RxCross2,
   BsSendFill,
   Anchor,
+  AiFillEdit,
+  GoLinkExternal,
+  HiOutlineLightBulb
 };

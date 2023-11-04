@@ -68,10 +68,49 @@ const validatePasswordResetToken = async (
   }
 };
 
+const validateVerificationToken = async (
+  token: string,
+  userId: string
+): Promise<boolean> => {
+  const secretKey = process.env.EMAIL_VERIFICATION_SECRET!;
+
+  //jwt.verify will throw an error if the token is invalid (does not simply return false)
+  try {
+    const decoded = jwt.verify(token, secretKey) as { email: string };
+
+    const user = await db.user.findFirst({
+      where: {
+        id: userId,
+      },
+      select: {
+        email: true,
+        verificationToken: true,
+      },
+    });
+
+    // 2 steps to verify if the token is valid:
+    // 1. check if the decoded email in the token is the same as the user email in the database
+    // 2. check if the decoded token in the token is the same as the user token in the database
+    if (
+      !user ||
+      decoded.email !== user.email ||
+      token !== user.verificationToken
+    ) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+};
+
 export {
   validatePassword,
   getJWTSecret,
   getServiceSecret,
   issueJWT,
   validatePasswordResetToken,
+  validateVerificationToken,
 };

@@ -117,6 +117,26 @@ const verifyEmail = async (email: string, token: string) => {
   );
 };
 
+const resendVerificationEmail = async (email: string) => {
+  // call PUT /auth/api/resendVerificationEmail/:email from auth domain
+  const response = await api({
+    method: HTTP_METHODS.PUT,
+    domain: domain,
+    path: `resendVerificationEmail/${email}`,
+    tags: scope,
+  });
+
+  if (response.status === HttpStatusCode.NO_CONTENT) {
+    return true;
+  }
+
+  return throwAndLogError(
+    "resendVerificationEmail",
+    response.message,
+    getError(response.status)
+  );
+};
+
 const sendPasswordResetEmail = async (email: string) => {
   // call PUT /auth/api/sendPasswordResetEmail from auth domain
   const response = await api({
@@ -213,6 +233,7 @@ export const AuthService = {
   validateUser,
   logOut,
   verifyEmail,
+  resendVerificationEmail,
   sendPasswordResetEmail,
   verifyPasswordResetLinkValidity,
   changePassword,

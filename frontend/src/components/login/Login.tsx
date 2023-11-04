@@ -23,6 +23,7 @@ import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 import { useAuthContext } from "@/contexts/auth";
 import z from "zod";
 import { getLogger } from "@/helpers/logger";
+import SignUpSuccess from "./SignUpSuccess";
 
 export function LoginComponent() {
   const { logIn } = useAuthContext();
@@ -42,6 +43,7 @@ export function LoginComponent() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isCheckPasswordVisible, setIsCheckPasswordVisible] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUpSuccess, setIsSignUpSuccess] = useState(false);
   const [arePasswordsEqual, setArePasswordsEqual] = useState(false);
 
   // Toggles
@@ -125,7 +127,8 @@ export function LoginComponent() {
       await AuthService.registerByEmail(user);
 
       displayToast("Sign up success!", ToastType.SUCCESS);
-      router.push(CLIENT_ROUTES.VERIFY);
+
+      setIsSignUpSuccess(true);
     } catch (error) {
       if (error instanceof PeerPrepErrors.ConflictError) {
         displayToast(
@@ -133,7 +136,7 @@ export function LoginComponent() {
           ToastType.ERROR
         );
       } else {
-        logger.error(error);
+        getLogger().error(error);
         displayToast(
           "Something went wrong. Please refresh and try again.",
           ToastType.ERROR
@@ -192,9 +195,11 @@ export function LoginComponent() {
     }
   }
 
-  return (
+  return isSignUpSuccess ? (
+    <SignUpSuccess email={email} setIsSignUpSuccess={setIsSignUpSuccess} />
+  ) : (
     <div className="flex items-center justify-center h-screen">
-      <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
+      <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10 bg-black">
         <form className="w-1/2" onSubmit={isSignUp ? submitNewUser : getUser}>
           <PeerPrepLogo />
           <CardHeader className="lg font-bold justify-center">
@@ -283,12 +288,13 @@ export function LoginComponent() {
                   isLoading={isSubmitted}
                   type="submit"
                   color="primary"
-                  className="w-1/2"
+                  className="w-1/2 bg-sky-600"
                 >
                   {isSubmitted ? null : <>Sign Up</>}
                 </Button>
                 <Link
-                  className="cursor-pointer"
+                  size="sm"
+                  className="cursor-pointer text-sky-600 hover:underline"
                   onClick={() => {
                     toggleSignUp();
                   }}
@@ -305,7 +311,7 @@ export function LoginComponent() {
               </div>
               <div className="flex flex-col items-center pt-2">
                 <Button
-                  className="w-1/2"
+                  className="w-1/2 bg-sky-600"
                   type="submit"
                   isLoading={isSubmitted}
                   aria-label="Submit"
@@ -316,11 +322,15 @@ export function LoginComponent() {
               </div>
               <Spacer y={5} />
               <div className="flex justify-between">
-                <Link size="sm" href="/forgotpassword">
+                <Link
+                  className="text-sky-600 hover:underline"
+                  size="sm"
+                  href="/forgotpassword"
+                >
                   Forgot password?
                 </Link>
                 <Link
-                  className="cursor-pointer"
+                  className="cursor-pointer text-sky-600 hover:underline"
                   size="sm"
                   onClick={() => {
                     toggleSignUp();
