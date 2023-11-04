@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd backend/question-service
-          npm ci
+          npm install
 
       - name: Start User Service
         run: |
