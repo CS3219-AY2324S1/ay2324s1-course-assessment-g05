@@ -89,6 +89,7 @@ jobs:
       - name: Run Integration Tests
         run: |
           cd backend/question-service
+          npx prisma generate
           npm run integration-test
         env:
           NODE_ENV: "test"
