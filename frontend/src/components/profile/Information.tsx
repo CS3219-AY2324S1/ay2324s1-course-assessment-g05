@@ -276,7 +276,10 @@ export default function Information({
           >
             Change password
           </Link>
-          <Button type="submit" className="bg-sky-600">
+          <Button
+            type="submit"
+            className="bg-green-500 hover:bg-green-600 transition-colors"
+          >
             Save
           </Button>
         </div>

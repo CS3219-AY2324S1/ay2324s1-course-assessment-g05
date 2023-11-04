@@ -23,8 +23,6 @@ interface ProfileComponentProps {
 }
 
 export default function ProfileComponent({ user }: ProfileComponentProps) {
-  const router = useRouter();
-
   // Flags
   const [isChangePassword, setIsChangePassword] = useState(false);
 
@@ -40,8 +38,8 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
   }
 
   return (
-    <div className="flex flex-col items-center align-middle justify-center h-[calc(100vh-55px)] space-y-4">
-      <Card className="flex w-unit-8xl bg-black">
+    <div className="flex flex-col items-center align-middle justify-center h-[94vh]">
+      <Card className="flex w-unit-8xl bg-black mb-0">
         <CardBody className="justify-center space-y-5">
           {isChangePassword ? (
             <ChangePassword setIsChangePassword={setIsChangePassword} />
@@ -57,22 +55,24 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
           )}
         </CardBody>
       </Card>
-      <Button
-        className="bg-black text-white hover:text-sky-600"
-        onClick={() => {
-          router.push(CLIENT_ROUTES.HOME);
-        }}
-      >
-        Back to dashboard
-      </Button>
-      <Button
-        className="bg-red-700"
-        onClick={() => {
-          openModal();
-        }}
-      >
-        Delete User
-      </Button>
+      <div className="flex flex-row justify-end gap-2">
+        <Button
+          className="text-white bg-sky-600 hover:bg-sky-700 transition-transform flex jusstify-end"
+          as={Link}
+          href={CLIENT_ROUTES.HOME}
+        >
+          Back to dashboard
+        </Button>
+        <Button
+          className="bg-red-600 hover:bg-red-700 transition-transform flex justify-end"
+          onClick={() => {
+            openModal();
+          }}
+        >
+          Delete User
+        </Button>
+      </div>
+
       {user.id && (
         <DeleteModal userid={user.id} isOpen={isOpen} onClose={onClose} />
       )}
