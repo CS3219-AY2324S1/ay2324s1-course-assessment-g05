@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { CLIENT_ROUTES } from "@/common/constants";
 import displayToast from "../common/Toast";
 import { ToastType } from "@/types/enums";
+import { Icons } from "../common/Icons";
 
 interface ProfileComponentProps {
   user: User;
@@ -39,6 +40,16 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
 
   return (
     <div className="flex flex-col items-center align-middle justify-center h-[94vh]">
+      <div className="flex p-2 w-unit-8xl">
+        <Link
+            className="text-white hover:text-sky-700 flex gap-2"
+            as={Link}
+            href={CLIENT_ROUTES.HOME}
+          >
+          <Icons.BiArrowBack/>
+          <p>Back to dashboard</p>
+        </Link>
+      </div>
       <Card className="flex w-unit-8xl bg-black mb-0">
         <CardBody className="justify-center space-y-5">
           {isChangePassword ? (
@@ -55,21 +66,15 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
           )}
         </CardBody>
       </Card>
-      <div className="flex flex-row justify-end gap-2">
+      <div className="flex flex-row justify-end gap-2 m-4">
         <Button
-          className="text-white bg-sky-600 hover:bg-sky-700 transition-transform flex jusstify-end"
-          as={Link}
-          href={CLIENT_ROUTES.HOME}
-        >
-          Back to dashboard
-        </Button>
-        <Button
-          className="bg-red-600 hover:bg-red-700 transition-transform flex justify-end"
+          startContent={<Icons.FiTrash/>}
+          className="bg-transparent hover:bg-red-700 transition-transform flex justify-end"
           onClick={() => {
             openModal();
           }}
         >
-          Delete User
+          Delete Account
         </Button>
       </div>
 

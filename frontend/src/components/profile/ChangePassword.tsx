@@ -165,7 +165,7 @@ export default function ChangePassword({
               setIsChangePassword(false);
             }}
           >
-            Edit information
+            Back to profile
           </Link>
           <Button type="submit" className="bg-sky-600">
             Confirm

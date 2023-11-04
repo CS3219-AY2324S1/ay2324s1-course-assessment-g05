@@ -19,6 +19,7 @@ import { UserService } from "@/helpers/user/user_api_wrappers";
 import Preference from "@/types/preference";
 import { useAuthContext } from "@/contexts/auth";
 import { getTopics } from "@/helpers/question/question_api_wrappers";
+import { Icons } from "../common/Icons";
 
 interface InformationProps {
   user: User;
@@ -152,16 +153,15 @@ export default function Information({
 
   return (
     <div>
-      <header className="justify-center text-m underline">
-        Edit your information:
-      </header>
-      <Spacer y={4} />
       <form
         className="justify-center max-w-xl space-y-4"
         onSubmit={(e) => {
           saveInformation(e, updatedUser, preferences);
         }}
       >
+        <header className=" text-lg">
+          Basic Information:
+        </header>
         <Input
           isRequired
           label="Name"
@@ -214,6 +214,10 @@ export default function Information({
             "flex flex-col h-full justify-start gap-4 text-sm overflow-hidden"
           }
         >
+        <Spacer y={2} />
+        <header className=" text-lg">
+          Matching Preference:
+        </header>
           <Select
             name="languages"
             label="Progamming languages"
@@ -277,6 +281,7 @@ export default function Information({
             Change password
           </Link>
           <Button
+            startContent={<Icons.FiSave/>}
             type="submit"
             className="bg-green-500 hover:bg-green-600 transition-colors"
           >
