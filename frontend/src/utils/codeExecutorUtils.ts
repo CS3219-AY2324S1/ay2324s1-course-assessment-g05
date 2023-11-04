@@ -270,7 +270,10 @@ const formatArrayType = (
 
   switch (language.toLowerCase()) {
     case "cpp":
-      value = value.replace(/\[/g, "{").replace(/\]/g, "}");
+      value = value
+        .replace(/\[/g, "{")
+        .replace(/\]/g, "}")
+        .replace(/null/g, "nullptr");
       if (variableType === VariableType.STRING) {
         return `#include <string>\nstd::string ${variableName}[] = ${value};\n`;
       } else if (variableType === VariableType.INTEGER) {
@@ -295,6 +298,7 @@ const formatArrayType = (
         return "NOT SUPPORTED";
       }
     case "python":
+      value = value.replace(/null/g, "None");
       return `${variableName} = ${value}\n`;
     case "javascript":
       return `const ${variableName} = ${value};\n`;

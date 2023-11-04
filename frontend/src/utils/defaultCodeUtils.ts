@@ -23,8 +23,6 @@ export const getCodeTemplate = (
     language
   );
 
-  console.log("This is my formatted input variables", formattedInputVariables);
-
   const formattedExampleInput = formatExampleInput(
     formattedInputVariables,
     language
@@ -32,13 +30,13 @@ export const getCodeTemplate = (
 
   switch (language.toLowerCase()) {
     case "cpp":
-      return `${formattedExampleInput}\nclass Solution {\npublic:\n\t// change the function type and arguments below if necessary\n\tvoid ${formattedQuestionTitle}(/*define your params here*/){\n\t\t\n\t};\n\n//TODO: call your function and print its output below}`;
+      return `#include <iostream>\n${formattedExampleInput}\nclass Solution {\npublic:\n\t// change the function type and arguments below if necessary\n\tvoid ${formattedQuestionTitle}(/*define your params here*/){\n\t\t\n\t};\n\n//TODO: call your function and print its output below using cout`;
     case "java":
-      return `${formattedExampleInput}\nclass Solution {\n\t// change the function type and arguments below if necessary\n\tpublic static void ${formattedQuestionTitle}(/*define your params here*/) {\n\t\t\n\t}\n}\n\n//TODO: call your function and print its output below`;
+      return `${formattedExampleInput}\nclass Solution {\n\t// change the function type and arguments below if necessary\n\tpublic static void ${formattedQuestionTitle}(/*define your params here*/) {\n\t\t\n\t}\n}\n\n//TODO: call your function and print its output below using print()`;
     case "python":
-      return `${formattedExampleInput}\n#TODO: change the function arguments below \ndef ${formattedQuestionTitle}():\n\treturn\n\n#TODO: call your function and print its output below`;
+      return `${formattedExampleInput}\n#TODO: change the function arguments below \ndef ${formattedQuestionTitle}():\n\treturn\n\n#TODO: call your function and print its output below using print()`;
     case "javascript":
-      return `${formattedExampleInput}\nconst ${formattedQuestionTitle} = (/*define your params here*/) => {\n\treturn;\n}\n\n//TODO: call your function and print its output below`;
+      return `${formattedExampleInput}\nconst ${formattedQuestionTitle} = (/*define your params here*/) => {\n\treturn;\n}\n\n//TODO: call your function and print its output below using console.log()`;
     default:
       return "";
   }
