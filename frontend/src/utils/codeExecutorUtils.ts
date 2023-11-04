@@ -281,11 +281,12 @@ const formatArrayType = (
       } else if (variableType === VariableType.DOUBLE) {
         return `double ${variableName}[] = ${value};\n`;
       } else if (variableType === VariableType.BOOLEAN) {
-        return `#include <iostream>\nbool ${variableName}[] = ${value};\n`;
+        return `bool ${variableName}[] = ${value};\n`;
       } else {
         return "NOT SUPPORTED";
       }
     case "java":
+      value = value.replace(/\[/g, "{").replace(/\]/g, "}").replace(/'/g, '"');
       if (variableType === VariableType.STRING) {
         return `String[] ${variableName} = ${value};\n`;
       } else if (variableType === VariableType.INTEGER) {
