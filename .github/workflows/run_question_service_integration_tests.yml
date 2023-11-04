@@ -26,11 +26,14 @@ jobs:
           node-version: ${{matrix.node-version}}
 
       - name: Clean up
-        run: rm -rf backend/question-service/node_modules
+        run: |
+          rm -rf backend/question-service/node_modules
           rm -rf backend/question-service/coverage
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          cd backend/question-service
+          npm ci
 
       - name: Start User Service
         run: |
