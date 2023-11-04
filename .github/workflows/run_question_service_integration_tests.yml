@@ -33,11 +33,12 @@ jobs:
       - name: Install dependencies
         run: |
           cd backend/question-service
-          npm install
+          npm ci
 
       - name: Start User Service
         run: |
           cd backend/user-service
+          npm install --save-dev nodemon
           npm run dev &
           # Capture the process ID (PID) of the service
           USER_SERVICE_PID=$!
@@ -48,6 +49,7 @@ jobs:
       - name: Start Auth Service
         run: |
           cd backend/auth-service
+          npm install --save-dev nodemon
           npm run dev &
           # Capture the process ID (PID) of the service
           AUTH_SERVICE_PID=$!
