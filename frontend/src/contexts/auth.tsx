@@ -1,7 +1,9 @@
 "use client";
+
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import NavBar from "@/components/common/NavBar";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
+import { getLogger } from "@/helpers/logger";
 import { Role } from "@/types/enums";
 import User from "@/types/user";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -53,6 +55,7 @@ const AuthProvider = ({ children }: IAuthProvider) => {
       const rawUser = await AuthService.validateUser();
       updateUser(rawUser);
     } catch (error) {
+      getLogger().error(error);
       setUser(defaultUser);
     } finally {
       !preventLoading && setIsLoading(false);

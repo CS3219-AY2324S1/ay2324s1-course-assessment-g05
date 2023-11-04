@@ -136,7 +136,7 @@ export function LoginComponent() {
           ToastType.ERROR
         );
       } else {
-        logger.error(error);
+        getLogger().error(error);
         displayToast(
           "Something went wrong. Please refresh and try again.",
           ToastType.ERROR

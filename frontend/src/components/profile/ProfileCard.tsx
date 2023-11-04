@@ -5,6 +5,8 @@ import User from "@/types/user";
 import displayToast from "../common/Toast";
 import { HTTP_METHODS, ToastType } from "@/types/enums";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
+import { uploadImageToS3 } from "@/helpers/aws/s3_client";
+import { getLogger } from "@/helpers/logger";
 import { Icons } from "../common/Icons";
 import SpinnerLoadingComponent from "../common/SpinnerLoadingComponent";
 
@@ -78,6 +80,7 @@ export default function ProfileCard({ user, setImageUrl }: ProfileCardProps) {
         await handleFileUpload(selectedFile);
       }
     } catch (error: any) {
+      getLogger().error(error);
       displayToast(error.message, ToastType.ERROR);
     } finally {
       if (inputFile.current) {
