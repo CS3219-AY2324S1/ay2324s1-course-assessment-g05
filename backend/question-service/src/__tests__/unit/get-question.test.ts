@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import createUnitTestServer from "../utils/server";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
-import * as TestPayload from "../utils/payloads";
+import * as TestPayload from "../utils/payloads/payloads";
 import Topic from "../../lib/enums/Topic";
 import db from "../../models/db";
 
