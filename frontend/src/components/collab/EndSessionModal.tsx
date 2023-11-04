@@ -61,7 +61,9 @@ export default function EndSessionModal({
       displayToast(
         "As no code modification is detected, the session is not saved."
       );
+      return;
     }
+
     await HistoryService.postToHistoryService(
       user.id!,
       endSessionState.questionId,

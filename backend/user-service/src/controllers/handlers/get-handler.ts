@@ -25,6 +25,7 @@ export const getHealth = async (_: Request, response: Response) => {
 export const getUserById = async (request: Request, response: Response) => {
   try {
     const userId = request.params.userId;
+
     // query database for user with id
     const user = await db.user.findFirst({
       where: {
@@ -49,7 +50,7 @@ export const getUserById = async (request: Request, response: Response) => {
         updatedOn: true,
       },
     });
-    
+
     if (!user) {
       response.status(HttpStatusCode.NOT_FOUND).json({
         error: "NOT FOUND",
