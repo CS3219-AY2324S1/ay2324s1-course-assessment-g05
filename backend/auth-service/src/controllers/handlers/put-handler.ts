@@ -58,7 +58,7 @@ const verifyUserEmail = async (request: Request, response: Response) => {
   } catch (error) {
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      error: "Internal Server Error",
+      error: "INTERNAL SERVER ERROR",
       message: "Email verification failed.",
     });
   }
@@ -85,7 +85,7 @@ const resendVerificationEmail = async (
     if (!user) {
       response.status(HttpStatusCode.NOT_FOUND).json({
         error: "NOT FOUND",
-        message: `User with email ${email}} cannot be found.`,
+        message: `User with email ${email} cannot be found.`,
       });
       return;
     }
@@ -124,7 +124,7 @@ const resendVerificationEmail = async (
   } catch (error) {
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      error: "Internal Server Error",
+      error: "INTERNAL SERVER ERROR",
       message: "Resend verification email failed.",
     });
   }
@@ -178,7 +178,7 @@ const sendPasswordResetEmail = async (request: Request, response: Response) => {
   } catch (error) {
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      error: "Internal Server Error",
+      error: "INTERNAL SERVER ERROR",
       message: "Send reset password failed.",
     });
   }
