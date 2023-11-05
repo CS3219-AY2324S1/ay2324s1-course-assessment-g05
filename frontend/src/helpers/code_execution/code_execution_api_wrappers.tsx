@@ -4,10 +4,15 @@ import { Judge0Status, judge0Request, judge0Response } from "@/types/judge0";
 import { CodeExecutorUtils } from "@/utils/codeExecutorUtils";
 import { getError, throwAndLogError } from "@/utils/errorUtils";
 
+/* Uncomment this when you want to test a locally hosted judge0 instance
 const codeExecPort = "2358";
-const submissionsEndpointQueries = "?base64_encoded=true";
-
 const submissionsEndpoint = `http://localhost:${codeExecPort}/submissions/`;
+*/
+
+const submissionsEndpointQueries = "?base64_encoded=true";
+const submissionsEndpoint =
+  process.env.NEXT_PUBLIC_RAPID_API_URL ||
+  "https://judge0-ce.p.rapidapi.com/submissions/";
 
 const executeCode = async (
   code: string,
@@ -35,6 +40,10 @@ const executeCode = async (
         method: HTTP_METHODS.POST,
         headers: {
           "Content-Type": "application/json",
+          "X-RapidAPI-Key": process.env.NEXT_PUBLIC_RAPID_API_KEY || "",
+          "X-RapidAPI-Host":
+            process.env.NEXT_PUBLIC_RAPID_API_HOST ||
+            "judge0-ce.p.rapidapi.com",
         },
         body: JSON.stringify(submissionRequest),
       }
@@ -63,6 +72,10 @@ const checkCodeExecutionStatusReady = async (submissionId: string) => {
         method: HTTP_METHODS.GET,
         headers: {
           "Content-Type": "application/json",
+          "X-RapidAPI-Key": process.env.NEXT_PUBLIC_RAPID_API_KEY || "",
+          "X-RapidAPI-Host":
+            process.env.NEXT_PUBLIC_RAPID_API_HOST ||
+            "judge0-ce.p.rapidapi.com",
         },
       }
     );
@@ -94,6 +107,10 @@ export const getCodeExecutionOutput = async (submissionId: string) => {
         method: HTTP_METHODS.GET,
         headers: {
           "Content-Type": "application/json",
+          "X-RapidAPI-Key": process.env.NEXT_PUBLIC_RAPID_API_KEY || "",
+          "X-RapidAPI-Host":
+            process.env.NEXT_PUBLIC_RAPID_API_HOST ||
+            "judge0-ce.p.rapidapi.com",
         },
       }
     );
