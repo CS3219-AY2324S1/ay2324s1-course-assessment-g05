@@ -2,7 +2,7 @@
 
 import Workspace from "@/components/collab/Workspace";
 import { useEffect, useState } from "react";
-import { useCollabContext } from "@/contexts/collab";
+import { CollabProvider, useCollabContext } from "@/contexts/collab";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import ChatSpaceToggle from "@/components/collab/chat/ChatSpaceToggle";
 import { notFound, useSearchParams } from "next/navigation";
@@ -53,8 +53,8 @@ export default function RoomPage({ params }: RoomPageProps) {
         <LogoLoadingComponent />
       ) : (
         <>
-          <Workspace />
-          <ChatSpaceToggle />
+            <Workspace />
+            <ChatSpaceToggle />
         </>
       )}
     </div>
