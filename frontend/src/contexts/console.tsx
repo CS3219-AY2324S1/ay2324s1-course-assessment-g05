@@ -98,11 +98,24 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
 
     for (let i = 0; i < submissionIds.length; i++) {
       let result;
-      while (result === undefined) {
-        result = (await CodeExecutionService.checkCodeExecutionStatus(
-          submissionIds[i]
-        )) as judge0Response;
+
+      let isResultsReady = false;
+
+      while (!isResultsReady) {
+        isResultsReady =
+          await CodeExecutionService.checkCodeExecutionStatusReady(
+            submissionIds[i]
+          );
+        if (!isResultsReady) {
+          // wait for 1 second to check again
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
       }
+
+      result = (await CodeExecutionService.getCodeExecutionOutput(
+        submissionIds[i]
+      )) as judge0Response;
+
       testCaseArray[i].isDefaultTestCase = testCaseArray[i].output
         ? true
         : false;

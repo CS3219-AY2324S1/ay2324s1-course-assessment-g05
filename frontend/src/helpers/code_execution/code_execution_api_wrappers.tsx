@@ -55,7 +55,7 @@ const executeCode = async (
   }
 };
 
-const checkCodeExecutionStatus = async (submissionId: string) => {
+const checkCodeExecutionStatusReady = async (submissionId: string) => {
   try {
     const response = await fetch(
       submissionsEndpoint + submissionId + "/" + submissionsEndpointQueries,
@@ -68,37 +68,58 @@ const checkCodeExecutionStatus = async (submissionId: string) => {
     );
 
     if (response.status === HttpStatusCode.OK) {
-      const statusId = (await response.clone().json()).status.id;
+      const statusId = (await response.json()).status.id;
 
       if (
         statusId === Judge0Status.IN_QUEUE ||
         statusId === Judge0Status.PROCESSING
       ) {
-        // Still processing, check again in 2 seconds
-        setTimeout(() => checkCodeExecutionStatus(submissionId), 2000);
-        return;
+        return false;
       } else {
-        // Finished processing, return the status
-        let judge0Response: judge0Response;
-        const data = await response.clone().json();
-        judge0Response = {
-          stdout: data.stdout
-            ? Buffer.from(data.stdout, "base64").toString("utf-8")
-            : "",
-          stderr: data.stderr
-            ? Buffer.from(data.stderr, "base64").toString("utf-8")
-            : "",
-          compile_output: data.compile_output
-            ? Buffer.from(data.compile_output, "base64").toString("utf-8")
-            : "",
-          message: data.message
-            ? Buffer.from(data.message, "base64").toString("utf-8")
-            : "",
-          statusId: data.status && data.status.id,
-          description: data.status && data.status.description,
-        };
-        return judge0Response;
+        return true;
       }
+    }
+
+    return false;
+  } catch (e) {
+    throw Error("Error checking code execution status : " + e);
+  }
+};
+
+export const getCodeExecutionOutput = async (submissionId: string) => {
+  try {
+    const response = await fetch(
+      submissionsEndpoint + submissionId + "/" + submissionsEndpointQueries,
+      {
+        method: HTTP_METHODS.GET,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status === HttpStatusCode.OK) {
+      // Finished processing, return the status
+      let judge0Response: judge0Response;
+      const data = await response.clone().json();
+      console.log(data);
+      judge0Response = {
+        stdout: data.stdout
+          ? Buffer.from(data.stdout, "base64").toString("utf-8")
+          : "",
+        stderr: data.stderr
+          ? Buffer.from(data.stderr, "base64").toString("utf-8")
+          : "",
+        compile_output: data.compile_output
+          ? Buffer.from(data.compile_output, "base64").toString("utf-8")
+          : "",
+        message: data.message
+          ? Buffer.from(data.message, "base64").toString("utf-8")
+          : "",
+        statusId: data.status && data.status.id,
+        description: data.status && data.status.description,
+      };
+      return judge0Response;
     }
   } catch (e) {
     throw Error("Error checking code execution status : " + e);
@@ -107,5 +128,8 @@ const checkCodeExecutionStatus = async (submissionId: string) => {
 
 export const CodeExecutionService = {
   executeCode,
-  checkCodeExecutionStatus,
+  checkCodeExecutionStatusReady,
+  getCodeExecutionOutput,
 };
+
+// issue: need more error handling
