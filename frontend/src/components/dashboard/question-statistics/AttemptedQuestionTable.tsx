@@ -1,7 +1,7 @@
 import { CLIENT_ROUTES } from "@/common/constants";
 import ComplexityChip from "@/components/question/ComplexityChip";
 import { useHistoryContext } from "@/contexts/history";
-import History, { QuestionHistory } from "@/types/history";
+import { QuestionHistory } from "@/types/history";
 import { cn } from "@/utils/classNameUtils";
 import { StringUtils } from "@/utils/stringUtils";
 import {
@@ -19,7 +19,7 @@ import {
   getKeyValue,
 } from "@nextui-org/react";
 import { formatDistanceToNow } from "date-fns";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 interface AttemptedQuestionTableProps {
   isFullPage?: boolean;

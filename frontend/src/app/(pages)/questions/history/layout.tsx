@@ -1,4 +1,3 @@
-import Container from "@/components/common/Container";
 import { HistoryProvider } from "@/contexts/history";
 
 export default function HistoryLayout({

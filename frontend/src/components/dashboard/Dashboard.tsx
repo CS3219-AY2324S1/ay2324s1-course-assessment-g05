@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import ProfileDashboardCard from "./ProfileDashboardCard";
 import HeatmapCard from "./HeatmapCard";
 import MatchingCard from "../matching/MatchingCard";
