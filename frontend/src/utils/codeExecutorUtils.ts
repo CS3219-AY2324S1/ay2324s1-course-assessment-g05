@@ -9,8 +9,16 @@ const prepareCodeForExecution = (
   language: string
 ) => {
   const formattedInputStrings = getFormattedInputVariables(inputDict, language);
-  const formattedCode = `${formattedInputStrings}\n${code}`;
-  console.log(formattedCode);
+
+  let formattedCode = "";
+  if (language.toLowerCase() === "java") {
+    formattedCode = code.replace(
+      "public class Main {",
+      `public class Main {\n\t${formattedInputStrings}\n`
+    );
+  } else {
+    formattedCode = `${formattedInputStrings}\n${code}`;
+  }
   return formattedCode;
 };
 
@@ -182,12 +190,12 @@ const getFormattedInputVariables = (
         break;
     }
   });
-  if (language.toLowerCase() === "java") {
-    formattedInputVariables = `class GlobalClass {\n\t${formattedInputVariables.replace(
-      /\t$/,
-      ""
-    )}}\n`;
-  }
+  // if (language.toLowerCase() === "java") {
+  //   formattedInputVariables = `class GlobalClass {\n\t${formattedInputVariables.replace(
+  //     /\t$/,
+  //     ""
+  //   )}}\n`;
+  // }
   return formattedInputVariables;
 };
 
