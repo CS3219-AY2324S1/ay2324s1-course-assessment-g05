@@ -104,9 +104,9 @@ export default function ProfileCard({ user, setImageUrl }: ProfileCardProps) {
                   onImageClick();
                 }}
               >
-                {isUploading ? 
-                  <SpinnerLoadingComponent /> 
-                  :
+                {isUploading ? (
+                  <SpinnerLoadingComponent />
+                ) : (
                   <>
                     <Badge
                       content={<Icons.AiFillEdit />}
@@ -125,8 +125,7 @@ export default function ProfileCard({ user, setImageUrl }: ProfileCardProps) {
                       />
                     </Badge>
                   </>
-                }
-
+                )}
               </div>
               <input
                 type="file"
