@@ -94,8 +94,6 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
       submissionIds.push(id);
     }
 
-    console.log(submissionIds);
-
     for (let i = 0; i < submissionIds.length; i++) {
       let result;
 
@@ -116,7 +114,11 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
         submissionIds[i]
       )) as judge0Response;
 
-      testCaseArray[i].isDefaultTestCase = testCaseArray[i].output
+      testCaseArray[i].isDefaultTestCase = ["java", "cpp"].includes(
+        language.toLowerCase()
+      )
+        ? false
+        : testCaseArray[i].output
         ? true
         : false;
       testCaseArray[i].stdout = result.stdout;

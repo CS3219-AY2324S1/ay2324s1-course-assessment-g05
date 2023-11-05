@@ -190,12 +190,6 @@ const getFormattedInputVariables = (
         break;
     }
   });
-  // if (language.toLowerCase() === "java") {
-  //   formattedInputVariables = `class GlobalClass {\n\t${formattedInputVariables.replace(
-  //     /\t$/,
-  //     ""
-  //   )}}\n`;
-  // }
   return formattedInputVariables;
 };
 

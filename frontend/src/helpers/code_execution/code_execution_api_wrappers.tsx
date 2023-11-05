@@ -102,7 +102,6 @@ export const getCodeExecutionOutput = async (submissionId: string) => {
       // Finished processing, return the status
       let judge0Response: judge0Response;
       const data = await response.clone().json();
-      console.log(data);
       judge0Response = {
         stdout: data.stdout
           ? Buffer.from(data.stdout, "base64").toString("utf-8")

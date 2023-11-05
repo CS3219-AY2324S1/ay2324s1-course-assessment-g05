@@ -1,6 +1,7 @@
 import { useCollabContext } from "@/contexts/collab";
 import { useConsoleContext } from "@/contexts/console";
-import { Button, Link } from "@nextui-org/react";
+import { Button, Link, Tooltip } from "@nextui-org/react";
+import { match } from "assert";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 
 interface IConsoleBarProps {
@@ -40,9 +41,21 @@ const ConsoleBar = ({
       >
         Console
       </Link>
-      <Button size="sm" onPress={handleRunCode}>
-        Run
-      </Button>
+      <Tooltip
+        style={{
+          display: ["java", "cpp"].includes(matchedLanguage.toLowerCase())
+            ? "inline-block"
+            : "none",
+        }}
+        content="Note that checking for code correctness is only supported for Python and
+        Javascript."
+        placement="top-start"
+      >
+        <Button size="sm" onPress={handleRunCode}>
+          Run
+        </Button>
+      </Tooltip>
+      <div className="text-xs pt-2"></div>
     </div>
   );
 };
