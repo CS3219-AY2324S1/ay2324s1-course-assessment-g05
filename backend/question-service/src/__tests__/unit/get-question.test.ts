@@ -28,6 +28,44 @@ describe("GET /questions", () => {
     });
   });
 
+  describe("Given an authorized API call with array topics query param", () => {
+    it("should return 200 with questions", async () => {
+      // Arrange
+      const questions = TestPayload.getQuestionsPayload();
+      const topic = [Topic.DP, Topic.ARRAY];
+
+      dbMock.question.findMany = jest.fn().mockResolvedValue(questions);
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .get(`/${API_PREFIX}/questions`)
+        .query({ topic });
+
+      // Assert
+      expect(statusCode).toEqual(HttpStatusCode.OK);
+      expect(body).toEqual({ count: 3, data: questions });
+    });
+  });
+
+  describe("Given an authorized API call with array complexity query param", () => {
+    it("should return 200 with questions", async () => {
+      // Arrange
+      const questions = TestPayload.getQuestionsPayload();
+      const complexity = ["HARD", "MEDIUM"];
+
+      dbMock.question.findMany = jest.fn().mockResolvedValue(questions);
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .get(`/${API_PREFIX}/questions`)
+        .query({ complexity });
+
+      // Assert
+      expect(statusCode).toEqual(HttpStatusCode.OK);
+      expect(body).toEqual({ count: 3, data: questions });
+    });
+  });
+
   describe("Given a request with invalid query params", () => {
     it("should return 400 with zod error message", async () => {
       // Act
