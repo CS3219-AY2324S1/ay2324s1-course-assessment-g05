@@ -20,7 +20,6 @@ import Question from "@/types/question";
 import ModifyQuestionModal from "./ModifyQuestionModal";
 import ComplexityChip from "./ComplexityChip";
 import DeleteQuestion from "./DeleteQuestion";
-import { StringUtils } from "@/utils/stringUtils";
 import { CLIENT_ROUTES } from "@/common/constants";
 import { Icons } from "@/components/common/Icons";
 import { useAuthContext } from "@/contexts/auth";
@@ -34,12 +33,6 @@ export default function QuestionTable({
   const readonly = user.role != "ADMIN";
 
   const columns = [
-    {
-      key: "id",
-      label: "No.",
-      class: "",
-      sort: true,
-    },
     {
       key: "title",
       label: "Title",
@@ -152,14 +145,19 @@ export default function QuestionTable({
   const rowsPerPage = 15;
   const [page, setPage] = useState(1);
   const pages = Math.ceil(questions.length / rowsPerPage);
+  const complexityOrder = ["EASY", "MEDIUM", "HARD"];
   const questionItems = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
-    return questions.slice(start, end);
+    return questions.sort(
+      (a, b) =>
+      complexityOrder.indexOf(a.complexity.toUpperCase()) -
+      complexityOrder.indexOf(b.complexity.toUpperCase())
+    ).slice(start, end);
   }, [page, questions]);
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: "id",
+    column: "complexity",
     direction: "ascending",
   });
   const sortedQuestionItems = useMemo(() => {
@@ -174,15 +172,7 @@ export default function QuestionTable({
     }
 
     switch (column) {
-      case "id":
-        if (direction === "ascending") { 
-          return [...questionItems].sort((a, b) => questions.indexOf(a) - questions.indexOf(b))
-        } else {
-          return [...questionItems].sort((a, b) => questions.indexOf(b) - questions.indexOf(a))
-        }
       case "complexity":
-        const complexityOrder = ["EASY", "MEDIUM", "HARD"];
-
         if (direction === "ascending") {
           return [...questionItems].sort(
             (a, b) =>
