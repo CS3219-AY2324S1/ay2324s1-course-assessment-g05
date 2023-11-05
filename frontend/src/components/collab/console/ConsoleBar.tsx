@@ -1,7 +1,6 @@
 import { useCollabContext } from "@/contexts/collab";
 import { useConsoleContext } from "@/contexts/console";
 import { Button, Link, Tooltip } from "@nextui-org/react";
-import { match } from "assert";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 
 interface IConsoleBarProps {

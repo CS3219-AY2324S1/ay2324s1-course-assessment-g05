@@ -5,6 +5,8 @@ import parse from "html-react-parser";
 import { CodeExecutorUtils } from "@/utils/codeExecutorUtils";
 import { CodeExecutionService } from "@/helpers/code_execution/code_execution_api_wrappers";
 import { judge0Response } from "@/types/judge0";
+import displayToast from "@/components/common/Toast";
+import { ToastType } from "@/types/enums";
 
 interface IConsoleContext {
   isQuestionLoaded: boolean;
@@ -82,63 +84,71 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
   };
 
   const runTestCases = async (code: string, language: string) => {
-    setHasCodeRun(true);
-    setIsResultsLoading(true);
-    let submissionIds = [];
-    for (let i = 0; i < testCaseArray.length; i++) {
-      const id = await CodeExecutionService.executeCode(
-        code,
-        language,
-        testCaseArray[i].input
-      );
-      submissionIds.push(id);
-    }
-
-    for (let i = 0; i < submissionIds.length; i++) {
-      let result;
-
-      let isResultsReady = false;
-
-      while (!isResultsReady) {
-        isResultsReady =
-          await CodeExecutionService.checkCodeExecutionStatusReady(
-            submissionIds[i]
-          );
-        if (!isResultsReady) {
-          // wait for 1 second to check again
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        }
+    try {
+      setHasCodeRun(true);
+      setIsResultsLoading(true);
+      let submissionIds = [];
+      for (let i = 0; i < testCaseArray.length; i++) {
+        const id = await CodeExecutionService.executeCode(
+          code,
+          language,
+          testCaseArray[i].input
+        );
+        submissionIds.push(id);
       }
 
-      result = (await CodeExecutionService.getCodeExecutionOutput(
-        submissionIds[i]
-      )) as judge0Response;
+      for (let i = 0; i < submissionIds.length; i++) {
+        let result;
 
-      testCaseArray[i].isDefaultTestCase = ["java", "cpp"].includes(
-        language.toLowerCase()
-      )
-        ? false
-        : testCaseArray[i].output
-        ? true
-        : false;
-      testCaseArray[i].stdout = result.stdout;
-      testCaseArray[i].statusId = result.statusId;
-      testCaseArray[i].message = result.message;
-      testCaseArray[i].compile_output = result.compile_output;
-      testCaseArray[i].stderr = result.stderr;
-      testCaseArray[i].isCorrect = CodeExecutorUtils.checkCorrectnessOfOutput(
-        testCaseArray[i].stdout,
-        testCaseArray[i].output
+        let isResultsReady = false;
+
+        while (!isResultsReady) {
+          isResultsReady =
+            await CodeExecutionService.checkCodeExecutionStatusReady(
+              submissionIds[i]
+            );
+          if (!isResultsReady) {
+            // wait for 1 second to check again
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+          }
+        }
+
+        result = (await CodeExecutionService.getCodeExecutionOutput(
+          submissionIds[i]
+        )) as judge0Response;
+
+        testCaseArray[i].isDefaultTestCase = ["java", "cpp"].includes(
+          language.toLowerCase()
+        )
+          ? false
+          : testCaseArray[i].output
+          ? true
+          : false;
+        testCaseArray[i].stdout = result.stdout;
+        testCaseArray[i].statusId = result.statusId;
+        testCaseArray[i].message = result.message;
+        testCaseArray[i].compile_output = result.compile_output;
+        testCaseArray[i].stderr = result.stderr;
+        testCaseArray[i].isCorrect = CodeExecutorUtils.checkCorrectnessOfOutput(
+          testCaseArray[i].stdout,
+          testCaseArray[i].output
+        );
+        testCaseArray[i].description = CodeExecutorUtils.getOutputMessage(
+          testCaseArray[i].statusId,
+          result.description,
+          testCaseArray[i].isCorrect,
+          testCaseArray[i].isDefaultTestCase
+        );
+      }
+    } catch (e) {
+      displayToast(
+        "The code execution service is down. Please try again later.",
+        ToastType.ERROR
       );
-      testCaseArray[i].description = CodeExecutorUtils.getOutputMessage(
-        testCaseArray[i].statusId,
-        result.description,
-        testCaseArray[i].isCorrect,
-        testCaseArray[i].isDefaultTestCase
-      );
+      setHasCodeRun(false);
+    } finally {
+      setIsResultsLoading(false);
     }
-
-    setIsResultsLoading(false);
   };
 
   const context = {

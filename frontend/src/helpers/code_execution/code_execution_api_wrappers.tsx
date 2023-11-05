@@ -130,5 +130,3 @@ export const CodeExecutionService = {
   checkCodeExecutionStatusReady,
   getCodeExecutionOutput,
 };
-
-// issue: need more error handling
