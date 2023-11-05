@@ -1,15 +1,16 @@
 "use server";
 import api from "@/helpers/endpoint";
 import { getLogger } from "@/helpers/logger";
-import { HTTP_METHODS, SERVICE } from "@/types/enums";
+import { HTTP_METHODS, DOMAIN } from "@/types/enums";
 import Question from "@/types/question";
 import { revalidateTag } from "next/cache";
 import Preference from "@/types/preference";
 import HttpStatusCode from "@/types/HttpStatusCode";
 
 const logger = getLogger("wrapper");
-const service = SERVICE.QUESTION;
-const scope = [SERVICE.QUESTION];
+const domain = DOMAIN.QUESTION;
+const resourceQuestion = "questions";
+const scope = [DOMAIN.QUESTION];
 
 type MongoQuestionList = {
   count: number;
@@ -26,14 +27,14 @@ export async function getQuestionList(): Promise<Question[]> {
 
   const response = await api({
     method: HTTP_METHODS.GET,
-    service: service,
-    tags: scope
+    domain: domain,
+    path: resourceQuestion,
+    tags: scope,
   });
 
   if (response.status === HttpStatusCode.OK) {
     let mongoRes = response.data as MongoQuestionList;
     questions = mongoRes.data;
-    logger.info(`[getQuestionList] Got question: ${mongoRes.count}`);
     return questions;
   }
 
@@ -52,15 +53,14 @@ export async function getQuestionById(
 ) {
   const response = await api({
     method: HTTP_METHODS.GET,
-    service: service,
-    path: id,
+    domain: domain,
+    path: `${resourceQuestion}/${id}`,
     tags: scope,
     cache: cache,
   });
 
   if (response.status === HttpStatusCode.OK) {
     let question = response.data as Question;
-    logger.info(`[getQuestionById(${id})] Got question: ${question.title}`);
     return question;
   }
 
@@ -77,14 +77,16 @@ export async function getQuestionByPreference(
 ) {
   let questions = [];
 
-  const complexityFilter = preference?.difficulties.map(d => `complexity=${d}`).join(`&`);
-  const topicFilter = preference?.topics.map(d => `topic=${d}`).join(`&`);
-  const queryPath = `?${topicFilter}&${complexityFilter}`
+  const complexityFilter = preference?.difficulties
+    .map((d) => `complexity=${d}`)
+    .join(`&`);
+  const topicFilter = preference?.topics.map((d) => `topic=${d}`).join(`&`);
+  const queryPath = `?${topicFilter}&${complexityFilter}`;
 
   const response = await api({
     method: HTTP_METHODS.GET,
-    service: service,
-    path: queryPath,
+    domain: domain,
+    path: `${resourceQuestion}/${queryPath}`,
     tags: scope,
     cache: cache,
   });
@@ -92,7 +94,6 @@ export async function getQuestionByPreference(
   if (response.status === HttpStatusCode.OK) {
     const mongoRes = response.data as MongoQuestionList;
     questions = mongoRes.data;
-    logger.info(`[getQuestionByPreference] Got ${mongoRes.count} items.`);
     return questions;
   }
 
@@ -102,13 +103,13 @@ export async function getQuestionByPreference(
 export async function getTopics() {
   const response = await api({
     method: HTTP_METHODS.GET,
-    service: SERVICE.TOPICS,
-    tags: [SERVICE.TOPICS],
+    domain: domain,
+    path: `topics`,
+    tags: [`topics`],
   });
 
   if (response.status === HttpStatusCode.OK) {
-    const topics = response.data['topics'] as string[]
-    logger.info(`[getTopics] Got ${topics.length} items.`);
+    const topics = response.data["topics"] as string[];
     return topics;
   }
 
@@ -120,19 +121,18 @@ export async function getTopics() {
  * Posts a new question to the API.
  * @param {Question} question - The question object to post.
  */
-export async function postQuestion(
-  question: Question
-) {
+export async function postQuestion(question: Question) {
   const response = await api({
     method: HTTP_METHODS.POST,
-    service: service,
+    domain: domain,
     body: question,
+    path: resourceQuestion,
     tags: scope,
   });
 
   logger.debug(response, `[postQuestion]`);
   if (response.status === HttpStatusCode.CREATED) {
-    revalidateTag(SERVICE.QUESTION);
+    revalidateTag(DOMAIN.QUESTION);
   }
 
   return response;
@@ -144,21 +144,18 @@ export async function postQuestion(
  * @param {string} id - The ID of the question to update.
  * @param {Question} question - The updated question object.
  */
-export async function updateQuestion(
-  id: string,
-  question: Question
-) {
+export async function updateQuestion(id: string, question: Question) {
   const response = await api({
     method: HTTP_METHODS.PUT,
-    service: service,
-    path: id,
+    domain: domain,
+    path: `${resourceQuestion}/${id}`,
     body: question,
     tags: scope,
   });
 
   logger.debug(response, `[updateQuestion]`);
   if (response.status === HttpStatusCode.NO_CONTENT) {
-    revalidateTag(SERVICE.QUESTION);
+    revalidateTag(DOMAIN.QUESTION);
   }
 
   return response;
@@ -172,14 +169,14 @@ export async function updateQuestion(
 export async function deleteQuestion(id: string) {
   const response = await api({
     method: HTTP_METHODS.DELETE,
-    service: service,
-    path: id,
+    domain: domain,
+    path: `${resourceQuestion}/${id}`,
     tags: scope,
   });
 
   logger.debug(response, `[deleteQuestion]`);
   if (response.status === HttpStatusCode.NO_CONTENT) {
-    revalidateTag(SERVICE.QUESTION);
+    revalidateTag(DOMAIN.QUESTION);
   }
 
   return response;

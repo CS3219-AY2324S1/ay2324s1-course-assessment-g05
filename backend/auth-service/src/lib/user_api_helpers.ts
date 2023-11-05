@@ -4,13 +4,19 @@
 
 import { UserProfile } from "../common/types";
 import { getServiceSecret } from "./utils";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const getUserServiceEndpoint = (): string => {
-  return process.env.USER_SERVICE_ENDPOINT || "http://localhost:5005";
+  return process.env.USER_GATEWAY || `http://localhost:5005`;
 };
 
 const createUser = async (user: UserProfile) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/api/users/`, {
+  console.debug(
+    `[createUser] fetch ${getUserServiceEndpoint()}/user/api/users/`
+  );
+  const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/`, {
     method: "POST",
     body: JSON.stringify(user),
     headers: {
@@ -22,56 +28,66 @@ const createUser = async (user: UserProfile) => {
   return res;
 };
 
-const getUserByEmail = async (email: string) => {
-  const res = await fetch(
-    `${getUserServiceEndpoint()}/api/users/email?email=${email}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        bypass: getServiceSecret(),
-      },
-    }
+const updateVerificationToken = async (
+  id: string,
+  verificationToken: string
+) => {
+  const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ verificationToken: verificationToken }),
+    headers: {
+      "Content-Type": "application/json",
+      bypass: getServiceSecret(),
+    },
+  });
+  console.debug(
+    `[updatePasswordResetToken][${
+      res.status
+    }] fetch ${getUserServiceEndpoint()}/user/api/users/${id}`
   );
   return res;
 };
 
-const getUserById = async (id: string) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/api/users/${id}`, {
-    method: "GET",
+const updateVerification = async (id: string) => {
+  const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/${id}`, {
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
       bypass: getServiceSecret(),
     },
+    body: JSON.stringify({ verificationToken: "", isVerified: true }),
   });
+
+  console.debug(
+    `[updateVerification][${
+      res.status
+    }] fetch ${getUserServiceEndpoint()}/user/api/users/${id}`
+  );
   return res;
 };
 
-const updateVerfication = async(email:string, token:string) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/api/users/updateVerification/${email}`, {
+const updatePasswordResetToken = async (
+  id: string,
+  passwordResetToken: string
+) => {
+  const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/${id}`, {
     method: "PUT",
+    body: JSON.stringify({ passwordResetToken: passwordResetToken }),
     headers: {
       "Content-Type": "application/json",
       bypass: getServiceSecret(),
     },
   });
-
+  console.debug(
+    `[updatePasswordResetToken][${
+      res.status
+    }] fetch ${getUserServiceEndpoint()}/user/api/users/${id}`
+  );
   return res;
-}
-
-const updatePasswordResetToken = async(email:string, updateBody: {}) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/api/users/updatePasswordResetToken/${email}`, {
-    method: "PUT",
-    body: JSON.stringify(updateBody),
-    headers: {
-      "Content-Type": "application/json",
-      bypass: getServiceSecret(),
-    },
-  });
-  return res;
-}
+};
 
 const updatePassword = async (id: string, updateBody: {}) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/api/users/${id}`, {
+  const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/${id}`, {
     method: "PUT",
     body: JSON.stringify(updateBody),
     headers: {
@@ -79,8 +95,19 @@ const updatePassword = async (id: string, updateBody: {}) => {
       bypass: getServiceSecret(),
     },
   });
+  console.debug(
+    `[updatePassword][${
+      res.status
+    }] fetch ${getUserServiceEndpoint()}/user/api/users/${id}`
+  );
   return res;
 };
 
-
-export { createUser, getUserServiceEndpoint, getUserById, getUserByEmail, updateVerfication, updatePasswordResetToken, updatePassword };
+export const UserService = {
+  createUser,
+  getUserServiceEndpoint,
+  updateVerification,
+  updateVerificationToken,
+  updatePasswordResetToken,
+  updatePassword,
+};

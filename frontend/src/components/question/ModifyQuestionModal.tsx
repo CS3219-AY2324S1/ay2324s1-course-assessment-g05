@@ -25,6 +25,7 @@ import { FiCornerDownLeft } from "react-icons/fi";
 import displayToast from "../common/Toast";
 import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 import HttpStatusCode from "@/types/HttpStatusCode";
+import { getLogger } from "@/helpers/logger";
 
 export default function ModifyQuestionModal({
   isOpen,
@@ -39,7 +40,9 @@ export default function ModifyQuestionModal({
 }) {
   // component mode and const
   const editMode = questionId != null;
-  const complexitySelections = Object.values(COMPLEXITY).map((k) => ({value: k}));
+  const complexitySelections = Object.values(COMPLEXITY).map((k) => ({
+    value: k,
+  }));
   const [topicOptions, setTopicOptions] = useState<string[]>([]);
 
   // component states
@@ -80,21 +83,20 @@ export default function ModifyQuestionModal({
   // Setup external resources
   useEffect(() => {
     async function setUpTopics() {
-      getTopics().then(topics => {
+      getTopics().then((topics) => {
         setTopicOptions(topics);
-      })
+      });
     }
 
-    if(topicOptions.length === 0) {
+    if (topicOptions.length === 0) {
       setUpTopics();
     }
-  }, [])
+  }, []);
 
   // prefill form base on mode
   useEffect(() => {
     if (isOpen && editMode) {
       setIsLoading(true);
-      console.log("[ModifyQuestionModal]: prefill form with qid:" + questionId);
       retrieveQuestionDetail(questionId);
     } else {
       setId("");
@@ -148,7 +150,7 @@ export default function ModifyQuestionModal({
         displayToast(response.message, ToastType.ERROR);
       }
     } catch (error) {
-      console.log(error);
+      getLogger().error(error);
     } finally {
       setIsLoading(false);
     }
@@ -200,7 +202,7 @@ export default function ModifyQuestionModal({
                         placeholder="Choose a complexity level"
                         className="flex-none w-36"
                         classNames={{
-                          value: "capitalize"
+                          value: "capitalize",
                         }}
                         selectedKeys={[complexity]}
                         items={complexitySelections}
@@ -222,7 +224,7 @@ export default function ModifyQuestionModal({
                         selectionMode="multiple"
                         description="Allow multiple selections"
                         classNames={{
-                          value: "capitalize"
+                          value: "capitalize",
                         }}
                         isMultiline={true}
                         items={topicOptions}
@@ -230,7 +232,7 @@ export default function ModifyQuestionModal({
                         onChange={(e) => setTopics(e.target.value.split(","))}
                         disabled={isLoading}
                       >
-                        {topicOptions.map(topic => (
+                        {topicOptions.map((topic) => (
                           <SelectItem className="capitalize" key={topic}>
                             {topic.toLowerCase()}
                           </SelectItem>

@@ -6,15 +6,18 @@ import { ZodError } from "zod";
 
 export const getHealth = async (_: Request, response: Response) => {
   try {
-    if (typeof db.$disconnect !== "function") {
-      throw new Error("No database connection from the server.");
+    const result = await db.$queryRaw`SELECT 1`;
+
+    if (!result) {
+      throw new Error("No database connection from the server");
     }
+
     response.status(HttpStatusCode.OK).json({ message: "Healthy" });
   } catch (error) {
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",
-      message: "No database connection from the server.",
+      message: "No database connection from the server",
     });
   }
 };
@@ -22,12 +25,20 @@ export const getHealth = async (_: Request, response: Response) => {
 export const getUserById = async (request: Request, response: Response) => {
   try {
     const userId = request.params.userId;
+
     // query database for user with id
     const user = await db.user.findFirst({
       where: {
         id: userId,
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        image: true,
+        bio: true,
+        gender: true,
         preferences: {
           select: {
             languages: true,
@@ -35,6 +46,8 @@ export const getUserById = async (request: Request, response: Response) => {
             difficulties: true,
           },
         },
+        createdOn: true,
+        updatedOn: true,
       },
     });
 
@@ -76,7 +89,14 @@ export const getUserByEmail = async (request: Request, response: Response) => {
       where: {
         email: parsedEmail,
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        image: true,
+        bio: true,
+        gender: true,
         preferences: {
           select: {
             languages: true,
@@ -84,6 +104,8 @@ export const getUserByEmail = async (request: Request, response: Response) => {
             difficulties: true,
           },
         },
+        createdOn: true,
+        updatedOn: true,
       },
     });
 

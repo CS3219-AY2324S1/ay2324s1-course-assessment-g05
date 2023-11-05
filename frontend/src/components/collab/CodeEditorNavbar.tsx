@@ -2,24 +2,36 @@
 
 import { FC, useEffect, useState } from "react";
 import { Icons } from "../common/Icons";
-import { Button, Code, Spacer, useDisclosure } from "@nextui-org/react";
+import { Badge, Button, Code, Spacer, useDisclosure } from "@nextui-org/react";
 import CodeEditorNavBarTooltip from "./CodeEditorNavBarTooltip";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
 import Timer from "./Timer";
 import EndSessionModal from "./EndSessionModal";
 import { useCollabContext } from "@/contexts/collab";
+import displayToast from "../common/Toast";
+import { ToastType } from "@/types/enums";
 
 interface CodeEditorNavbarProps {
   handleResetToDefaultCode: () => void;
 }
 
-const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
+const CodeEditorNavbar = ({
   handleResetToDefaultCode,
-}) => {
-  const { partner, matchedLanguage, isSocketConnected } = useCollabContext();
+}: CodeEditorNavbarProps) => {
+  const defaultDate = new Date(2023, 9, 8, 14, 30, 0, 0);
+
+  const { partner, matchedLanguage, isSocketConnected, socketService } =
+    useCollabContext();
   const language = matchedLanguage || "";
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
+  const [isPartnerConnected, setIsPartnerConnected] = useState<boolean>(false);
+  const [hasPartnerLeft, setHasPartnerLeft] = useState<boolean>(false);
+  const [hasSessionTimerEnded, setHasSessionTimerEnded] =
+    useState<boolean>(false);
+  const [sessionEndTime, setSessionEndTime] = useState<Date>(defaultDate);
+  const [receivedSessionEndTime, setReceivedSessionEndTime] =
+    useState<boolean>(false);
 
   const handleFullScreen = () => {
     if (isFullScreen) {
@@ -29,6 +41,33 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
     }
     setIsFullScreen(!isFullScreen);
   };
+
+  const getTimer = () => {
+    const currentTime = new Date();
+    return Math.floor(
+      (sessionEndTime.getTime() - currentTime.getTime()) / 1000
+    );
+  };
+
+  // Check for session timer
+  useEffect(() => {
+    if (!socketService) return;
+
+    if (getTimer() >= 0) {
+      setReceivedSessionEndTime(true);
+    } else {
+      socketService.sendGetSessionTimer();
+    }
+
+    socketService.receiveSessionTimer(setSessionEndTime);
+  }, [socketService, sessionEndTime]);
+
+  useEffect(() => {
+    if (socketService) {
+      socketService.receivePartnerConnection(setIsPartnerConnected);
+      socketService.receiveHasPartnerLeft(setHasPartnerLeft);
+    }
+  }, [socketService]);
 
   useEffect(() => {
     function exitHandler(e: any) {
@@ -48,16 +87,39 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
   }, [isFullScreen]);
 
   useEffect(() => {
-    if (partner) {
+    if (partner && receivedSessionEndTime) {
       setIsReady(true);
     }
-  }, [partner]);
+  }, [partner, receivedSessionEndTime]);
+
+  useEffect(() => {
+    if (!isReady) return;
+
+    if (hasPartnerLeft) {
+      displayToast(
+        "Your partner has terminated his session. The session will remain active until you are done.",
+        ToastType.INFO
+      );
+      return;
+    }
+
+    if (isPartnerConnected) {
+      displayToast("Your partner has connected.", ToastType.SUCCESS);
+    } else {
+      displayToast("Your partner has disconnected.", ToastType.WARNING);
+    }
+  }, [isPartnerConnected]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const setSessionEnded = () => {
+    setHasSessionTimerEnded(true);
+    onOpen();
+  };
+
   return (
     <div className="flex items-center justify-between h-11 w-full">
-      <div className="flex items-center m-2">
+      <div className="flex items-center m-4">
         <div className="text-lg">
           <Icons.BsFileEarmarkCode />
         </div>
@@ -66,51 +128,75 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
             {language}
           </Code>
         </CodeEditorNavBarTooltip>
+
+        <div className="m-1">
+          {isSocketConnected ? (
+            <CodeEditorNavBarTooltip content="Connected">
+              <div>
+                <Icons.MdSignalWifiStatusbar4Bar />
+              </div>
+            </CodeEditorNavBarTooltip>
+          ) : (
+            <CodeEditorNavBarTooltip content="Disconnected">
+              <div>
+                <Icons.MdSignalWifiConnectedNoInternet0 />
+              </div>
+            </CodeEditorNavBarTooltip>
+          )}
+        </div>
       </div>
 
-      <Spacer />
-
-      {isSocketConnected ? (
-        <CodeEditorNavBarTooltip content="Connected">
-          <div>
-            <Icons.MdSignalWifiStatusbar4Bar />
-          </div>
-        </CodeEditorNavBarTooltip>
-      ) : (
-        <CodeEditorNavBarTooltip content="Disconnected">
-          <div>
-            <Icons.MdSignalWifiConnectedNoInternet0 />
-          </div>
-        </CodeEditorNavBarTooltip>
-      )}
-
-      <Spacer />
+      <div className="flex justify-start items-center">
 
       {isReady ? (
-        <CodeEditorNavBarTooltip content="Timer">
+        <CodeEditorNavBarTooltip content="Click to toggle time">
           <div>
-            <Timer />
+            <Timer
+              setSessionEnded={setSessionEnded}
+              timeDifference={getTimer()}
+            />
           </div>
         </CodeEditorNavBarTooltip>
       ) : (
         <></>
       )}
-
-      {/* Show partner avatar */}
-      {partner?.name ? (
-        <div className="flex items-center justify-end m-2">
-          <CodeEditorNavBarTooltip content={partner.name}>
-            <div>
-              <ProfilePictureAvatar profileUrl={partner.image!} size="8" />
-            </div>
-          </CodeEditorNavBarTooltip>
-        </div>
-      ) : (
-        <></>
-      )}
+      </div>
 
       {/* Buttons for some interaction */}
       <div className="flex items-center m-2">
+        <div>
+        {/* Show partner avatar */}
+        {partner?.name ? (
+          <div className="flex items-center justify-end m-2">
+            <CodeEditorNavBarTooltip
+              content={isPartnerConnected ? partner.name : "Partner Disconnected"}
+            >
+              <div className="mt-1">
+                {isPartnerConnected ? (
+                  <Badge
+                    content=""
+                    color="success"
+                    shape="circle"
+                    placement="bottom-right"
+                    size="sm"
+                    variant="solid"
+                    isInvisible={!isPartnerConnected}
+                  >
+                    <ProfilePictureAvatar
+                      profileUrl={partner.image!}
+                      isChatAvatar
+                    />
+                  </Badge>
+                ) : (
+                  <Icons.FaUserSlash />
+                )}
+              </div>
+            </CodeEditorNavBarTooltip>
+          </div>
+        ) : (
+          <></>
+        )}
+        </div>
         <div className="mx-1">
           <CodeEditorNavBarTooltip content="Reset to default code definition">
             <Button
@@ -146,7 +232,11 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
               End Session
             </Button>
           </CodeEditorNavBarTooltip>
-          <EndSessionModal onClose={onClose} isOpen={isOpen} />
+          <EndSessionModal
+            onClose={onClose}
+            isOpen={isOpen}
+            hasSessionTimerEnded={hasSessionTimerEnded}
+          />
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
-FROM node:20
+FROM node:alpine
 
-ENV NODE_ENV=development
+ENV BUILD_ENV=development
 
 # Create app directory
 WORKDIR /app
@@ -12,12 +12,12 @@ COPY ["package.json", "package-lock.json*", "./"]
 RUN npm install
 # If you are building your code for production
 # RUN npm ci --omit=dev
+RUN npm run build
 
 # Bundle app source
 COPY . .
 
 ARG port=3000
-
 EXPOSE $port
 
-CMD [ "npm", "run", "dev" ]
+CMD [ "npm", "run", "start" ]

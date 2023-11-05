@@ -1,4 +1,4 @@
-import { FC, use, useEffect, useRef, useState } from "react";
+import { useEffect, useState, FC } from "react";
 import CodeEditorNavbar from "./CodeEditorNavbar";
 import { Divider } from "@nextui-org/react";
 import CodeEditor from "./CodeEditor";
@@ -8,16 +8,16 @@ import Split from "react-split";
 import ConsolePanel from "./console/ConsolePanel";
 import ConsoleBar from "./console/ConsoleBar";
 import { ConsoleProvider } from "@/contexts/console";
+import { notFound } from "next/navigation";
 
 const CodeEditorPanel: FC = ({}) => {
   const { matchedLanguage, question, socketService } = useCollabContext();
 
-  if (!socketService) return null;
-  const editorRef = useRef(null);
-
   const [currentCode, setCurrentCode] = useState<string>(
     getCodeTemplate(matchedLanguage, question!)
   );
+
+  const [isUserNotValid, setIsUserNotValid] = useState<boolean>(false);
 
   const [isConsoleOpen, setIsConsoleOpen] = useState<boolean>(false);
 
@@ -27,24 +27,26 @@ const CodeEditorPanel: FC = ({}) => {
     useState<string>("testcase");
 
   useEffect(() => {
-    socketService.receiveCodeUpdate(setCurrentCode);
+    socketService?.receiveCodeUpdate(setCurrentCode);
+    socketService?.receiveUserNotValid(setIsUserNotValid);
   }, [socketService]);
 
   useEffect(() => {}, [isCodeRunning]);
 
-  const handleEditorChange = (currentContent: string | undefined) => {
-    if (!currentContent) return;
-    setCurrentCode(currentContent!);
-    socketService.sendCodeChange(currentContent!);
-  };
+  useEffect(() => {
+    if (isUserNotValid) {
+      notFound();
+    }
+  }, [isUserNotValid]);
 
-  const handleEditorDidMount = async (editor: any, monaco: any) => {
-    editorRef.current = editor;
+  const handleEditorChange = (currentContent: string | undefined) => {
+    setCurrentCode(currentContent!);
+    socketService?.sendCodeChange(currentContent!);
   };
 
   const handleResetToDefaultCode = () => {
     setCurrentCode(getCodeTemplate(matchedLanguage, question!));
-    socketService.sendCodeChange(getCodeTemplate(matchedLanguage, question!));
+    socketService!.sendCodeChange(getCodeTemplate(matchedLanguage, question!));
   };
 
   return (
@@ -62,7 +64,6 @@ const CodeEditorPanel: FC = ({}) => {
           <CodeEditor
             currentCode={currentCode}
             handleEditorChange={handleEditorChange}
-            handleEditorDidMount={handleEditorDidMount}
           />
           <ConsolePanel
             isOpen={isConsoleOpen}

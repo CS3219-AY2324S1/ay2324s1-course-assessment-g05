@@ -1,56 +1,61 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export const config = {
+  // consume middleware for all API routes
   matcher: "/:path*",
 };
 
 export async function middleware(request: NextRequest) {
-  const host =
-    process.env.NODE_ENV == "production"
-      ? process.env.ENDPOINT_PROD
-      : process.env.ENDPOINT_DEV;
+  const host = process.env.ENDPOINT || "http://localhost";
 
-  const baseUrl =
-    process.env.NODE_ENV == "production"
-      ? `http://${host}`
-      : `http://${process.env.ENDPOINT_DEV}:${process.env.ENDPOINT_FRONTEND_PORT}`;
+  // Needs to support cloud endpoint deployment without port number
+  const port = host.startsWith("https") ? "" : ":5050";
+  const authValidateEndpoint = `${host}${port}/auth/api/validate`;
 
-  const authValidateEndpoint = `http://${host}:${process.env.ENDPOINT_AUTH_PORT}/api/auth/validate`;
+  const publicRoutes = ["/_next", "/assets", "/logout", "/forgotpassword"];
 
-  const publicContent = ["/_next", "/assets", "/logout", "/forgotpassword"];
-
-  if (publicContent.some((path) => request.nextUrl.pathname.startsWith(path))) {
+  // no need to validate the token for these routes
+  if (publicRoutes.some((path) => request.nextUrl.pathname.startsWith(path))) {
     return NextResponse.next();
   }
 
+  const rerouteContents = ["/login", "/", "/verify", "/error"];
+
   const jwtCookieString = request.cookies.get("jwt")?.value as string;
 
-  const res = await fetch(authValidateEndpoint, {
-    method: "POST",
-    headers: {
-      Cookie: `jwt=${jwtCookieString}`,
-    },
-  });
+  let isAuthenticated = false;
+
+  try {
+    const res = await fetch(authValidateEndpoint, {
+      method: "POST",
+      headers: {
+        Cookie: `jwt=${jwtCookieString}`,
+      },
+    });
+
+    if (res.status === 200) {
+      isAuthenticated = true;
+    }
+  } catch (err) {
+    // handles error when auth service is down
+    if (request.nextUrl.pathname !== "/error") {
+      return NextResponse.redirect(new URL("/error", request.nextUrl.origin));
+    }
+  }
 
   //authenticated
-  if (res.status === 200) {
-    if (
-      request.nextUrl.pathname === "/login" ||
-      request.nextUrl.pathname === "/" ||
-      request.nextUrl.pathname === "/verify"
-    ) {
-      return NextResponse.redirect(new URL("/dashboard", baseUrl));
+  if (isAuthenticated) {
+    if (rerouteContents.includes(request.nextUrl.pathname)) {
+      return NextResponse.redirect(
+        new URL("/dashboard", request.nextUrl.origin)
+      );
     }
     return NextResponse.next();
   }
 
   //not authenticated
-  if (
-    request.nextUrl.pathname === "/login" ||
-    request.nextUrl.pathname === "/" ||
-    request.nextUrl.pathname === "/verify"
-  ) {
+  if (rerouteContents.includes(request.nextUrl.pathname)) {
     return NextResponse.next();
   }
-  return NextResponse.redirect(new URL("/login", baseUrl));
+  return NextResponse.redirect(new URL("/login", request.nextUrl.origin));
 }
