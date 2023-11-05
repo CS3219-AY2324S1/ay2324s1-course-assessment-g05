@@ -237,7 +237,7 @@ const formatBooleanType = (
 ) => {
   switch (language.toLowerCase()) {
     case "cpp":
-      return `#include <iostream>\nbool ${variableName} = ${value};\n`;
+      return `\nbool ${variableName} = ${value};\n`;
     case "java":
       return `public static boolean ${variableName} = ${value};\n\t`;
     case "python":
@@ -256,7 +256,7 @@ const formatStringType = (
 ) => {
   switch (language.toLowerCase()) {
     case "cpp":
-      return `#include <string> \n std::strong ${variableName} = ${value};\n`;
+      return `#include <string> \nstd::string ${variableName} = ${value};\n`;
     case "java":
       return `public static String ${variableName} = ${value};\n\t`;
     case "python":
