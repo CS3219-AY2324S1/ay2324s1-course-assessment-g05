@@ -68,6 +68,12 @@ const Results = () => {
         </pre>
       )}
 
+      {testCaseArray[selectedCase].compile_output && (
+        <pre className="bg-red-500 bg-opacity-20 px-4 py-3 rounded-lg text-white text-xs whitespace-pre-wrap">
+          {testCaseArray[selectedCase].compile_output}
+        </pre>
+      )}
+
       {Object.entries(testCaseArray[selectedCase].input).map(
         ([variableName, variableValue]: [string, any]) => (
           <div key={variableName}>

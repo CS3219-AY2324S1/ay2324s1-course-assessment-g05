@@ -10,6 +10,7 @@ const prepareCodeForExecution = (
 ) => {
   const formattedInputStrings = getFormattedInputVariables(inputDict, language);
   const formattedCode = `${formattedInputStrings}\n${code}`;
+  console.log(formattedCode);
   return formattedCode;
 };
 
@@ -181,6 +182,12 @@ const getFormattedInputVariables = (
         break;
     }
   });
+  if (language.toLowerCase() === "java") {
+    formattedInputVariables = `class GlobalClass {\n\t${formattedInputVariables.replace(
+      /\t$/,
+      ""
+    )}}\n`;
+  }
   return formattedInputVariables;
 };
 
@@ -230,7 +237,7 @@ const formatBooleanType = (
     case "cpp":
       return `#include <iostream>\nbool ${variableName} = ${value};\n`;
     case "java":
-      return `boolean ${variableName} = ${value};\n`;
+      return `public static boolean ${variableName} = ${value};\n\t`;
     case "python":
       return `${variableName} = ${value}\n`;
     case "javascript":
@@ -249,7 +256,7 @@ const formatStringType = (
     case "cpp":
       return `#include <string> \n std::strong ${variableName} = ${value};\n`;
     case "java":
-      return `String ${variableName} = ${value};\n`;
+      return `public static String ${variableName} = ${value};\n\t`;
     case "python":
       return `${variableName} = ${value}\n`;
     case "javascript":
@@ -288,13 +295,13 @@ const formatArrayType = (
     case "java":
       value = value.replace(/\[/g, "{").replace(/\]/g, "}").replace(/'/g, '"');
       if (variableType === VariableType.STRING) {
-        return `String[] ${variableName} = ${value};\n`;
+        return `public static String[] ${variableName} = ${value};\n\t`;
       } else if (variableType === VariableType.INTEGER) {
-        return `int[] ${variableName} = ${value};\n`;
+        return `public static int[] ${variableName} = ${value};\n\t`;
       } else if (variableType === VariableType.DOUBLE) {
-        return `double[] ${variableName} = ${value};\n`;
+        return `public static double[] ${variableName} = ${value};\n\t`;
       } else if (variableType === VariableType.BOOLEAN) {
-        return `boolean[] ${variableName} = ${value};\n`;
+        return `public static boolean[] ${variableName} = ${value};\n\t`;
       } else {
         return "NOT SUPPORTED";
       }
@@ -317,7 +324,7 @@ const formatIntegerType = (
     case "cpp":
       return `int ${variableName} = ${value};\n`;
     case "java":
-      return `int ${variableName} = ${value};\n`;
+      return `public static int ${variableName} = ${value};\n\t`;
     case "python":
       return `${variableName} = ${value}\n`;
     case "javascript":
@@ -336,7 +343,7 @@ const formatDoubleType = (
     case "cpp":
       return `double ${variableName} = ${value}; \n`;
     case "java":
-      return `double ${variableName} = ${value}; \n`;
+      return `public static double ${variableName} = ${value}; \n\t`;
     case "python":
       return `${variableName} = ${value} \n`;
     case "javascript":
