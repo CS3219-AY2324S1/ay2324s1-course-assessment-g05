@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -12,6 +12,9 @@ import {
   Button,
   Chip,
   Link,
+  SortDescriptor,
+  getKeyValue,
+  Pagination,
 } from "@nextui-org/react";
 import Question from "@/types/question";
 import ModifyQuestionModal from "./ModifyQuestionModal";
@@ -33,36 +36,43 @@ export default function QuestionTable({
   const columns = [
     {
       key: "id",
-      label: "NO.",
+      label: "No.",
       class: "",
+      sort: true,
     },
     {
       key: "title",
-      label: "TITLE",
+      label: "Title",
       class: "w-3/6",
+      sort: true,
     },
     {
       key: "complexity",
-      label: "COMPLEXITY",
+      label: "Complexity",
       class: "w-1/7",
+      sort: true,
     },
     {
       key: "topics",
-      label: "TOPIC",
+      label: "Topic",
       class: "w-2/6",
+      sort: false,
     },
+    ...(!readonly
+      ? [
+        {
+          key: "actions",
+          label: "ACTIONS",
+          class: "",
+          sort: false,
+        },
+      ]
+      : []),
   ];
-
-  if (!readonly) {
-    columns.push({
-      key: "actions",
-      label: "ACTIONS",
-      class: "",
-    });
-  }
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [toEditQuestion, setToEditQuestion] = useState<Question>();
+
 
   function renderCell(item: any, columnKey: string, readonly: boolean) {
     const cellValue = item[columnKey as keyof Question];
@@ -76,6 +86,7 @@ export default function QuestionTable({
             <Link
               href={`${CLIENT_ROUTES.QUESTIONS}/${item.id}`}
               color="foreground"
+              className="hover:text-yellow text-sm"
             >
               {cellValue as string}
             </Link>
@@ -84,7 +95,7 @@ export default function QuestionTable({
       case "complexity":
         return (
           <ComplexityChip
-            size="md"
+            size="sm"
             complexity={cellValue as string}
           ></ComplexityChip>
         );
@@ -95,10 +106,11 @@ export default function QuestionTable({
               {(cellValue as string[]).map((topic) => (
                 <Tooltip
                   key={topic}
-                  content={StringUtils.convertAllCapsToCamelCase(topic)}
+                  className="capitalize"
+                  content={topic.toLowerCase()}
                 >
-                  <Chip size="sm" className="truncate">
-                    {StringUtils.convertAllCapsToCamelCase(topic)}
+                  <Chip size="sm" className="truncate capitalize">
+                    {topic.toLowerCase()}
                   </Chip>
                 </Tooltip>
               ))}
@@ -137,6 +149,66 @@ export default function QuestionTable({
     onOpen();
   }
 
+  const rowsPerPage = 15;
+  const [page, setPage] = useState(1);
+  const pages = Math.ceil(questions.length / rowsPerPage);
+  const questionItems = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    return questions.slice(start, end);
+  }, [page, questions]);
+
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+    column: "id",
+    direction: "ascending",
+  });
+  const sortedQuestionItems = useMemo(() => {
+    const { column, direction } = sortDescriptor;
+
+    if (!questionItems || questionItems.length === 0) {
+      return [];
+    }
+
+    if (!column) {
+      return questionItems;
+    }
+
+    switch (column) {
+      case "id":
+        if (direction === "ascending") { 
+          return [...questionItems].sort((a, b) => questions.indexOf(a) - questions.indexOf(b))
+        } else {
+          return [...questionItems].sort((a, b) => questions.indexOf(b) - questions.indexOf(a))
+        }
+      case "complexity":
+        const complexityOrder = ["EASY", "MEDIUM", "HARD"];
+
+        if (direction === "ascending") {
+          return [...questionItems].sort(
+            (a, b) =>
+              complexityOrder.indexOf(a.complexity.toUpperCase()) -
+              complexityOrder.indexOf(b.complexity.toUpperCase())
+          );
+        } else {
+          return [...questionItems].sort(
+            (a, b) =>
+              complexityOrder.indexOf(b.complexity.toUpperCase()) -
+              complexityOrder.indexOf(a.complexity.toUpperCase())
+          );
+        }
+      default:
+        if (direction === "ascending") {
+          return [...questionItems].sort((a, b) =>
+            getKeyValue(a, column).localeCompare(getKeyValue(b, column))
+          );
+        } else {
+          return [...questionItems].sort((a, b) =>
+            getKeyValue(b, column).localeCompare(getKeyValue(a, column))
+          );
+        }
+    }
+  }, [questionItems, sortDescriptor]);
+
   return (
     <>
       <ModifyQuestionModal
@@ -147,11 +219,28 @@ export default function QuestionTable({
       ></ModifyQuestionModal>
 
       <Table
+        sortDescriptor={sortDescriptor}
+        onSortChange={(sortDescriptor) => setSortDescriptor(sortDescriptor)}
         aria-label="table of questions"
         topContent={
           !readonly && (
             <Button onPress={(e) => openModal()}>Create Question</Button>
           )
+        }
+        bottomContent={
+          pages > 1 ? (
+            <div className="flex w-full justify-center">
+              <Pagination
+                isCompact
+                showControls
+                showShadow
+                color="warning"
+                page={page}
+                total={pages}
+                onChange={(page) => setPage(page)}
+              />
+            </div>
+          ) : null
         }
       >
         <TableHeader columns={columns}>
@@ -160,16 +249,18 @@ export default function QuestionTable({
               key={column.key}
               align={column.key === "actions" ? "center" : "start"}
               className={column.class}
+              allowsSorting={column.sort}
+              allowsResizing={true}
             >
               {column.label}
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody items={questions} emptyContent={"No rows to display."}>
+        <TableBody items={sortedQuestionItems} emptyContent={"No rows to display."}>
           {(row) => (
             <TableRow key={row.id}>
               {(columnKey) => (
-                <TableCell>
+                <TableCell key={columnKey}>
                   {renderCell(row, columnKey as string, readonly)}
                 </TableCell>
               )}

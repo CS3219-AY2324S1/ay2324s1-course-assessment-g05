@@ -84,7 +84,7 @@ const AttemptedQuestionTable = ({
             )}&completedAt=${encodeURIComponent(completedAt)}`}
             color="foreground"
             size="sm"
-            className="font-normal hover:font-semibold hover:underline text-sm"
+            className="font-normal hover:text-yellow text-sm"
           >
             {record.title}
           </Link>
@@ -208,7 +208,7 @@ const AttemptedQuestionTable = ({
               isCompact
               showControls
               showShadow
-              color="secondary"
+              color="warning"
               page={page}
               total={pages}
               onChange={(page) => setPage(page)}
