@@ -13,9 +13,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [18.x]
+        node-version: [18.x, 20.x]
         service:
           [
+            auth-service,
             user-service,
             question-service,
             collaboration-service,
@@ -31,7 +32,7 @@ jobs:
 
     steps:
       - name: Checkout Current Branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Use Node.js ${{matrix.node-version}}
         uses: actions/setup-node@v3
