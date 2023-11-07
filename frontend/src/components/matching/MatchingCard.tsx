@@ -54,7 +54,6 @@ const MatchingCard = () => {
   };
 
   const handleGetMatched = () => {
-    console.log(preferences);
     if (Object.values(preferences).some((x) => x.length == 0)) {
       displayToast(
         `Please fill in your matching preferences.`,
