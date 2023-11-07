@@ -32,9 +32,6 @@ ENV PORT=$PORT
 ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
 
-ARG EMAIL_VERIFICATION_SECRET
-ENV EMAIL_VERIFICATION_SECRET=$EMAIL_VERIFICATION_SECRET
-
 # Copy only the production artifacts from the build stage
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package*.json ./

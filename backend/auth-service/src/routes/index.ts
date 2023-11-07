@@ -22,6 +22,10 @@ const router: Router = Router();
 
 router.route("/health").get(getHealth);
 
+router
+  .route("/verifyResetPasswordLinkValidity/:id/:token")
+  .get(verifyResetPasswordLinkValidity);
+
 router.route("/registerByEmail").post(registerByEmail);
 
 router.route("/loginByEmail").post(logInByEmail);
@@ -71,10 +75,6 @@ router.route("/verifyEmail/:email/:token").put(verifyUserEmail);
 router.route("/resendVerificationEmail/:email").put(resendVerificationEmail);
 
 router.route("/sendPasswordResetEmail/:email").put(sendPasswordResetEmail);
-
-router
-  .route("/verifyResetPasswordLinkValidity/:id/:token")
-  .get(verifyResetPasswordLinkValidity);
 
 router.route("/changePassword/:id").put(changePassword);
 
