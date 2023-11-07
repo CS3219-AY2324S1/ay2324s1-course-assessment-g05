@@ -14,7 +14,7 @@ export const authMiddleware = async (
     )}\n${JSON.stringify(req.body)}`
   );
   if (req.headers.bypass) {
-    const serviceSecret = process.env.SERVICE_SECRET || "secret";
+    const serviceSecret = process.env.SERVICE_SECRET || "secret2";
 
     // bypass auth for calls from auth service
     if (req.headers.bypass === serviceSecret) {
