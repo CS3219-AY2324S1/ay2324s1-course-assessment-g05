@@ -19,7 +19,7 @@ import {
   getKeyValue,
 } from "@nextui-org/react";
 import { formatDistanceToNow } from "date-fns";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface AttemptedQuestionTableProps {
   isFullPage?: boolean;
@@ -126,12 +126,23 @@ const AttemptedQuestionTable = ({
 
   const pages = Math.ceil(history.length / rowsPerPage);
 
+  const [sortedHistory, setSortedHistory] = useState<QuestionHistory[]>([]);
+
+  useEffect(() => {
+    setSortedHistory(
+      [...history].sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      )
+    );
+  }, [history]);
+
   const historyItems = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
-    return history.slice(start, end);
-  }, [page, history]);
+    return sortedHistory.slice(start, end);
+  }, [page, sortedHistory]);
 
   // for table sorting
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
