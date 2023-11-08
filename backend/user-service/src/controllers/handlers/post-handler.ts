@@ -54,9 +54,9 @@ export const postUser = async (request: Request, response: Response) => {
     await db.preferences.create({
       data: {
         userId: user.id,
-        languages: [],
-        topics: [],
-        difficulties: [],
+        languages: ["PYTHON"],
+        topics: ["STRING"],
+        difficulties: ["EASY"],
       },
     });
 

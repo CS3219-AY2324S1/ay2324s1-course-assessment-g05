@@ -81,6 +81,8 @@ jobs:
             NM_PASS=${{ secrets.NM_PASS }}
             CLOUD_URL=${{ vars.FRONTEND_URL }}
             DATABASE_URL=${{ secrets.DATABASE_URL }}
+            EMAIL_RESET_SECRET=${{ secrets.EMAIL_RESET_SECRET }}
+            SERVICE_SECRET=${{ secrets.SERVICE_SECRET }}
 
       - name: Build, tag, and push ${{ env.USER_CONTAINER_NAME }} image to Amazon ECR
         uses: docker/build-push-action@v5

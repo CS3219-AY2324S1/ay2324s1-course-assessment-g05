@@ -55,10 +55,13 @@ const MatchingCard = () => {
 
   const handleGetMatched = () => {
     if (Object.values(preferences).some((x) => x.length == 0)) {
-      displayToast(`Invalid matching options.`, ToastType.ERROR);
-    } else {
-      onOpen();
+      displayToast(
+        `Please fill in your matching preferences.`,
+        ToastType.ERROR
+      );
+      return;
     }
+    onOpen();
   };
 
   const handleReset = () => {
@@ -169,7 +172,9 @@ const MatchingCard = () => {
               selectedKeys={preferences.topics}
               onChange={handleOnSelectionChange}
               errorMessage={
-                preferences.topics.length == 0 && <span>Topics is required</span>
+                preferences.topics.length == 0 && (
+                  <span>Topics is required</span>
+                )
               }
             >
               {optionsTopics.map((value) => (
@@ -179,12 +184,18 @@ const MatchingCard = () => {
               ))}
             </Select>
             <div className="flex flex-row gap-1 text-xs items-center text-slate-400">
-                <Icons.HiOutlineLightBulb size={15} />
-                <p>Tip: You can change your default <span className="text-yellow">preference</span> in user profile.</p>
+              <Icons.HiOutlineLightBulb size={15} />
+              <p>
+                Tip: You can change your default{" "}
+                <span className="text-yellow">preference</span> in user profile.
+              </p>
             </div>
           </CardBody>
           <CardFooter>
-            <Button className="bg-yellow text-black w-full" onPress={handleGetMatched}>
+            <Button
+              className="bg-yellow text-black w-full"
+              onPress={handleGetMatched}
+            >
               Get Matched
             </Button>
             <MatchingLobby

@@ -46,6 +46,9 @@ ENV CLOUD_URL=$CLOUD_URL
 ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
 
+ARG SERVICE_SECRET
+ENV SERVICE_SECRET=$SERVICE_SECRET
+
 # Copy only the production artifacts from the build stage
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package*.json ./

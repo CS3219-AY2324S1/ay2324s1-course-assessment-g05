@@ -236,7 +236,7 @@ export default function ForgotPasswordComponent() {
               </form>
               {isSubmitted ? (
                 <>
-                  <p className="text-success-500 text-sm">
+                  <p className="text-success-500 text-sm text-center">
                     Check your email for instructions on how to reset your
                     password.
                   </p>
