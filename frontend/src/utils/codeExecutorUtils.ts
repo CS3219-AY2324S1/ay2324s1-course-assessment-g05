@@ -205,8 +205,8 @@ const enum VariableType {
 }
 
 const getVariableType = (variable: string) => {
-  if (variable.toLowerCase() === "true" || variable.toLowerCase() === "false") {
-    return VariableType.BOOLEAN;
+  if (!variable) {
+    return VariableType.STRING;
   }
 
   if (variable.startsWith("[") && variable.endsWith("]")) {
@@ -224,6 +224,11 @@ const getVariableType = (variable: string) => {
   if (/^\d+$/.test(variable)) {
     return VariableType.INTEGER;
   }
+
+  if (variable.toLowerCase() === "true" || variable.toLowerCase() === "false") {
+    return VariableType.BOOLEAN;
+  }
+
   return VariableType.STRING;
 };
 
@@ -273,9 +278,11 @@ const formatArrayType = (
   value: string,
   language: string
 ) => {
-  const variableType = getVariableType(
-    value.split("[")[1].split(",")[0].trim()
-  );
+  const variableType = value.split("[[")[1]
+    ? VariableType.ARRAY
+    : value.split("[")[1].split(",")[1]
+    ? getVariableType(value.split("[")[1].split(",")[0].trim())
+    : getVariableType(value.split("[")[1].split("]")[0].trim());
 
   switch (language.toLowerCase()) {
     case "cpp":
@@ -283,7 +290,28 @@ const formatArrayType = (
         .replace(/\[/g, "{")
         .replace(/\]/g, "}")
         .replace(/null/g, "nullptr");
-      if (variableType === VariableType.STRING) {
+
+      if (variableType === VariableType.ARRAY) {
+        const variableTypeOfArray = value.split("{{")[1].split(",")[1]
+          ? getVariableType(value.split("{{")[1].split(",")[0].trim())
+          : getVariableType(value.split("{{")[1].split("}")[0].trim());
+
+        const innerArrayLength = value
+          .split("{{")[1]
+          .split("}")[0]
+          .split(",").length;
+        if (variableTypeOfArray === VariableType.STRING) {
+          return `#include <string>\nstd::string ${variableName}[][${innerArrayLength}] = ${value};\n`;
+        } else if (variableTypeOfArray === VariableType.INTEGER) {
+          return `int ${variableName}[][${innerArrayLength}] = ${value};\n`;
+        } else if (variableTypeOfArray === VariableType.DOUBLE) {
+          return `double ${variableName}[][${innerArrayLength}] = ${value};\n`;
+        } else if (variableTypeOfArray === VariableType.BOOLEAN) {
+          return `bool ${variableName}[][${innerArrayLength}] = ${value};\n`;
+        } else {
+          return "NOT SUPPORTED \n";
+        }
+      } else if (variableType === VariableType.STRING) {
         return `#include <string>\nstd::string ${variableName}[] = ${value};\n`;
       } else if (variableType === VariableType.INTEGER) {
         return `int ${variableName}[] = ${value};\n`;
@@ -296,7 +324,22 @@ const formatArrayType = (
       }
     case "java":
       value = value.replace(/\[/g, "{").replace(/\]/g, "}").replace(/'/g, '"');
-      if (variableType === VariableType.STRING) {
+      if (variableType === VariableType.ARRAY) {
+        const variableTypeOfArray = value.split("{{")[1].split(",")[1]
+          ? getVariableType(value.split("{{")[1].split(",")[0].trim())
+          : getVariableType(value.split("{{")[1].split("}")[0].trim());
+        if (variableTypeOfArray === VariableType.STRING) {
+          return `public static String[][] ${variableName} = ${value};\n\t`;
+        } else if (variableTypeOfArray === VariableType.INTEGER) {
+          return `public static int[][] ${variableName} = ${value};\n\t`;
+        } else if (variableTypeOfArray === VariableType.DOUBLE) {
+          return `public static double[][] ${variableName} = ${value};\n\t`;
+        } else if (variableTypeOfArray === VariableType.BOOLEAN) {
+          return `public static boolean[][] ${variableName} = ${value};\n\t`;
+        } else {
+          return "NOT SUPPORTED \n\t";
+        }
+      } else if (variableType === VariableType.STRING) {
         return `public static String[] ${variableName} = ${value};\n\t`;
       } else if (variableType === VariableType.INTEGER) {
         return `public static int[] ${variableName} = ${value};\n\t`;
