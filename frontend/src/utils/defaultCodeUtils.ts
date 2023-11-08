@@ -30,9 +30,9 @@ export const getCodeTemplate = (
 
   switch (language.toLowerCase()) {
     case "cpp":
-      return `#include <iostream>\nusing namespace std;\n${formattedExampleInput}\nclass Solution {\npublic:\n\t// change the function type and arguments below if necessary\n\tvoid ${formattedQuestionTitle}(/*define your params here*/){\n\t\t\n\t};\n};\n\nint main() {\n\t//TODO: call your function and print its output below using cout\n\n\treturn 0;\n} `;
+      return `#include <iostream> \nusing namespace std;\n${formattedExampleInput}\nclass Solution {\npublic:\n\t//TODO: change the function type and arguments below if necessary\n\tvoid ${formattedQuestionTitle}(/*define your params here*/){\n\t\t\n\t};\n};\n\nint main() {\n\tSolution s;\n\t//TODO: call your function and print its output below using cout\n\n\treturn 0;\n} `;
     case "java":
-      return `public class Main {\n${formattedExampleInput}\n\t// change the function type and arguments below if necessary\n\tpublic static void ${formattedQuestionTitle}(/*define your params here*/) {\n\t\t\n\t}\n\n\tpublic static void main(String[] args){\n\t\t//TODO: call your function and print its output below\n\t\t//using System.out.print()\n\t}\n}\n\n`;
+      return `public class Main {\n${formattedExampleInput}\n\t//TODO: change the function type and arguments below if necessary\n\tpublic static void ${formattedQuestionTitle}(/*define your params here*/) {\n\t\t\n\t}\n\n\tpublic static void main(String[] args){\n\t\t//TODO: call the function ${formattedQuestionTitle} \n\t\t//and print its output using System.out.print()\n\n\t}\n}\n\n`;
     case "python":
       return `${formattedExampleInput}\n#TODO: change the function arguments below \ndef ${formattedQuestionTitle}():\n\treturn\n\n#TODO: call your function and print its output below using print()`;
     case "javascript":
