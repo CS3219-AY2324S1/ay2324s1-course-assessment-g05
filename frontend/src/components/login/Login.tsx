@@ -9,6 +9,7 @@ import {
   Link,
   CardHeader,
   Image,
+  Spinner,
 } from "@nextui-org/react";
 import PeerPrepLogo from "@/components/common/PeerPrepLogo";
 import { CLIENT_ROUTES } from "@/common/constants";
@@ -37,6 +38,8 @@ export function LoginComponent() {
   const [checkPassword, setCheckPassword] = useState("");
   const [name, setName] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [isUserUnverified, setIsUserUnverified] = useState(false);
+  const [isResendingEmail, setIsResendingEmail] = React.useState(false);
 
   // Flags
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -56,6 +59,10 @@ export function LoginComponent() {
   // Validation
 
   const validateEmail = (value: string) => {
+    if (isUserUnverified) {
+      setIsUserUnverified(false);
+    }
+
     try {
       z.string().email().min(3).max(254).parse(value);
       return true;
@@ -179,6 +186,7 @@ export function LoginComponent() {
             "Please verify your email before logging in.",
             ToastType.ERROR
           );
+          setIsUserUnverified(true);
           break;
 
         default:
@@ -195,8 +203,43 @@ export function LoginComponent() {
     }
   }
 
+  // Resend verification email
+  const handleSendEmail = async () => {
+    try {
+      setIsResendingEmail(true);
+      await AuthService.resendVerificationEmail(email);
+
+      displayToast("Email has been resent!", ToastType.SUCCESS);
+
+      if (isSignUp) {
+        setIsSignUpSuccess(true);
+      }
+    } catch (error) {
+      if (error instanceof PeerPrepErrors.ConflictError) {
+        displayToast(
+          "User already exists. Please login instead.",
+          ToastType.ERROR
+        );
+      } else {
+        logger.error(error);
+        displayToast(
+          "Something went wrong. Please refresh and try again.",
+          ToastType.ERROR
+        );
+      }
+    } finally {
+      setIsResendingEmail(false);
+    }
+  };
+
   return isSignUpSuccess ? (
-    <SignUpSuccess email={email} setIsSignUpSuccess={setIsSignUpSuccess} />
+    <SignUpSuccess
+      email={email}
+      setIsSignUp={setIsSignUp}
+      setIsSignUpSuccess={setIsSignUpSuccess}
+      isResendingEmail={isResendingEmail}
+      handleSendEmail={handleSendEmail}
+    />
   ) : (
     <div className="flex items-center justify-center h-screen">
       <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10 bg-black">
@@ -340,6 +383,28 @@ export function LoginComponent() {
                 </Link>
               </div>
               <Spacer y={5} />
+              {isUserUnverified && (
+                <div className="flex flex-col items-center">
+                  <Link
+                    size="sm"
+                    className="text-yellow hover:underline cursor-pointer text-center"
+                    onClick={handleSendEmail}
+                  >
+                    Did not receive a verification email? Click here to resend.
+                  </Link>
+                  {isResendingEmail && (
+                    <>
+                      <Spacer y={5} />
+
+                      <Spinner
+                        size="sm"
+                        color="default"
+                        className="justify-center"
+                      />
+                    </>
+                  )}
+                </div>
+              )}
             </>
           )}
         </form>

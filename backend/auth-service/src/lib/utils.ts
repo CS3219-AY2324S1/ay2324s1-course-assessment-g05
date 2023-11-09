@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { UserProfile } from "../common/types";
 import db from "./db";
 
 const validatePassword = async (
