@@ -1,7 +1,8 @@
 import { useCollabContext } from "@/contexts/collab";
 import { useConsoleContext } from "@/contexts/console";
-import { Button, Link, Tooltip } from "@nextui-org/react";
+import { Button, Link, Spacer, Tooltip } from "@nextui-org/react";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { AiFillExclamationCircle } from "react-icons/ai";
 
 interface IConsoleBarProps {
   code: string;
@@ -16,7 +17,7 @@ const ConsoleBar = ({
   setIsConsoleOpen,
   setSelectedConsoleTab,
 }: IConsoleBarProps) => {
-  const { runTestCases } = useConsoleContext();
+  const { runTestCases, shouldProcessInputs } = useConsoleContext();
   const { matchedLanguage } = useCollabContext();
   const handleConsoleToggle = () => {
     setIsConsoleOpen(!isConsoleOpen);
@@ -29,7 +30,7 @@ const ConsoleBar = ({
   };
 
   return (
-    <div className="flex flex-row justify-start px-5 gap-x-10 py-2">
+    <div className="flex flex-row justify-start px-5 py-2">
       <Link
         href="#"
         color="foreground"
@@ -40,21 +41,29 @@ const ConsoleBar = ({
       >
         Console
       </Link>
-      <Tooltip
-        style={{
-          display: ["java", "cpp"].includes(matchedLanguage.toLowerCase())
-            ? "inline-block"
-            : "none",
-        }}
-        content="Note that checking for code correctness is only supported for Python and
+      <Spacer x={8} />
+      <Button size="sm" onPress={handleRunCode}>
+        Run
+      </Button>
+      <Spacer x={4} />
+      {!shouldProcessInputs && (
+        <>
+          <Tooltip
+            style={{
+              display: ["java", "cpp"].includes(matchedLanguage.toLowerCase())
+                ? "inline-block"
+                : "none",
+            }}
+            content="Note that test case automation is only supported for Python and
         Javascript."
-        placement="top-start"
-      >
-        <Button size="sm" onPress={handleRunCode}>
-          Run
-        </Button>
-      </Tooltip>
-      <div className="text-xs pt-2"></div>
+            placement="top-start"
+          >
+            <div className="flex h-full items-center">
+              <AiFillExclamationCircle size="17px" color="white" />
+            </div>
+          </Tooltip>
+        </>
+      )}
     </div>
   );
 };

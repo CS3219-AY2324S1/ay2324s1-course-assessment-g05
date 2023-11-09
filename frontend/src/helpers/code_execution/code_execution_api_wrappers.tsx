@@ -20,11 +20,15 @@ const executeCode = async (
   inputDict: { [variableName: string]: string }
 ) => {
   const languageId = CodeExecutorUtils.getJudge0LanguageId(language);
-  const codeToExecute = CodeExecutorUtils.prepareCodeForExecution(
-    inputDict,
-    code,
-    language
+  const shouldProcessInputs = ["python", "javascript"].includes(
+    language.toLowerCase()
   );
+
+  const codeToExecute = shouldProcessInputs
+    ? CodeExecutorUtils.prepareCodeForExecution(inputDict, code, language)
+    : code;
+
+  console.log(codeToExecute);
   const base64SourceCode = Buffer.from(codeToExecute).toString("base64");
   // Do not send expected output because judge0 is inflexible with whitespace
   // We will compare the expected output with the actual output ourselves

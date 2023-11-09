@@ -7,10 +7,14 @@ import { CodeExecutionService } from "@/helpers/code_execution/code_execution_ap
 import { judge0Response } from "@/types/judge0";
 import displayToast from "@/components/common/Toast";
 import { ToastType } from "@/types/enums";
+import { set } from "date-fns";
 
 interface IConsoleContext {
   isQuestionLoaded: boolean;
-  setQuestionInConsoleContext: (question: Question) => void;
+  setQuestionInConsoleContext: (
+    question: Question,
+    matchedLanguage: string
+  ) => void;
   testCaseArray: any[];
   initialTestCaseArray: any[];
   deleteTestCase: (index: number) => void;
@@ -19,6 +23,7 @@ interface IConsoleContext {
   isResultsLoading: boolean;
   runTestCases: (code: string, language: string) => Promise<void>;
   hasCodeRun: boolean;
+  shouldProcessInputs: boolean;
 }
 
 interface IConsoleProvider {
@@ -27,7 +32,10 @@ interface IConsoleProvider {
 
 const ConsoleContext = createContext<IConsoleContext>({
   isQuestionLoaded: false,
-  setQuestionInConsoleContext: (question: Question) => {},
+  setQuestionInConsoleContext: (
+    question: Question,
+    matchedLanguage: string
+  ) => {},
   testCaseArray: [],
   initialTestCaseArray: [],
   deleteTestCase: (index: number) => {},
@@ -36,6 +44,7 @@ const ConsoleContext = createContext<IConsoleContext>({
   isResultsLoading: false,
   runTestCases: (code: string, language: string) => Promise.resolve(),
   hasCodeRun: false,
+  shouldProcessInputs: false,
 });
 
 const useConsoleContext = () => useContext(ConsoleContext);
@@ -46,18 +55,29 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
   const [isQuestionLoaded, setIsQuestionLoaded] = useState<boolean>(false);
   const [isResultsLoading, setIsResultsLoading] = useState<boolean>(false);
   const [hasCodeRun, setHasCodeRun] = useState<boolean>(false);
+  const [shouldProcessInputs, setShouldProcessInputs] =
+    useState<boolean>(false);
 
-  const setQuestionInConsoleContext = (question: Question) => {
-    const initialTestCaseArray = question.examples?.map(
-      (example: any, index: number) => ({
-        input: CodeExecutorUtils.extractInputStringToInputDict(
-          parse(example.input) as string
-        ),
-        output: parse(example.output),
-      })
-    );
-    setInitialTestCaseArray(initialTestCaseArray!);
-    setTestCaseArray(structuredClone(initialTestCaseArray!));
+  const setQuestionInConsoleContext = (
+    question: Question,
+    matchedLanguage: string
+  ) => {
+    if (matchedLanguage === "python" || matchedLanguage === "javascript") {
+      setShouldProcessInputs(true);
+      const initialTestCaseArray = question.examples?.map(
+        (example: any, index: number) => ({
+          input: CodeExecutorUtils.extractInputStringToInputDict(
+            parse(example.input) as string
+          ),
+          output: parse(example.output),
+        })
+      );
+      setInitialTestCaseArray(initialTestCaseArray!);
+      setTestCaseArray(structuredClone(initialTestCaseArray!));
+    } else {
+      setTestCaseArray([{ input: "", output: "" }]);
+      setShouldProcessInputs(false);
+    }
     setIsQuestionLoaded(true);
   };
 
@@ -88,6 +108,7 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
       setHasCodeRun(true);
       setIsResultsLoading(true);
       let submissionIds = [];
+      console.log(testCaseArray.length);
       for (let i = 0; i < testCaseArray.length; i++) {
         const id = await CodeExecutionService.executeCode(
           code,
@@ -162,6 +183,7 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
     isResultsLoading,
     runTestCases,
     hasCodeRun,
+    shouldProcessInputs,
   };
 
   return (

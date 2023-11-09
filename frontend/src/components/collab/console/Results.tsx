@@ -7,7 +7,8 @@ import { Judge0Status } from "@/types/judge0";
 import { cn } from "@/utils/classNameUtils";
 
 const Results = () => {
-  const { testCaseArray, isResultsLoading } = useConsoleContext();
+  const { testCaseArray, isResultsLoading, shouldProcessInputs } =
+    useConsoleContext();
   const [selectedCase, setSelectedCase] = useState<number>(0);
 
   useEffect(() => {}, [isResultsLoading, testCaseArray]);
@@ -15,33 +16,34 @@ const Results = () => {
   return (
     <div className="flex flex-col w-full h-full gap-2">
       <div className="flex flex-wrap first-letter:justify-start items-center gap-x-2">
-        {testCaseArray?.map((testCase: any, index: number) => (
-          <Chip
-            key={index}
-            radius="sm"
-            startContent={
-              testCase.statusId !== Judge0Status.ACCEPTED ||
-              testCase.description === "Wrong Answer" ? (
-                <GoDotFill color="red" />
-              ) : testCase.description === "Code Executed Successfully" ? (
-                <BsQuestion color="white" />
-              ) : testCase.description === "Correct Answer" ? (
-                <GoDotFill color="green" />
-              ) : (
-                <GoDotFill color="red" />
-              )
-            }
-            style={{
-              backgroundColor:
-                index === selectedCase ? "#27272A" : "transparent",
-            }}
-            className="my-2 px-2 py-4"
-            size="sm"
-            onClick={() => setSelectedCase(index)}
-          >
-            Case {index + 1}
-          </Chip>
-        ))}
+        {shouldProcessInputs &&
+          testCaseArray?.map((testCase: any, index: number) => (
+            <Chip
+              key={index}
+              radius="sm"
+              startContent={
+                testCase.statusId !== Judge0Status.ACCEPTED ||
+                testCase.description === "Wrong Answer" ? (
+                  <GoDotFill color="red" />
+                ) : testCase.description === "Code Executed Successfully" ? (
+                  <BsQuestion color="white" />
+                ) : testCase.description === "Correct Answer" ? (
+                  <GoDotFill color="green" />
+                ) : (
+                  <GoDotFill color="red" />
+                )
+              }
+              style={{
+                backgroundColor:
+                  index === selectedCase ? "#27272A" : "transparent",
+              }}
+              className="my-2 px-2 py-4"
+              size="sm"
+              onClick={() => setSelectedCase(index)}
+            >
+              Case {index + 1}
+            </Chip>
+          ))}
       </div>
 
       <div
@@ -84,17 +86,21 @@ const Results = () => {
           </div>
         )
       )}
-      <div className="text-white text-xs py-1">Expected output: </div>
-      {testCaseArray[selectedCase].isDefaultTestCase ? (
-        <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-white text-xs whitespace-pre-wrap">
-          {testCaseArray[selectedCase].output}
-        </pre>
-      ) : (
-        <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-gray-400 text-xs whitespace-pre-wrap">
-          Not available for custom inputs
-        </pre>
+      {shouldProcessInputs && (
+        <>
+          <div className="text-white text-xs py-1">Expected output: </div>
+          {testCaseArray[selectedCase].isDefaultTestCase ? (
+            <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-white text-xs whitespace-pre-wrap">
+              {testCaseArray[selectedCase].output}
+            </pre>
+          ) : (
+            <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-gray-400 text-xs whitespace-pre-wrap">
+              Not available for custom inputs
+            </pre>
+          )}
+        </>
       )}
-      <div className="text-white text-xs">Actual output: </div>
+      <div className="text-white text-xs">Execution output: </div>
       <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-xs whitespace-pre-wrap">
         <div
           style={{

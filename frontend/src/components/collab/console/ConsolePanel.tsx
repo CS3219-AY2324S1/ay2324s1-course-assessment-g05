@@ -1,11 +1,10 @@
 import { Tabs, Tab, Tooltip, Button } from "@nextui-org/react";
-import { Key, useEffect } from "react";
+import { Key, useEffect, useRef } from "react";
 import TestCases from "./TestCases";
 import { useCollabContext } from "@/contexts/collab";
 import { useConsoleContext } from "@/contexts/console";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import Results from "./Results";
-import { AiFillExclamationCircle } from "react-icons/ai";
 
 interface IConsolePanelProps {
   isOpen: boolean;
@@ -18,17 +17,18 @@ const ConsolePanel = ({
   selectedConsoleTab,
   setSelectedConsoleTab,
 }: IConsolePanelProps) => {
-  const { question } = useCollabContext();
+  const { question, matchedLanguage } = useCollabContext();
   const {
     isQuestionLoaded,
     setQuestionInConsoleContext,
     isResultsLoading,
     hasCodeRun,
+    shouldProcessInputs,
   } = useConsoleContext();
 
   useEffect(() => {
-    setQuestionInConsoleContext(question!);
-  }, [question]);
+    setQuestionInConsoleContext(question!, matchedLanguage!);
+  }, [question, matchedLanguage]);
 
   useEffect(() => {}, [isResultsLoading, hasCodeRun]);
 
@@ -50,13 +50,15 @@ const ConsolePanel = ({
                 setSelectedConsoleTab(key.toString())
               }
             >
-              <Tab
-                className="flex flex-col w-full"
-                key="testcase"
-                title="Testcase"
-              >
-                <TestCases />
-              </Tab>
+              {shouldProcessInputs && (
+                <Tab
+                  className="flex flex-col w-full"
+                  key="testcase"
+                  title="Testcase"
+                >
+                  <TestCases />
+                </Tab>
+              )}
               <Tab className="flex flex-col w-full" key="result" title="Result">
                 {!hasCodeRun ? (
                   <div

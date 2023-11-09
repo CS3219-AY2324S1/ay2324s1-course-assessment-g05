@@ -12,31 +12,40 @@ export const getCodeTemplate = (
   const formattedQuestionTitle =
     StringUtils.convertStringToCamelCase(questionTitle);
 
-  const inputVariables = question.examples?.[0]?.input;
-
-  const inputDict = CodeExecutorUtils.extractInputStringToInputDict(
-    inputVariables!
+  // test case automation is only supported for python and javascript
+  const shouldProcessInputs = ["python", "javascript"].includes(
+    language.toLowerCase()
   );
 
-  const formattedInputVariables = CodeExecutorUtils.getFormattedInputVariables(
-    inputDict,
-    language
-  );
+  let formattedInputVariables;
+  let formattedExampleInput;
+  if (shouldProcessInputs) {
+    const inputVariables = question.examples?.[0]?.input;
 
-  const formattedExampleInput = formatExampleInput(
-    formattedInputVariables,
-    language
-  );
+    const inputDict = CodeExecutorUtils.extractInputStringToInputDict(
+      inputVariables!
+    );
+
+    formattedInputVariables = CodeExecutorUtils.getFormattedInputVariables(
+      inputDict,
+      language
+    );
+
+    formattedExampleInput = formatExampleInput(
+      formattedInputVariables,
+      language
+    );
+  }
 
   switch (language.toLowerCase()) {
     case "cpp":
-      return `#include <iostream> \nusing namespace std;\n${formattedExampleInput}\nclass Solution {\npublic:\n\t//TODO: change the function type and arguments below if necessary\n\tvoid ${formattedQuestionTitle}(/*define your params here*/){\n\t\t\n\t};\n};\n\nint main() {\n\tSolution s;\n\t//TODO: call your function and print its output below using cout\n\n\treturn 0;\n} `;
+      return `#include <iostream> \n#include <bits/stdc++.h>\nusing namespace std;\n\nclass Solution {\npublic:\n\t//TODO: change the function type and arguments below if necessary\n\tvoid ${formattedQuestionTitle}(/*define your params here*/){\n\t\t\n\t};\n};\n\nint main() {\n\tSolution s;\n\t//TODO: call the necessary functions below \n\t//and print your answer using cout\n\n\treturn 0;\n} `;
     case "java":
-      return `public class Main {\n${formattedExampleInput}\n\t//TODO: change the function type and arguments below if necessary\n\tpublic static void ${formattedQuestionTitle}(/*define your params here*/) {\n\t\t\n\t}\n\n\tpublic static void main(String[] args){\n\t\t//TODO: call the function ${formattedQuestionTitle} \n\t\t//and print its output using System.out.print()\n\n\t}\n}\n\n`;
+      return `public class Main {\n\t//TODO: change the function type and arguments below if necessary\n\tpublic static void ${formattedQuestionTitle}(/*define your params here*/) {\n\t\t\n\t}\n\n\tpublic static void main(String[] args){\n\t\t//TODO: call the necessary functions below \n\t\t//and print your answer using System.out.print()\n\n\t}\n}\n\n`;
     case "python":
-      return `${formattedExampleInput}\n#TODO: change the function arguments below \ndef ${formattedQuestionTitle}():\n\treturn\n\n#TODO: call your function and print its output below using print()`;
+      return `${formattedExampleInput}\n#TODO: change the function arguments below \ndef ${formattedQuestionTitle}():\n\treturn\n\n#TODO: call the necessary functions using the reserved input variables\n#and print your answer using print()`;
     case "javascript":
-      return `${formattedExampleInput}\nconst ${formattedQuestionTitle} = (/*define your params here*/) => {\n\treturn;\n}\n\n//TODO: call your function and print its output below using console.log()`;
+      return `${formattedExampleInput}\nconst ${formattedQuestionTitle} = (/*define your params here*/) => {\n\treturn;\n}\n\n//TODO: call the necessary functions using the reserved input variables\n//and print your answer using console.log()`;
     default:
       return "";
   }
@@ -44,7 +53,6 @@ export const getCodeTemplate = (
 
 const formatExampleInput = (input: string, language: string) => {
   switch (language.toLowerCase()) {
-    case "cpp":
     case "javascript":
       return (
         "/*\n" +
@@ -53,16 +61,6 @@ const formatExampleInput = (input: string, language: string) => {
         `${input}` +
         "Please reserve these variables and \nuse them in your functions where necessary.\n" +
         "*/" +
-        "\n"
-      );
-    case "java":
-      return (
-        "\t/*\n" +
-        "\tThis is how the code executor will process the input from testcases:\n" +
-        "\tE.G: Example 1\n" +
-        `\t${input}` +
-        "Please reserve these variables and \n\tuse them in your functions where necessary.\n" +
-        "\t*/" +
         "\n"
       );
     case "python":

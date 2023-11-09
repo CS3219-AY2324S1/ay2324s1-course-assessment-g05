@@ -241,10 +241,6 @@ const formatBooleanType = (
   language: string
 ) => {
   switch (language.toLowerCase()) {
-    case "cpp":
-      return `\nbool ${variableName} = ${value};\n`;
-    case "java":
-      return `public static boolean ${variableName} = ${value};\n\t`;
     case "python":
       return `${variableName} = ${value}\n`;
     case "javascript":
@@ -260,10 +256,6 @@ const formatStringType = (
   language: string
 ) => {
   switch (language.toLowerCase()) {
-    case "cpp":
-      return `#include <string> \nstd::string ${variableName} = ${value};\n`;
-    case "java":
-      return `public static String ${variableName} = ${value};\n\t`;
     case "python":
       return `${variableName} = ${value}\n`;
     case "javascript":
@@ -285,71 +277,6 @@ const formatArrayType = (
     : getVariableType(value.split("[")[1].split("]")[0].trim());
 
   switch (language.toLowerCase()) {
-    case "cpp":
-      value = value
-        .replace(/\[/g, "{")
-        .replace(/\]/g, "}")
-        .replace(/null/g, "nullptr");
-
-      if (variableType === VariableType.ARRAY) {
-        const variableTypeOfArray = value.split("{{")[1].split(",")[1]
-          ? getVariableType(value.split("{{")[1].split(",")[0].trim())
-          : getVariableType(value.split("{{")[1].split("}")[0].trim());
-
-        const innerArrayLength = value
-          .split("{{")[1]
-          .split("}")[0]
-          .split(",").length;
-        if (variableTypeOfArray === VariableType.STRING) {
-          return `#include <string>\nstd::string ${variableName}[][${innerArrayLength}] = ${value};\n`;
-        } else if (variableTypeOfArray === VariableType.INTEGER) {
-          return `int ${variableName}[][${innerArrayLength}] = ${value};\n`;
-        } else if (variableTypeOfArray === VariableType.DOUBLE) {
-          return `double ${variableName}[][${innerArrayLength}] = ${value};\n`;
-        } else if (variableTypeOfArray === VariableType.BOOLEAN) {
-          return `bool ${variableName}[][${innerArrayLength}] = ${value};\n`;
-        } else {
-          return "NOT SUPPORTED \n";
-        }
-      } else if (variableType === VariableType.STRING) {
-        return `#include <string>\nstd::string ${variableName}[] = ${value};\n`;
-      } else if (variableType === VariableType.INTEGER) {
-        return `int ${variableName}[] = ${value};\n`;
-      } else if (variableType === VariableType.DOUBLE) {
-        return `double ${variableName}[] = ${value};\n`;
-      } else if (variableType === VariableType.BOOLEAN) {
-        return `bool ${variableName}[] = ${value};\n`;
-      } else {
-        return "NOT SUPPORTED";
-      }
-    case "java":
-      value = value.replace(/\[/g, "{").replace(/\]/g, "}").replace(/'/g, '"');
-      if (variableType === VariableType.ARRAY) {
-        const variableTypeOfArray = value.split("{{")[1].split(",")[1]
-          ? getVariableType(value.split("{{")[1].split(",")[0].trim())
-          : getVariableType(value.split("{{")[1].split("}")[0].trim());
-        if (variableTypeOfArray === VariableType.STRING) {
-          return `public static String[][] ${variableName} = ${value};\n\t`;
-        } else if (variableTypeOfArray === VariableType.INTEGER) {
-          return `public static int[][] ${variableName} = ${value};\n\t`;
-        } else if (variableTypeOfArray === VariableType.DOUBLE) {
-          return `public static double[][] ${variableName} = ${value};\n\t`;
-        } else if (variableTypeOfArray === VariableType.BOOLEAN) {
-          return `public static boolean[][] ${variableName} = ${value};\n\t`;
-        } else {
-          return "NOT SUPPORTED \n\t";
-        }
-      } else if (variableType === VariableType.STRING) {
-        return `public static String[] ${variableName} = ${value};\n\t`;
-      } else if (variableType === VariableType.INTEGER) {
-        return `public static int[] ${variableName} = ${value};\n\t`;
-      } else if (variableType === VariableType.DOUBLE) {
-        return `public static double[] ${variableName} = ${value};\n\t`;
-      } else if (variableType === VariableType.BOOLEAN) {
-        return `public static boolean[] ${variableName} = ${value};\n\t`;
-      } else {
-        return "NOT SUPPORTED";
-      }
     case "python":
       value = value.replace(/null/g, "None");
       return `${variableName} = ${value}\n`;
@@ -366,10 +293,6 @@ const formatIntegerType = (
   language: string
 ) => {
   switch (language.toLowerCase()) {
-    case "cpp":
-      return `int ${variableName} = ${value};\n`;
-    case "java":
-      return `public static int ${variableName} = ${value};\n\t`;
     case "python":
       return `${variableName} = ${value}\n`;
     case "javascript":
@@ -385,10 +308,6 @@ const formatDoubleType = (
   language: string
 ) => {
   switch (language.toLowerCase()) {
-    case "cpp":
-      return `double ${variableName} = ${value}; \n`;
-    case "java":
-      return `public static double ${variableName} = ${value}; \n\t`;
     case "python":
       return `${variableName} = ${value} \n`;
     case "javascript":
