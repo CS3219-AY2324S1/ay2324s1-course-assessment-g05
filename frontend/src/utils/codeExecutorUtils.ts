@@ -10,15 +10,8 @@ const prepareCodeForExecution = (
 ) => {
   const formattedInputStrings = getFormattedInputVariables(inputDict, language);
 
-  let formattedCode = "";
-  if (language.toLowerCase() === "java") {
-    formattedCode = code.replace(
-      "public class Main {",
-      `public class Main {\n\t${formattedInputStrings}\n`
-    );
-  } else {
-    formattedCode = `${formattedInputStrings}\n${code}`;
-  }
+  const formattedCode = `${formattedInputStrings}\n${code}`;
+
   return formattedCode;
 };
 
@@ -29,24 +22,19 @@ const checkCorrectnessOfOutput = (
   if (expectedOutput === "") {
     return false;
   }
+
   if (actualOutput === "" && expectedOutput !== "") {
     return false;
   }
 
   //standardise "" to '
-  if (actualOutput.includes('"')) {
-    actualOutput = actualOutput.replace(/"/g, "'");
-  }
-  if (expectedOutput.includes('"')) {
-    expectedOutput = expectedOutput.replace(/"/g, "'");
-  }
+  actualOutput = actualOutput.replace(/"/g, "'");
+  expectedOutput = expectedOutput.replace(/"/g, "'");
 
-  if (getVariableType(expectedOutput) === VariableType.STRING) {
-    return (
-      actualOutput === expectedOutput ||
-      actualOutput === expectedOutput.replace(/"/g, "").trim()
-    );
-  }
+  //remove leading and trailing whitespace
+  actualOutput = actualOutput.trim();
+  expectedOutput = expectedOutput.trim();
+
   if (getVariableType(expectedOutput) === VariableType.INTEGER) {
     return parseInt(actualOutput) === parseInt(expectedOutput);
   }
@@ -55,7 +43,8 @@ const checkCorrectnessOfOutput = (
   }
   if (getVariableType(expectedOutput) === VariableType.BOOLEAN) {
     return actualOutput.toLowerCase() === expectedOutput.toLowerCase();
-  } else {
+  }
+  if (getVariableType(expectedOutput) === VariableType.ARRAY) {
     // Remove whitespace from both strings
     const actualOutputWithoutWhitespace = actualOutput
       .replace(/\s/g, "")
@@ -65,6 +54,8 @@ const checkCorrectnessOfOutput = (
       .trim();
     return actualOutputWithoutWhitespace === expectedOutputWithoutWhitespace;
   }
+
+  return actualOutput === expectedOutput;
 };
 
 const getOutputMessage = (
@@ -79,7 +70,6 @@ const getOutputMessage = (
   if (statusId === Judge0Status.ACCEPTED && isDefaultTestCase && !isCorrect) {
     return "Wrong Answer";
   }
-
   if (statusId === Judge0Status.ACCEPTED && !isDefaultTestCase) {
     return "Code Executed Successfully";
   }
@@ -107,6 +97,11 @@ const getJudge0LanguageId = (language: string) => {
 /* -------------------------------------------------------------------------- */
 const extractInputStringToInputDict = (inputString: string) => {
   const inputDict: { [key: string]: string } = {};
+
+  // remove all whitespace after "," if they are inside a bracket []
+  inputString = inputString.replace(/\[(.*?)\]/g, (match) => {
+    return match.replace(/,\s/g, ",");
+  });
 
   const splitInputString = inputString.split(", ");
 
@@ -149,46 +144,11 @@ const getFormattedInputVariables = (
   let formattedInputVariables = "";
   // iterate through the inputDict and return the input variable formatted as string
   Object.entries(inputDict).forEach(([variableName, variableValue]) => {
-    const variableType = getVariableType(variableValue);
-    switch (variableType) {
-      case VariableType.BOOLEAN:
-        formattedInputVariables += formatBooleanType(
-          variableName,
-          variableValue,
-          language
-        );
-        break;
-      case VariableType.ARRAY:
-        formattedInputVariables += formatArrayType(
-          variableName,
-          variableValue,
-          language
-        );
-        break;
-      case VariableType.STRING:
-        formattedInputVariables += formatStringType(
-          variableName,
-          variableValue,
-          language
-        );
-        break;
-      case VariableType.INTEGER:
-        formattedInputVariables += formatIntegerType(
-          variableName,
-          variableValue,
-          language
-        );
-        break;
-      case VariableType.DOUBLE:
-        formattedInputVariables += formatDoubleType(
-          variableName,
-          variableValue,
-          language
-        );
-        break;
-      default:
-        break;
-    }
+    formattedInputVariables += formatGeneralType(
+      variableName,
+      variableValue,
+      language
+    );
   });
   return formattedInputVariables;
 };
@@ -205,113 +165,60 @@ const enum VariableType {
 }
 
 const getVariableType = (variable: string) => {
-  if (!variable) {
+  try {
+    if (!variable) {
+      return VariableType.STRING;
+    }
+
+    if (variable.startsWith("[") && variable.endsWith("]")) {
+      return VariableType.ARRAY;
+    }
+
+    if (variable.startsWith('"') && variable.endsWith('"')) {
+      return VariableType.STRING;
+    }
+
+    if (variable.includes(".")) {
+      return VariableType.DOUBLE;
+    }
+
+    if (/^\d+$/.test(variable)) {
+      return VariableType.INTEGER;
+    }
+
+    if (
+      variable.toLowerCase() === "true" ||
+      variable.toLowerCase() === "false"
+    ) {
+      return VariableType.BOOLEAN;
+    }
+    return VariableType.STRING;
+  } catch {
     return VariableType.STRING;
   }
-
-  if (variable.startsWith("[") && variable.endsWith("]")) {
-    return VariableType.ARRAY;
-  }
-
-  if (variable.startsWith('"') && variable.endsWith('"')) {
-    return VariableType.STRING;
-  }
-
-  if (variable.includes(".")) {
-    return VariableType.DOUBLE;
-  }
-
-  if (/^\d+$/.test(variable)) {
-    return VariableType.INTEGER;
-  }
-
-  if (variable.toLowerCase() === "true" || variable.toLowerCase() === "false") {
-    return VariableType.BOOLEAN;
-  }
-
-  return VariableType.STRING;
 };
 
 /* -------------------------------------------------------------------------- */
 /*            Format the input variables based on type and language           */
 /* -------------------------------------------------------------------------- */
-const formatBooleanType = (
+const formatGeneralType = (
   variableName: string,
   value: string,
   language: string
 ) => {
   switch (language.toLowerCase()) {
     case "python":
+      value = value
+        .replace(/null/g, "None")
+        .replace(/true/g, "True")
+        .replace(/false/g, "False");
       return `${variableName} = ${value}\n`;
     case "javascript":
+      value = value
+        .replace(/None/g, "null")
+        .replace(/True/g, "true")
+        .replace(/False/g, "false");
       return `const ${variableName} = ${value};\n`;
-    default:
-      return "";
-  }
-};
-
-const formatStringType = (
-  variableName: string,
-  value: string,
-  language: string
-) => {
-  switch (language.toLowerCase()) {
-    case "python":
-      return `${variableName} = ${value}\n`;
-    case "javascript":
-      return `const ${variableName} = ${value};\n`;
-    default:
-      return "";
-  }
-};
-
-const formatArrayType = (
-  variableName: string,
-  value: string,
-  language: string
-) => {
-  const variableType = value.split("[[")[1]
-    ? VariableType.ARRAY
-    : value.split("[")[1].split(",")[1]
-    ? getVariableType(value.split("[")[1].split(",")[0].trim())
-    : getVariableType(value.split("[")[1].split("]")[0].trim());
-
-  switch (language.toLowerCase()) {
-    case "python":
-      value = value.replace(/null/g, "None");
-      return `${variableName} = ${value}\n`;
-    case "javascript":
-      return `const ${variableName} = ${value};\n`;
-    default:
-      return "NOT SUPPORTED";
-  }
-};
-
-const formatIntegerType = (
-  variableName: string,
-  value: string,
-  language: string
-) => {
-  switch (language.toLowerCase()) {
-    case "python":
-      return `${variableName} = ${value}\n`;
-    case "javascript":
-      return `const ${variableName} = ${value};\n`;
-    default:
-      return "";
-  }
-};
-
-const formatDoubleType = (
-  variableName: string,
-  value: string,
-  language: string
-) => {
-  switch (language.toLowerCase()) {
-    case "python":
-      return `${variableName} = ${value} \n`;
-    case "javascript":
-      return `const ${variableName} = ${value}; \n`;
     default:
       return "";
   }
