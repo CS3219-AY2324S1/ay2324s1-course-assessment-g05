@@ -23,6 +23,8 @@ export function createIntegrationTestServer() {
       message: "The requested resource could not be found.",
     });
   });
+
+  return app;
 }
 
 export default function createUnitTestServer() {

@@ -1,6 +1,10 @@
 import supertest from "supertest";
 import { createIntegrationTestServer } from "../utils/server";
-import { loginAndCreateHistory, logoutAndDeleteHistory } from "../utils/setup";
+import {
+  getQuestionId,
+  loginAndCreateHistory,
+  logoutAndDeleteHistory,
+} from "../utils/setup";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
 const app = createIntegrationTestServer();
@@ -14,7 +18,7 @@ process.env.NODE_ENV = "test";
 describe("DELETE /history/api/history/user/:userId/question/:questionId", () => {
   describe("Given the user is authenticated", () => {
     beforeAll(async () => {
-      jwtCookie = await loginAndCreateHistory("delete", "test-question-id-4");
+      jwtCookie = await loginAndCreateHistory("delete");
     });
 
     afterAll(async () => {
@@ -25,7 +29,7 @@ describe("DELETE /history/api/history/user/:userId/question/:questionId", () => 
       it("should return 204 and delete the history as well as the related code submission", async () => {
         // Assign
         const userId = process.env.TEST_USER_ID!;
-        const questionId = "test-question-id-4";
+        const questionId = getQuestionId("delete");
 
         // Act
         const response = await supertest(app)
@@ -41,13 +45,16 @@ describe("DELETE /history/api/history/user/:userId/question/:questionId", () => 
           .query({
             userId: userId,
             questionId: questionId,
-          });
+          })
+          .set("Cookie", jwtCookie);
 
         expect(getHistoryResponse.status).toEqual(HttpStatusCode.NOT_FOUND);
 
-        const getCodeSubmissionResponse = await supertest(app).get(
-          `/history/api/history/user/${userId}/question/${questionId}/code`
-        );
+        const getCodeSubmissionResponse = await supertest(app)
+          .get(
+            `/history/api/history/user/${userId}/question/${questionId}/code`
+          )
+          .set("Cookie", jwtCookie);
 
         expect(getCodeSubmissionResponse.status).toEqual(
           HttpStatusCode.NOT_FOUND
@@ -79,7 +86,7 @@ describe("DELETE /history/api/history/user/:userId/question/:questionId", () => 
       it("should return 401 with an error message", async () => {
         // Assign
         const userId = process.env.TEST_USER_ID!;
-        const questionId = "test-question-id-4";
+        const questionId = getQuestionId("delete");
 
         // Act
         const response = await supertest(app).delete(
@@ -99,12 +106,12 @@ describe("DELETE /history/api/history/user/:userId/question/:questionId", () => 
       it("should return 401 with an error message", async () => {
         // Assign
         const userId = process.env.TEST_USER_ID!;
-        const questionId = "test-question-id-4";
+        const questionId = getQuestionId("delete");
 
         // Act
         const response = await supertest(app)
           .delete(`/history/api/history/user/${userId}/question/${questionId}`)
-          .set("Cookie", process.env.TEST_JWT_TOKEN!);
+          .set("Cookie", "invalid-jwt-token");
 
         // Assert
         expect(response.status).toEqual(HttpStatusCode.UNAUTHORIZED);

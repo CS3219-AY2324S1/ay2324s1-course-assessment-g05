@@ -1,7 +1,8 @@
 import supertest from "supertest";
 import { createIntegrationTestServer } from "../utils/server";
-import { login, logout } from "../utils/setup";
+import { getQuestionId, login, logout } from "../utils/setup";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
+import { generateCUID } from "../utils/payloads/unit.payloads";
 
 const app = createIntegrationTestServer();
 
@@ -26,8 +27,8 @@ describe("POST /history/api/history", () => {
         // Assign
         const requestBody = {
           userId: process.env.TEST_USER_ID!,
-          questionId: "test-question-id-2",
-          languages: ["C++"],
+          questionId: getQuestionId("post"),
+          language: "C++",
           code: 'cout << "Hello World" << endl;',
         };
 
@@ -46,7 +47,8 @@ describe("POST /history/api/history", () => {
           .query({
             userId: requestBody.userId,
             questionId: requestBody.questionId,
-          });
+          })
+          .set("Cookie", jwtCookie);
 
         expect(getHistoryResponse.status).toEqual(HttpStatusCode.OK);
         expect(getHistoryResponse.body.count).toEqual(1);
@@ -61,7 +63,7 @@ describe("POST /history/api/history", () => {
                 topics: expect.any(Array),
                 complexity: expect.any(String),
               }),
-              languages: requestBody.languages,
+              languages: expect.arrayContaining([requestBody.language]),
               createdAt: expect.any(String),
               updatedAt: expect.any(String),
             }),
@@ -69,13 +71,13 @@ describe("POST /history/api/history", () => {
         );
 
         // Clean up
-        await supertest(app)
-          .delete(`/history/api/history`)
-          .query({
-            userId: requestBody.userId,
-            questionId: requestBody.questionId,
-          })
+        const deleteResponse = await supertest(app)
+          .delete(
+            `/history/api/history/user/${requestBody.userId}/question/${requestBody.questionId}`
+          )
           .set("Cookie", jwtCookie);
+
+        expect(deleteResponse.status).toEqual(HttpStatusCode.NO_CONTENT);
       });
     });
 
@@ -84,8 +86,8 @@ describe("POST /history/api/history", () => {
         // Assign
         const firstRequestBody = {
           userId: process.env.TEST_USER_ID!,
-          questionId: "test-question-id-2",
-          languages: ["C++"],
+          questionId: getQuestionId("post"),
+          language: "C++",
           code: 'cout << "Hello World" << endl;',
         };
         await supertest(app)
@@ -95,8 +97,8 @@ describe("POST /history/api/history", () => {
 
         const requestBody = {
           userId: process.env.TEST_USER_ID!,
-          questionId: "test-question-id-2",
-          languages: ["PYTHON"],
+          questionId: getQuestionId("post"),
+          language: "PYTHON",
           code: 'print("Hello World!")',
         };
 
@@ -115,20 +117,24 @@ describe("POST /history/api/history", () => {
           .query({
             userId: requestBody.userId,
             questionId: requestBody.questionId,
-          });
+          })
+          .set("Cookie", jwtCookie);
 
         expect(getHistoryResponse.status).toEqual(HttpStatusCode.OK);
         expect(getHistoryResponse.body.count).toEqual(1);
-        expect(getHistoryResponse.body.languages).toEqual(["PYTHON", "C++"]);
+        expect(getHistoryResponse.body.data[0].languages).toEqual([
+          "C++",
+          "PYTHON",
+        ]);
 
         // Clean up
-        await supertest(app)
-          .delete(`/history/api/history`)
-          .query({
-            userId: requestBody.userId,
-            questionId: requestBody.questionId,
-          })
+        const deleteResponse = await supertest(app)
+          .delete(
+            `/history/api/history/user/${requestBody.userId}/question/${requestBody.questionId}`
+          )
           .set("Cookie", jwtCookie);
+
+        expect(deleteResponse.status).toEqual(HttpStatusCode.NO_CONTENT);
       });
     });
 
@@ -137,8 +143,8 @@ describe("POST /history/api/history", () => {
         // Assign
         const requestBody = {
           userId: process.env.TEST_USER_ID!,
-          questionId: "test-question-id-2",
-          languages: ["C++"],
+          questionId: getQuestionId("post"),
+          language: "C++",
           code: 'cout << "Hello World" << endl;',
         };
         await supertest(app)
@@ -160,13 +166,13 @@ describe("POST /history/api/history", () => {
         });
 
         // Clean up
-        await supertest(app)
-          .delete(`/history/api/history`)
-          .query({
-            userId: requestBody.userId,
-            questionId: requestBody.questionId,
-          })
+        const deleteResponse = await supertest(app)
+          .delete(
+            `/history/api/history/user/${requestBody.userId}/question/${requestBody.questionId}`
+          )
           .set("Cookie", jwtCookie);
+
+        expect(deleteResponse.status).toEqual(HttpStatusCode.NO_CONTENT);
       });
     });
 
@@ -174,9 +180,9 @@ describe("POST /history/api/history", () => {
       it("should return 404 with an error message", async () => {
         // Assign
         const requestBody = {
-          userId: "invalid-user-id",
-          questionId: "test-question-id-2",
-          languages: ["C++"],
+          userId: generateCUID(),
+          questionId: getQuestionId("post"),
+          language: "C++",
           code: 'cout << "Hello World" << endl;',
         };
 
@@ -190,7 +196,7 @@ describe("POST /history/api/history", () => {
         expect(response.status).toEqual(HttpStatusCode.NOT_FOUND);
         expect(response.body).toEqual({
           error: "NOT FOUND",
-          message: "User not found",
+          message: "User id cannot be found",
         });
       });
     });
@@ -200,8 +206,8 @@ describe("POST /history/api/history", () => {
         // Assign
         const requestBody = {
           userId: process.env.TEST_USER_ID!,
-          questionId: "invalid-question-id",
-          languages: ["C++"],
+          questionId: generateCUID(),
+          language: "C++",
           code: 'cout << "Hello World" << endl;',
         };
 
@@ -215,7 +221,7 @@ describe("POST /history/api/history", () => {
         expect(response.status).toEqual(HttpStatusCode.NOT_FOUND);
         expect(response.body).toEqual({
           error: "NOT FOUND",
-          message: "Question not found",
+          message: "Question id cannot be found",
         });
       });
     });
@@ -226,8 +232,8 @@ describe("POST /history/api/history", () => {
       // Assign
       const requestBody = {
         userId: process.env.TEST_USER_ID!,
-        questionId: "test-question-id-2",
-        languages: ["C++"],
+        questionId: getQuestionId("post"),
+        language: "C++",
         code: 'cout << "Hello World" << endl;',
       };
 
@@ -250,8 +256,8 @@ describe("POST /history/api/history", () => {
       // Assign
       const requestBody = {
         userId: process.env.TEST_USER_ID!,
-        questionId: "test-question-id-2",
-        languages: ["C++"],
+        questionId: getQuestionId("post"),
+        language: "C++",
         code: 'cout << "Hello World" << endl;',
       };
 

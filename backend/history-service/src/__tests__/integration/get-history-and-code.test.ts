@@ -1,7 +1,12 @@
 import supertest from "supertest";
 import { createIntegrationTestServer } from "../utils/server";
-import { loginAndCreateHistory, logoutAndDeleteHistory } from "../utils/setup";
+import {
+  getQuestionId,
+  loginAndCreateHistory,
+  logoutAndDeleteHistory,
+} from "../utils/setup";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
+import { generateCUID } from "../utils/payloads/unit.payloads";
 
 const app = createIntegrationTestServer();
 
@@ -25,11 +30,11 @@ describe("Given the user has history", () => {
       it("should return 200 with the history", async () => {
         // Assign
         const userId = process.env.TEST_USER_ID!;
-        const questionId = "test-question-id";
+        const questionId = getQuestionId("get");
 
         // Act
         const response = await supertest(app)
-          .get(`/history/api/history`)
+          .get("/history/api/history")
           .query({
             userId: userId,
             questionId: questionId,
@@ -69,11 +74,11 @@ describe("Given the user has history", () => {
       });
     });
 
-    describe("Given a request with invalid userId and questionId query params", () => {
+    describe("Given a request with non-existing userId or questionId query params", () => {
       it("should return 404 with an error message", async () => {
         // Assign
-        const userId = "invalid-user-id";
-        const questionId = "invalid-question-id";
+        const userId = generateCUID();
+        const questionId = getQuestionId("get");
 
         // Act
         const response = await supertest(app)
@@ -97,7 +102,7 @@ describe("Given the user has history", () => {
       it("should return 401 with an error message", async () => {
         // Assign
         const userId = process.env.TEST_USER_ID!;
-        const questionId = "test-question-id";
+        const questionId = getQuestionId("get");
 
         // Act
         const response = await supertest(app)
@@ -120,7 +125,7 @@ describe("Given the user has history", () => {
       it("should return 401 with an error message", async () => {
         // Assign
         const userId = process.env.TEST_USER_ID!;
-        const questionId = "test-question-id";
+        const questionId = getQuestionId("get");
 
         // Act
         const response = await supertest(app)
@@ -146,7 +151,7 @@ describe("Given the user has history", () => {
       it("should return 200 with the code", async () => {
         // Assign
         const userId = process.env.TEST_USER_ID!;
-        const questionId = "test-question-id";
+        const questionId = getQuestionId("get");
 
         // Act
         const response = await supertest(app)
@@ -169,7 +174,7 @@ describe("Given the user has history", () => {
       it("should return 200 with an array of language and code instances", async () => {
         // Assign
         const userId = process.env.TEST_USER_ID!;
-        const questionId = "test-question-id";
+        const questionId = getQuestionId("get");
 
         // Act
         const response = await supertest(app)
@@ -197,8 +202,8 @@ describe("Given the user has history", () => {
     describe("Given a request with non-existing userId", () => {
       it("should return 404 with an error message", async () => {
         // Assign
-        const userId = "invalid-user-id";
-        const questionId = "test-question-id";
+        const userId = generateCUID();
+        const questionId = getQuestionId("get");
 
         // Act
         const response = await supertest(app)
@@ -220,7 +225,7 @@ describe("Given the user has history", () => {
       it("should return 404 with an error message", async () => {
         // Assign
         const userId = process.env.TEST_USER_ID!;
-        const questionId = "test-question-id";
+        const questionId = getQuestionId("get");
 
         // Act
         const response = await supertest(app)
@@ -243,7 +248,7 @@ describe("Given the user has history", () => {
       it("should return 401 with an error message", async () => {
         // Assign
         const userId = process.env.TEST_USER_ID!;
-        const questionId = "test-question-id";
+        const questionId = getQuestionId("get");
 
         // Act
         const response = await supertest(app).get(
@@ -264,7 +269,7 @@ describe("Given the user has history", () => {
     it("should return 401 with an error message", async () => {
       // Assign
       const userId = process.env.TEST_USER_ID!;
-      const questionId = "test-question-id";
+      const questionId = getQuestionId("get");
 
       // Act
       const response = await supertest(app)

@@ -1,6 +1,10 @@
 import supertest from "supertest";
 import { createIntegrationTestServer } from "../utils/server";
-import { loginAndCreateHistory, logoutAndDeleteHistory } from "../utils/setup";
+import {
+  getQuestionId,
+  loginAndCreateHistory,
+  logoutAndDeleteHistory,
+} from "../utils/setup";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
 const app = createIntegrationTestServer();
@@ -13,7 +17,7 @@ process.env.NODE_ENV = "test";
 
 describe("PUT /history/api/history/user/:userId/question/:questionId/code", () => {
   beforeAll(async () => {
-    jwtCookie = await loginAndCreateHistory("put", "test-question-id-3");
+    jwtCookie = await loginAndCreateHistory("put");
   });
 
   afterAll(async () => {
@@ -24,7 +28,7 @@ describe("PUT /history/api/history/user/:userId/question/:questionId/code", () =
     it("should return 204 and update the code submission", async () => {
       // Assign
       const userId = process.env.TEST_USER_ID!;
-      const questionId = "test-question-id-3";
+      const questionId = getQuestionId("put");
       const requestBody = {
         code: "print('hello world, this has been updated')",
         language: "PYTHON",
@@ -41,9 +45,7 @@ describe("PUT /history/api/history/user/:userId/question/:questionId/code", () =
       // check if the code submission is updated
       const getCodeSubmissionResponse = await supertest(app)
         .get(`/history/api/history/user/${userId}/question/${questionId}/code`)
-        .query({
-          language: requestBody.language,
-        });
+        .set("Cookie", jwtCookie);
 
       expect(getCodeSubmissionResponse.status).toEqual(HttpStatusCode.OK);
       expect(getCodeSubmissionResponse.body.count).toEqual(1);
@@ -62,7 +64,7 @@ describe("PUT /history/api/history/user/:userId/question/:questionId/code", () =
     it("should return 404 with an error message", async () => {
       // Assign
       const userId = process.env.TEST_USER_ID!;
-      const questionId = "test-question-id-3";
+      const questionId = getQuestionId("put");
       const requestBody = {
         code: 'cout << "hello world" << endl;',
         language: "C++",
@@ -90,7 +92,7 @@ describe("PUT /history/api/history/user/:userId/question/:questionId/code", () =
     it("should return 401 with an error message", async () => {
       // Assign
       const userId = process.env.TEST_USER_ID!;
-      const questionId = "test-question-id-3";
+      const questionId = getQuestionId("put");
       const requestBody = {
         code: 'cout << "hello world" << endl;',
         language: "C++",
@@ -114,7 +116,7 @@ describe("PUT /history/api/history/user/:userId/question/:questionId/code", () =
     it("should return 401 with an error message", async () => {
       // Assign
       const userId = process.env.TEST_USER_ID!;
-      const questionId = "test-question-id-3";
+      const questionId = getQuestionId("put");
       const requestBody = {
         code: 'cout << "hello world" << endl;',
         language: "C++",

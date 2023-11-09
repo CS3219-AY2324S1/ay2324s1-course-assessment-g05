@@ -1,6 +1,6 @@
 import db from "../../models/db";
 
-export const login = async (role: string = "ADMIN") => {
+export const login = async (role: string = "user") => {
   const response = await fetch("http://localhost:5050/auth/api/loginByEmail", {
     method: "POST",
     headers: {
@@ -23,11 +23,25 @@ export const login = async (role: string = "ADMIN") => {
   return jwtCookie;
 };
 
-export const loginAndCreateHistory = async (
-  purpose: string,
-  questionId: string = "test-question-id"
-) => {
+export const getQuestionId = (purpose: string) => {
+  switch (purpose.toLowerCase()) {
+    case "get":
+      return "cl01234567890123456789012";
+    case "post":
+      return "clabcdefabcdefabcdefabcde";
+    case "put":
+      return "cl98765432109876543210987";
+    case "delete":
+      return "clfe1d2c3b4a5fe1d2c3b4a5d";
+    default:
+      return "";
+  }
+};
+
+export const loginAndCreateHistory = async (purpose: string) => {
   const jwtCookie = await login();
+
+  let questionId = getQuestionId(purpose);
 
   await db.history.create({
     data: {
