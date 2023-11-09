@@ -8,7 +8,9 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/app.js",
     "db-update": "npx prisma db push && npx prisma generate",
-    "test": "jest"
+    "test": "jest",
+    "integration-test": "jest --coverage --runInBand --detectOpenHandles --forceExit --testPathPattern=src/__tests__/integration",
+    "unit-test": "jest --coverage --runInBand --detectOpenHandles --forceExit --testPathPattern=src/__tests__/unit"
   },
   "prisma": {
     "schema": "./src/models/prisma/schema.prisma"

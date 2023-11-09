@@ -1,5 +1,4 @@
 import Container from "@/components/common/Container";
-import { HistoryProvider } from "@/contexts/history";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -13,10 +12,8 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <HistoryProvider>
             <Container>
                 {children}
             </Container>
-        </HistoryProvider>
     );
 }
