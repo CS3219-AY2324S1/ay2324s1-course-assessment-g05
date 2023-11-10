@@ -77,7 +77,7 @@ export default function QuestionExamplesTable({
                   <div className="text-tiny font-semibold">
                     Case 1: Singular Variable
                   </div>
-                  <div className="text-tiny">"input"</div>
+                  <div className="text-tiny">&quot;input&quot;</div>
                   <div className="text-tiny font-semibold">
                     Case 2: Multiple Variables
                   </div>
