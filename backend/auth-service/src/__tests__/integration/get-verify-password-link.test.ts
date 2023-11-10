@@ -22,6 +22,8 @@ describe("GET /auth/api/verifyPasswordResetLink/:id/:token", () => {
         process.env.EMAIL_RESET_SECRET!
       );
 
+      expect(token).toBeDefined();
+
       await updatePasswordResetToken(token);
 
       // Act
