@@ -173,9 +173,9 @@ const isCorrectUser = (response: Response) => {
   expect(response.body.bio).toEqual("Create user bio");
   expect(response.body.gender).toEqual("MALE"),
     expect(response.body.preferences).toEqual({
-      languages: [],
-      topics: [],
-      difficulties: [],
+      languages: ["PYTHON"],
+      topics: ["STRING"],
+      difficulties: ["EASY"],
     });
   expect(response.body.role).toEqual("USER");
   expect(response.body).not.toHaveProperty("password");
