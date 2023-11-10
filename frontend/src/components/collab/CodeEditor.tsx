@@ -4,24 +4,26 @@ import { FC, use, useEffect, useState } from "react";
 import { Position, Range } from "monaco-editor";
 import { useRef } from "react";
 import type monaco from 'monaco-editor';
-import { UUID } from "crypto";
 import { getCodeTemplate } from "@/utils/defaultCodeUtils";
+import { is } from "date-fns/locale";
 
 interface CodeEditorProps {
   currentCode: string;
   handleEditorChange?: (currentContent: string | undefined) => void;
+  isSocketEvent: React.MutableRefObject<boolean>;
 }
 
 const CodeEditor: FC<CodeEditorProps> = ({
   currentCode,
   handleEditorChange,
+  isSocketEvent,
 }) => {
   const { matchedLanguage, socketService, partner, question } = useCollabContext();
 
   const language = matchedLanguage || "";
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const decorations = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
-  const isSocketEvent = useRef(false);
+  // const isSocketEvent = useRef(false);
   const isHighlightingEvent = useRef(false);
   const [receivedEvents, setReceivedEvents] = useState<string[]>([]);
   const [partnerCursor, setPartnerCursor] = useState<Position>(new Position(1, 1));
@@ -102,7 +104,6 @@ const CodeEditor: FC<CodeEditorProps> = ({
     socketService.receivePartnerCursor(setPartnerCursor);
     socketService.receivePartnerHighlight(setPartnerHighlight)
     socketService.receivePartnerConnection(setPartnerConnected);
-    isSocketEvent.current = true;
   }, [socketService])
 
   const handleEditorMount = (editor: monaco.editor.IStandaloneCodeEditor, monaco: any) => {
