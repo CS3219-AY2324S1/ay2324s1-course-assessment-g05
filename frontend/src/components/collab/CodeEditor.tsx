@@ -120,7 +120,6 @@ const CodeEditor: FC<CodeEditorProps> = ({
       if (!isSocketEvent.current) {
         // Emitting changes: event.changes[0] is the change object that the other editor can execute  
         for (let i = 0; i < event.changes.length; i++) {
-          // setEventQueue([...eventQueue, JSON.stringify(event.changes[i])]);
           if (socketService) 
             socketService.sendCodeEvent(JSON.stringify(event.changes[i]));
         }
