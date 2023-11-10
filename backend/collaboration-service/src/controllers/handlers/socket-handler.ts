@@ -78,7 +78,7 @@ export const SocketHandler = (socket: Socket) => {
     SocketEvent.SEND_CHAT_MESSAGE,
     (messageDict: {
       roomId: string;
-      message: { uuid: string; content: string; senderId: string };
+      message: { uuid: string; content: string; senderId: string; isAIMessage: boolean };
     }) => {
       handleChatMessage(socket, messageDict);
     }
@@ -162,12 +162,13 @@ export function handleCodeChange(socket: Socket, editorDict: { roomId: string; c
  * @param messageDict message dictionary
  */
 
-export function handleChatMessage(socket: Socket, messageDict: { roomId: string; message: { uuid: string; content: string; senderId: string; }; }) {
+export function handleChatMessage(socket: Socket, messageDict: { roomId: string; message: { uuid: string; content: string; senderId: string; isAIMessage: boolean}; }) {
   RedisHandler.appendMessage(messageDict.roomId, JSON.stringify(messageDict.message));
   socket.to(messageDict.roomId).emit(SocketEvent.UPDATE_CHAT_MESSAGE, {
     uuid: messageDict.message.uuid,
     content: messageDict.message.content,
     senderId: messageDict.message.senderId,
+    isAIMessage: messageDict.message.isAIMessage
   });
   logger.debug(`[handleCodeChange]: Setting message change for room ${messageDict.roomId}]`)
 }
