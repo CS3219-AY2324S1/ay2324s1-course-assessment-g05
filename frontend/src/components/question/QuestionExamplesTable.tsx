@@ -12,9 +12,7 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  Tooltip,
 } from "@nextui-org/react";
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import { IoMdInformationCircle } from "react-icons/io";
 

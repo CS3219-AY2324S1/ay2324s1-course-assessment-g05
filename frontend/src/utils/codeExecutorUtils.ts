@@ -98,38 +98,35 @@ const getJudge0LanguageId = (language: string) => {
 const extractInputStringToInputDict = (inputString: string) => {
   const inputDict: { [key: string]: string } = {};
 
-  // remove all whitespace after "," if they are inside a bracket []
-  inputString = inputString.replace(/\[(.*?)\]/g, (match) => {
-    return match.replace(/,\s/g, ",");
-  });
+  // Regular expression to match standalone values without =
 
-  const splitInputString = inputString.split(", ");
-
-  if (splitInputString.length === 1) {
-    const splitByEqualInputString = inputString.split("=");
-    if (splitByEqualInputString.length === 1) {
-      // Case 1.1
-      // Input: "123"
-      // Output: {input: 123}
-      inputDict["input"] = splitInputString[0].trim();
-    } else {
-      // Case 1.2
-      // Input: "a=1"
-      // Output: {a: 1}
-      inputDict[splitByEqualInputString[0].trim()] =
-        splitByEqualInputString[1].trim();
-    }
-  } else {
-    // Case 2
-    // Input: "a=1, b=2, c=3"
-    // Output: {a: 1, b: 2, c: 3}
-    splitInputString.map((inputVariable) => {
-      const [variableName, variableValue] = inputVariable
-        .split("=")
-        .map((x) => x.trim());
-      inputDict[variableName] = variableValue;
-    });
+  if (inputString.split("=").length === 1) {
+    inputDict["input"] = inputString;
+    return inputDict;
   }
+
+  // Regular expression to match variable assignments in the form "a=1, b=2, c=3"
+  const variableRegex =
+    /(\w+)\s*=\s*(?:(?:"([^"]*)")|(?:'([^']*)')|(\[([\s\S]*?)\])|(\[\[([\s\S]*?)\]\])|(`([^`]*)`)|(.*?))(?=\s*(?:,|$))/g;
+
+  // Extract variables from the string
+  inputString.replace(
+    variableRegex,
+    function (
+      _,
+      variable,
+      doubleQuoted,
+      singleQuoted,
+      bracketed,
+      backticked,
+      unquoted
+    ) {
+      const value =
+        doubleQuoted || singleQuoted || bracketed || backticked || unquoted;
+      inputDict[variable] = value;
+      return "";
+    }
+  );
 
   return inputDict;
 };
@@ -144,11 +141,19 @@ const getFormattedInputVariables = (
   let formattedInputVariables = "";
   // iterate through the inputDict and return the input variable formatted as string
   Object.entries(inputDict).forEach(([variableName, variableValue]) => {
-    formattedInputVariables += formatGeneralType(
-      variableName,
-      variableValue,
-      language
-    );
+    try {
+      formattedInputVariables += formatGeneralType(
+        variableName,
+        variableValue,
+        language
+      );
+    } catch {
+      if (language.toLowerCase() === "python") {
+        return "#ERROR: Could not process input variables \n";
+      } else {
+        return "//ERROR: Could not process input variables \n";
+      }
+    }
   });
   return formattedInputVariables;
 };
