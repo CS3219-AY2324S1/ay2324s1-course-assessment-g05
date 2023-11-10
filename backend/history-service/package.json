@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "nodemon src/app.ts",
     "build": "tsc -p .",
-    "start": "node dist/src/app.js",
-    "test": "jest"
+    "start": "node dist/app.js",
+    "test": "jest",
+    "integration-test": "jest --coverage --runInBand --detectOpenHandles --forceExit --testPathPattern=src/__tests__/integration",
+    "unit-test": "jest --coverage --runInBand --detectOpenHandles --forceExit --testPathPattern=src/__tests__/unit"
   },
   "prisma": {
     "schema": "./src/models/prisma/schema.prisma"

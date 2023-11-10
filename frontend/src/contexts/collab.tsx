@@ -1,3 +1,5 @@
+"use client";
+
 import { getCollaborationSocketConfig } from "@/helpers/collaboration/collaboration_api_wrappers";
 import SocketService from "@/helpers/collaboration/socket_service";
 import { getQuestionById } from "@/helpers/question/question_api_wrappers";
@@ -7,6 +9,7 @@ import User from "@/types/user";
 import { createContext, useContext, useRef, useState } from "react";
 import { useAuthContext } from "./auth";
 import { verifyRoomParamsIntegrity } from "@/utils/hashUtils";
+import { getLogger } from "@/helpers/logger";
 
 interface ICollabContext {
   handleConnectToRoom: (
@@ -191,7 +194,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
       setPartner(partner);
       setQuestion(question);
     } catch (error) {
-      console.log(error);
+      getLogger().error(error);
     } finally {
       setIsLoading(false);
     }

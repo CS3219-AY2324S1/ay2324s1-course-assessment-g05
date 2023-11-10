@@ -1,3 +1,4 @@
+import Container from "@/components/common/Container";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -11,8 +12,8 @@ export default function QuestionLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="h-screen bg-background" suppressHydrationWarning={true}>
+        <Container>
             {children}
-        </div>
+        </Container>
     );
 }

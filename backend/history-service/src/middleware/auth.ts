@@ -6,15 +6,6 @@ export const authMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.headers.bypass) {
-    const serviceSecret = process.env.SERVICE_SECRET || "secret";
-    // bypass auth for calls from auth service
-    if (req.headers.bypass === serviceSecret) {
-      next();
-      return;
-    }
-  }
-
   if (req.url === "/health") {
     next();
     return;
@@ -37,11 +28,11 @@ export const authMiddleware = async (
   }
 
   //If there is JWT, validate it through the auth endpoint
-  const authEndpoint =
-    process.env.AUTH_ENDPOINT || `http://localhost:5050/auth/api/validate`;
+  const AUTH_GATEWAY = process.env.AUTH_GATEWAY || "http://localhost:5050";
+  const authEndpoint = `auth/api/validate`;
 
   try {
-    const authRes = await fetch(authEndpoint, {
+    const authRes = await fetch(`${AUTH_GATEWAY}/${authEndpoint}`, {
       method: "POST",
       headers: {
         Cookie: `jwt=${jwtCookieString}`,
