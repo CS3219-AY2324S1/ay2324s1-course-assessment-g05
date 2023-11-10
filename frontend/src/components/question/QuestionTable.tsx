@@ -53,19 +53,18 @@ export default function QuestionTable({
     },
     ...(!readonly
       ? [
-        {
-          key: "actions",
-          label: "ACTIONS",
-          class: "",
-          sort: false,
-        },
-      ]
+          {
+            key: "actions",
+            label: "ACTIONS",
+            class: "",
+            sort: false,
+          },
+        ]
       : []),
   ];
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [toEditQuestion, setToEditQuestion] = useState<Question>();
-
 
   function renderCell(item: any, columnKey: string, readonly: boolean) {
     const cellValue = item[columnKey as keyof Question];
@@ -260,7 +259,10 @@ export default function QuestionTable({
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody items={sortedQuestionItems} emptyContent={"No rows to display."}>
+        <TableBody
+          items={sortedQuestionItems}
+          emptyContent={"No rows to display."}
+        >
           {(row) => (
             <TableRow key={row.id}>
               {(columnKey) => (

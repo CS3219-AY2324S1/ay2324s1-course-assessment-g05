@@ -11,7 +11,7 @@ interface IProblemDescriptionProps {
 }
 const ProblemDescription: FC<IProblemDescriptionProps> = ({ question }) => {
   return (
-    <div className="flex px-0 py-4 h-[calc(100vh-94px)] overflow-y-auto">
+    <div className="flex px-0 py-4 h-[calc(100vh-55px)] overflow-y-auto">
       <div className="w-full px-5">
         {/* Question title */}
         <div className="flex space-x-4">
