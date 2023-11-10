@@ -3,6 +3,11 @@ import db from "../../lib/db";
 process.env.NODE_ENV = "test";
 
 export const updatePasswordResetToken = async (token: string) => {
+  console.log(
+    "User id can be found:",
+    process.env.TEST_AUTH_USER_ID !== undefined
+  );
+  console.log("Token is defined", token !== undefined);
   await db.user.update({
     where: {
       id: process.env.TEST_AUTH_USER_ID,

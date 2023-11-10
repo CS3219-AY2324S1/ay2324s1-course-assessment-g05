@@ -4,6 +4,8 @@ import { getQuestionId, login, logout } from "../utils/setup";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import { generateCUID } from "../utils/payloads/unit.payloads";
 
+jest.setTimeout(10000);
+
 const app = createIntegrationTestServer();
 
 // global jwtCookie

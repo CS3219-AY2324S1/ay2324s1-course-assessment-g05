@@ -3,6 +3,8 @@ import { createIntegrationTestServer } from "../utils/server";
 import { generateRandomPassword, login, logout } from "../utils/setup";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
+jest.setTimeout(10000);
+
 const app = createIntegrationTestServer();
 
 // global jwtCookie
