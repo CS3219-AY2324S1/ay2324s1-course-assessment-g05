@@ -88,7 +88,7 @@ describe("PUT /user/api/users/:userId", () => {
   describe("Given the updated email already exists", () => {
     it("should return 409 with an error message in json", async () => {
       // Assign
-      const userId = process.env.TEST_USER_ID!;
+      const userId = process.env.TEST_USER_SERVICE_USER_ID!;
       const requestBody = {
         email: process.env.TEST_ADMIN_EMAIL!,
       };
@@ -111,7 +111,7 @@ describe("PUT /user/api/users/:userId", () => {
   describe("Given the request is not authenticated", () => {
     it("should return 401 with an error message in json", async () => {
       // Assign
-      const userId = process.env.TEST_USER_ID!;
+      const userId = process.env.TEST_USER_SERVICE_USER_ID!;
       const requestBody = {
         bio: "Updated bio",
       };
@@ -133,7 +133,7 @@ describe("PUT /user/api/users/:userId", () => {
   describe("Given the request has jwt token but is invalid", () => {
     it("should return 401 with an error message in json", async () => {
       // Assign
-      const userId = process.env.TEST_USER_ID!;
+      const userId = process.env.TEST_USER_SERVICE_USER_ID!;
       const requestBody = {
         bio: "Updated bio",
       };

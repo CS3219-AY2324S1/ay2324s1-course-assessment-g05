@@ -23,7 +23,7 @@ describe("GET /user/api/users/:userId", () => {
   describe("Given a valid userId", () => {
     it("should return 200 with a user object in json", async () => {
       // Assign
-      const userId = process.env.TEST_USER_ID!;
+      const userId = process.env.TEST_USER_SERVICE_USER_ID!;
 
       // Act
       const response = await supertest(app)
@@ -58,7 +58,7 @@ describe("GET /user/api/users/:userId", () => {
   describe("Given the request is not authenticated", () => {
     it("should return 401 with an error message in json", async () => {
       // Assign
-      const userId = process.env.TEST_USER_ID!;
+      const userId = process.env.TEST_USER_SERVICE_USER_ID!;
 
       // Act
       const response = await supertest(app).get(`/user/api/users/${userId}`);
@@ -75,7 +75,7 @@ describe("GET /user/api/users/:userId", () => {
   describe("Given the request has jwt token but is invalid", () => {
     it("should return 401 with an error message in json", async () => {
       // Assign
-      const userId = process.env.TEST_USER_ID!;
+      const userId = process.env.TEST_USER_SERVICE_USER_ID!;
 
       // Act
       const response = await supertest(app)
