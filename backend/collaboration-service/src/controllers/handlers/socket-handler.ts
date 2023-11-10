@@ -114,7 +114,8 @@ export async function handleJoinRoom(socket: Socket, joinDict: { userId: string,
   maintainActiveSessions(joinDict);
 
   // Broadcast to room that partner's connection is active
-  io.in(joinDict.roomId).emit(SocketEvent.PARTNER_CONNECTION, {userId: joinDict.userId, status: true });
+  if (validUsers.length == 2)
+    io.in(joinDict.roomId).emit(SocketEvent.PARTNER_CONNECTION, {userId: joinDict.userId, status: true });
 
   // Check redis cache for Editor content
   let cachedEditorContent = await RedisHandler.getEditorContent(joinDict.roomId);
