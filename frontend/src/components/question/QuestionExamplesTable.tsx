@@ -81,7 +81,7 @@ export default function QuestionExamplesTable({
                   <div className="text-tiny font-semibold">
                     Case 2: Multiple Variables
                   </div>
-                  <div className="text-tiny">a = "input1", b = "input2" </div>
+                  <div className="text-tiny">a = &quot;input1&quot;, b = &quot;input2&quot;</div>
                 </div>
               </PopoverContent>
             </Popover>
