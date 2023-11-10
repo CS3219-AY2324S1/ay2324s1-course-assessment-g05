@@ -51,35 +51,6 @@ export const Anchor = (props: any) => (
 );
 
 export const Icons = {
-<<<<<<< HEAD
-    BsFileEarmarkCode,
-    RxReset,
-    BiFullscreen,
-    BiExitFullscreen,
-    FiWifiOff,
-    FiThumbsUp,
-    FiUserX,
-    FiCodepen,
-    FiPlusSquare,
-    FiPlay,
-    FiCheck,
-    FiX,
-    FiTrash,
-    FiEye,
-    FiEdit,
-    MdSignalWifiConnectedNoInternet0,
-    MdSignalWifiStatusbar4Bar,
-    TiTick,
-    FaUserSlash,
-    HiSwitchHorizontal,
-    RxCross2,
-    BsSendFill,
-    Anchor,
-    AiFillEdit,
-    GoLinkExternal,
-    SiOpenai,
-    HiOutlineLightBulb,
-=======
   BsFileEarmarkCode,
   RxReset,
   BiFullscreen,
@@ -107,6 +78,6 @@ export const Icons = {
   Anchor,
   AiFillEdit,
   GoLinkExternal,
-  HiOutlineLightBulb
->>>>>>> master
+  HiOutlineLightBulb,
+  SiOpenai
 };
