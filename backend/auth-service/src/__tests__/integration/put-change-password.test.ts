@@ -26,8 +26,6 @@ describe("PUT /changePassword/:id", () => {
 
       const originalPassword = (await getOriginalPassword(userId)) as string;
 
-      console.log(originalPassword);
-
       await updatePasswordResetToken(token);
 
       // Act
@@ -37,8 +35,6 @@ describe("PUT /changePassword/:id", () => {
           token: token,
           hashedNewPassword: "newPassword",
         });
-
-      console.log(response.body);
 
       // Assert
       expect(response.status).toBe(HttpStatusCode.NO_CONTENT);
