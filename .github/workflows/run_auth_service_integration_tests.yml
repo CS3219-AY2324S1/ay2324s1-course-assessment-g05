@@ -37,7 +37,7 @@ jobs:
 
       - name: Start User Service
         run: |
-          cd backend/auth-service
+          cd backend/user-service
           npm install --save-dev nodemon
           npm run dev &
           # Capture the process ID (PID) of the service

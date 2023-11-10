@@ -76,7 +76,7 @@ jobs:
           TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
           TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
           TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
-          TEST_USER_ID: ${{ secrets.TEST_USER_ID }}
+          TEST_USER_SERVICE_USER_ID: ${{ secrets.TEST_USER_SERVICE_USER_ID }}
 
       # Send a termination signal to stop the services
       - name: Stop Auth Service
