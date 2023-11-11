@@ -53,19 +53,18 @@ export default function QuestionTable({
     },
     ...(!readonly
       ? [
-        {
-          key: "actions",
-          label: "ACTIONS",
-          class: "",
-          sort: false,
-        },
-      ]
+          {
+            key: "actions",
+            label: "ACTIONS",
+            class: "",
+            sort: false,
+          },
+        ]
       : []),
   ];
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [toEditQuestion, setToEditQuestion] = useState<Question>();
-
 
   function renderCell(item: any, columnKey: string, readonly: boolean) {
     const cellValue = item[columnKey as keyof Question];
@@ -76,13 +75,20 @@ export default function QuestionTable({
       case "title":
         return (
           <>
-            <Link
-              href={`${CLIENT_ROUTES.QUESTIONS}/${item.id}`}
-              color="foreground"
-              className="hover:text-yellow text-sm"
-            >
-              {cellValue as string}
-            </Link>
+            {(readonly) ? (
+              <p color="foreground" className="text-sm">
+                {cellValue as string}
+              </p>
+            ) : (
+              <Link
+                href={`${CLIENT_ROUTES.QUESTIONS}/${item.id}`}
+                color="foreground"
+                className="hover:text-yellow text-sm"
+              >
+                {cellValue as string}
+              </Link>
+            )
+            }
           </>
         );
       case "complexity":
@@ -151,8 +157,8 @@ export default function QuestionTable({
     const end = start + rowsPerPage;
     return questions.sort(
       (a, b) =>
-      complexityOrder.indexOf(a.complexity.toUpperCase()) -
-      complexityOrder.indexOf(b.complexity.toUpperCase())
+        complexityOrder.indexOf(a.complexity.toUpperCase()) -
+        complexityOrder.indexOf(b.complexity.toUpperCase())
     ).slice(start, end);
   }, [page, questions]);
 
@@ -214,7 +220,14 @@ export default function QuestionTable({
         aria-label="table of questions"
         topContent={
           !readonly && (
-            <Button onPress={(e) => openModal()}>Create Question</Button>
+            <div className="flex flex-row-reverse">
+              <Button
+                startContent={<Icons.FiPlusSquare />}
+                onPress={(e) => openModal()}
+              >
+                Create Question
+              </Button>
+            </div>
           )
         }
         bottomContent={
@@ -246,7 +259,10 @@ export default function QuestionTable({
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody items={sortedQuestionItems} emptyContent={"No rows to display."}>
+        <TableBody
+          items={sortedQuestionItems}
+          emptyContent={"No rows to display."}
+        >
           {(row) => (
             <TableRow key={row.id}>
               {(columnKey) => (

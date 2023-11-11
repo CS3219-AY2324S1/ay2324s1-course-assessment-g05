@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { UserProfile } from "../common/types";
 import db from "./db";
 
 const validatePassword = async (
@@ -63,7 +62,6 @@ const validatePasswordResetToken = async (
 
     return true;
   } catch (error) {
-    console.log(error);
     return false;
   }
 };

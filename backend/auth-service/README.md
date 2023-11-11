@@ -15,7 +15,7 @@
     - [`POST /auth/api/validate`](#post-authapivalidate)
     - [`POST /auth/api/validateAdmin`](#post-authapivalidateadmin)
     - [`PUT /auth/api/verifyEmail/:email/:token`](#put-authapiverifyemailemailtoken)
-    - [`PUT /auth/api/resendVerificationEmail/:email/`](#put-authapiresendverificationemailemail)
+    - [`PUT /auth/api/resendVerificationEmail/:email`](#put-authapiresendverificationemailemail)
     - [`PUT /auth/api/sendPasswordResetEmail/:email`](#put-authapisendpasswordresetemailemail)
     - [`PUT /auth/api/changePassword/:id`](#put-authapichangepasswordid)
 
@@ -29,6 +29,7 @@ SERVICE_PORT=5050
 JWT_SECRET=<COPY_JWT_SECRET_FROM_ENV_FILE_SECRETS>
 EMAIL_VERIFICATION_SECRET=<COPY_EMAIL_VERIFICATION_SECRET_FROM_ENV_FILE_SECRETS>
 EMAIL_RESET_SECRET=<COPY_EMAIL_RESET_SECRET_FROM_ENV_FILE_SECRETS>
+SERVICE_SECRET=<COPY_SERVICE_SECRET_FROM_ENV_FILE_SECRETS>
 
 NM_MAIL="peerprep01@gmail.com"
 NM_PASS=<COPY_NM_PASS_FROM_ENV_FILE_SECRETS>
