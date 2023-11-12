@@ -155,11 +155,13 @@ export default function QuestionTable({
   const questionItems = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
-    return questions.sort(
-      (a, b) =>
-        complexityOrder.indexOf(a.complexity.toUpperCase()) -
-        complexityOrder.indexOf(b.complexity.toUpperCase())
-    ).slice(start, end);
+    return questions
+      .sort(
+        (a, b) =>
+          complexityOrder.indexOf(a.complexity.toUpperCase()) -
+          complexityOrder.indexOf(b.complexity.toUpperCase())
+      )
+      .slice(start, end);
   }, [page, questions]);
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
