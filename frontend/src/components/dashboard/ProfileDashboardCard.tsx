@@ -30,6 +30,7 @@ const ProfileDashboardCard = () => {
           content={<Icons.FiEdit />}
           placement="bottom-right"
           onClick={handleEditProfileButtonPress}
+          className="hover:cursor-pointer"
         >
           <div
             onClick={handleEditProfileButtonPress}
