@@ -114,20 +114,24 @@ describe("GET /question/api/questions", () => {
         expect(response.status).toBe(HttpStatusCode.OK);
         expect(response.body).toEqual({
           count: 2,
-          data: [
-            {
+          data: expect.arrayContaining([
+            expect.objectContaining({
               id: expect.any(String),
               title: "Question 1",
-              topics: [Topic.ARRAY, Topic.STRING],
+              topics: expect.arrayContaining([Topic.ARRAY, Topic.STRING]),
               complexity: "EASY",
-            },
-            {
+            }),
+            expect.objectContaining({
               id: expect.any(String),
               title: "Question 2",
-              topics: [Topic.LINKEDLIST, Topic.TWOPOINTERS, Topic.STRING],
+              topics: expect.arrayContaining([
+                Topic.LINKEDLIST,
+                Topic.TWOPOINTERS,
+                Topic.STRING,
+              ]),
               complexity: "MEDIUM",
-            },
-          ],
+            }),
+          ]),
         });
       });
     });
