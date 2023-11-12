@@ -62,7 +62,7 @@ const HistoryCodeSpace = ({}) => {
             <Icons.TiTick />
           </div>{" "}
           <div className="inline-block">
-            You completed this question on{" "}
+            You attempted this question on{" "}
             <span className="font-semibold">
               {completedAt.toLocaleDateString("en-US", {
                 weekday: "long",

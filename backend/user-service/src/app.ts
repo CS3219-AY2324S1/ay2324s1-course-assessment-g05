@@ -32,6 +32,7 @@ const PORT = process.env.SERVICE_PORT || 5005;
 const NODE_ENV = process.env.NODE_ENV || "development";
 
 app.listen(PORT, () => {
-  console.log(`Server listens on port ${PORT} build[${NODE_ENV}] log[${process.env.LOG_LEVEL}] db[${process.env.DATABASE_URL}] auth_gateway[${process.env.AUTH_GATEWAY}]`);
+  console.log(
+    `Server listens on port ${PORT} build[${NODE_ENV}] log[${process.env.LOG_LEVEL}] db[${process.env.DATABASE_URL}] auth_gateway[${process.env.AUTH_GATEWAY}]`
+  );
 });
-
