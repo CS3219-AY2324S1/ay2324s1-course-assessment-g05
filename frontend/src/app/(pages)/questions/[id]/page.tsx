@@ -35,9 +35,6 @@ export default async function QuestionDetailPage({
   };
 
   useEffect(() => {
-    if (user.role.toUpperCase() !== Role.ADMIN) {
-      return notFound();
-    }
 
     handleGetQuestion(params.id);
   }, [user]);

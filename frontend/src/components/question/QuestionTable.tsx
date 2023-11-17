@@ -75,11 +75,6 @@ export default function QuestionTable({
       case "title":
         return (
           <>
-            {(readonly) ? (
-              <p color="foreground" className="text-sm">
-                {cellValue as string}
-              </p>
-            ) : (
               <Link
                 href={`${CLIENT_ROUTES.QUESTIONS}/${item.id}`}
                 color="foreground"
@@ -87,8 +82,6 @@ export default function QuestionTable({
               >
                 {cellValue as string}
               </Link>
-            )
-            }
           </>
         );
       case "complexity":
