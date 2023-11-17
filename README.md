@@ -6,7 +6,7 @@
 <strong>Note: Ensure you have installed [Docker Compose](https://docs.docker.com/compose/).</strong>
 
 ### Local Deployment Architecture
-![cs3219_overall_architecture-local deployment drawio](https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g05/assets/70256674/5b0dbbf4-ecf1-40be-bb72-cf19b103b8d2)
+![cs3219_overall_architecture-local deployment drawio (3)](https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g05/assets/70256674/c733569f-ef3a-4837-918c-80c83b39a507)
 
 
 ### Instructions on setting up local deployment
